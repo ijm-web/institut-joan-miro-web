@@ -245,6 +245,32 @@
     .main-nav a,
     .dropdown-trigger{ font-size: 12.5px; letter-spacing: 0.01em; }
   }
+  /* Portàtils i tauletes en horitzontal (1010–1360 px): el menú no cap al costat
+     del logo, així que passa a una segona fila, centrada, sota el logo i les icones.
+     Per sota de 1010 px s'utilitza el menú mòbil (botó de tres ratlles). */
+  @media (min-width: 1010px) and (max-width: 1360px){
+    .mainheader{
+      flex-wrap: wrap;
+      row-gap: 4px;
+      padding-left: 24px;
+      padding-right: 24px;
+      padding-bottom: 6px;
+    }
+    .nav-center{
+      order: 3;
+      flex: 1 0 100%;
+      border-top: 1px solid var(--color-border);
+      padding-top: 4px;
+    }
+    .main-nav ul{ gap: 12px; }
+    .main-nav a,
+    .dropdown-trigger{ font-size: 13px; letter-spacing: 0.01em; }
+  }
+  @media (min-width: 1010px) and (max-width: 1100px){
+    .main-nav ul{ gap: 6px; }
+    .main-nav a,
+    .dropdown-trigger{ font-size: 12px; letter-spacing: 0; }
+  }
   .main-nav a{
     display: inline-block;
     font-size: 14px;
@@ -613,7 +639,7 @@
   }
 
   /* ============ RESPONSIVE ============ */
-  @media (max-width: 1360px){
+  @media (max-width: 1009px){
     .main-nav{ display: none; }
     .menu-toggle{ display: flex; }
     .mobile-nav-panel{
