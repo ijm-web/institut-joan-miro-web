@@ -181,6 +181,27 @@ pageStyles: |
       color: var(--color-blue);
     }
     .destacat-card__text p:last-child{ margin-bottom: 0; }
+    /* Punts del carrusel de Destacats: només es veuen en mòbil (vegeu media query) */
+    .destacats-dots{
+      display: none;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 6px;
+    }
+    .destacats-dot{
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      border: none;
+      padding: 0;
+      background: rgba(28, 12, 188, 0.22);
+      cursor: pointer;
+      transition: background 0.18s ease, transform 0.18s ease;
+    }
+    .destacats-dot.is-active{
+      background: var(--color-blue);
+      transform: scale(1.2);
+    }
     .destacats-empty{
       grid-column: 1 / -1;
       text-align: center;
@@ -379,7 +400,24 @@ pageStyles: |
       .estudis-grid{ grid-template-columns: 1fr; }
       .estudis-box{ min-width: 0; }
       .estudis-box__title{ font-size: clamp(26px, 8vw, 34px); letter-spacing: 0.03em; }
-      .destacats-grid{ grid-template-columns: 1fr; }
+      /* Destacats en mòbil: carrusel que es llisca de costat, una targeta cada cop */
+      .destacats-grid{
+        display: flex;
+        gap: 16px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px 2px 18px;
+        margin: -4px -2px 0;
+      }
+      .destacats-grid::-webkit-scrollbar{ display: none; }
+      .destacats-grid .destacat-card{
+        flex: 0 0 100%;
+        scroll-snap-align: center;
+      }
+      .destacats-grid .destacat-card:hover{ transform: none; }
+      .destacats-dots.has-dots{ display: flex; }
       .noticies-grid{ flex-direction: column; }
       .noticies-grid .noticia-card{ flex: 1 1 auto; }
     }
@@ -434,6 +472,39 @@ pageScript: |
       if (!grid) return;
       var currentLang = document.documentElement.lang || 'ca';
 
+      // Punts del carrusel (mòbil): un per targeta; indiquen quina es veu i
+      // permeten saltar-hi. En pantalles grans queden amagats per CSS.
+      function setupDots(){
+        var dotsBox = document.getElementById('homeDestacatsDots');
+        var cards = grid.querySelectorAll('.destacat-card');
+        if (!dotsBox || cards.length < 2) return;
+        var label = { ca: 'Destacat', es: 'Destacado', en: 'Highlight' }[currentLang] || 'Destacat';
+        dotsBox.innerHTML = '';
+        var dots = [];
+        cards.forEach(function(card, i){
+          var dot = document.createElement('button');
+          dot.type = 'button';
+          dot.className = 'destacats-dot' + (i === 0 ? ' is-active' : '');
+          dot.setAttribute('aria-label', label + ' ' + (i + 1));
+          dot.addEventListener('click', function(){
+            grid.scrollTo({ left: card.offsetLeft - grid.offsetLeft, behavior: 'smooth' });
+          });
+          dotsBox.appendChild(dot);
+          dots.push(dot);
+        });
+        dotsBox.classList.add('has-dots');
+        var ticking = false;
+        grid.addEventListener('scroll', function(){
+          if (ticking) return;
+          ticking = true;
+          requestAnimationFrame(function(){
+            ticking = false;
+            var index = Math.round(grid.scrollLeft / grid.clientWidth);
+            dots.forEach(function(d, i){ d.classList.toggle('is-active', i === index); });
+          });
+        }, { passive: true });
+      }
+
       fetch('/destacats-data.json')
         .then(function(r){ return r.json(); })
         .then(function(destacats){
@@ -455,6 +526,7 @@ pageScript: |
               '<div class="destacat-card__text">' + item.text + '</div>';
             grid.appendChild(article);
           });
+          setupDots();
         })
         .catch(function(err){
           console.error('Error carregant els destacats:', err);
@@ -558,6 +630,7 @@ pageScript: |
       <div class="destacats-grid" id="homeDestacatsGrid">
         <p class="destacats-empty">Cargando...</p>
       </div>
+      <div class="destacats-dots" id="homeDestacatsDots"></div>
     </div>
   </section>
 
