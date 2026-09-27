@@ -238,39 +238,6 @@
     gap: 18px;
     flex-wrap: nowrap;
   }
-  /* Montserrat és una lletra ampla: en pantalles mitjanes el menú es compacta
-     una mica perquè hi càpiga (l'anglès és la versió més llarga). */
-  @media (max-width: 1499px){
-    .main-nav ul{ gap: 10px; }
-    .main-nav a,
-    .dropdown-trigger{ font-size: 12.5px; letter-spacing: 0.01em; }
-  }
-  /* Portàtils i tauletes en horitzontal (1010–1360 px): el menú no cap al costat
-     del logo, així que passa a una segona fila, centrada, sota el logo i les icones.
-     Per sota de 1010 px s'utilitza el menú mòbil (botó de tres ratlles). */
-  @media (min-width: 1010px) and (max-width: 1360px){
-    .mainheader{
-      flex-wrap: wrap;
-      row-gap: 4px;
-      padding-left: 24px;
-      padding-right: 24px;
-      padding-bottom: 6px;
-    }
-    .nav-center{
-      order: 3;
-      flex: 1 0 100%;
-      border-top: 1px solid var(--color-border);
-      padding-top: 4px;
-    }
-    .main-nav ul{ gap: 12px; }
-    .main-nav a,
-    .dropdown-trigger{ font-size: 13px; letter-spacing: 0.01em; }
-  }
-  @media (min-width: 1010px) and (max-width: 1100px){
-    .main-nav ul{ gap: 6px; }
-    .main-nav a,
-    .dropdown-trigger{ font-size: 12px; letter-spacing: 0; }
-  }
   .main-nav a{
     display: inline-block;
     font-size: 14px;
@@ -638,8 +605,38 @@
     font-size: 12px;
   }
 
+  /* --- Mida del menú d'escriptori segons l'amplada (va després de les regles
+     base de .main-nav a i .dropdown-trigger perquè les pugui sobreescriure) --- */
+  /* Montserrat és una lletra ampla: en pantalles mitjanes el menú es compacta
+     una mica perquè hi càpiga (l'anglès és la versió més llarga). */
+  @media (max-width: 1499px){
+    .main-nav ul{ gap: 10px; }
+    .main-nav a,
+    .dropdown-trigger{ font-size: 12.5px; letter-spacing: 0.01em; }
+  }
+  /* Portàtils i tauletes en horitzontal (1050–1360 px): el menú es manté en una
+     sola fila entre el logo i Clickedu; per fer-hi lloc, la capçalera es compacta
+     (menys marge, logo una mica més petit) i la lletra del menú es redueix per trams.
+     Per sota de 1050 px s'utilitza el menú mòbil (botó de tres ratlles). */
+  @media (min-width: 1050px) and (max-width: 1360px){
+    .mainheader{
+      padding-left: 20px;
+      padding-right: 20px;
+      gap: 12px;
+    }
+    .brand img{ height: 38px; }
+    .main-nav ul{ gap: 8px; }
+    .main-nav a,
+    .dropdown-trigger{ font-size: 12px; letter-spacing: 0; }
+  }
+  @media (min-width: 1050px) and (max-width: 1199px){
+    .main-nav ul{ gap: 5px; }
+    .main-nav a,
+    .dropdown-trigger{ font-size: 11px; font-weight: 500; }
+  }
+
   /* ============ RESPONSIVE ============ */
-  @media (max-width: 1009px){
+  @media (max-width: 1049px){
     .main-nav{ display: none; }
     .menu-toggle{ display: flex; }
     .mobile-nav-panel{
