@@ -181,14 +181,14 @@ pageStyles: |
       color: var(--color-blue);
     }
     .destacat-card__text p:last-child{ margin-bottom: 0; }
-    /* Punts del carrusel de Destacats: només es veuen en mòbil (vegeu media query) */
-    .destacats-dots{
+    /* Punts dels carrusels de Destacats i Notícies: només es veuen en mòbil (vegeu media query) */
+    .swipe-dots{
       display: none;
       justify-content: center;
       gap: 10px;
       margin-top: 6px;
     }
-    .destacats-dot{
+    .swipe-dot{
       width: 10px;
       height: 10px;
       border-radius: 50%;
@@ -198,7 +198,7 @@ pageStyles: |
       cursor: pointer;
       transition: background 0.18s ease, transform 0.18s ease;
     }
-    .destacats-dot.is-active{
+    .swipe-dot.is-active{
       background: var(--color-blue);
       transform: scale(1.2);
     }
@@ -418,11 +418,60 @@ pageStyles: |
         scroll-snap-align: center;
       }
       .destacats-grid .destacat-card:hover{ transform: none; }
-      .destacats-dots.has-dots{ display: flex; }
-      .noticies-grid{ flex-direction: column; }
-      .noticies-grid .noticia-card{ flex: 1 1 auto; }
+      .swipe-dots.has-dots{ display: flex; }
+      /* Notícies en mòbil: mateix carrusel lliscant que Destacats */
+      .noticies-grid{
+        flex-wrap: nowrap;
+        gap: 16px;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 4px 2px 18px;
+        margin: -4px -2px 0;
+      }
+      .noticies-grid::-webkit-scrollbar{ display: none; }
+      .noticies-grid .noticia-card{
+        flex: 0 0 100%;
+        min-width: 0;
+        scroll-snap-align: center;
+      }
+      .noticies-grid .noticia-card:hover{ transform: none; }
     }
 pageScript: |
+
+    // ============ CARRUSELS LLISCANTS EN MÒBIL (Destacats i Notícies) ============
+    // Afegeix un punt per targeta sota la graella: indica quina targeta es veu i
+    // permet saltar-hi. En pantalles grans la graella no llisca i els punts queden
+    // amagats per CSS, així que no cal fer res més.
+    function setupSwipeDots(grid, dotsBox, cardSelector, label){
+      var cards = grid.querySelectorAll(cardSelector);
+      if (!dotsBox || cards.length < 2) return;
+      dotsBox.innerHTML = '';
+      var dots = [];
+      cards.forEach(function(card, i){
+        var dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'swipe-dot' + (i === 0 ? ' is-active' : '');
+        dot.setAttribute('aria-label', label + ' ' + (i + 1));
+        dot.addEventListener('click', function(){
+          grid.scrollTo({ left: card.offsetLeft - grid.offsetLeft, behavior: 'smooth' });
+        });
+        dotsBox.appendChild(dot);
+        dots.push(dot);
+      });
+      dotsBox.classList.add('has-dots');
+      var ticking = false;
+      grid.addEventListener('scroll', function(){
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(function(){
+          ticking = false;
+          var index = Math.round(grid.scrollLeft / grid.clientWidth);
+          dots.forEach(function(d, i){ d.classList.toggle('is-active', i === index); });
+        });
+      }, { passive: true });
+    }
 
     // ============ CARRUSEL D'IMATGES (secció 1) ============
     (function(){
@@ -473,39 +522,6 @@ pageScript: |
       if (!grid) return;
       var currentLang = document.documentElement.lang || 'ca';
 
-      // Punts del carrusel (mòbil): un per targeta; indiquen quina es veu i
-      // permeten saltar-hi. En pantalles grans queden amagats per CSS.
-      function setupDots(){
-        var dotsBox = document.getElementById('homeDestacatsDots');
-        var cards = grid.querySelectorAll('.destacat-card');
-        if (!dotsBox || cards.length < 2) return;
-        var label = { ca: 'Destacat', es: 'Destacado', en: 'Highlight' }[currentLang] || 'Destacat';
-        dotsBox.innerHTML = '';
-        var dots = [];
-        cards.forEach(function(card, i){
-          var dot = document.createElement('button');
-          dot.type = 'button';
-          dot.className = 'destacats-dot' + (i === 0 ? ' is-active' : '');
-          dot.setAttribute('aria-label', label + ' ' + (i + 1));
-          dot.addEventListener('click', function(){
-            grid.scrollTo({ left: card.offsetLeft - grid.offsetLeft, behavior: 'smooth' });
-          });
-          dotsBox.appendChild(dot);
-          dots.push(dot);
-        });
-        dotsBox.classList.add('has-dots');
-        var ticking = false;
-        grid.addEventListener('scroll', function(){
-          if (ticking) return;
-          ticking = true;
-          requestAnimationFrame(function(){
-            ticking = false;
-            var index = Math.round(grid.scrollLeft / grid.clientWidth);
-            dots.forEach(function(d, i){ d.classList.toggle('is-active', i === index); });
-          });
-        }, { passive: true });
-      }
-
       fetch('/destacats-data.json')
         .then(function(r){ return r.json(); })
         .then(function(destacats){
@@ -527,7 +543,8 @@ pageScript: |
               '<div class="destacat-card__text">' + item.text + '</div>';
             grid.appendChild(article);
           });
-          setupDots();
+          setupSwipeDots(grid, document.getElementById('homeDestacatsDots'), '.destacat-card',
+            { ca: 'Destacat', es: 'Destacado', en: 'Highlight' }[currentLang] || 'Destacat');
         })
         .catch(function(err){
           console.error('Error carregant els destacats:', err);
@@ -578,6 +595,9 @@ pageScript: |
               '</div>';
             grid.appendChild(article);
           });
+          var lang = document.documentElement.lang || 'ca';
+          setupSwipeDots(grid, document.getElementById('homeNoticiesDots'), '.noticia-card',
+            { ca: 'Notícia', es: 'Noticia', en: 'Notice' }[lang] || 'Notícia');
         })
         .catch(function(err){
           console.error('Error carregant les notícies:', err);
@@ -631,7 +651,7 @@ pageScript: |
       <div class="destacats-grid" id="homeDestacatsGrid">
         <p class="destacats-empty">Carregant...</p>
       </div>
-      <div class="destacats-dots" id="homeDestacatsDots"></div>
+      <div class="swipe-dots" id="homeDestacatsDots"></div>
     </div>
   </section>
 
@@ -665,6 +685,7 @@ pageScript: |
       <div class="noticies-grid" id="homeNoticiesGrid">
         <p class="noticies-loading-home">Carregant notícies...</p>
       </div>
+      <div class="swipe-dots" id="homeNoticiesDots"></div>
     </div>
   </section>
 
