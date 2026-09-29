@@ -5,61 +5,585 @@ permalink: "en/projectes-llengues-estrangeres.html"
 lang: en
 slug: projectes-llengues-estrangeres.html
 pageStyles: |
-
-  /* ============ PÀGINA EN CONSTRUCCIÓ ============ */
-  .page-title{
-    background: #FAFAFD;
-    border-bottom: 1px solid var(--color-border);
-    padding: 34px clamp(16px, 4vw, 48px) 30px;
+  /* ============ PÀGINA PROJECTES · LLENGÜES ESTRANGERES ============ */
+  .le-hero{
+    position: relative;
+    overflow: hidden;
+    background: var(--color-blue);
+    color: #fff;
+    min-height: clamp(280px, 34vw, 460px);
+    display: flex;
+    align-items: flex-end;
   }
-  .page-title h1{
-    margin: 0;
-    font-size: 24px;
-    color: var(--color-blue);
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+  .le-hero__words{ position: absolute; inset: 0; pointer-events: none; }
+  .le-hero__words span{
+    position: absolute;
+    font-weight: 300;
+    line-height: 1;
+    white-space: nowrap;
+    color: rgba(255,255,255,0.13);
+    will-change: transform;
   }
-  .construction-wrap{
-    max-width: 700px;
+  .le-hero__words span:nth-child(3n){ font-weight: 700; color: rgba(255,255,255,0.08); }
+  .le-hero__dot{
+    position: absolute;
+    border-radius: 50%;
+    background: var(--color-orange);
+  }
+  .le-hero__inner{
+    position: relative;
+    width: 100%;
+    max-width: 1220px;
     margin: 0 auto;
-    padding: 64px clamp(16px, 4vw, 48px) 90px;
-    text-align: center;
+    box-sizing: border-box;
+    padding: 0 clamp(16px, 4vw, 48px) clamp(34px, 5vw, 64px);
   }
-  .construction-box{
-    border: 1px dashed var(--color-border);
-    border-radius: 10px;
-    padding: 60px 24px;
+  .le-hero__eyebrow{
+    display: inline-block;
+    margin: 0 0 14px;
+    font-size: clamp(12px, 1.2vw, 14px);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: #fff;
+    border-bottom: 2px solid var(--color-orange);
+    padding-bottom: 6px;
+  }
+  .le-hero h1{
+    margin: 0;
+    font-size: clamp(32px, 5.4vw, 72px);
+    font-weight: 300;
+    line-height: 1.02;
+    text-transform: uppercase;
+    letter-spacing: 0.01em;
+  }
+  .le-hero h1 strong{ font-weight: 700; display: block; }
+
+  .le-wrap{
+    max-width: 1220px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 0 clamp(16px, 4vw, 48px);
+  }
+
+  /* --- Introducció --- */
+  .le-intro{
+    padding: clamp(44px, 6vw, 80px) 0 clamp(36px, 5vw, 56px);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .le-lead{
+    max-width: 900px;
+    margin: 0;
+    font-size: clamp(19px, 2vw, 25px);
+    line-height: 1.55;
+    font-weight: 400;
+    color: #1f2340;
+  }
+  .le-lead .kw{ color: var(--color-blue); font-weight: 700; }
+
+  /* --- Xifres destacades --- */
+  .le-stats{
+    list-style: none;
+    margin: 0;
+    padding: clamp(26px, 3vw, 36px) 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+  }
+  .le-stats li{
+    padding: 4px clamp(12px, 2vw, 28px);
+    border-left: 1px solid var(--color-border);
+  }
+  .le-stats li:first-child{ border-left: none; padding-left: 0; }
+  .le-stats__num{
+    display: block;
+    font-size: clamp(30px, 3.6vw, 48px);
+    font-weight: 300;
+    color: var(--color-blue);
+    line-height: 1.05;
+  }
+  .le-stats__num small{ font-size: 0.5em; font-weight: 600; margin-left: 2px; }
+  .le-stats__label{
+    display: block;
+    margin-top: 8px;
+    font-size: 13px;
+    line-height: 1.45;
     color: var(--color-text-muted);
   }
-  .construction-box .icon{
-    width: 46px;
-    height: 46px;
-    margin: 0 auto 18px;
-    color: var(--color-blue);
+
+  /* --- Seccions editorials: títol a l'esquerra, contingut a la dreta --- */
+  .le-section{
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: clamp(24px, 5vw, 72px);
+    padding: clamp(48px, 6vw, 88px) 0;
+    border-bottom: 1px solid var(--color-border);
   }
-  .construction-box h2{
-    margin: 0 0 10px;
-    font-size: 17px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--color-blue);
-  }
-  .construction-box p{
-    margin: 0;
+  .le-section:last-of-type{ border-bottom: none; }
+  .le-section__head{ align-self: start; position: sticky; top: 130px; }
+  .le-section__num{
+    display: block;
     font-size: 14px;
-    line-height: 1.6;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--color-orange);
+    margin-bottom: 12px;
   }
+  .le-section__head h2{
+    margin: 0;
+    font-size: clamp(21px, 2.1vw, 28px);
+    font-weight: 800;
+    line-height: 1.15;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--color-blue);
+  }
+  .le-section__body p{
+    margin: 0 0 1.1em;
+    font-size: 16px;
+    line-height: 1.75;
+    color: #2b2f45;
+  }
+  .le-section__body p:last-child{ margin-bottom: 0; }
+  .le-section__body .kw{ color: var(--color-blue); font-weight: 700; }
+
+  /* --- Llengües: salutacions --- */
+  .le-langs{
+    list-style: none;
+    margin: 0 0 clamp(28px, 3.5vw, 44px);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: clamp(10px, 2vw, 24px);
+  }
+  .le-langs li{ border-top: 3px solid var(--le-c, var(--color-blue)); padding-top: 14px; }
+  .le-langs__hello{
+    display: block;
+    font-size: clamp(22px, 2.6vw, 34px);
+    font-weight: 300;
+    color: var(--le-c, var(--color-blue));
+    line-height: 1.1;
+  }
+  .le-langs__name{
+    display: block;
+    margin-top: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+
+  /* --- Hores d'anglès --- */
+  .le-hours{
+    margin: clamp(30px, 3.5vw, 44px) 0;
+    display: grid;
+    gap: 22px;
+  }
+  .le-hours__title{
+    margin: 0 0 4px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-blue);
+  }
+  .le-hours__row{
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    align-items: center;
+    gap: 16px;
+  }
+  .le-hours__label{ font-size: 14px; font-weight: 700; color: #2b2f45; }
+  .le-hours__label small{ display: block; font-weight: 400; color: var(--color-text-muted); font-size: 12px; }
+  .le-hours__bar{ display: flex; gap: 4px; }
+  .le-hours__seg{
+    flex: 0 0 calc((100% - 5 * 4px) / 6);
+    height: 34px;
+    border-radius: 4px;
+    background: var(--color-blue);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.1;
+    padding: 0 4px;
+    box-sizing: border-box;
+    transform-origin: left center;
+  }
+  .le-hours__seg--split{ background: var(--color-orange); }
+  .le-hours__legend{
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px 22px;
+    margin: 2px 0 0;
+    padding: 0;
+    list-style: none;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+  .le-hours__legend li{ display: flex; align-items: center; gap: 8px; }
+  .le-hours__legend i{ width: 12px; height: 12px; border-radius: 3px; background: var(--color-blue); display: inline-block; }
+  .le-hours__legend i.split{ background: var(--color-orange); }
+
+  /* --- Etiquetes (AICLE, països) --- */
+  .le-tags{
+    list-style: none;
+    margin: 0 0 clamp(26px, 3vw, 36px);
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .le-tags li{
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px 10px 12px;
+    border: 1px solid rgba(28, 12, 188, 0.22);
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-blue);
+  }
+  .le-tags svg{ width: 22px; height: 22px; flex: none; }
+  .le-tags--plain li{ padding: 8px 16px; }
+  .le-tags--plain li::before{
+    content: "";
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--color-orange);
+  }
+  .le-badge{
+    display: inline-flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 22px;
+    font-size: 13px;
+    color: var(--color-text-muted);
+  }
+  .le-badge strong{
+    font-size: 13px;
+    letter-spacing: 0.12em;
+    color: #fff;
+    background: var(--color-blue);
+    padding: 5px 10px;
+    border-radius: 4px;
+  }
+
+  /* --- Nivells de certificació (esglaons) --- */
+  .le-levels{
+    display: flex;
+    align-items: flex-end;
+    gap: 10px;
+    margin: 0 0 clamp(28px, 3.5vw, 40px);
+    height: 170px;
+  }
+  .le-levels__step{
+    flex: 1 1 0;
+    max-width: 150px;
+    border-radius: 6px 6px 0 0;
+    background: rgba(28, 12, 188, 0.1);
+    color: var(--color-blue);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    padding: 14px 16px;
+    box-sizing: border-box;
+    transform-origin: bottom center;
+  }
+  .le-levels__step:nth-child(1){ height: 45%; }
+  .le-levels__step:nth-child(2){ height: 70%; background: rgba(28, 12, 188, 0.22); }
+  .le-levels__step:nth-child(3){ height: 100%; background: var(--color-blue); color: #fff; }
+  .le-levels__step b{ font-size: clamp(26px, 3vw, 36px); font-weight: 300; line-height: 1; }
+  .le-levels__step span{ font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; margin-top: 6px; opacity: 0.8; }
+
+  /* --- Línia de temps --- */
+  .le-timeline{
+    list-style: none;
+    margin: 0 0 clamp(30px, 3.5vw, 44px);
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    position: relative;
+  }
+  .le-timeline::before{
+    content: "";
+    position: absolute;
+    left: 0; right: 0; top: 9px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(28,12,188,0.25), var(--color-blue));
+  }
+  .le-timeline li{ position: relative; padding: 34px 16px 0 0; }
+  .le-timeline li::before{
+    content: "";
+    position: absolute;
+    left: 0; top: 2px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: #fff;
+    border: 3px solid var(--color-blue);
+    box-sizing: border-box;
+  }
+  .le-timeline li:last-child::before{ background: var(--color-orange); border-color: var(--color-orange); }
+  .le-timeline b{ display: block; font-size: 20px; font-weight: 700; color: var(--color-blue); }
+  .le-timeline span{ display: block; margin-top: 6px; font-size: 14px; line-height: 1.5; color: #2b2f45; }
+
+  /* --- Accions Erasmus+ --- */
+  .le-actions{
+    list-style: none;
+    counter-reset: le;
+    margin: clamp(26px, 3vw, 36px) 0;
+    padding: 0;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(18px, 2.5vw, 32px);
+  }
+  .le-actions li{ counter-increment: le; }
+  .le-actions li::before{
+    content: counter(le, decimal-leading-zero);
+    display: block;
+    font-size: 34px;
+    font-weight: 300;
+    color: var(--color-orange);
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .le-actions b{ display: block; font-size: 15px; color: var(--color-blue); margin-bottom: 6px; }
+  .le-actions span{ display: block; font-size: 14px; line-height: 1.6; color: #2b2f45; }
+
+  /* --- Tancament a tota amplada --- */
+  .le-closing{
+    background: #F4F3FE;
+    margin-top: clamp(20px, 3vw, 40px);
+  }
+  .le-closing__inner{
+    max-width: 980px;
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: clamp(56px, 7vw, 96px) clamp(16px, 4vw, 48px);
+    text-align: center;
+  }
+  .le-closing__inner::before{
+    content: "";
+    display: block;
+    width: 56px;
+    height: 4px;
+    margin: 0 auto 28px;
+    border-radius: 2px;
+    background: var(--color-orange);
+  }
+  .le-closing p{
+    margin: 0;
+    font-size: clamp(19px, 2vw, 25px);
+    line-height: 1.6;
+    color: #1f2340;
+  }
+  .le-closing p .kw{ color: var(--color-blue); font-weight: 700; }
+
+  /* --- Aparició en fer scroll --- */
+  .le-reveal{ opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .le-reveal.is-in{ opacity: 1; transform: none; }
+  .le-grow .le-hours__seg{ transform: scaleX(0); transition: transform 0.6s cubic-bezier(.2,.7,.2,1); }
+  .le-grow.is-in .le-hours__seg{ transform: none; }
+  .le-grow .le-levels__step{ transform: scaleY(0); transition: transform 0.7s cubic-bezier(.2,.7,.2,1); }
+  .le-grow.is-in .le-levels__step{ transform: none; }
+  .le-grow.is-in .le-levels__step:nth-child(2){ transition-delay: 0.12s; }
+  .le-grow.is-in .le-levels__step:nth-child(3){ transition-delay: 0.24s; }
+  @media (prefers-reduced-motion: reduce){
+    .le-reveal, .le-grow .le-hours__seg, .le-grow .le-levels__step{ opacity: 1; transform: none; transition: none; }
+  }
+
+  /* --- Responsive --- */
+  @media (max-width: 900px){
+    .le-section{ grid-template-columns: minmax(0, 1fr); gap: 20px; }
+    .le-section__head{ position: static; }
+    .le-stats{ grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+    .le-stats li:nth-child(3){ border-left: none; padding-left: 0; }
+  }
+  @media (max-width: 640px){
+    .le-langs{ grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 20px; }
+    .le-timeline{ grid-template-columns: minmax(0, 1fr); gap: 22px; }
+    .le-timeline::before{ left: 7px; right: auto; top: 0; bottom: 0; width: 2px; height: auto; }
+    .le-timeline li{ padding: 0 0 0 32px; }
+    .le-actions{ grid-template-columns: minmax(0, 1fr); }
+    .le-hours__row{ grid-template-columns: minmax(0, 1fr); gap: 8px; }
+    .le-hours__seg{ font-size: 10px; height: 30px; }
+    .le-hero__words span:nth-child(n+7){ display: none; }
+  }
+pageScript: |
+  // ============ LLENGÜES ESTRANGERES: capçalera i aparicions ============
+  (function(){
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // Elements que apareixen en entrar a la pantalla
+    var els = document.querySelectorAll('.le-reveal, .le-grow');
+    if (reduce || !('IntersectionObserver' in window)){
+      els.forEach(function(el){ el.classList.add('is-in'); });
+    } else {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){
+          if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0.15 });
+      els.forEach(function(el){ io.observe(el); });
+    }
+
+    // Les salutacions de la capçalera es mouen a velocitats diferents en fer scroll
+    var hero = document.getElementById('leHero');
+    if (!hero || reduce) return;
+    var words = hero.querySelectorAll('.le-hero__words span');
+    var ticking = false;
+    function update(){
+      ticking = false;
+      var y = Math.max(0, window.scrollY);
+      if (y > hero.offsetHeight * 1.2) return;
+      words.forEach(function(w, i){
+        var speed = ((i % 4) + 1) * 0.06;
+        w.style.transform = 'translate3d(' + (i % 2 ? -1 : 1) * y * speed * 0.6 + 'px,' + (-y * speed) + 'px,0)';
+      });
+    }
+    window.addEventListener('scroll', function(){
+      if (!ticking){ ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+  })();
 ---
-<div class="page-title">
-  <h1>Foreign Languages</h1>
+<section class="le-hero" id="leHero">
+  <div class="le-hero__words" aria-hidden="true">
+    <span style="left:58%;top:10%;font-size:clamp(44px,7.33vw,88px)">Hello</span>
+    <span style="left:76%;top:44%;font-size:clamp(32px,5.33vw,64px)">Bonjour</span>
+    <span style="left:88%;top:8%;font-size:clamp(27px,4.50vw,54px)">Ciao</span>
+    <span style="left:44%;top:30%;font-size:clamp(23px,3.83vw,46px)">Hallo</span>
+    <span style="left:90%;top:58%;font-size:clamp(20px,3.33vw,40px)">Hi!</span>
+    <span style="left:30%;top:8%;font-size:clamp(19px,3.17vw,38px)">Salut</span>
+    <span style="left:8%;top:20%;font-size:clamp(15px,2.50vw,30px)">Guten Tag</span>
+    <span style="left:66%;top:90%;font-size:clamp(15px,2.50vw,30px)">Buongiorno</span>
+    <span style="left:84%;top:78%;font-size:clamp(14px,2.17vw,26px)">Goeiedag</span>
+    <span style="left:48%;top:4%;font-size:clamp(14px,2.17vw,26px)">Welcome</span>
+    <span style="left:94%;top:30%;font-size:clamp(14px,2.00vw,24px)">Merci</span>
+    <span style="left:18%;top:4%;font-size:clamp(14px,1.83vw,22px)">Grazie</span>
+    <i class="le-hero__dot" style="width:18px;height:18px;left:57%;top:47%"></i>
+    <i class="le-hero__dot" style="width:10px;height:10px;left:84%;top:22%"></i>
+  </div>
+  <div class="le-hero__inner">
+    <p class="le-hero__eyebrow">Projects</p>
+    <h1>Department of<strong>Foreign Languages</strong></h1>
+  </div>
+</section>
+
+<div class="le-wrap">
+
+  <div class="le-intro le-reveal">
+    <p class="le-lead">The Foreign Languages Department promotes language learning as a <span class="kw">tool for communication, personal growth and access to new opportunities</span>, both academic and professional. We work to develop our students’ plurilingual competence, encourage intercultural openness and support their participation in a wide range of educational and social settings.</p>
+  </div>
+
+  <ul class="le-stats le-reveal">
+    <li><span class="le-stats__num">4</span><span class="le-stats__label">foreign languages: English, French, Italian and German</span></li>
+    <li><span class="le-stats__num">3<small>h</small></span><span class="le-stats__label">of English a week in ESO, including one hour in split groups</span></li>
+    <li><span class="le-stats__num">B1–C1</span><span class="le-stats__label">official certification with the Official School of Languages</span></li>
+    <li><span class="le-stats__num">KA120</span><span class="le-stats__label">Erasmus+ accreditation since the 2023-2024 school year</span></li>
+  </ul>
+
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">01</span>
+      <h2>A diverse language offer</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <ul class="le-langs">
+        <li style="--le-c:#1C0CBC"><span class="le-langs__hello" lang="en">Hello</span><span class="le-langs__name">English</span></li>
+        <li style="--le-c:#E8600C"><span class="le-langs__hello" lang="fr">Bonjour</span><span class="le-langs__name">French</span></li>
+        <li style="--le-c:#6B5FE0"><span class="le-langs__hello" lang="it">Ciao</span><span class="le-langs__name">Italian</span></li>
+        <li style="--le-c:#0E7C66"><span class="le-langs__hello" lang="de">Hallo</span><span class="le-langs__name">German</span></li>
+      </ul>
+      <p>From Year 1 to Year 4 of ESO, we offer <span class="kw">English, French, Italian and German</span> as elective subjects, and in Batxillerat we offer French, Italian and German as specialist subjects. This range allows students to broaden their linguistic repertoire and discover other languages and cultures.</p>
+      <p>English plays a prominent role in our curriculum, as it is a language of international communication and an essential skill for students’ education, mobility and academic and professional future. For this reason, from Year 1 to Year 4 of ESO it is taught for <span class="kw">three hours a week</span>: two hours with the whole class and one hour in split groups.</p>
+      <div class="le-hours le-grow">
+        <p class="le-hours__title">Weekly hours of English</p>
+          <div class="le-hours__row"><span class="le-hours__label">ESO Years 1–4<small>each year</small></span><div class="le-hours__bar"><span class="le-hours__seg" title="1 h">Whole class</span><span class="le-hours__seg" title="1 h">Whole class</span><span class="le-hours__seg le-hours__seg--split" title="1 h">Split group</span></div></div>
+          <div class="le-hours__row"><span class="le-hours__label">Batxillerat Year 1</span><div class="le-hours__bar"><span class="le-hours__seg" title="1 h">1 h</span><span class="le-hours__seg" title="1 h">1 h</span></div></div>
+          <div class="le-hours__row"><span class="le-hours__label">Batxillerat Year 2</span><div class="le-hours__bar"><span class="le-hours__seg" title="1 h">1 h</span><span class="le-hours__seg" title="1 h">1 h</span><span class="le-hours__seg" title="1 h">1 h</span><span class="le-hours__seg" title="1 h">1 h</span></div></div>
+        <ul class="le-hours__legend">
+          <li><i></i>Whole class</li>
+          <li><i class="split"></i>Split group (smaller group)</li>
+        </ul>
+      </div>
+      <p>This arrangement allows us to offer <span class="kw">more personalised attention</span>, increase opportunities for oral participation and better adapt learning to each student’s needs. In Batxillerat, students take a total of <span class="kw">6 hours a week</span> across the two years: two hours in Year 1 and four hours in Year 2.</p>
+    </div>
+  </section>
+
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">02</span>
+      <h2>Content and language integrated learning</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <p class="le-badge"><strong>GEP</strong>Generació Plurilingüe programme</p>
+      <ul class="le-tags">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6M10 3v6L4.5 18.5A1.7 1.7 0 0 0 6 21h12a1.7 1.7 0 0 0 1.5-2.5L14 9V3"/><path d="M7.5 15h9"/></svg>Science</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l11-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="17" cy="16" r="3"/></svg>Music</li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>Technology</li>
+      </ul>
+      <p>We take part in the <span class="kw">Generació Plurilingüe (GEP)</span> programme and promote the use of <span class="kw">CLIL</span> methodologies —content and language integrated learning— in science, music and technology. This approach allows students to learn curricular content while developing their communicative competence in a foreign language.</p>
+      <p>Through these activities, we encourage the functional use of languages, interdisciplinary work and more active student participation in their own learning.</p>
+    </div>
+  </section>
+
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">03</span>
+      <h2>Official certification</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <div class="le-levels le-grow" aria-hidden="true">
+        <div class="le-levels__step"><b>B1</b><span>Level</span></div>
+        <div class="le-levels__step"><b>B2</b><span>Level</span></div>
+        <div class="le-levels__step"><b>C1</b><span>Level</span></div>
+      </div>
+      <p>In collaboration with the local <span class="kw">Official School of Languages</span> (Escola Oficial d’Idiomes), we give students the opportunity to prepare for an official <span class="kw">B1, B2 or C1</span> certificate in a foreign language.</p>
+      <p>This opportunity provides formal recognition of the language skills students have acquired and helps prepare them for future stages of their education and careers.</p>
+    </div>
+  </section>
+
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">04</span>
+      <h2>Internationalisation and European projects</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <ol class="le-timeline">
+        <li><b>2012-2013</b><span>First short-term mobilities</span></li>
+        <li><b>2023-2024</b><span>Erasmus+ KA120 accreditation in school education</span></li>
+        <li><b>Today</b><span>Bilateral exchanges with schools in four European countries</span></li>
+      </ol>
+      <p>Our school has experience in European projects and, since the 2023-2024 school year, holds the <span class="kw">Erasmus+ KA120 accreditation</span> in school education. This accreditation frames our internationalisation strategy and allows us to keep developing learning and cooperation opportunities with other European schools.</p>
+      <p>We promote the internationalisation of the school and have organised short-term mobilities since the 2012-2013 school year. We currently run <span class="kw">bilateral exchanges</span> with schools in the Netherlands, Germany, Italy and France.</p>
+      <ul class="le-tags le-tags--plain">
+        <li>Netherlands</li>
+        <li>Germany</li>
+        <li>Italy</li>
+        <li>France</li>
+      </ul>
+      <p>As part of the Erasmus+ programme, we also promote a range of mobility and training activities, including:</p>
+      <ol class="le-actions">
+        <li><b>Teacher training</b><span>At educational institutions and specialist organisations in other countries.</span></li>
+        <li><b>Expert visits</b><span>Experts and professionals from abroad visit our school.</span></li>
+        <li><b>Job shadowing</b><span>Observation periods that allow teachers to see other education systems, methodologies and ways of organising a school at first hand.</span></li>
+      </ol>
+      <p>These experiences contribute to teachers’ professional development, encourage the exchange of good practice and enrich the school’s educational work.</p>
+    </div>
+  </section>
+
 </div>
 
-<div class="construction-wrap">
-  <div class="construction-box">
-    <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
-    <h2>Under construction</h2>
-    <p>This page has no content yet. Check back soon!</p>
+<section class="le-closing">
+  <div class="le-closing__inner le-reveal">
+    <p>At the same time, they allow students to <span class="kw">use languages in real contexts</span>, discover other education systems and cultures, develop autonomy and responsibility, and grow as citizens <span class="kw">open to the world</span>.</p>
   </div>
-</div>
+</section>
