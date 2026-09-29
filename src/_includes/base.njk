@@ -477,6 +477,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.02em;
+    white-space: nowrap;
     color: var(--color-blue);
     transition: background 0.15s ease, color 0.15s ease;
   }
@@ -526,6 +527,16 @@
     pointer-events: auto;
     transform: translateX(0);
   }
+  /* Els menús de la dreta (Secretaria) obren el flyout cap a l'esquerra per no sortir de la pantalla */
+  .dropdown-panel__group--left .dropdown-panel__flyout{
+    left: auto;
+    right: 100%;
+    margin-left: 0;
+    margin-right: 6px;
+    transform: translateX(6px);
+  }
+  .dropdown-panel__group--left .dropdown-panel__group-trigger svg{ transform: rotate(90deg); }
+  .dropdown-panel__group--left:hover .dropdown-panel__flyout{ transform: translateX(0); }
   .dropdown-panel__flyout a{
     display: block;
     padding: 9px 12px;
@@ -863,6 +874,15 @@
               <div class="dropdown-panel">
                 <a href="/{{ langPrefix }}secretaria-atencio-public.html">{{ t.menu.atencioPublic }}</a>
                 <a href="/{{ langPrefix }}secretaria-preinscripcio-matricula.html">{{ t.menu.preinscripcioMatricula }}</a>
+                <div class="dropdown-panel__group dropdown-panel__group--left">
+                  <span class="dropdown-panel__group-trigger">
+                    {{ t.menu.solicituds }}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                  </span>
+                  <div class="dropdown-panel__flyout">
+                    <a href="https://drive.google.com/file/d/1qLhAny4USEWrv1RV2c0VmU2X3iATVcgb/view?usp=sharing" target="_blank" rel="noopener">{{ t.menu.declaracioBatxillerat }}</a>
+                  </div>
+                </div>
               </div>
             </li>
             <li class="has-dropdown" id="viuElMiroDropdown">
@@ -957,6 +977,8 @@
           <ul class="mobile-submenu">
             <li><a href="/{{ langPrefix }}secretaria-atencio-public.html">{{ t.menu.atencioPublic }}</a></li>
             <li><a href="/{{ langPrefix }}secretaria-preinscripcio-matricula.html">{{ t.menu.preinscripcioMatricula }}</a></li>
+            <li class="mobile-submenu__group-label">{{ t.menu.solicituds }}</li>
+            <li><a href="https://drive.google.com/file/d/1qLhAny4USEWrv1RV2c0VmU2X3iATVcgb/view?usp=sharing" target="_blank" rel="noopener" class="mobile-submenu__sub">{{ t.menu.declaracioBatxillerat }}</a></li>
           </ul>
         </li>
         <li class="mobile-nav-item has-submenu">

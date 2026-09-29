@@ -26,6 +26,8 @@
       "batxillerat": "Batxillerat",
       "atencioPublic": "Atenció al Públic",
       "preinscripcioMatricula": "Preinscripció / Matrícula",
+      "solicituds": "Sol·licituds / Instàncies",
+      "declaracioBatxillerat": "Declaració Responsable Batxillerat",
       "noticies": "Notícies",
       "inici": "Inici"
     },
@@ -109,6 +111,8 @@
       "batxillerat": "Bachillerato",
       "atencioPublic": "Atención al Público",
       "preinscripcioMatricula": "Preinscripción / Matrícula",
+      "solicituds": "Solicitudes / Instancias",
+      "declaracioBatxillerat": "Declaración Responsable Bachillerato",
       "noticies": "Noticias",
       "inici": "Inicio"
     },
@@ -192,6 +196,8 @@
       "batxillerat": "Batxillerat",
       "atencioPublic": "Public Attention",
       "preinscripcioMatricula": "Pre-registration / Enrolment",
+      "solicituds": "Applications / Forms",
+      "declaracioBatxillerat": "Batxillerat Sworn Statement",
       "noticies": "Notices",
       "inici": "Home"
     },
