@@ -843,7 +843,16 @@
                 </div>
               </div>
             </li>
-            <li><a href="#">{{ t.menu.projectes }}</a></li>
+            <li class="has-dropdown">
+              <button class="dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+                {{ t.menu.projectes }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="dropdown-panel">
+                <a href="/{{ langPrefix }}projectes-llengues-estrangeres.html">{{ t.menu.llenguesEstrangeres }}</a>
+                <a href="/{{ langPrefix }}projectes-competencia-lectora.html">{{ t.menu.competenciaLectora }}</a>
+              </div>
+            </li>
             <li><a href="#">{{ t.menu.serveis }}</a></li>
             <li><a href="/{{ langPrefix }}noticies.html">{{ t.menu.noticies }}</a></li>
             <li class="has-dropdown">
@@ -928,7 +937,16 @@
             <li><a href="/{{ langPrefix }}batxillerat-2n.html" class="mobile-submenu__sub">{{ t.estudis.level2bat }}</a></li>
           </ul>
         </li>
-        <li><a href="#">{{ t.menu.projectes }}</a></li>
+        <li class="mobile-nav-item has-submenu">
+          <button class="mobile-nav-item__trigger" aria-expanded="false">
+            {{ t.menu.projectes }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="mobile-submenu">
+            <li><a href="/{{ langPrefix }}projectes-llengues-estrangeres.html">{{ t.menu.llenguesEstrangeres }}</a></li>
+            <li><a href="/{{ langPrefix }}projectes-competencia-lectora.html">{{ t.menu.competenciaLectora }}</a></li>
+          </ul>
+        </li>
         <li><a href="#">{{ t.menu.serveis }}</a></li>
         <li><a href="/{{ langPrefix }}noticies.html">{{ t.menu.noticies }}</a></li>
         <li class="mobile-nav-item has-submenu">

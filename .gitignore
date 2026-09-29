@@ -4,3 +4,4 @@ _site/
 .env.local
 .DS_Store
 Thumbs.db
+*.bundle
