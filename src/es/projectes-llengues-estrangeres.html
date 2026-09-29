@@ -6,59 +6,6 @@ lang: es
 slug: projectes-llengues-estrangeres.html
 pageStyles: |
   /* ============ PÀGINA PROJECTES · LLENGÜES ESTRANGERES ============ */
-  .le-hero{
-    position: relative;
-    overflow: hidden;
-    background: var(--color-blue);
-    color: #fff;
-    min-height: clamp(280px, 34vw, 460px);
-    display: flex;
-    align-items: flex-end;
-  }
-  .le-hero__words{ position: absolute; inset: 0; pointer-events: none; }
-  .le-hero__words span{
-    position: absolute;
-    font-weight: 300;
-    line-height: 1;
-    white-space: nowrap;
-    color: rgba(255,255,255,0.13);
-    will-change: transform;
-  }
-  .le-hero__words span:nth-child(3n){ font-weight: 700; color: rgba(255,255,255,0.08); }
-  .le-hero__dot{
-    position: absolute;
-    border-radius: 50%;
-    background: var(--color-orange);
-  }
-  .le-hero__inner{
-    position: relative;
-    width: 100%;
-    max-width: 1220px;
-    margin: 0 auto;
-    box-sizing: border-box;
-    padding: 0 clamp(16px, 4vw, 48px) clamp(34px, 5vw, 64px);
-  }
-  .le-hero__eyebrow{
-    display: inline-block;
-    margin: 0 0 14px;
-    font-size: clamp(12px, 1.2vw, 14px);
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: #fff;
-    border-bottom: 2px solid var(--color-orange);
-    padding-bottom: 6px;
-  }
-  .le-hero h1{
-    margin: 0;
-    font-size: clamp(32px, 5.4vw, 72px);
-    font-weight: 300;
-    line-height: 1.02;
-    text-transform: uppercase;
-    letter-spacing: 0.01em;
-  }
-  .le-hero h1 strong{ font-weight: 700; display: block; }
-
   .le-wrap{
     max-width: 1220px;
     margin: 0 auto;
@@ -67,6 +14,17 @@ pageStyles: |
   }
 
   /* --- Introducció --- */
+  .le-kicker{
+    display: inline-block;
+    margin: 0 0 18px;
+    font-size: 13px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--color-blue);
+    border-bottom: 2px solid var(--color-orange);
+    padding-bottom: 6px;
+  }
   .le-intro{
     padding: clamp(44px, 6vw, 80px) 0 clamp(36px, 5vw, 56px);
     display: grid;
@@ -415,10 +373,9 @@ pageStyles: |
     .le-actions{ grid-template-columns: minmax(0, 1fr); }
     .le-hours__row{ grid-template-columns: minmax(0, 1fr); gap: 8px; }
     .le-hours__seg{ font-size: 10px; height: 30px; }
-    .le-hero__words span:nth-child(n+7){ display: none; }
   }
 pageScript: |
-  // ============ LLENGÜES ESTRANGERES: capçalera i aparicions ============
+  // ============ LLENGÜES ESTRANGERES: aparicions en fer scroll ============
   (function(){
     var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -435,51 +392,19 @@ pageScript: |
       els.forEach(function(el){ io.observe(el); });
     }
 
-    // Les salutacions de la capçalera es mouen a velocitats diferents en fer scroll
-    var hero = document.getElementById('leHero');
-    if (!hero || reduce) return;
-    var words = hero.querySelectorAll('.le-hero__words span');
-    var ticking = false;
-    function update(){
-      ticking = false;
-      var y = Math.max(0, window.scrollY);
-      if (y > hero.offsetHeight * 1.2) return;
-      words.forEach(function(w, i){
-        var speed = ((i % 4) + 1) * 0.06;
-        w.style.transform = 'translate3d(' + (i % 2 ? -1 : 1) * y * speed * 0.6 + 'px,' + (-y * speed) + 'px,0)';
-      });
-    }
-    window.addEventListener('scroll', function(){
-      if (!ticking){ ticking = true; requestAnimationFrame(update); }
-    }, { passive: true });
   })();
 ---
-<section class="le-hero" id="leHero">
-  <div class="le-hero__words" aria-hidden="true">
-    <span style="left:58%;top:10%;font-size:clamp(44px,7.33vw,88px)">Hello</span>
-    <span style="left:76%;top:44%;font-size:clamp(32px,5.33vw,64px)">Bonjour</span>
-    <span style="left:88%;top:8%;font-size:clamp(27px,4.50vw,54px)">Ciao</span>
-    <span style="left:44%;top:30%;font-size:clamp(23px,3.83vw,46px)">Hallo</span>
-    <span style="left:90%;top:58%;font-size:clamp(20px,3.33vw,40px)">Hi!</span>
-    <span style="left:30%;top:8%;font-size:clamp(19px,3.17vw,38px)">Salut</span>
-    <span style="left:8%;top:20%;font-size:clamp(15px,2.50vw,30px)">Guten Tag</span>
-    <span style="left:66%;top:90%;font-size:clamp(15px,2.50vw,30px)">Buongiorno</span>
-    <span style="left:84%;top:78%;font-size:clamp(14px,2.17vw,26px)">Goeiedag</span>
-    <span style="left:48%;top:4%;font-size:clamp(14px,2.17vw,26px)">Welcome</span>
-    <span style="left:94%;top:30%;font-size:clamp(14px,2.00vw,24px)">Merci</span>
-    <span style="left:18%;top:4%;font-size:clamp(14px,1.83vw,22px)">Grazie</span>
-    <i class="le-hero__dot" style="width:18px;height:18px;left:57%;top:47%"></i>
-    <i class="le-hero__dot" style="width:10px;height:10px;left:84%;top:22%"></i>
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-1-facana-2400.jpg" srcset="/assets/img/inici/inici-1-facana-1600.jpg 1600w, /assets/img/inici/inici-1-facana-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">Proyectos</span><span class="qs-hero__subtitle">Lenguas Extranjeras</span></h1>
   </div>
-  <div class="le-hero__inner">
-    <p class="le-hero__eyebrow">Proyectos</p>
-    <h1>Departamento de<strong>Lenguas Extranjeras</strong></h1>
-  </div>
-</section>
+</div>
 
 <div class="le-wrap">
 
   <div class="le-intro le-reveal">
+    <div><h2 class="le-kicker">Departamento de Lenguas Extranjeras</h2></div>
     <p class="le-lead">El Departamento de Lenguas Extranjeras impulsa el aprendizaje de lenguas como una <span class="kw">herramienta de comunicación, crecimiento personal y acceso a nuevas oportunidades</span> académicas y profesionales. Trabajamos para desarrollar la competencia plurilingüe del alumnado, fomentar la apertura intercultural y favorecer su participación en entornos educativos y sociales diversos.</p>
   </div>
 

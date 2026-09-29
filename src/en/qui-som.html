@@ -7,53 +7,6 @@ slug: qui-som.html
 pageStyles: |
 
   /* ============ WHO WE ARE PAGE ============ */
-  /* --- Capçalera amb la foto de la biblioteca i caixa semitransparent a baix a la dreta --- */
-  .qs-hero{
-    position: relative;
-    width: 100%;
-    height: clamp(260px, 34vw, 500px);
-    overflow: hidden;
-    background: var(--color-bg);
-  }
-  .qs-hero img{
-    will-change: transform, opacity;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center 55%;
-    display: block;
-  }
-  .qs-hero__box{
-    position: absolute;
-    right: clamp(16px, 5vw, 64px);
-    bottom: clamp(24px, 5vw, 56px);
-    background: rgba(255, 255, 255, 0.72);
-    backdrop-filter: blur(3px);
-    padding: clamp(18px, 2.6vw, 34px) clamp(22px, 3.4vw, 48px);
-    border-radius: 4px;
-    max-width: calc(100% - 32px);
-    box-shadow: 0 14px 34px rgba(15, 8, 90, 0.18);
-    will-change: transform;
-  }
-  .qs-hero__box h1{
-    margin: 0;
-    color: var(--color-blue);
-    text-transform: uppercase;
-    line-height: 1.05;
-  }
-  .qs-hero__title{
-    display: block;
-    font-size: clamp(28px, 4.4vw, 60px);
-    font-weight: 300;
-    letter-spacing: 0.01em;
-  }
-  .qs-hero__subtitle{
-    display: block;
-    margin-top: 0.45em;
-    font-size: clamp(15px, 1.9vw, 26px);
-    font-weight: 500;
-    letter-spacing: 0.03em;
-  }
   .qui-som-wrap{
     max-width: 1100px;
     margin: 0 auto;
@@ -261,37 +214,6 @@ pageStyles: |
   }
 pageScript: |
 
-  // ============ CAPÇALERA: efecte en fer scroll ============
-  // La foto es desplaça més a poc a poc que la pàgina i es va esvaint; la caixa
-  // puja més de pressa que la pàgina i perd el fons blanc i l'ombra, de manera
-  // que al final només en queda el text (títol i subtítol) sobre el fons blanc.
-  (function(){
-    var hero = document.getElementById('qsHero');
-    if (!hero) return;
-    var img = hero.querySelector('img');
-    var box = hero.querySelector('.qs-hero__box');
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    var ticking = false;
-
-    function update(){
-      ticking = false;
-      var h = hero.offsetHeight;
-      var y = Math.max(0, window.scrollY);
-      var p = Math.min(1, y / (h * 0.7));
-      img.style.transform = 'translate3d(0,' + (y * 0.35).toFixed(1) + 'px,0)';
-      img.style.opacity = (1 - p).toFixed(3);
-      box.style.transform = 'translate3d(0,' + (-y * 0.15).toFixed(1) + 'px,0)';
-      box.style.backgroundColor = 'rgba(255,255,255,' + (0.72 * (1 - p)).toFixed(3) + ')';
-      box.style.boxShadow = '0 14px 34px rgba(15,8,90,' + (0.18 * (1 - p)).toFixed(3) + ')';
-      box.style.backdropFilter = p > 0.02 ? 'none' : '';
-    }
-    function onScroll(){
-      if (!ticking){ ticking = true; requestAnimationFrame(update); }
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('resize', onScroll);
-    update();
-  })();
 
     (function(){
       var track = document.getElementById('quiSomTrack');
