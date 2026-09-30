@@ -52,10 +52,12 @@ pageStyles: |
     background: #A8ACB3;
     color: #fff;
     text-align: center;
+    text-decoration: none;
     box-shadow: 0 12px 24px rgba(20, 20, 40, 0.14);
     transition: background-color 1s ease;
   }
   .doc-card:hover,
+  .doc-card:focus-visible,
   .doc-card:focus-within{
     background: var(--color-orange);
   }
@@ -93,17 +95,17 @@ pageScript: |
 <div class="docs-wrap">
   <section>
     <h2 class="docs-title">Documentació de centre</h2>
-    <!-- De moment les caixes no tenen enllaç; quan hi hagi els documents, cada
-         .doc-card es pot convertir en un <a href="..."> amb la mateixa classe. -->
+    <!-- Les caixes amb document són <a class="doc-card" href="..." target="_blank" rel="noopener">
+         (els PDF s'obren sempre en una pestanya nova); les que encara no en tenen són <div>. -->
     <div class="docs-grid">
       <div class="doc-card">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"/><path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"/><path d="M10.5 8h5"/><path d="M10.5 11.5h5"/><path d="M10.5 15h3"/></svg>
         <p class="doc-card__label">Projecte Educatiu de Centre</p>
       </div>
-      <div class="doc-card">
+      <a class="doc-card" href="https://drive.google.com/file/d/1hXml3wpuBbGl2CDcst9JkCyWXguRElRE/view?usp=sharing" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 7h-3a2 2 0 0 1-2-2V2"/><path d="M9 18a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h7l4 4v10a2 2 0 0 1-2 2Z"/><path d="M3 7.6v12.8A1.6 1.6 0 0 0 4.6 22h9.8"/><path d="M10.5 8h5"/><path d="M10.5 11.5h5"/><path d="M10.5 15h3"/></svg>
         <p class="doc-card__label">Normes d'organització i funcionament de centre</p>
-      </div>
+      </a>
       <div class="doc-card">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 9a2 2 0 0 1-2 2H6l-4 4V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2z"/><path d="M18 9h2a2 2 0 0 1 2 2v11l-4-4h-6a2 2 0 0 1-2-2v-1"/></svg>
         <p class="doc-card__label">Projecte lingüístic de centre</p>
