@@ -1,0 +1,223 @@
+/* ============ ORGANIGRAMA (El nostre centre › Organigrama) ============
+   Fitxer comú a les pàgines Equip Directiu / Coordinacions / Tutories (ca/es/en).
+   Les dades són a src/_data/organigrama.json i el marcatge a src/_includes/organigrama.njk */
+
+.org-page{ background: #FAFAFD; color: #1A1A2E; }
+
+/* --- Pestanyes entre les tres pàgines --- */
+.org-tabs{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #fff;
+  border-bottom: 1px solid var(--color-border);
+}
+.org-tabs a{
+  padding: 12px 22px;
+  border-radius: 999px;
+  color: var(--color-blue);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background-color .25s ease, color .25s ease;
+}
+.org-tabs a:hover,
+.org-tabs a:focus-visible{ color: var(--color-orange); }
+.org-tabs a[aria-current="page"]{ background: var(--color-blue); color: #fff; }
+
+/* --- Targetes (comunes) --- */
+.org-card{
+  background: #fff;
+  border: 1px solid #CFD6E4;
+  border-radius: 14px;
+  padding: 22px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-sizing: border-box;
+}
+.org-card__role{
+  font-size: 13px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-blue);
+}
+.org-card__name{
+  font-size: 19px;
+  font-weight: 700;
+  color: #1A1A2E;
+}
+
+/* --- Equip directiu: organigrama --- */
+.org-wrap{
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 72px clamp(16px, 4vw, 24px) 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.org-board{
+  width: 100%;
+  background: #E6EBF2;
+  border-radius: 20px;
+  padding: 40px clamp(16px, 3vw, 32px) 48px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.org-board__label{
+  margin: 0 0 28px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #4A5470;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.org-card--head{
+  background: var(--color-blue);
+  border-color: var(--color-blue);
+  padding: 28px 40px;
+  min-width: 280px;
+  text-align: center;
+}
+.org-card--head .org-card__role{ color: #C9C4FF; letter-spacing: 0.1em; }
+.org-card--head .org-card__name{ color: #fff; font-size: 26px; }
+.org-line{ width: 2px; height: 32px; background: var(--color-blue); }
+.org-row{
+  position: relative;
+  width: 100%;
+  max-width: 860px;
+  display: flex;
+  gap: 24px;
+}
+.org-row::before{ /* línia horitzontal que uneix les tres targetes */
+  content: "";
+  position: absolute;
+  top: 0;
+  left: calc((100% - 48px) / 6);
+  right: calc((100% - 48px) / 6);
+  height: 2px;
+  background: var(--color-blue);
+}
+.org-row__item{
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.org-row__item::before{
+  content: "";
+  width: 2px;
+  height: 28px;
+  background: var(--color-blue);
+}
+.org-row__item .org-card{ width: 100%; text-align: center; height: 100%; }
+.org-link-dashed{ width: 0; height: 48px; border-left: 2px dashed var(--color-orange); }
+.org-card--adjunt{
+  border: 2px dashed var(--color-orange);
+  padding: 24px 40px;
+  min-width: 300px;
+  text-align: center;
+}
+.org-card--adjunt .org-card__role{ color: #B84800; letter-spacing: 0.1em; }
+
+@media (max-width: 760px){
+  .org-row{ flex-direction: column; gap: 16px; }
+  .org-row::before,
+  .org-row__item::before{ display: none; }
+  .org-line{ height: 24px; }
+  .org-card--head,
+  .org-card--adjunt{ min-width: 0; width: 100%; }
+}
+
+/* --- Coordinacions: blocs amb graella --- */
+.org-groups{
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 64px clamp(16px, 4vw, 24px) 96px;
+  display: flex;
+  flex-direction: column;
+  gap: 56px;
+}
+.org-group__title{
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 0 0 20px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-blue);
+}
+.org-group__title::after{
+  content: "";
+  flex: 1 1 auto;
+  height: 2px;
+  background: var(--color-orange);
+  opacity: 0.5;
+}
+.org-grid{
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Tutories: una columna per nivell --- */
+.org-levels{
+  max-width: 1340px;
+  margin: 0 auto;
+  padding: 64px clamp(16px, 4vw, 24px) 96px;
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.org-level{
+  background: #fff;
+  border: 1px solid #CFD6E4;
+  border-radius: 14px;
+  overflow: hidden;
+}
+.org-level__head{
+  background: var(--color-blue);
+  color: #fff;
+  padding: 18px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.org-level__title{ margin: 0 0 4px; font-size: 21px; font-weight: 700; color: #fff; }
+.org-level__label{ font-size: 13px; color: #C9C4FF; }
+.org-level__coord{ font-size: 16px; font-weight: 600; }
+.org-level__groups{ list-style: none; margin: 0; padding: 4px 0 8px; }
+.org-level__groups li{
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 10px 16px;
+  border-top: 1px solid #EEF1F6;
+  font-size: 15px;
+  line-height: 1.35;
+}
+.org-level__groups li:first-child{ border-top: 0; }
+.org-level__grup{
+  flex: 0 0 auto;
+  min-width: 18px;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-orange);
+}
+
+@media (max-width: 1100px){
+  .org-levels{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 640px){
+  .org-levels{ grid-template-columns: 1fr; }
+}

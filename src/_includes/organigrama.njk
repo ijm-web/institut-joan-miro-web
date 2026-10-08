@@ -1,0 +1,89 @@
+{#- Organigrama: marcatge comú de les pàgines Equip Directiu / Coordinacions / Tutories.
+    Cada pàgina (src/organigrama-*.njk, src/es/…, src/en/…) defineix `lang` i `orgPage`
+    ('directiu' | 'coordinacions' | 'tutories'). Les dades són a src/_data/organigrama.json. -#}
+{%- set L = lang | default('ca') -%}
+{%- set P = '' -%}
+{%- if L == 'es' -%}{%- set P = 'es/' -%}{%- elif L == 'en' -%}{%- set P = 'en/' -%}{%- endif -%}
+{%- set tm = i18n[L].menu -%}
+{%- set o = organigrama -%}
+<div class="org-page">
+
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-1-facana-2400.jpg" srcset="/assets/img/inici/inici-1-facana-1600.jpg 1600w, /assets/img/inici/inici-1-facana-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ o.textos.heroTitol[L] }}</span><span class="qs-hero__subtitle">{{ o.textos.heroSubtitol[L] }}</span></h1>
+  </div>
+</div>
+
+<nav class="org-tabs" aria-label="{{ o.textos.heroSubtitol[L] }}">
+  <a href="/{{ P }}organigrama-equip-directiu.html"{% if orgPage == 'directiu' %} aria-current="page"{% endif %}>{{ tm.equipDirectiu }}</a>
+  <a href="/{{ P }}organigrama-coordinacions.html"{% if orgPage == 'coordinacions' %} aria-current="page"{% endif %}>{{ tm.coordinacions }}</a>
+  <a href="/{{ P }}organigrama-tutories.html"{% if orgPage == 'tutories' %} aria-current="page"{% endif %}>{{ tm.tutories }}</a>
+</nav>
+
+{%- if orgPage == 'directiu' %}
+<div class="org-wrap">
+  <div class="org-board">
+    <h2 class="org-board__label">{{ o.textos.equipDirectiu[L] }}</h2>
+    <div class="org-card org-card--head">
+      <span class="org-card__role">{{ o.direccio.directora.carrec[L] }}</span>
+      <span class="org-card__name">{{ o.direccio.directora.nom }}</span>
+    </div>
+    <div class="org-line" aria-hidden="true"></div>
+    <div class="org-row">
+      {%- for p in o.direccio.equip %}
+      <div class="org-row__item">
+        <div class="org-card">
+          <span class="org-card__role">{{ p.carrec[L] }}</span>
+          <span class="org-card__name">{{ p.nom }}</span>
+        </div>
+      </div>
+      {%- endfor %}
+    </div>
+  </div>
+  <div class="org-link-dashed" aria-hidden="true"></div>
+  <div class="org-card org-card--adjunt">
+    <span class="org-card__role">{{ o.direccio.adjunt.carrec[L] }}</span>
+    <span class="org-card__name">{{ o.direccio.adjunt.nom }}</span>
+  </div>
+</div>
+{%- endif %}
+
+{%- if orgPage == 'coordinacions' %}
+<div class="org-groups">
+  {%- for g in o.coordinacions %}
+  <section>
+    <h2 class="org-group__title">{{ g.titol[L] }}</h2>
+    <ul class="org-grid">
+      {%- for p in g.persones %}
+      <li class="org-card">
+        <span class="org-card__role">{{ p.carrec[L] }}</span>
+        <span class="org-card__name">{{ p.nom }}</span>
+      </li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endfor %}
+</div>
+{%- endif %}
+
+{%- if orgPage == 'tutories' %}
+<div class="org-levels">
+  {%- for n in o.tutories %}
+  <section class="org-level">
+    <div class="org-level__head">
+      <h2 class="org-level__title">{{ n.nivell[L] }}</h2>
+      <span class="org-level__label">{{ o.textos.coordinacio[L] }}</span>
+      <span class="org-level__coord">{{ n.coordinacio }}</span>
+    </div>
+    <ul class="org-level__groups">
+      {%- for g in n.grups %}
+      <li><span class="org-level__grup">{{ g.grup }}</span><span>{{ g.tutor }}</span></li>
+      {%- endfor %}
+    </ul>
+  </section>
+  {%- endfor %}
+</div>
+{%- endif %}
+
+</div>

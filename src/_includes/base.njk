@@ -814,6 +814,9 @@
   }
 {{ pageStyles | safe }}
 </style>
+{%- if extraCss %}
+<link rel="stylesheet" href="{{ extraCss }}">
+{%- endif %}
 </head>
 <body>
 
@@ -862,13 +865,13 @@
                 <a href="/{{ langPrefix }}installacions.html">{{ t.menu.installacions }}</a>
                 <div class="dropdown-panel__group">
                   <span class="dropdown-panel__group-trigger">
-                    {{ t.menu.equip }}
+                    {{ t.menu.organigrama }}
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
                   </span>
                   <div class="dropdown-panel__flyout">
-                    <a href="#">{{ t.menu.equipDirectiu }}</a>
-                    <a href="#">{{ t.menu.coordinacions }}</a>
-                    <a href="#">{{ t.menu.tutories }}</a>
+                    <a href="/{{ langPrefix }}organigrama-equip-directiu.html">{{ t.menu.equipDirectiu }}</a>
+                    <a href="/{{ langPrefix }}organigrama-coordinacions.html">{{ t.menu.coordinacions }}</a>
+                    <a href="/{{ langPrefix }}organigrama-tutories.html">{{ t.menu.tutories }}</a>
                   </div>
                 </div>
                 <a href="/{{ langPrefix }}contacte.html#mapa">{{ t.menu.onTrobarNos }}</a>
@@ -985,10 +988,10 @@
             <li><a href="/{{ langPrefix }}qui-som.html">{{ t.menu.quiSom }}</a></li>
             <li><a href="/{{ langPrefix }}documents.html">{{ t.menu.documents }}</a></li>
             <li><a href="/{{ langPrefix }}installacions.html">{{ t.menu.installacions }}</a></li>
-            <li class="mobile-submenu__group-label">{{ t.menu.equip }}</li>
-            <li><a href="#" class="mobile-submenu__sub">{{ t.menu.equipDirectiu }}</a></li>
-            <li><a href="#" class="mobile-submenu__sub">{{ t.menu.coordinacions }}</a></li>
-            <li><a href="#" class="mobile-submenu__sub">{{ t.menu.tutories }}</a></li>
+            <li class="mobile-submenu__group-label">{{ t.menu.organigrama }}</li>
+            <li><a href="/{{ langPrefix }}organigrama-equip-directiu.html" class="mobile-submenu__sub">{{ t.menu.equipDirectiu }}</a></li>
+            <li><a href="/{{ langPrefix }}organigrama-coordinacions.html" class="mobile-submenu__sub">{{ t.menu.coordinacions }}</a></li>
+            <li><a href="/{{ langPrefix }}organigrama-tutories.html" class="mobile-submenu__sub">{{ t.menu.tutories }}</a></li>
             <li><a href="/{{ langPrefix }}contacte.html#mapa">{{ t.menu.onTrobarNos }}</a></li>
           </ul>
         </li>

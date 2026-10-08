@@ -1,0 +1,72 @@
+{
+  "_comentari": "Dades de l'Organigrama (El nostre centre › Organigrama). Per actualitzar-lo cada curs, només cal canviar els noms (nom) d'aquest fitxer. Els textos dels càrrecs estan en ca/es/en.",
+
+  "textos": {
+    "heroTitol": { "ca": "El nostre centre", "es": "Nuestro centro", "en": "Our school" },
+    "heroSubtitol": { "ca": "Organigrama", "es": "Organigrama", "en": "Organisation Chart" },
+    "equipDirectiu": { "ca": "Equip directiu", "es": "Equipo directivo", "en": "Management team" },
+    "coordinacio": { "ca": "Coordinació", "es": "Coordinación", "en": "Coordinator" }
+  },
+
+  "direccio": {
+    "directora": { "carrec": { "ca": "Directora", "es": "Directora", "en": "Headteacher" }, "nom": "Gemma Gamarra" },
+    "equip": [
+      { "carrec": { "ca": "Cap d'Estudis", "es": "Jefe de Estudios", "en": "Head of Studies" }, "nom": "Josep Sunyer" },
+      { "carrec": { "ca": "Coordinadora Pedagògica", "es": "Coordinadora Pedagógica", "en": "Pedagogical Coordinator" }, "nom": "Begoña Balaña" },
+      { "carrec": { "ca": "Secretària", "es": "Secretaria", "en": "Secretary" }, "nom": "Olga Garcia" }
+    ],
+    "adjunt": { "carrec": { "ca": "Adjunt de direcció", "es": "Adjunto de dirección", "en": "Assistant to the Management Team" }, "nom": "Romà Mendoza" }
+  },
+
+  "coordinacions": [
+    {
+      "titol": { "ca": "Coordinacions de nivell", "es": "Coordinaciones de nivel", "en": "Year-group coordinators" },
+      "persones": [
+        { "carrec": { "ca": "Coord. 1r ESO", "es": "Coord. 1º ESO", "en": "1st ESO Coordinator" }, "nom": "Anabel Ridruejo" },
+        { "carrec": { "ca": "Coord. 2n ESO", "es": "Coord. 2º ESO", "en": "2nd ESO Coordinator" }, "nom": "Eva Carretero" },
+        { "carrec": { "ca": "Coord. 3r ESO", "es": "Coord. 3º ESO", "en": "3rd ESO Coordinator" }, "nom": "Lluís Marias" },
+        { "carrec": { "ca": "Coord. 4t ESO", "es": "Coord. 4º ESO", "en": "4th ESO Coordinator" }, "nom": "Mireia Burguès" },
+        { "carrec": { "ca": "Coord. Batxillerat", "es": "Coord. Bachillerato", "en": "Batxillerat Coordinator" }, "nom": "Montse Roquet" }
+      ]
+    },
+    {
+      "titol": { "ca": "Caps de departament i àmbit", "es": "Jefes de departamento y ámbito", "en": "Heads of department" },
+      "persones": [
+        { "carrec": { "ca": "Llengües estrangeres", "es": "Lenguas extranjeras", "en": "Foreign Languages" }, "nom": "Antonia Salido" },
+        { "carrec": { "ca": "Llengües catalana i castellana", "es": "Lenguas catalana y castellana", "en": "Catalan and Spanish" }, "nom": "Sergi Batlle" },
+        { "carrec": { "ca": "Matemàtiques", "es": "Matemáticas", "en": "Mathematics" }, "nom": "Cristina Mora" },
+        { "carrec": { "ca": "Cientificotecnològic", "es": "Científico-tecnológico", "en": "Science and Technology" }, "nom": "Mar Martín" },
+        { "carrec": { "ca": "Ciències socials", "es": "Ciencias sociales", "en": "Social Sciences" }, "nom": "Josep M. Navero" },
+        { "carrec": { "ca": "Expressió", "es": "Expresión", "en": "Arts and Expression" }, "nom": "Anna Nos" },
+        { "carrec": { "ca": "Orientació", "es": "Orientación", "en": "Guidance" }, "nom": "Assumpta Muñoz" }
+      ]
+    },
+    {
+      "titol": { "ca": "Altres coordinacions", "es": "Otras coordinaciones", "en": "Other coordinators" },
+      "persones": [
+        { "carrec": { "ca": "Coord. Digital", "es": "Coord. Digital", "en": "Digital Coordinator" }, "nom": "Silke Fresno" },
+        { "carrec": { "ca": "Coord. LIC", "es": "Coord. LIC", "en": "LIC Coordinator" }, "nom": "Eli Armengol" },
+        { "carrec": { "ca": "Coord. Biblioteca", "es": "Coord. Biblioteca", "en": "Library Coordinator" }, "nom": "Balbi Iglesias" },
+        { "carrec": { "ca": "Coord. Sostenibilitat", "es": "Coord. Sostenibilidad", "en": "Sustainability Coordinator" }, "nom": "Sergi Rodríguez" },
+        { "carrec": { "ca": "Coord. Activitats", "es": "Coord. Actividades", "en": "Activities Coordinator" }, "nom": "Gemma Munné" },
+        { "carrec": { "ca": "Coord. professorat en pràctiques", "es": "Coord. profesorado en prácticas", "en": "Trainee Teachers Coordinator" }, "nom": "Montse Roquet" },
+        { "carrec": { "ca": "Coord. Riscos Laborals", "es": "Coord. Riesgos Laborales", "en": "Health and Safety Coordinator" }, "nom": "Romà Mendoza" }
+      ]
+    }
+  ],
+
+  "tutories": [
+    { "nivell": { "ca": "1r ESO", "es": "1º ESO", "en": "1st ESO" }, "coordinacio": "Anabel Ridruejo",
+      "grups": [ { "grup": "A", "tutor": "Nora Manchado / Assumpta Muñoz" }, { "grup": "B", "tutor": "Noelia Torrego" }, { "grup": "C", "tutor": "Gemma Montero" }, { "grup": "D", "tutor": "Josep Fas" } ] },
+    { "nivell": { "ca": "2n ESO", "es": "2º ESO", "en": "2nd ESO" }, "coordinacio": "Eva Carretero",
+      "grups": [ { "grup": "A", "tutor": "Vanesa Garcia" }, { "grup": "B", "tutor": "Arnau Baldoví" }, { "grup": "C", "tutor": "Ernest Prieto / Tania Biscarri" }, { "grup": "D", "tutor": "Miquel de los Cobos" } ] },
+    { "nivell": { "ca": "3r ESO", "es": "3º ESO", "en": "3rd ESO" }, "coordinacio": "Lluís Marias",
+      "grups": [ { "grup": "A", "tutor": "Joan Florit" }, { "grup": "B", "tutor": "Genis Prats" }, { "grup": "C", "tutor": "Ferran Adam" }, { "grup": "D", "tutor": "Raquel Vilda" } ] },
+    { "nivell": { "ca": "4t ESO", "es": "4º ESO", "en": "4th ESO" }, "coordinacio": "Mireia Burguès",
+      "grups": [ { "grup": "A", "tutor": "Pere Rios" }, { "grup": "B", "tutor": "Cristina González" }, { "grup": "C", "tutor": "Laura Garcia" }, { "grup": "D", "tutor": "Gonzalo Flox" } ] },
+    { "nivell": { "ca": "1r Batxillerat", "es": "1º Bachillerato", "en": "1st Batxillerat" }, "coordinacio": "Montse Roquet",
+      "grups": [ { "grup": "A", "tutor": "Adria Boix" }, { "grup": "B", "tutor": "Sergi Rofes" }, { "grup": "C", "tutor": "Laura Leon" } ] },
+    { "nivell": { "ca": "2n Batxillerat", "es": "2º Bachillerato", "en": "2nd Batxillerat" }, "coordinacio": "Montse Roquet",
+      "grups": [ { "grup": "A", "tutor": "Eugenia Colell" }, { "grup": "B", "tutor": "Dolors Mateo" }, { "grup": "C", "tutor": "Montse Díaz" } ] }
+  ]
+}
