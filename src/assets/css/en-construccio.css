@@ -1,0 +1,65 @@
+/* ============ PÀGINA EN CONSTRUCCIÓ ============
+   Marcatge comú a src/_includes/en-construccio.njk (Batxillerat, AFA…). */
+.uc{
+  background: #FAFAFD;
+  padding: clamp(56px, 8vw, 104px) clamp(16px, 4vw, 48px);
+}
+.uc__inner{
+  max-width: 640px;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.uc__icon{
+  width: 84px;
+  height: 84px;
+  color: var(--color-blue);
+  margin-bottom: 22px;
+}
+.uc__icon .uc__crane{ color: var(--color-orange); stroke: var(--color-orange); }
+.uc__kicker{
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--color-orange);
+}
+.uc__title{
+  margin: 10px 0 18px;
+  font-size: clamp(28px, 3.4vw, 40px);
+  font-weight: 300;
+  color: var(--color-blue);
+}
+.uc__text{
+  margin: 0 0 8px;
+  font-size: 16px;
+  line-height: 1.7;
+  color: #2b2f45;
+}
+.uc__actions{
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+.uc__btn{
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 26px;
+  border: 1px solid var(--color-blue);
+  color: var(--color-blue);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.uc__btn:hover,
+.uc__btn:focus-visible{ background: var(--color-blue); color: #fff; }
+.uc__btn--primary{ background: var(--color-orange); border-color: var(--color-orange); color: #fff; }
+.uc__btn--primary:hover,
+.uc__btn--primary:focus-visible{ background: #C24F08; border-color: #C24F08; color: #fff; }

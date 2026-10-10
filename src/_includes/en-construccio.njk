@@ -1,0 +1,35 @@
+{#- Pàgina «en construcció»: marcatge comú.
+    Cada pàgina defineix al front matter: lang, heroTitle, heroSubtitle i heroImg
+    (nom base d'una foto de /assets/img/inici/, p. ex. "inici-3-vestibul").
+    Estils: src/assets/css/en-construccio.css -#}
+{%- set L = lang | default('ca') -%}
+{%- set P = '' -%}
+{%- if L == 'es' -%}{%- set P = 'es/' -%}{%- elif L == 'en' -%}{%- set P = 'en/' -%}{%- endif -%}
+{%- set t = i18n[L] -%}
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/{{ heroImg }}-2400.jpg" srcset="/assets/img/inici/{{ heroImg }}-1600.jpg 1600w, /assets/img/inici/{{ heroImg }}-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ heroTitle }}</span><span class="qs-hero__subtitle">{{ heroSubtitle }}</span></h1>
+  </div>
+</div>
+
+<section class="uc">
+  <div class="uc__inner">
+    <svg class="uc__icon" aria-hidden="true" viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M8 52h48"/>
+      <path d="M14 52V28h36v24"/>
+      <path d="M22 52V38h8v14"/>
+      <path d="M36 38h8v6h-8z"/>
+      <path d="M10 28L32 12l22 16"/>
+      <path class="uc__crane" d="M46 8v12M40 8h16M54 8v5"/>
+    </svg>
+    <p class="uc__kicker">{{ t.estudis.underConstructionTitle }}</p>
+    <h2 class="uc__title">{{ heroSubtitle }}</h2>
+    <p class="uc__text">{{ t.estudis.underConstructionText }}</p>
+    <p class="uc__text">{{ t.construccio.mentrestant }}</p>
+    <div class="uc__actions">
+      <a class="uc__btn uc__btn--primary" href="/{{ P }}contacte.html">{{ t.construccio.contacta }}</a>
+      <a class="uc__btn" href="/{{ P }}index.html">{{ t.construccio.tornar }}</a>
+    </div>
+  </div>
+</section>

@@ -30,7 +30,8 @@
       "declaracioESO": "Declaració Responsable ESO",
       "declaracioBatxillerat": "Declaració Responsable Batxillerat",
       "noticies": "Notícies",
-      "inici": "Inici"
+      "inici": "Inici",
+      "afa": "AFA"
     },
     "topbar": {
       "intranetLabel": "Accés a la intranet Clickedu",
@@ -50,7 +51,6 @@
     },
     "estudis": {
       "esoTitle": "ESO",
-      "esoPresentacio": "Presentació",
       "batxilleratTitle": "Batxillerat",
       "level1eso": "1r ESO",
       "level2eso": "2n ESO",
@@ -84,6 +84,11 @@
       "notFound": "No hem trobat aquest repositori de fotos.",
       "prevLabel": "Foto anterior",
       "nextLabel": "Foto següent"
+    },
+    "construccio": {
+      "tornar": "Tornar a l’inici",
+      "mentrestant": "Mentrestant, si tens cap dubte, pots escriure’ns.",
+      "contacta": "Contacta"
     }
   },
   "es": {
@@ -117,7 +122,8 @@
       "declaracioESO": "Declaración Responsable ESO",
       "declaracioBatxillerat": "Declaración Responsable Bachillerato",
       "noticies": "Noticias",
-      "inici": "Inicio"
+      "inici": "Inicio",
+      "afa": "AFA"
     },
     "topbar": {
       "intranetLabel": "Acceso a la intranet Clickedu",
@@ -137,7 +143,6 @@
     },
     "estudis": {
       "esoTitle": "ESO",
-      "esoPresentacio": "Presentación",
       "batxilleratTitle": "Bachillerato",
       "level1eso": "1º ESO",
       "level2eso": "2º ESO",
@@ -171,6 +176,11 @@
       "notFound": "No hemos encontrado este repositorio de fotos.",
       "prevLabel": "Foto anterior",
       "nextLabel": "Foto siguiente"
+    },
+    "construccio": {
+      "tornar": "Volver al inicio",
+      "mentrestant": "Mientras tanto, si tienes cualquier duda, puedes escribirnos.",
+      "contacta": "Contacta"
     }
   },
   "en": {
@@ -204,7 +214,8 @@
       "declaracioESO": "ESO Sworn Statement",
       "declaracioBatxillerat": "Batxillerat Sworn Statement",
       "noticies": "Notices",
-      "inici": "Home"
+      "inici": "Home",
+      "afa": "Parents’ Association (AFA)"
     },
     "topbar": {
       "intranetLabel": "Clickedu intranet access",
@@ -224,7 +235,6 @@
     },
     "estudis": {
       "esoTitle": "ESO",
-      "esoPresentacio": "Overview",
       "batxilleratTitle": "Batxillerat",
       "level1eso": "1st ESO",
       "level2eso": "2nd ESO",
@@ -258,6 +268,11 @@
       "notFound": "We couldn't find this photo repository.",
       "prevLabel": "Previous photo",
       "nextLabel": "Next photo"
+    },
+    "construccio": {
+      "tornar": "Back to home",
+      "mentrestant": "In the meantime, if you have any questions, write to us.",
+      "contacta": "Contact us"
     }
   }
 }

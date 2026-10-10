@@ -212,7 +212,7 @@ pageStyles: |
 
     /* --- Secció 3: Estudis --- */
     /* Dues caixes grans (ESO i Batxillerat) separades, amb marge als costats.
-       La d’ESO enllaça a la pàgina ESO; la de Batxillerat encara no és un enllaç. */
+       Només el títol; cada caixa enllaça a la seva pàgina (ESO / Batxillerat). */
     .home-estudis .home-title{
       max-width: 1220px;
       margin-left: auto;
@@ -224,13 +224,13 @@ pageStyles: |
       gap: clamp(16px, 2.5vw, 32px);
     }
     .estudis-box{
-      min-height: clamp(260px, 30vw, 400px);
+      min-height: clamp(220px, 24vw, 320px);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: flex-start;
+      justify-content: center;
       gap: 12px;
-      padding: clamp(44px, 6vw, 80px) 24px 40px;
+      padding: 40px 24px;
       text-align: center;
       color: #fff;
       border-radius: 12px;
@@ -242,7 +242,7 @@ pageStyles: |
       transition: background-color 1s ease;
     }
     .estudis-box--eso{ background: #4A44A8; }
-    /* La caixa ESO és clicable: l’enllaç del títol cobreix tota la caixa */
+    /* Les caixes són clicables: l’enllaç del títol cobreix tota la caixa */
     .estudis-box{ position: relative; }
     .estudis-box__link{ color: inherit; text-decoration: none; }
     .estudis-box__link::after{ content: ""; position: absolute; inset: 0; border-radius: 12px; }
@@ -258,8 +258,8 @@ pageStyles: |
       display: flex;
       align-items: center;
       gap: 0.35em;
-      margin: 0 0 10px;
-            font-size: clamp(34px, 4.6vw, 58px);
+      margin: 0;
+      font-size: clamp(34px, 4.6vw, 58px);
       font-weight: 200;
       text-transform: uppercase;
       letter-spacing: 0.06em;
@@ -667,19 +667,9 @@ pageScript: |
     <div class="estudis-grid">
       <div class="estudis-box estudis-box--eso">
         <h3 class="estudis-box__title"><a class="estudis-box__link" href="/en/eso.html">ESO</a><svg class="estudis-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></h3>
-        <ul class="estudis-box__list">
-          <li>1st ESO</li>
-          <li>2nd ESO</li>
-          <li>3rd ESO</li>
-          <li>4th ESO</li>
-        </ul>
       </div>
       <div class="estudis-box estudis-box--batx">
-        <h3 class="estudis-box__title">Batxillerat<svg class="estudis-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></h3>
-        <ul class="estudis-box__list">
-          <li>1st Batxillerat</li>
-          <li>2nd Batxillerat</li>
-        </ul>
+        <h3 class="estudis-box__title"><a class="estudis-box__link" href="/en/batxillerat.html">Batxillerat</a><svg class="estudis-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></h3>
       </div>
     </div>
   </section>

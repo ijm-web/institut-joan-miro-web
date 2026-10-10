@@ -462,9 +462,6 @@
   }
   .dropdown-panel__group{
     position: relative;
-    margin: 4px 0;
-    padding-top: 6px;
-    border-top: 1px solid var(--color-border);
   }
   .dropdown-panel__group-trigger{
     display: flex;
@@ -874,6 +871,7 @@
                     <a href="/{{ langPrefix }}organigrama-tutories.html">{{ t.menu.tutories }}</a>
                   </div>
                 </div>
+                <a href="/{{ langPrefix }}afa.html">{{ t.menu.afa }}</a>
                 <a href="/{{ langPrefix }}contacte.html#mapa">{{ t.menu.onTrobarNos }}</a>
               </div>
             </li>
@@ -883,29 +881,8 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
               </button>
               <div class="dropdown-panel">
-                <div class="dropdown-panel__group">
-                  <span class="dropdown-panel__group-trigger">
-                    {{ t.menu.eso }}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-                  </span>
-                  <div class="dropdown-panel__flyout">
-                    <a href="/{{ langPrefix }}eso.html">{{ t.estudis.esoPresentacio }}</a>
-                    <a href="/{{ langPrefix }}eso-1r.html">{{ t.estudis.level1eso }}</a>
-                    <a href="/{{ langPrefix }}eso-2n.html">{{ t.estudis.level2eso }}</a>
-                    <a href="/{{ langPrefix }}eso-3r.html">{{ t.estudis.level3eso }}</a>
-                    <a href="/{{ langPrefix }}eso-4t.html">{{ t.estudis.level4eso }}</a>
-                  </div>
-                </div>
-                <div class="dropdown-panel__group">
-                  <span class="dropdown-panel__group-trigger">
-                    {{ t.menu.batxillerat }}
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-                  </span>
-                  <div class="dropdown-panel__flyout">
-                    <a href="/{{ langPrefix }}batxillerat-1r.html">{{ t.estudis.level1bat }}</a>
-                    <a href="/{{ langPrefix }}batxillerat-2n.html">{{ t.estudis.level2bat }}</a>
-                  </div>
-                </div>
+                <a href="/{{ langPrefix }}eso.html">{{ t.menu.eso }}</a>
+                <a href="/{{ langPrefix }}batxillerat.html">{{ t.menu.batxillerat }}</a>
               </div>
             </li>
             <li class="has-dropdown">
@@ -993,6 +970,7 @@
             <li><a href="/{{ langPrefix }}organigrama-equip-directiu.html" class="mobile-submenu__sub">{{ t.menu.equipDirectiu }}</a></li>
             <li><a href="/{{ langPrefix }}organigrama-coordinacions.html" class="mobile-submenu__sub">{{ t.menu.coordinacions }}</a></li>
             <li><a href="/{{ langPrefix }}organigrama-tutories.html" class="mobile-submenu__sub">{{ t.menu.tutories }}</a></li>
+            <li><a href="/{{ langPrefix }}afa.html">{{ t.menu.afa }}</a></li>
             <li><a href="/{{ langPrefix }}contacte.html#mapa">{{ t.menu.onTrobarNos }}</a></li>
           </ul>
         </li>
@@ -1002,15 +980,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
           </button>
           <ul class="mobile-submenu">
-            <li class="mobile-submenu__group-label">{{ t.menu.eso }}</li>
-            <li><a href="/{{ langPrefix }}eso.html" class="mobile-submenu__sub">{{ t.estudis.esoPresentacio }}</a></li>
-            <li><a href="/{{ langPrefix }}eso-1r.html" class="mobile-submenu__sub">{{ t.estudis.level1eso }}</a></li>
-            <li><a href="/{{ langPrefix }}eso-2n.html" class="mobile-submenu__sub">{{ t.estudis.level2eso }}</a></li>
-            <li><a href="/{{ langPrefix }}eso-3r.html" class="mobile-submenu__sub">{{ t.estudis.level3eso }}</a></li>
-            <li><a href="/{{ langPrefix }}eso-4t.html" class="mobile-submenu__sub">{{ t.estudis.level4eso }}</a></li>
-            <li class="mobile-submenu__group-label">{{ t.menu.batxillerat }}</li>
-            <li><a href="/{{ langPrefix }}batxillerat-1r.html" class="mobile-submenu__sub">{{ t.estudis.level1bat }}</a></li>
-            <li><a href="/{{ langPrefix }}batxillerat-2n.html" class="mobile-submenu__sub">{{ t.estudis.level2bat }}</a></li>
+            <li><a href="/{{ langPrefix }}eso.html">{{ t.menu.eso }}</a></li>
+            <li><a href="/{{ langPrefix }}batxillerat.html">{{ t.menu.batxillerat }}</a></li>
           </ul>
         </li>
         <li class="mobile-nav-item has-submenu">
