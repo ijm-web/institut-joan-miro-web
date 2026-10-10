@@ -18,12 +18,12 @@ pageStyles: |
     display: inline-block;
     margin: 0 0 18px;
     font-size: 13px;
-    font-weight: 800;
-    letter-spacing: 0.12em;
+    font-weight: 600;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
-    color: var(--color-blue);
-    border-bottom: 2px solid var(--color-orange);
-    padding-bottom: 6px;
+    color: var(--color-orange);
+    border-bottom: none;
+    padding-bottom: 0;
   }
   .le-intro{
     padding: clamp(44px, 6vw, 80px) 0 clamp(36px, 5vw, 56px);
@@ -35,8 +35,8 @@ pageStyles: |
     margin: 0;
     font-size: clamp(19px, 2vw, 25px);
     line-height: 1.55;
-    font-weight: 400;
-    color: #1f2340;
+    font-weight: 300;
+    color: var(--color-text);
   }
   .le-lead .kw{ color: var(--color-blue); font-weight: 700; }
 
@@ -91,20 +91,20 @@ pageStyles: |
   }
   .le-section__head h2{
     margin: 0;
-    font-size: clamp(21px, 2.1vw, 28px);
-    font-weight: 800;
+    font-size: clamp(24px, 2.6vw, 30px);
+    font-weight: 300;
     line-height: 1.15;
     overflow-wrap: break-word;
     hyphens: auto;
-    text-transform: uppercase;
-    letter-spacing: 0.02em;
+    text-transform: none;
+    letter-spacing: 0;
     color: var(--color-blue);
   }
   .le-section__body p{
     margin: 0 0 1.1em;
     font-size: 16px;
     line-height: 1.75;
-    color: #2b2f45;
+    color: var(--color-text);
   }
   .le-section__body p:last-child{ margin-bottom: 0; }
   .le-section__body .kw{ color: var(--color-blue); font-weight: 700; }
@@ -156,7 +156,7 @@ pageStyles: |
     align-items: center;
     gap: 16px;
   }
-  .le-hours__label{ font-size: 14px; font-weight: 700; color: #2b2f45; }
+  .le-hours__label{ font-size: 14px; font-weight: 700; color: var(--color-text); }
   .le-hours__label small{ display: block; font-weight: 400; color: var(--color-text-muted); font-size: 12px; }
   .le-hours__bar{ display: flex; gap: 4px; }
   .le-hours__seg{
@@ -291,7 +291,7 @@ pageStyles: |
   }
   .le-timeline li:last-child::before{ background: var(--color-orange); border-color: var(--color-orange); }
   .le-timeline b{ display: block; font-size: 20px; font-weight: 700; color: var(--color-blue); }
-  .le-timeline span{ display: block; margin-top: 6px; font-size: 14px; line-height: 1.5; color: #2b2f45; }
+  .le-timeline span{ display: block; margin-top: 6px; font-size: 14px; line-height: 1.5; color: var(--color-text); }
 
   /* --- Accions Erasmus+ --- */
   .le-actions{
@@ -314,11 +314,11 @@ pageStyles: |
     margin-bottom: 12px;
   }
   .le-actions b{ display: block; font-size: 15px; color: var(--color-blue); margin-bottom: 6px; }
-  .le-actions span{ display: block; font-size: 14px; line-height: 1.6; color: #2b2f45; }
+  .le-actions span{ display: block; font-size: 14px; line-height: 1.6; color: var(--color-text); }
 
   /* --- Tancament a tota amplada --- */
   .le-closing{
-    background: #F4F3FE;
+    background: var(--bg-band);
     margin-top: clamp(20px, 3vw, 40px);
   }
   .le-closing__inner{
@@ -341,7 +341,8 @@ pageStyles: |
     margin: 0;
     font-size: clamp(19px, 2vw, 25px);
     line-height: 1.6;
-    color: #1f2340;
+    color: var(--color-text);
+    font-weight: 300;
   }
   .le-closing p .kw{ color: var(--color-blue); font-weight: 700; }
 

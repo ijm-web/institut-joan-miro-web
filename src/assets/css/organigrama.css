@@ -31,7 +31,7 @@
 .org-card{
   background: #fff;
   border: 1px solid #CFD6E4;
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   padding: 22px 24px;
   display: flex;
   flex-direction: column;
@@ -63,7 +63,7 @@
 .org-board{
   width: 100%;
   background: #E6EBF2;
-  border-radius: 20px;
+  border-radius: var(--radius-card);
   padding: 40px clamp(16px, 3vw, 32px) 48px;
   box-sizing: border-box;
   display: flex;
@@ -137,7 +137,7 @@
 
 /* --- Coordinacions: blocs amb graella --- */
 .org-groups{
-  max-width: 1120px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 64px clamp(16px, 4vw, 24px) 96px;
   display: flex;
@@ -149,8 +149,8 @@
   align-items: center;
   gap: 16px;
   margin: 0 0 20px;
-  font-size: 24px;
-  font-weight: 700;
+  font-size: clamp(22px, 2.3vw, 26px);
+  font-weight: 300;
   color: var(--color-blue);
 }
 .org-group__title::after{
@@ -171,7 +171,7 @@
 
 /* --- Tutories: una columna per nivell --- */
 .org-levels{
-  max-width: 1340px;
+  max-width: var(--content-max);
   margin: 0 auto;
   padding: 64px clamp(16px, 4vw, 24px) 96px;
   display: grid;
@@ -182,7 +182,7 @@
 .org-level{
   background: #fff;
   border: 1px solid #CFD6E4;
-  border-radius: 14px;
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
 .org-level__head{

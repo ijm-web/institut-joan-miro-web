@@ -37,7 +37,7 @@
   margin: 0 0 8px;
   font-size: 16px;
   line-height: 1.7;
-  color: #2b2f45;
+  color: var(--color-text);
 }
 .uc__actions{
   margin-top: 28px;
@@ -57,9 +57,13 @@
   font-weight: 600;
   font-size: 15px;
   transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+  border-radius: var(--radius-btn);
+  background: transparent;
 }
 .uc__btn:hover,
-.uc__btn:focus-visible{ background: var(--color-blue); color: #fff; }
-.uc__btn--primary{ background: var(--color-orange); border-color: var(--color-orange); color: #fff; }
+.uc__btn:focus-visible{ background: var(--color-orange); color: #fff;
+ border-color: var(--color-orange);
+}
+.uc__btn--primary{ background: var(--color-blue); border-color: var(--color-blue); color: #fff; }
 .uc__btn--primary:hover,
-.uc__btn--primary:focus-visible{ background: #C24F08; border-color: #C24F08; color: #fff; }
+.uc__btn--primary:focus-visible{ background: var(--color-orange); border-color: var(--color-orange); color: #fff; }

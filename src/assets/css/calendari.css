@@ -52,6 +52,7 @@
 .cal-key__item{
   background: #fff; border: 1px solid #E6EBF2; border-top: 4px solid var(--color-blue);
   padding: 20px 22px; display: flex; flex-direction: column; gap: 6px;
+  border-radius: var(--radius-card);
 }
 .cal-key__item--vacances{ border-top-color: #9AA6BC; }
 .cal-key__item--darrerBat{ border-top-color: #8C83E0; }
@@ -68,6 +69,7 @@
 .cal-month{
   width: 100%; border-collapse: separate; border-spacing: 3px;
   background: #fff; border: 1px solid #E6EBF2; padding: 10px 10px 12px; table-layout: fixed;
+  border-radius: var(--radius-card);
 }
 .cal-month caption{
   caption-side: top; text-align: left; padding: 0 4px 10px;

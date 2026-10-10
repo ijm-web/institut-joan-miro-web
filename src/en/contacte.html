@@ -56,7 +56,7 @@ pageStyles: |
   }
 
   .contact-wrap{
-    max-width: 1100px;
+    max-width: var(--content-max);
     margin: 0 auto;
     padding: 56px clamp(16px, 4vw, 48px) 60px;
   }
@@ -94,9 +94,9 @@ pageStyles: |
     color: var(--color-blue);
   }
   .info-card__body{
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.6;
-    color: var(--color-text-muted);
+    color: var(--color-text);
   }
   .info-card__body a{
     display: block;
@@ -130,10 +130,10 @@ pageStyles: |
 
   /* --- Formulari de contacte --- */
   .contact-form-section h2{
-    font-size: 18px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 26px;
+    font-weight: 300;
+    text-transform: none;
+    letter-spacing: 0;
     color: var(--color-blue);
     margin: 0 0 22px;
   }
@@ -159,9 +159,9 @@ pageStyles: |
   .form-field textarea{
     font-family: inherit;
     font-size: 14px;
-    color: var(--color-blue);
+    color: var(--color-text);
     border: 1px solid var(--color-border);
-    border-radius: 6px;
+    border-radius: var(--radius-btn);
     padding: 10px 12px;
     background: #fff;
     transition: border-color 0.18s ease;
@@ -182,15 +182,15 @@ pageStyles: |
   }
   .form-submit button{
     font-family: inherit;
-    font-size: 13.5px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
+    font-size: 15px;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0;
     color: #fff;
     background: var(--color-blue);
     border: none;
-    border-radius: 6px;
-    padding: 13px 30px;
+    border-radius: var(--radius-btn);
+    padding: 13px 28px;
     cursor: pointer;
     transition: background 0.18s ease;
   }
@@ -227,10 +227,10 @@ pageStyles: |
     margin-top: 56px;
   }
   .contact-map-section h2{
-    font-size: 18px;
-    font-weight: 800;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
+    font-size: 26px;
+    font-weight: 300;
+    text-transform: none;
+    letter-spacing: 0;
     color: var(--color-blue);
     margin: 0 0 18px;
   }

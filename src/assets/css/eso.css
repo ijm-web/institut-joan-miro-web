@@ -85,21 +85,28 @@ section[id]{ scroll-margin-top: 130px; }
 .eso-stats{
   list-style: none;
   margin: 0;
-  padding: 0;
+  padding: 26px 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0;
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
 }
 .eso-stats li{
-  background: #fff;
-  border: 1px solid #E6EBF2;
-  padding: 24px 20px;
+  background: none;
+  border: none;
+  padding: 4px clamp(12px, 2vw, 24px);
   display: flex;
   flex-direction: column;
   gap: 6px;
+  border-left: 1px solid var(--color-border);
 }
-.eso-stats__num{ font-size: clamp(30px, 2.9vw, 38px); white-space: nowrap; font-weight: 200; color: var(--color-blue); line-height: 1.1; }
-.eso-stats__label{ font-size: 14px; font-weight: 500; }
+.eso-stats li:first-child{ border-left: none; padding-left: 0; }
+.eso-stats__num{ font-size: clamp(26px, 2.8vw, 38px); white-space: nowrap; font-weight: 300; color: var(--color-blue); line-height: 1.1; }
+.eso-stats__label{ font-size: 13px; font-weight: 400;
+ color: var(--color-text-muted);
+ line-height: 1.45;
+}
 
 /* --- Navegació interna --- */
 .eso-anchors{
@@ -166,9 +173,10 @@ section[id]{ scroll-margin-top: 130px; }
   background: #fff;
   border: 1px solid var(--color-blue);
   color: var(--color-blue);
-  padding: 10px 20px;
+  padding: 8px 18px;
   font-weight: 600;
   font-size: 15px;
+  border-radius: 999px;
 }
 
 /* --- Currículum per curs (pestanyes) --- */
@@ -176,7 +184,7 @@ section[id]{ scroll-margin-top: 130px; }
 .eso-tabs{ display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
 .eso-tabs button{
   min-height: 44px;
-  padding: 12px 26px;
+  padding: 0 24px;
   font-family: inherit;
   font-size: 15px;
   font-weight: 600;
@@ -185,6 +193,7 @@ section[id]{ scroll-margin-top: 130px; }
   background: #fff;
   color: var(--color-blue);
   transition: background-color .2s ease, color .2s ease;
+  border-radius: 999px;
 }
 .eso-tabs button[aria-selected="true"]{ background: var(--color-blue); color: #fff; }
 .eso-tabs button:focus-visible{ outline: 3px solid var(--color-orange); outline-offset: 2px; }
@@ -198,6 +207,7 @@ section[id]{ scroll-margin-top: 130px; }
   display: flex;
   flex-direction: column;
   gap: 16px;
+  border-radius: var(--radius-card);
 }
 .eso-common__head{ display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
 .eso-common__head h3{ margin: 0; font-size: 19px; font-weight: 600; color: var(--color-blue); }
@@ -221,6 +231,7 @@ section[id]{ scroll-margin-top: 130px; }
   display: flex;
   flex-direction: column;
   gap: 14px;
+  border-radius: var(--radius-card);
 }
 .eso-opts h3{ margin: 0; font-size: 19px; font-weight: 600; }
 .eso-opts p{ margin: 0; font-size: 14px; line-height: 1.6; opacity: .92; }
@@ -230,6 +241,7 @@ section[id]{ scroll-margin-top: 130px; }
   border: 1px solid rgba(255,255,255,.35);
   padding: 7px 12px;
   font-size: 13px;
+  border-radius: 999px;
 }
 .eso-opts li.tbd{ background: #FFE95C; border-color: #FFE95C; color: #1E1E2A; }
 
@@ -245,6 +257,7 @@ section[id]{ scroll-margin-top: 130px; }
   gap: 8px;
   font-weight: 600;
   transition: color .2s ease, border-color .2s ease;
+  border-radius: var(--radius-card);
 }
 .eso-doc--row{ flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
 .eso-doc:hover,
@@ -318,6 +331,7 @@ section[id]{ scroll-margin-top: 130px; }
   display: flex;
   flex-direction: column;
   gap: 6px;
+  border-radius: var(--radius-card);
 }
 .eso-steps__num{
   width: 34px; height: 34px;
@@ -351,6 +365,8 @@ section[id]{ scroll-margin-top: 130px; }
   text-decoration: none;
   color: #1E1E2A;
   transition: transform .2s ease, box-shadow .2s ease;
+  border-radius: var(--radius-card);
+  overflow: hidden;
 }
 a.eso-card:hover,
 a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px rgba(28,12,188,.12); }
@@ -391,16 +407,26 @@ a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px r
 .eso-cta__text{ font-size: 15px; opacity: .85; margin: 6px 0 0; }
 .eso-cta a{
   text-decoration: none;
-  background: var(--color-orange);
-  color: #fff;
-  padding: 15px 28px;
+  background: #fff;
+  color: var(--color-blue);
+  padding: 0 28px;
   font-weight: 600;
   font-size: 15px;
   transition: background-color .2s ease;
+  border-radius: var(--radius-btn);
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
 }
 .eso-cta a:hover,
-.eso-cta a:focus-visible{ background: #C24F08; }
+.eso-cta a:focus-visible{ background: var(--color-orange);
+ color: #fff;
+}
 
+@media (max-width: 900px){
+  .eso-stats{ grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+  .eso-stats li:nth-child(odd){ border-left: none; padding-left: 0; }
+}
 @media (max-width: 640px){
   .eso-sched{ grid-template-columns: 70px repeat(5, minmax(0, 1fr)); font-size: 11px; }
   .eso-ttl::before, .eso-ttl::after{ max-width: 40px; }
