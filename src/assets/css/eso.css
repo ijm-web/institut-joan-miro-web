@@ -255,6 +255,51 @@ section[id]{ scroll-margin-top: 130px; }
 .eso-docs{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 .eso-docs--wide{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
 
+/* --- Butlletins de qualificacions (línia de temps) --- */
+.eso-reports{
+  list-style: none;
+  margin: 4px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  position: relative;
+}
+.eso-reports::before{
+  content: "";
+  position: absolute;
+  left: 8px; right: 8px; top: 7px;
+  height: 2px;
+  background: var(--color-blue);
+  opacity: .3;
+}
+.eso-reports li{
+  position: relative;
+  padding: 28px 12px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.eso-reports li::before{
+  content: "";
+  position: absolute;
+  left: 0; top: 0;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  background: #fff;
+  border: 2px solid var(--color-blue);
+}
+.eso-reports__item--paper::before{ background: var(--color-orange) !important; border-color: var(--color-orange) !important; }
+.eso-reports__when{ font-weight: 600; color: var(--color-blue); }
+.eso-reports__fmt{ font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #5A6070; }
+.eso-reports__item--paper .eso-reports__fmt{ color: #A3420A; }
+@media (max-width: 760px){
+  .eso-reports{ grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .eso-reports::before{ left: 7px; right: auto; top: 6px; bottom: 6px; width: 2px; height: auto; }
+  .eso-reports li{ padding: 0 0 0 28px; }
+}
+
 /* --- Projectes --- */
 .eso-cards{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; list-style: none; margin: 0; padding: 0; }
 .eso-card{

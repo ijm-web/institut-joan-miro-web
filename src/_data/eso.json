@@ -87,9 +87,9 @@
     {
       "id": "qualificacio",
       "label": {
-        "ca": "Criteris de qualificació",
-        "es": "Criterios de calificación",
-        "en": "Assessment criteria"
+        "ca": "Com avaluem",
+        "es": "Cómo evaluamos",
+        "en": "How we assess"
       }
     },
     {
@@ -535,14 +535,14 @@
   },
   "qual": {
     "titol": {
+      "ca": "Com avaluem",
+      "es": "Cómo evaluamos",
+      "en": "How we assess"
+    },
+    "comTitol": {
       "ca": "Criteris de qualificació",
       "es": "Criterios de calificación",
       "en": "Assessment criteria"
-    },
-    "comTitol": {
-      "ca": "Com avaluem i criteris",
-      "es": "Cómo evaluamos y criterios",
-      "en": "How we assess and criteria"
     },
     "comText": {
       "ca": "L’avaluació a l’ESO és contínua i competencial.",
@@ -558,7 +558,100 @@
       "ca": "D’acord amb el Decret 175/2022 (art. 24), passen de curs els alumnes que han assolit les competències de totes les matèries i els que tenen avaluació negativa en una o dues matèries, sempre que l’equip docent consideri que les matèries no superades no els impedeixen continuar el curs següent. La permanència un any més en el mateix curs té caràcter excepcional. Obtenen el títol de graduat en ESO els alumnes que, en acabar l’etapa, han adquirit, a criteri de l’equip docent, les competències establertes i han assolit els objectius de l’etapa.",
       "es": "De acuerdo con el Decreto 175/2022 (art. 24), promocionan de curso los alumnos que han alcanzado las competencias de todas las materias y los que tienen evaluación negativa en una o dos materias, siempre que el equipo docente considere que las materias no superadas no les impiden seguir el curso siguiente. La permanencia un año más en el mismo curso tiene carácter excepcional. Obtienen el título de graduado en ESO los alumnos que, al terminar la etapa, han adquirido, a criterio del equipo docente, las competencias establecidas y han alcanzado los objetivos de la etapa.",
       "en": "Under Decree 175/2022 (art. 24), students move up a year when they have achieved the competences of all subjects, or have failed one or two subjects provided the teaching team considers this does not prevent them from following the next year. Repeating a year is exceptional. Students obtain the ESO certificate when, at the end of the stage, the teaching team considers they have acquired the required competences and met the objectives of the stage."
-    }
+    },
+    "butlletinsText": {
+      "ca": "A final de cada trimestre s’expedeix un butlletí de qualificacions, i a la meitat del primer trimestre, un butlletí de seguiment. Tots es poden descarregar a Clickedu. A final de curs, s’expedeix un butlletí en paper amb les notes finals de cada matèria.",
+      "es": "Al final de cada trimestre se expide un boletín de calificaciones, y a mitad del primer trimestre, un boletín de seguimiento. Todos se pueden descargar en Clickedu. Al final de curso, se expide un boletín en papel con las notas finales de cada materia.",
+      "en": "A report is issued at the end of each term, plus a progress report halfway through the first term. All of them can be downloaded from Clickedu. At the end of the year, a paper report with the final marks for each subject is issued."
+    },
+    "butlletins": [
+      {
+        "quan": {
+          "ca": "Meitat del 1r trimestre",
+          "es": "Mitad del 1.er trimestre",
+          "en": "Mid first term"
+        },
+        "que": {
+          "ca": "Butlletí de seguiment",
+          "es": "Boletín de seguimiento",
+          "en": "Progress report"
+        },
+        "format": {
+          "ca": "Clickedu",
+          "es": "Clickedu",
+          "en": "Clickedu"
+        }
+      },
+      {
+        "quan": {
+          "ca": "Final del 1r trimestre",
+          "es": "Final del 1.er trimestre",
+          "en": "End of first term"
+        },
+        "que": {
+          "ca": "Butlletí de qualificacions",
+          "es": "Boletín de calificaciones",
+          "en": "Term report"
+        },
+        "format": {
+          "ca": "Clickedu",
+          "es": "Clickedu",
+          "en": "Clickedu"
+        }
+      },
+      {
+        "quan": {
+          "ca": "Final del 2n trimestre",
+          "es": "Final del 2.º trimestre",
+          "en": "End of second term"
+        },
+        "que": {
+          "ca": "Butlletí de qualificacions",
+          "es": "Boletín de calificaciones",
+          "en": "Term report"
+        },
+        "format": {
+          "ca": "Clickedu",
+          "es": "Clickedu",
+          "en": "Clickedu"
+        }
+      },
+      {
+        "quan": {
+          "ca": "Final del 3r trimestre",
+          "es": "Final del 3.er trimestre",
+          "en": "End of third term"
+        },
+        "que": {
+          "ca": "Butlletí de qualificacions",
+          "es": "Boletín de calificaciones",
+          "en": "Term report"
+        },
+        "format": {
+          "ca": "Clickedu",
+          "es": "Clickedu",
+          "en": "Clickedu"
+        }
+      },
+      {
+        "quan": {
+          "ca": "Final de curs",
+          "es": "Final de curso",
+          "en": "End of year"
+        },
+        "que": {
+          "ca": "Notes finals de cada matèria",
+          "es": "Notas finales de cada materia",
+          "en": "Final marks for each subject"
+        },
+        "format": {
+          "ca": "En paper",
+          "es": "En papel",
+          "en": "On paper"
+        },
+        "paper": true
+      }
+    ]
   },
   "proj": {
     "titol": {
@@ -656,9 +749,9 @@
       "en": "Tutoring"
     },
     "tutoriaText": {
-      "ca": "<span class=\"tbd\">[Hora setmanal de tutoria de grup, entrevistes individuals amb alumnes i famílies, reunions per curs.]</span>",
-      "es": "<span class=\"tbd\">[Hora semanal de tutoría de grupo, entrevistas individuales con alumnos y familias, reuniones por curso.]</span>",
-      "en": "<span class=\"tbd\">[Weekly form period, individual meetings with students and families, meetings per year.]</span>"
+      "ca": "Una hora setmanal de tutoria de grup, entrevistes individuals amb els alumnes i les famílies, i reunions de famílies per curs.",
+      "es": "Una hora semanal de tutoría de grupo, entrevistas individuales con los alumnos y las familias, y reuniones de familias por curso.",
+      "en": "A weekly form period, individual meetings with students and families, and family meetings for each year."
     },
     "acadTitol": {
       "ca": "Orientació acadèmica",

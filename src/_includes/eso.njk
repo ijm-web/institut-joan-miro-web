@@ -128,6 +128,12 @@
           <a class="eso-doc" href="#" target="_blank" rel="noopener"><span class="eso-doc__title">{{ c.label[L] }}</span><span class="eso-doc__meta tbd">{{ e.curr.pdfPendent[L] | replace('(', '') | replace(')', '') }}</span></a>
           {%- endfor %}
         </div>
+        <p>{{ e.qual.butlletinsText[L] }}</p>
+        <ol class="eso-reports">
+          {%- for b in e.qual.butlletins %}
+          <li{% if b.paper %} class="eso-reports__item--paper"{% endif %}><span class="eso-reports__when">{{ b.quan[L] }}</span><span class="eso-reports__what">{{ b.que[L] }}</span><span class="eso-reports__fmt">{{ b.format[L] }}</span></li>
+          {%- endfor %}
+        </ol>
       </div>
     </div>
     <div class="eso-row">
