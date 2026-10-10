@@ -77,6 +77,14 @@
       }
     },
     {
+      "id": "arribar",
+      "label": {
+        "ca": "Arribar a 1r",
+        "es": "Llegar a 1º",
+        "en": "Starting ESO"
+      }
+    },
+    {
       "id": "curriculum",
       "label": {
         "ca": "Currículum",
@@ -207,6 +215,16 @@
         "French",
         "Italian"
       ]
+    },
+    "mobilsTitol": {
+      "ca": "Centre sense mòbils",
+      "es": "Centro sin móviles",
+      "en": "Phone-free school"
+    },
+    "mobilsText": {
+      "ca": "Som un espai lliure de mòbils: no s’hi fan servir mòbils ni xarxes socials durant la jornada escolar. Volem recuperar el contacte directe i la conversa entre els alumnes, i reduir la dependència digital per millorar la concentració i la convivència.",
+      "es": "Somos un espacio libre de móviles: no se usan móviles ni redes sociales durante la jornada escolar. Queremos recuperar el contacto directo y la conversación entre los alumnos, y reducir la dependencia digital para mejorar la concentración y la convivencia.",
+      "en": "We are a phone-free space: no mobile phones or social media during the school day. We want students to talk to each other face to face again, and to reduce digital dependence so they can concentrate better and get along better."
     }
   },
   "curr": {
@@ -286,7 +304,12 @@
             "ca": "Educació física",
             "es": "Educación física",
             "en": "Physical education",
-            "h": 2
+            "h": 2,
+            "nota": {
+              "ca": "inclou 1 h de piscina al PELL",
+              "es": "incluye 1 h de piscina en el PELL",
+              "en": "includes 1 h swimming at PELL"
+            }
           },
           {
             "ca": "Educació visual i plàstica",
@@ -321,9 +344,9 @@
         ],
         "comunesPendent": false,
         "optText": {
-          "ca": "Cal escollir-ne una (3 h/setmana). Alemany, francès i italià es poden continuar fins a 4t.",
-          "es": "Hay que escoger una (3 h/semana). Alemán, francés e italiano se pueden continuar hasta 4º.",
-          "en": "Students choose one (3 h/week). German, French and Italian can be continued up to 4th."
+          "ca": "Cal escollir-ne una (3 h/setmana). L’optativa s’assigna segons la informació de l’escola de primària i l’ordre de preferència de la família. Alemany, francès i italià es poden continuar fins a 4t.",
+          "es": "Hay que escoger una (3 h/semana). La optativa se asigna según la información de la escuela de primaria y el orden de preferencia de la familia. Alemán, francés e italiano se pueden continuar hasta 4º.",
+          "en": "Students choose one (3 h/week). Electives are assigned using information from the primary school and the family’s order of preference. German, French and Italian can be continued up to 4th."
         },
         "opts": [
           {
@@ -749,9 +772,9 @@
       "en": "Tutoring"
     },
     "tutoriaText": {
-      "ca": "Una hora setmanal de tutoria de grup, entrevistes individuals amb els alumnes i les famílies, i reunions de famílies per curs.",
-      "es": "Una hora semanal de tutoría de grupo, entrevistas individuales con los alumnos y las familias, y reuniones de familias por curso.",
-      "en": "A weekly form period, individual meetings with students and families, and family meetings for each year."
+      "ca": "Una hora setmanal de tutoria de grup i entrevistes individuals amb els alumnes i les famílies. Fem reunions de grup amb les famílies dos cops al llarg del curs, i la comunicació diària es fa per la missatgeria de Clickedu (web i app).",
+      "es": "Una hora semanal de tutoría de grupo y entrevistas individuales con los alumnos y las familias. Hacemos reuniones de grupo con las familias dos veces a lo largo del curso, y la comunicación diaria se hace por la mensajería de Clickedu (web y app).",
+      "en": "A weekly form period and individual meetings with students and families. Class meetings with families are held twice a year, and day-to-day communication is through Clickedu messaging (web and app)."
     },
     "acadTitol": {
       "ca": "Orientació acadèmica",
@@ -769,10 +792,37 @@
       "en": "Inclusion and support"
     },
     "divText": {
-      "ca": "A les matèries instrumentals —català, castellà i matemàtiques— l’alumnat treballa en grups flexibles reduïts, que permeten una atenció més personalitzada. <span class=\"tbd\">[Altres mesures: suport universal i addicional, plans individualitzats, SIEI o aula d’acollida si n’hi ha.]</span>",
-      "es": "En las materias instrumentales —catalán, castellano y matemáticas— el alumnado trabaja en grupos flexibles reducidos, que permiten una atención más personalizada. <span class=\"tbd\">[Otras medidas: apoyo universal y adicional, planes individualizados, SIEI o aula de acogida si los hay.]</span>",
-      "en": "In the core subjects —Catalan, Spanish and Maths— students work in small flexible groups, which allow more personalised attention. <span class=\"tbd\">[Other measures: universal and additional support, individual plans, SIEI or welcome class if any.]</span>"
-    }
+      "ca": "Atenem la diversitat amb aquestes mesures:",
+      "es": "Atendemos la diversidad con estas medidas:",
+      "en": "We support all learners through these measures:"
+    },
+    "divList": [
+      {
+        "ca": "Grups reduïts a català, castellà i matemàtiques",
+        "es": "Grupos reducidos en catalán, castellano y matemáticas",
+        "en": "Small groups in Catalan, Spanish and Maths"
+      },
+      {
+        "ca": "Optatives d’ampliació i de reforç",
+        "es": "Optativas de ampliación y de refuerzo",
+        "en": "Extension and support electives"
+      },
+      {
+        "ca": "Hores B (grup desdoblat) a anglès, tecnologia i ciències experimentals",
+        "es": "Horas B (grupo desdoblado) en inglés, tecnología y ciencias experimentales",
+        "en": "Split-class “B hours” in English, Technology and Science"
+      },
+      {
+        "ca": "Plans individualitzats",
+        "es": "Planes individualizados",
+        "en": "Individual learning plans"
+      },
+      {
+        "ca": "Atenció individualitzada",
+        "es": "Atención individualizada",
+        "en": "One-to-one attention"
+      }
+    ]
   },
   "prac": {
     "titol": {
@@ -827,5 +877,104 @@
       "es": "Contacta",
       "en": "Contact us"
     }
+  },
+  "arribar": {
+    "titol": {
+      "ca": "Arribar a 1r d’ESO",
+      "es": "Llegar a 1º de ESO",
+      "en": "Starting 1st of ESO"
+    },
+    "text": {
+      "ca": "El pas de l’escola a l’institut és un canvi important. Per fer-lo fàcil, acompanyem l’alumnat des de 6è fins a les primeres setmanes de curs.",
+      "es": "El paso de la escuela al instituto es un cambio importante. Para hacerlo fácil, acompañamos al alumnado desde 6º hasta las primeras semanas de curso.",
+      "en": "Moving from primary school to secondary is a big step. To make it easier, we support students from Year 6 through the first weeks of the school year."
+    },
+    "passos": [
+      {
+        "quan": {
+          "ca": "A 6è",
+          "es": "En 6º",
+          "en": "In Year 6"
+        },
+        "titol": {
+          "ca": "Visita prèvia",
+          "es": "Visita previa",
+          "en": "Visit beforehand"
+        },
+        "text": {
+          "ca": "L’alumnat de 6è visita l’institut abans de començar.",
+          "es": "El alumnado de 6º visita el instituto antes de empezar.",
+          "en": "Year 6 students visit the school before they start."
+        }
+      },
+      {
+        "quan": {
+          "ca": "Inici de curs",
+          "es": "Inicio de curso",
+          "en": "Start of the year"
+        },
+        "titol": {
+          "ca": "Jornada d’acollida",
+          "es": "Jornada de acogida",
+          "en": "Welcome day"
+        },
+        "text": {
+          "ca": "Una jornada d’acollida pensada per a l’alumnat de 1r d’ESO.",
+          "es": "Una jornada de acogida pensada para el alumnado de 1º de ESO.",
+          "en": "A welcome day designed for 1st-year ESO students."
+        }
+      },
+      {
+        "quan": {
+          "ca": "El primer dia",
+          "es": "El primer día",
+          "en": "On the first day"
+        },
+        "titol": {
+          "ca": "Entrada esglaonada",
+          "es": "Entrada escalonada",
+          "en": "Staggered start"
+        },
+        "text": {
+          "ca": "El primer dia de curs, l’entrada dels grups es fa de manera esglaonada.",
+          "es": "El primer día de curso, la entrada de los grupos se hace de forma escalonada.",
+          "en": "On the first day, classes arrive at staggered times."
+        }
+      },
+      {
+        "quan": {
+          "ca": "Cada dia",
+          "es": "Cada día",
+          "en": "Every day"
+        },
+        "titol": {
+          "ca": "Espais propis",
+          "es": "Espacios propios",
+          "en": "Their own spaces"
+        },
+        "text": {
+          "ca": "Accessos diferenciats i un pati exclusiu per al 1r cicle.",
+          "es": "Accesos diferenciados y un patio exclusivo para el 1.er ciclo.",
+          "en": "Separate entrances and a playground just for the first cycle."
+        }
+      },
+      {
+        "quan": {
+          "ca": "Durant el curs",
+          "es": "Durante el curso",
+          "en": "During the year"
+        },
+        "titol": {
+          "ca": "Activitats d’integració",
+          "es": "Actividades de integración",
+          "en": "Getting-to-know-you activities"
+        },
+        "text": {
+          "ca": "Des de la tutoria es fan activitats per cohesionar el grup.",
+          "es": "Desde la tutoría se hacen actividades para cohesionar el grupo.",
+          "en": "Form tutors run activities to help the class bond."
+        }
+      }
+    ]
   }
 }

@@ -211,6 +211,7 @@ section[id]{ scroll-margin-top: 130px; }
   border-bottom: 1px solid #EEF1F6;
   font-size: 15px;
 }
+.eso-subjects__note{ font-size: 12px; color: #5A6070; }
 .eso-subjects__h{ color: #5A6070; font-weight: 500; white-space: nowrap; }
 .eso-side{ flex: 1 1 340px; display: flex; flex-direction: column; gap: 20px; }
 .eso-opts{
@@ -299,6 +300,45 @@ section[id]{ scroll-margin-top: 130px; }
   .eso-reports::before{ left: 7px; right: auto; top: 6px; bottom: 6px; width: 2px; height: auto; }
   .eso-reports li{ padding: 0 0 0 28px; }
 }
+
+/* --- Arribar a 1r d'ESO (passos) --- */
+.eso-steps{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.eso-steps li{
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  border-top: 3px solid var(--color-blue);
+  padding: 22px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eso-steps__num{
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--color-blue);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 600; font-size: 15px;
+  margin-bottom: 6px;
+}
+.eso-steps__when{ font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-orange); }
+.eso-steps h3{ margin: 0; font-size: 17px; font-weight: 600; color: var(--color-blue); }
+.eso-steps p{ margin: 0; font-size: 14px; line-height: 1.6; }
+
+/* --- Llistes simples --- */
+.eso-list{ margin: 0; padding-left: 1.1em; font-size: 15px; line-height: 1.7; }
+.eso-list li::marker{ color: var(--color-orange); }
+
+/* --- Centre sense mòbils --- */
+.eso-nophone{ display: flex; gap: 16px; align-items: flex-start; }
+.eso-nophone svg{ flex: none; margin-top: 2px; }
 
 /* --- Projectes --- */
 .eso-cards{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; list-style: none; margin: 0; padding: 0; }
