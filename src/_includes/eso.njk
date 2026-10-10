@@ -93,7 +93,7 @@
         </div>
         <ul class="eso-subjects">
           {%- for m in c.comunes %}
-          <li><span{% if c.comunesPendent %} class="tbd"{% endif %}>{{ m[L] }}</span><span class="tbd">[h]</span></li>
+          <li><span{% if c.comunesPendent %} class="tbd"{% endif %}>{{ m[L] }}</span>{% if m.h %}<span class="eso-subjects__h">{{ m.h }} h</span>{% else %}<span class="tbd">[h]</span>{% endif %}</li>
           {%- endfor %}
         </ul>
       </div>
@@ -123,18 +123,6 @@
       <h3 class="eso-row__head">{{ e.qual.comTitol[L] }}</h3>
       <div class="eso-row__body">
         <p>{{ e.qual.comText[L] }}</p>
-        <ul class="eso-levels">
-          {%- for n in e.qual.nivells %}
-          <li style="--lv:{{ n.color }};--lvt:{{ n.text }}"><b>{{ n.codi }}</b><span>{{ n.nom[L] }}</span></li>
-          {%- endfor %}
-        </ul>
-        <p>{{ e.qual.comPendent[L] | safe }}</p>
-      </div>
-    </div>
-    <div class="eso-row">
-      <h3 class="eso-row__head">{{ e.qual.materiaTitol[L] }}</h3>
-      <div class="eso-row__body">
-        <p>{{ e.qual.materiaText[L] }}</p>
         <div class="eso-docs">
           {%- for c in e.curr.cursos %}
           <a class="eso-doc" href="#" target="_blank" rel="noopener"><span class="eso-doc__title">{{ c.label[L] }}</span><span class="eso-doc__meta tbd">{{ e.curr.pdfPendent[L] | replace('(', '') | replace(')', '') }}</span></a>

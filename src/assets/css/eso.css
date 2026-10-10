@@ -87,18 +87,18 @@ section[id]{ scroll-margin-top: 130px; }
   margin: 0;
   padding: 0;
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(175px, 1fr));
+  gap: 16px;
 }
 .eso-stats li{
   background: #fff;
   border: 1px solid #E6EBF2;
-  padding: 26px 24px;
+  padding: 24px 20px;
   display: flex;
   flex-direction: column;
   gap: 6px;
 }
-.eso-stats__num{ font-size: clamp(34px, 3.4vw, 44px); font-weight: 200; color: var(--color-blue); line-height: 1.1; }
+.eso-stats__num{ font-size: clamp(30px, 2.9vw, 38px); white-space: nowrap; font-weight: 200; color: var(--color-blue); line-height: 1.1; }
 .eso-stats__label{ font-size: 14px; font-weight: 500; }
 
 /* --- Navegació interna --- */
@@ -211,6 +211,7 @@ section[id]{ scroll-margin-top: 130px; }
   border-bottom: 1px solid #EEF1F6;
   font-size: 15px;
 }
+.eso-subjects__h{ color: #5A6070; font-weight: 500; white-space: nowrap; }
 .eso-side{ flex: 1 1 340px; display: flex; flex-direction: column; gap: 20px; }
 .eso-opts{
   background: var(--color-blue);
@@ -253,12 +254,6 @@ section[id]{ scroll-margin-top: 130px; }
 .eso-doc svg{ flex: none; }
 .eso-docs{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
 .eso-docs--wide{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-
-/* --- Nivells d'assoliment --- */
-.eso-levels{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; }
-.eso-levels li{ background: #fff; padding: 16px; display: flex; flex-direction: column; gap: 4px; border-top: 4px solid var(--lv, var(--color-blue)); }
-.eso-levels b{ font-size: 22px; font-weight: 700; color: var(--lvt, var(--color-blue)); }
-.eso-levels span{ font-size: 13px; }
 
 /* --- Projectes --- */
 .eso-cards{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; list-style: none; margin: 0; padding: 0; }
