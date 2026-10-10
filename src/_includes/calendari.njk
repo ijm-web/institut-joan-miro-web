@@ -1,0 +1,69 @@
+{#- Secretaria › Calendari escolar: marcatge comú (ca/es/en).
+    Dades: src/_data/calendari.js. Estils: src/assets/css/calendari.css -#}
+{%- set L = lang | default('ca') -%}
+{%- set c = calendari -%}
+<div class="cal-page">
+
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-3-vestibul-2400.jpg" srcset="/assets/img/inici/inici-3-vestibul-1600.jpg 1600w, /assets/img/inici/inici-3-vestibul-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ c.textos.heroTitol[L] }}</span><span class="qs-hero__subtitle">{{ c.textos.heroSubtitol[L] }}</span></h1>
+  </div>
+</div>
+
+<div class="cal-wrap">
+  <div class="cal-intro">
+    <h2 class="cal-kicker">{{ c.textos.kicker[L] }}</h2>
+    <p class="cal-lead">{{ c.textos.lead[L] }}</p>
+  </div>
+
+  <!-- Dates clau -->
+  <section aria-labelledby="cal-clau">
+    <h2 class="cal-ttl" id="cal-clau">{{ c.textos.datesClau[L] }}</h2>
+    <ol class="cal-key">
+      {%- for k in c.clau[L] %}
+      <li class="cal-key__item cal-key__item--{{ k.tipus }}"><span class="cal-key__date">{{ k.data }}</span><span class="cal-key__text">{{ k.text }}</span></li>
+      {%- endfor %}
+    </ol>
+  </section>
+</div>
+
+<!-- Mes a mes -->
+<section class="cal-band" aria-labelledby="cal-mesos">
+  <div class="cal-wrap">
+    <h2 class="cal-ttl" id="cal-mesos">{{ c.textos.mesAMes[L] }}</h2>
+    <div class="cal-legend" role="group" aria-label="{{ c.textos.llegenda[L] }}">
+      {%- for t in c.llegenda %}
+      <span class="cal-legend__item"><i class="cal-sw cal-day--{{ t }}" aria-hidden="true"></i>{{ c.tipusText[t][L] }}</span>
+      {%- endfor %}
+    </div>
+    <div class="cal-months">
+      {%- for m in c.calendari %}
+      <table class="cal-month">
+        <caption>{{ c.mesos[L][m.mes - 1] }} {{ m.any }}</caption>
+        <thead><tr>{% for d in c.diesSetmana[L] %}<th scope="col">{{ d }}</th>{% endfor %}</tr></thead>
+        <tbody>
+          {%- for w in m.setmanes %}
+          <tr>{% for day in w %}{% if day %}<td class="cal-day{% if day.capSetmana %} cal-day--we{% endif %}{% if day.tipus %} cal-day--{{ day.tipus }}{% endif %}"{% if day.tipus %} title="{{ day.nom[L] if day.nom else c.tipusText[day.tipus][L] }}"{% endif %}><span>{{ day.d }}</span>{% if day.tipus %}<span class="cal-sr">: {{ day.nom[L] if day.nom else c.tipusText[day.tipus][L] }}</span>{% endif %}</td>{% else %}<td></td>{% endif %}{% endfor %}</tr>
+          {%- endfor %}
+        </tbody>
+      </table>
+      {%- endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- Festius i dies sense classe -->
+<div class="cal-wrap">
+  <section aria-labelledby="cal-festius">
+    <h2 class="cal-ttl" id="cal-festius">{{ c.textos.festius[L] }}</h2>
+    <ul class="cal-list">
+      {%- for f in c.llista[L] %}
+      <li><i class="cal-sw cal-day--{{ f.tipus }}" aria-hidden="true"></i><span class="cal-list__date">{{ f.data }}</span><span class="cal-list__text">{{ f.text }}</span></li>
+      {%- endfor %}
+    </ul>
+    <p class="cal-note">{{ c.textos.nota[L] }}</p>
+  </section>
+</div>
+
+</div>

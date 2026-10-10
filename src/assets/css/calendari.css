@@ -1,0 +1,101 @@
+/* ============ CALENDARI ESCOLAR (Secretaria › Calendari escolar) ============
+   Marcatge: src/_includes/calendari.njk · Dades: src/_data/calendari.js */
+
+.cal-page{ background: #FAFAFD; color: #1E1E2A; }
+.cal-wrap{
+  max-width: 1220px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: clamp(44px, 6vw, 72px) clamp(16px, 4vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.cal-band{ background: #E6EBF2; }
+.cal-sr{
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* --- Introducció --- */
+.cal-intro{ display: flex; flex-wrap: wrap; gap: 16px 40px; align-items: baseline; }
+.cal-kicker{
+  flex: 1 1 260px; margin: 0;
+  font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--color-orange);
+}
+.cal-lead{ flex: 999 1 560px; margin: 0; font-size: clamp(18px, 2vw, 21px); line-height: 1.6; font-weight: 300; }
+
+/* --- Títols amb línies --- */
+.cal-ttl{
+  margin: 0 0 28px;
+  display: flex; align-items: center; justify-content: center; gap: 20px;
+  font-size: clamp(24px, 2.6vw, 30px); font-weight: 300; color: var(--color-blue); text-align: center;
+}
+.cal-ttl::before, .cal-ttl::after{ content: ""; height: 1px; background: var(--color-blue); opacity: .35; flex: 1 1 0; max-width: 140px; }
+
+/* --- Colors dels tipus de dia ---
+   Dies lectius especials (blaus) · dies sense classe (càlids) · vacances (gris blavós) */
+.cal-day--inici{ background: var(--color-blue); color: #fff; }
+.cal-day--darrer{ background: #fff; color: var(--color-blue); box-shadow: inset 0 0 0 2px var(--color-blue); }
+.cal-day--darrerBat{ background: #D9D5F7; color: var(--color-blue); }
+.cal-day--festiu{ background: #C9530A; color: #fff; }
+.cal-day--local{ background: #fff; color: #A3420A; box-shadow: inset 0 0 0 2px #E8600C; }
+.cal-day--lliure{ background: #FCE6D8; color: #A3420A; }
+.cal-day--vacances{ background: #C9D2E0; color: #1E1E2A; }
+
+/* --- Dates clau --- */
+.cal-key{
+  list-style: none; margin: 0; padding: 0;
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+}
+.cal-key__item{
+  background: #fff; border: 1px solid #E6EBF2; border-top: 4px solid var(--color-blue);
+  padding: 20px 22px; display: flex; flex-direction: column; gap: 6px;
+}
+.cal-key__item--vacances{ border-top-color: #9AA6BC; }
+.cal-key__item--darrerBat{ border-top-color: #8C83E0; }
+.cal-key__date{ font-size: 18px; font-weight: 600; color: var(--color-blue); }
+.cal-key__text{ font-size: 14px; line-height: 1.5; }
+
+/* --- Llegenda --- */
+.cal-legend{ display: flex; flex-wrap: wrap; justify-content: center; gap: 10px 22px; margin: -8px 0 28px; font-size: 13.5px; }
+.cal-legend__item{ display: inline-flex; align-items: center; gap: 8px; }
+.cal-sw{ width: 18px; height: 18px; border-radius: 4px; display: inline-block; flex: none; }
+
+/* --- Mesos --- */
+.cal-months{ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 18px; }
+.cal-month{
+  width: 100%; border-collapse: separate; border-spacing: 3px;
+  background: #fff; border: 1px solid #E6EBF2; padding: 10px 10px 12px; table-layout: fixed;
+}
+.cal-month caption{
+  caption-side: top; text-align: left; padding: 0 4px 10px;
+  font-size: 17px; font-weight: 600; color: var(--color-blue); text-transform: capitalize;
+}
+.cal-month th{ font-size: 11px; font-weight: 600; color: #5A6070; padding: 4px 0; text-transform: uppercase; }
+.cal-month td{ text-align: center; font-size: 13px; height: 30px; border-radius: 5px; padding: 0; }
+.cal-day--we{ color: #9096A0; }
+.cal-month td[class*="cal-day--"]:not(.cal-day--we){ font-weight: 600; }
+.cal-month td.cal-day--vacances, .cal-month td.cal-day--festiu{ font-weight: 600; }
+/* Els dies marcats mantenen el color del tipus encara que caiguin en cap de setmana */
+.cal-month .cal-day--inici, .cal-month .cal-day--festiu{ color: #fff; }
+.cal-month .cal-day--darrer, .cal-month .cal-day--darrerBat{ color: var(--color-blue); }
+.cal-month .cal-day--local, .cal-month .cal-day--lliure{ color: #A3420A; }
+.cal-month .cal-day--vacances{ color: #1E1E2A; }
+.cal-month .cal-day--vacances.cal-day--we{ color: #4A5266; font-weight: 500; }
+
+/* --- Llista de festius --- */
+.cal-list{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.cal-list li{
+  display: grid; grid-template-columns: 18px minmax(200px, 340px) minmax(0, 1fr); gap: 16px; align-items: center;
+  padding: 14px 4px; border-bottom: 1px solid #E6EBF2; font-size: 15px;
+}
+.cal-list__date{ font-weight: 600; color: var(--color-blue); }
+.cal-note{ margin: 18px 0 0; font-size: 14px; color: #5A6070; line-height: 1.6; }
+
+@media (max-width: 640px){
+  .cal-list li{ grid-template-columns: 18px minmax(0, 1fr); row-gap: 2px; }
+  .cal-list__text{ grid-column: 2; }
+  .cal-ttl::before, .cal-ttl::after{ max-width: 40px; }
+}

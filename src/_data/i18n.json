@@ -31,7 +31,8 @@
       "declaracioBatxillerat": "Declaració Responsable Batxillerat",
       "noticies": "Notícies",
       "inici": "Inici",
-      "afa": "AFA"
+      "afa": "AFA",
+      "calendariEscolar": "Calendari escolar"
     },
     "topbar": {
       "intranetLabel": "Accés a la intranet Clickedu",
@@ -123,7 +124,8 @@
       "declaracioBatxillerat": "Declaración Responsable Bachillerato",
       "noticies": "Noticias",
       "inici": "Inicio",
-      "afa": "AFA"
+      "afa": "AFA",
+      "calendariEscolar": "Calendario escolar"
     },
     "topbar": {
       "intranetLabel": "Acceso a la intranet Clickedu",
@@ -215,7 +217,8 @@
       "declaracioBatxillerat": "Batxillerat Sworn Statement",
       "noticies": "Notices",
       "inici": "Home",
-      "afa": "Parents’ Association (AFA)"
+      "afa": "Parents’ Association (AFA)",
+      "calendariEscolar": "School calendar"
     },
     "topbar": {
       "intranetLabel": "Clickedu intranet access",

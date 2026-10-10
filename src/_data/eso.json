@@ -846,9 +846,9 @@
       "en": "School calendar"
     },
     "calendariMeta": {
-      "ca": "Curs 2026-2027: inici, vacances i festius <span class=\"tbd\">(enllaç pendent)</span>",
-      "es": "Curso 2026-2027: inicio, vacaciones y festivos <span class=\"tbd\">(enlace pendiente)</span>",
-      "en": "2026-2027: start date, holidays and days off <span class=\"tbd\">(link pending)</span>"
+      "ca": "Curs 2026-2027: inici, vacances i festius",
+      "es": "Curso 2026-2027: inicio, vacaciones y festivos",
+      "en": "2026-2027: start date, holidays and days off"
     },
     "preins": {
       "ca": "Preinscripció i matrícula",
