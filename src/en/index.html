@@ -212,7 +212,7 @@ pageStyles: |
 
     /* --- Secció 3: Estudis --- */
     /* Dues caixes grans (ESO i Batxillerat) separades, amb marge als costats.
-       De moment no són enllaços. */
+       La d’ESO enllaça a la pàgina ESO; la de Batxillerat encara no és un enllaç. */
     .home-estudis .home-title{
       max-width: 1220px;
       margin-left: auto;
@@ -242,6 +242,12 @@ pageStyles: |
       transition: background-color 1s ease;
     }
     .estudis-box--eso{ background: #4A44A8; }
+    /* La caixa ESO és clicable: l’enllaç del títol cobreix tota la caixa */
+    .estudis-box{ position: relative; }
+    .estudis-box__link{ color: inherit; text-decoration: none; }
+    .estudis-box__link::after{ content: ""; position: absolute; inset: 0; border-radius: 12px; }
+    .estudis-box__link:focus-visible{ outline: none; }
+    .estudis-box__link:focus-visible::after{ outline: 3px solid #fff; outline-offset: -6px; }
     .estudis-box--batx{ background: #D27A45; }
     .estudis-box--eso:hover,
     .estudis-box--eso:focus-within,
@@ -660,7 +666,7 @@ pageScript: |
     <h2 class="home-title">Programmes</h2>
     <div class="estudis-grid">
       <div class="estudis-box estudis-box--eso">
-        <h3 class="estudis-box__title">ESO<svg class="estudis-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></h3>
+        <h3 class="estudis-box__title"><a class="estudis-box__link" href="/en/eso.html">ESO</a><svg class="estudis-box__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></h3>
         <ul class="estudis-box__list">
           <li>1st ESO</li>
           <li>2nd ESO</li>

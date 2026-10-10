@@ -1,0 +1,327 @@
+/* ============ ESO (Estudis › ESO) ============
+   Fitxer comú a la pàgina ESO (ca/es/en).
+   Les dades són a src/_data/eso.json i el marcatge a src/_includes/eso.njk */
+
+.eso-page{ background: #FAFAFD; color: #1E1E2A; }
+.eso-page h2, .eso-page h3{ font-family: inherit; }
+
+/* --- Dades pendents (fons groc). Quan totes estiguin confirmades, es poden treure. --- */
+.tbd{
+  background: #FFE95C;
+  color: #1E1E2A;
+  padding: 1px 5px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.eso-pending-note{
+  background: #FFF8C7;
+  border-bottom: 1px solid #E8D44D;
+  font-size: 13px;
+  padding: 10px 16px;
+  text-align: center;
+  color: #1E1E2A;
+}
+
+/* --- Contenidors --- */
+.eso-wrap{
+  max-width: 1220px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: clamp(48px, 6vw, 72px) clamp(16px, 4vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 36px;
+}
+.eso-band{ background: #E6EBF2; }
+
+/* --- Títols de secció amb línies a banda i banda --- */
+.eso-ttl{
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  font-size: clamp(24px, 2.6vw, 30px);
+  font-weight: 300;
+  color: var(--color-blue);
+  text-align: center;
+}
+.eso-ttl::before,
+.eso-ttl::after{
+  content: "";
+  height: 1px;
+  background: var(--color-blue);
+  opacity: .35;
+  flex: 1 1 0;
+  max-width: 140px;
+}
+section[id]{ scroll-margin-top: 130px; }
+
+/* --- Introducció --- */
+.eso-intro{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 40px;
+  align-items: flex-start;
+}
+.eso-kicker{
+  flex: 1 1 300px;
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--color-orange);
+}
+.eso-lead{
+  flex: 999 1 560px;
+  margin: 0;
+  font-size: clamp(18px, 2vw, 21px);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* --- Xifres --- */
+.eso-stats{
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+}
+.eso-stats li{
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  padding: 26px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.eso-stats__num{ font-size: clamp(34px, 3.4vw, 44px); font-weight: 200; color: var(--color-blue); line-height: 1.1; }
+.eso-stats__label{ font-size: 14px; font-weight: 500; }
+
+/* --- Navegació interna --- */
+.eso-anchors{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.eso-anchors a{
+  text-decoration: none;
+  color: var(--color-blue);
+  border: 1px solid var(--color-blue);
+  border-radius: 999px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color .2s ease, color .2s ease;
+}
+.eso-anchors a:hover,
+.eso-anchors a:focus-visible{ background: var(--color-blue); color: #fff; }
+
+/* --- Files editorials: títol a l'esquerra, contingut a la dreta --- */
+.eso-row{
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px 48px;
+}
+.eso-row + .eso-row{ border-top: 1px solid #C9D2E0; padding-top: 36px; }
+.eso-row__head{
+  flex: 1 1 260px;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  color: var(--color-blue);
+}
+.eso-row__body{
+  flex: 999 1 560px;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  font-size: 16px;
+  line-height: 1.7;
+}
+.eso-row__body p{ margin: 0; }
+
+/* --- Horari marc --- */
+.eso-sched{
+  display: grid;
+  grid-template-columns: 92px repeat(5, minmax(0, 1fr));
+  gap: 6px;
+  font-size: 12px;
+  text-align: center;
+}
+.eso-sched__day{ background: var(--color-blue); color: #fff; padding: 10px 4px; font-weight: 600; }
+.eso-sched__time{ padding: 22px 4px; font-weight: 600; color: var(--color-blue); text-align: right; }
+.eso-sched__cell{ background: #fff; padding: 22px 4px; }
+.eso-sched__time--break{ padding: 8px 4px; color: #A3420A; }
+.eso-sched__break{ background: #FCE6D8; color: #A3420A; padding: 8px 4px; font-weight: 600; }
+
+/* --- Llengües --- */
+.eso-chips{ display: flex; flex-wrap: wrap; gap: 10px; list-style: none; margin: 0; padding: 0; }
+.eso-chips li{
+  background: #fff;
+  border: 1px solid var(--color-blue);
+  color: var(--color-blue);
+  padding: 10px 20px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+/* --- Currículum per curs (pestanyes) --- */
+.eso-sub{ margin: 0 auto; max-width: 760px; text-align: center; font-size: 16px; line-height: 1.7; }
+.eso-tabs{ display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.eso-tabs button{
+  min-height: 44px;
+  padding: 12px 26px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--color-blue);
+  background: #fff;
+  color: var(--color-blue);
+  transition: background-color .2s ease, color .2s ease;
+}
+.eso-tabs button[aria-selected="true"]{ background: var(--color-blue); color: #fff; }
+.eso-tabs button:focus-visible{ outline: 3px solid var(--color-orange); outline-offset: 2px; }
+.eso-panel{ display: flex; flex-wrap: wrap; gap: 24px; }
+.eso-panel[hidden]{ display: none; }
+.eso-common{
+  flex: 999 1 520px;
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  padding: 30px clamp(20px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.eso-common__head{ display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.eso-common__head h3{ margin: 0; font-size: 19px; font-weight: 600; color: var(--color-blue); }
+.eso-common__head span{ font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: #5A6070; }
+.eso-subjects{ list-style: none; margin: 0; padding: 0; }
+.eso-subjects li{
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid #EEF1F6;
+  font-size: 15px;
+}
+.eso-side{ flex: 1 1 340px; display: flex; flex-direction: column; gap: 20px; }
+.eso-opts{
+  background: var(--color-blue);
+  color: #fff;
+  padding: 30px clamp(20px, 3vw, 32px);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.eso-opts h3{ margin: 0; font-size: 19px; font-weight: 600; }
+.eso-opts p{ margin: 0; font-size: 14px; line-height: 1.6; opacity: .92; }
+.eso-opts ul{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+.eso-opts li{
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.35);
+  padding: 7px 12px;
+  font-size: 13px;
+}
+.eso-opts li.tbd{ background: #FFE95C; border-color: #FFE95C; color: #1E1E2A; }
+
+/* --- Enllaços a documents --- */
+.eso-doc{
+  text-decoration: none;
+  color: var(--color-blue);
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-weight: 600;
+  transition: color .2s ease, border-color .2s ease;
+}
+.eso-doc--row{ flex-direction: row; align-items: center; justify-content: space-between; gap: 12px; font-size: 15px; }
+.eso-doc:hover,
+.eso-doc:focus-visible{ color: var(--color-orange); border-color: var(--color-orange); }
+.eso-doc__title{ font-size: 16px; font-weight: 600; }
+.eso-doc__meta{ font-size: 14px; color: #5A6070; font-weight: 400; }
+.eso-doc__meta.tbd{ align-self: flex-start; font-size: 13px; color: #1E1E2A; }
+.eso-doc svg{ flex: none; }
+.eso-docs{ display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
+.eso-docs--wide{ grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+
+/* --- Nivells d'assoliment --- */
+.eso-levels{ display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; list-style: none; margin: 0; padding: 0; }
+.eso-levels li{ background: #fff; padding: 16px; display: flex; flex-direction: column; gap: 4px; border-top: 4px solid var(--lv, var(--color-blue)); }
+.eso-levels b{ font-size: 22px; font-weight: 700; color: var(--lvt, var(--color-blue)); }
+.eso-levels span{ font-size: 13px; }
+
+/* --- Projectes --- */
+.eso-cards{ display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 22px; list-style: none; margin: 0; padding: 0; }
+.eso-card{
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  text-decoration: none;
+  color: #1E1E2A;
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+a.eso-card:hover,
+a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px rgba(28,12,188,.12); }
+.eso-card__img{
+  height: 150px;
+  background: repeating-linear-gradient(135deg, #D5DCE8 0 2px, #E6EBF2 2px 18px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: #5A6070;
+}
+.eso-card__body{ padding: 22px; display: flex; flex-direction: column; gap: 8px; }
+.eso-card__tag{ font-size: 12px; font-weight: 600; color: var(--color-orange); letter-spacing: .08em; text-transform: uppercase; }
+.eso-card h3{ margin: 0; font-size: 17px; font-weight: 600; }
+.eso-card p{ margin: 0; font-size: 14px; line-height: 1.6; }
+
+/* --- Orientació --- */
+.eso-cols{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 40px; }
+.eso-cols > div{ display: flex; flex-direction: column; gap: 12px; }
+.eso-cols h3{ margin: 0; font-size: 18px; font-weight: 600; color: var(--color-blue); }
+.eso-cols p{ margin: 0; font-size: 15px; line-height: 1.7; }
+
+/* --- Franja final --- */
+.eso-cta{ background: var(--color-blue); color: #fff; }
+.eso-cta__inner{
+  max-width: 1220px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 56px clamp(16px, 4vw, 24px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+.eso-cta__title{ font-size: 26px; font-weight: 300; margin: 0; }
+.eso-cta__text{ font-size: 15px; opacity: .85; margin: 6px 0 0; }
+.eso-cta a{
+  text-decoration: none;
+  background: var(--color-orange);
+  color: #fff;
+  padding: 15px 28px;
+  font-weight: 600;
+  font-size: 15px;
+  transition: background-color .2s ease;
+}
+.eso-cta a:hover,
+.eso-cta a:focus-visible{ background: #C24F08; }
+
+@media (max-width: 640px){
+  .eso-sched{ grid-template-columns: 70px repeat(5, minmax(0, 1fr)); font-size: 11px; }
+  .eso-ttl::before, .eso-ttl::after{ max-width: 40px; }
+}

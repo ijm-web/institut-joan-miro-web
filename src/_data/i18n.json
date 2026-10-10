@@ -50,6 +50,7 @@
     },
     "estudis": {
       "esoTitle": "ESO",
+      "esoPresentacio": "Presentació",
       "batxilleratTitle": "Batxillerat",
       "level1eso": "1r ESO",
       "level2eso": "2n ESO",
@@ -136,6 +137,7 @@
     },
     "estudis": {
       "esoTitle": "ESO",
+      "esoPresentacio": "Presentación",
       "batxilleratTitle": "Bachillerato",
       "level1eso": "1º ESO",
       "level2eso": "2º ESO",
@@ -222,6 +224,7 @@
     },
     "estudis": {
       "esoTitle": "ESO",
+      "esoPresentacio": "Overview",
       "batxilleratTitle": "Batxillerat",
       "level1eso": "1st ESO",
       "level2eso": "2nd ESO",

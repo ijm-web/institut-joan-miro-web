@@ -1,0 +1,245 @@
+{
+  "_nota": "Pàgina Estudis › ESO. Els textos amb <span class=\"tbd\"> són dades pendents (fons groc).",
+  "heroTitol": { "ca": "Estudis", "es": "Estudios", "en": "Programmes" },
+  "heroSubtitol": { "ca": "ESO", "es": "ESO", "en": "ESO" },
+  "pendent": {
+    "ca": "<span class=\"tbd\">Fons groc</span> = dada pendent de confirmar",
+    "es": "<span class=\"tbd\">Fondo amarillo</span> = dato pendiente de confirmar",
+    "en": "<span class=\"tbd\">Yellow background</span> = information still to be confirmed"
+  },
+  "kicker": { "ca": "Educació Secundària Obligatòria", "es": "Educación Secundaria Obligatoria", "en": "Compulsory Secondary Education" },
+  "lead": {
+    "ca": "L’ESO és l’última etapa de l’ensenyament obligatori, dels 12 als 16 anys. <span class=\"tbd\">[Frase sobre l’enfocament del centre.]</span> En acabar, l’alumnat pot continuar al Batxillerat o a la Formació Professional.",
+    "es": "La ESO es la última etapa de la enseñanza obligatoria, de los 12 a los 16 años. <span class=\"tbd\">[Frase sobre el enfoque del centro.]</span> Al terminar, el alumnado puede continuar en el Bachillerato o en la Formación Profesional.",
+    "en": "ESO is the last stage of compulsory education, from age 12 to 16. <span class=\"tbd\">[Sentence on the school’s approach.]</span> Afterwards, students can go on to Batxillerat or to Vocational Training."
+  },
+  "stats": [
+    { "num": "4", "label": { "ca": "cursos, de 1r a 4t", "es": "cursos, de 1º a 4º", "en": "years, from 1st to 4th" } },
+    { "num": "4", "label": { "ca": "grups per curs", "es": "grupos por curso", "en": "classes per year" } },
+    { "num": "8.15–14.45", "label": { "ca": "horari lectiu, de dilluns a divendres", "es": "horario lectivo, de lunes a viernes", "en": "school hours, Monday to Friday" } },
+    { "num": "4", "label": { "ca": "llengües estrangeres: anglès, alemany, francès i italià", "es": "lenguas extranjeras: inglés, alemán, francés e italiano", "en": "foreign languages: English, German, French and Italian" } }
+  ],
+  "anchors": [
+    { "id": "organitzacio", "label": { "ca": "Organització", "es": "Organización", "en": "Organisation" } },
+    { "id": "curriculum", "label": { "ca": "Currículum", "es": "Currículo", "en": "Curriculum" } },
+    { "id": "qualificacio", "label": { "ca": "Criteris de qualificació", "es": "Criterios de calificación", "en": "Assessment criteria" } },
+    { "id": "projectes", "label": { "ca": "Projectes", "es": "Proyectos", "en": "Projects" } },
+    { "id": "orientacio", "label": { "ca": "Orientació", "es": "Orientación", "en": "Guidance" } },
+    { "id": "practica", "label": { "ca": "Informació pràctica", "es": "Información práctica", "en": "Practical information" } }
+  ],
+  "org": {
+    "titol": { "ca": "Organització i horari", "es": "Organización y horario", "en": "Organisation and timetable" },
+    "comTitol": { "ca": "Com ens organitzem", "es": "Cómo nos organizamos", "en": "How we are organised" },
+    "com1": {
+      "ca": "Cada curs té 4 grups heterogenis. A les matèries instrumentals —català, castellà i matemàtiques— l’alumnat treballa en grups flexibles reduïts, que permeten una atenció més personalitzada.",
+      "es": "Cada curso tiene 4 grupos heterogéneos. En las materias instrumentales —catalán, castellano y matemáticas— el alumnado trabaja en grupos flexibles reducidos, que permiten una atención más personalizada.",
+      "en": "Each year has 4 mixed-ability classes. In the core subjects —Catalan, Spanish and Maths— students work in small flexible groups, which allow more personalised attention."
+    },
+    "com2": {
+      "ca": "Cada grup té un tutor o tutora de referència <span class=\"tbd\">[que fa el seguiment individual i és l’interlocutor de les famílies — confirmar]</span>.",
+      "es": "Cada grupo tiene un tutor o tutora de referencia <span class=\"tbd\">[que hace el seguimiento individual y es el interlocutor de las familias — confirmar]</span>.",
+      "en": "Each class has a form tutor <span class=\"tbd\">[who follows each student individually and is the families’ contact — to be confirmed]</span>."
+    },
+    "horariTitol": { "ca": "Horari marc", "es": "Horario marco", "en": "School timetable" },
+    "horariText": {
+      "ca": "De dilluns a divendres, de 8.15 a 14.45 h, amb un esbarjo d’11.15 a 11.45 h. L’horari personal de cada alumne es consulta a Clickedu.",
+      "es": "De lunes a viernes, de 8.15 a 14.45 h, con un recreo de 11.15 a 11.45 h. El horario personal de cada alumno se consulta en Clickedu.",
+      "en": "Monday to Friday, from 8.15 am to 2.45 pm, with a break from 11.15 to 11.45 am. Each student’s personal timetable is on Clickedu."
+    },
+    "dies": { "ca": ["Dl", "Dt", "Dc", "Dj", "Dv"], "es": ["L", "M", "X", "J", "V"], "en": ["Mon", "Tue", "Wed", "Thu", "Fri"] },
+    "classes": { "ca": "Classes", "es": "Clases", "en": "Lessons" },
+    "esbarjo": { "ca": "Esbarjo", "es": "Recreo", "en": "Break" },
+    "llenguesTitol": { "ca": "Segones llengües estrangeres", "es": "Segundas lenguas extranjeras", "en": "Second foreign languages" },
+    "llenguesText": {
+      "ca": "De 1r a 4t d’ESO, l’alumnat pot cursar una segona llengua estrangera, 3 hores a la setmana.",
+      "es": "De 1º a 4º de ESO, el alumnado puede cursar una segunda lengua extranjera, 3 horas a la semana.",
+      "en": "From 1st to 4th of ESO, students can take a second foreign language, 3 hours a week."
+    },
+    "llengues": { "ca": ["Alemany", "Francès", "Italià"], "es": ["Alemán", "Francés", "Italiano"], "en": ["German", "French", "Italian"] }
+  },
+  "curr": {
+    "titol": { "ca": "Currículum per curs", "es": "Currículo por curso", "en": "Curriculum by year" },
+    "sub": { "ca": "Tria un curs per veure’n les matèries comunes i les optatives.", "es": "Elige un curso para ver sus materias comunes y optativas.", "en": "Choose a year to see its core and elective subjects." },
+    "tabsLabel": { "ca": "Cursos d’ESO", "es": "Cursos de ESO", "en": "ESO years" },
+    "comunes": { "ca": "Matèries comunes", "es": "Materias comunes", "en": "Core subjects" },
+    "hores": { "ca": "Hores/setmana", "es": "Horas/semana", "en": "Hours/week" },
+    "optatives": { "ca": "Optatives", "es": "Optativas", "en": "Electives" },
+    "pdfOpt": { "ca": "Descripció de les optatives de", "es": "Descripción de las optativas de", "en": "Description of the electives for" },
+    "pdfPendent": { "ca": "(PDF pendent)", "es": "(PDF pendiente)", "en": "(PDF pending)" },
+    "cursos": [
+      {
+        "label": { "ca": "1r ESO", "es": "1º ESO", "en": "1st ESO" },
+        "comunes": [
+          { "ca": "Llengua catalana i literatura", "es": "Lengua catalana y literatura", "en": "Catalan language and literature" },
+          { "ca": "Llengua castellana i literatura", "es": "Lengua castellana y literatura", "en": "Spanish language and literature" },
+          { "ca": "Ciències socials", "es": "Ciencias sociales", "en": "Social sciences" },
+          { "ca": "Matemàtiques", "es": "Matemáticas", "en": "Mathematics" },
+          { "ca": "Educació física", "es": "Educación física", "en": "Physical education" },
+          { "ca": "Educació visual i plàstica", "es": "Educación visual y plástica", "en": "Visual arts" },
+          { "ca": "Música", "es": "Música", "en": "Music" },
+          { "ca": "Anglès", "es": "Inglés", "en": "English" },
+          { "ca": "Ciències experimentals", "es": "Ciencias experimentales", "en": "Natural sciences" },
+          { "ca": "Tecnologia", "es": "Tecnología", "en": "Technology" }
+        ],
+        "comunesPendent": false,
+        "optText": {
+          "ca": "Cal escollir-ne una. Alemany, francès i italià es poden continuar fins a 4t (3 h/setmana).",
+          "es": "Hay que escoger una. Alemán, francés e italiano se pueden continuar hasta 4º (3 h/semana).",
+          "en": "Students choose one. German, French and Italian can be continued up to 4th (3 h/week)."
+        },
+        "opts": [
+          { "n": { "ca": "Alemany", "es": "Alemán", "en": "German" } },
+          { "n": { "ca": "Francès", "es": "Francés", "en": "French" } },
+          { "n": { "ca": "Italià", "es": "Italiano", "en": "Italian" } },
+          { "n": { "ca": "Anglès (reforç)", "es": "Inglés (refuerzo)", "en": "English (support)" } },
+          { "n": { "ca": "Tècniques d’estudi", "es": "Técnicas de estudio", "en": "Study skills" } },
+          { "n": { "ca": "Iniciació als esports de raqueta", "es": "Iniciación a los deportes de raqueta", "en": "Introduction to racket sports" } },
+          { "n": { "ca": "Construïm coneixement científic", "es": "Construimos conocimiento científico", "en": "Building scientific knowledge" } }
+        ]
+      },
+      {
+        "label": { "ca": "2n ESO", "es": "2º ESO", "en": "2nd ESO" },
+        "comunes": [ { "ca": "[Matèries comunes de 2n pendents]", "es": "[Materias comunes de 2º pendientes]", "en": "[2nd-year core subjects pending]" } ],
+        "comunesPendent": true,
+        "optText": {
+          "ca": "Continuïtat de la segona llengua estrangera (3 h/setmana). <span class=\"tbd\">[Resta d’optatives pendent.]</span>",
+          "es": "Continuidad de la segunda lengua extranjera (3 h/semana). <span class=\"tbd\">[Resto de optativas pendiente.]</span>",
+          "en": "Second foreign language continues (3 h/week). <span class=\"tbd\">[Other electives pending.]</span>"
+        },
+        "opts": [
+          { "n": { "ca": "Alemany", "es": "Alemán", "en": "German" } },
+          { "n": { "ca": "Francès", "es": "Francés", "en": "French" } },
+          { "n": { "ca": "Italià", "es": "Italiano", "en": "Italian" } },
+          { "n": { "ca": "[Optatives pendents]", "es": "[Optativas pendientes]", "en": "[Electives pending]" }, "pendent": true }
+        ]
+      },
+      {
+        "label": { "ca": "3r ESO", "es": "3º ESO", "en": "3rd ESO" },
+        "comunes": [ { "ca": "[Matèries comunes de 3r pendents]", "es": "[Materias comunes de 3º pendientes]", "en": "[3rd-year core subjects pending]" } ],
+        "comunesPendent": true,
+        "optText": {
+          "ca": "Continuïtat de la segona llengua estrangera (3 h/setmana). <span class=\"tbd\">[Resta d’optatives pendent.]</span>",
+          "es": "Continuidad de la segunda lengua extranjera (3 h/semana). <span class=\"tbd\">[Resto de optativas pendiente.]</span>",
+          "en": "Second foreign language continues (3 h/week). <span class=\"tbd\">[Other electives pending.]</span>"
+        },
+        "opts": [
+          { "n": { "ca": "Alemany", "es": "Alemán", "en": "German" } },
+          { "n": { "ca": "Francès", "es": "Francés", "en": "French" } },
+          { "n": { "ca": "Italià", "es": "Italiano", "en": "Italian" } },
+          { "n": { "ca": "[Optatives pendents]", "es": "[Optativas pendientes]", "en": "[Electives pending]" }, "pendent": true }
+        ]
+      },
+      {
+        "label": { "ca": "4t ESO", "es": "4º ESO", "en": "4th ESO" },
+        "comunes": [ { "ca": "[Matèries comunes de 4t pendents]", "es": "[Materias comunes de 4º pendientes]", "en": "[4th-year core subjects pending]" } ],
+        "comunesPendent": true,
+        "optText": {
+          "ca": "Continuïtat de la segona llengua estrangera (3 h/setmana). <span class=\"tbd\">[Matèries d’opció i itineraris pendents.]</span>",
+          "es": "Continuidad de la segunda lengua extranjera (3 h/semana). <span class=\"tbd\">[Materias de opción e itinerarios pendientes.]</span>",
+          "en": "Second foreign language continues (3 h/week). <span class=\"tbd\">[Optional subjects and pathways pending.]</span>"
+        },
+        "opts": [
+          { "n": { "ca": "Alemany", "es": "Alemán", "en": "German" } },
+          { "n": { "ca": "Francès", "es": "Francés", "en": "French" } },
+          { "n": { "ca": "Italià", "es": "Italiano", "en": "Italian" } },
+          { "n": { "ca": "[Matèries d’opció pendents]", "es": "[Materias de opción pendientes]", "en": "[Optional subjects pending]" }, "pendent": true }
+        ]
+      }
+    ]
+  },
+  "qual": {
+    "titol": { "ca": "Criteris de qualificació", "es": "Criterios de calificación", "en": "Assessment criteria" },
+    "comTitol": { "ca": "Com avaluem", "es": "Cómo evaluamos", "en": "How we assess" },
+    "comText": {
+      "ca": "L’avaluació a l’ESO és contínua i competencial. Les qualificacions s’expressen amb quatre nivells d’assoliment:",
+      "es": "La evaluación en la ESO es continua y competencial. Las calificaciones se expresan con cuatro niveles de logro:",
+      "en": "Assessment in ESO is continuous and competence-based. Marks are given as four levels of achievement:"
+    },
+    "nivells": [
+      { "codi": "NA", "color": "#9096A0", "text": "#5A6070", "nom": { "ca": "No assoliment", "es": "No logro", "en": "Not achieved" } },
+      { "codi": "AS", "color": "#8C83E0", "text": "#1C0CBC", "nom": { "ca": "Assoliment satisfactori", "es": "Logro satisfactorio", "en": "Satisfactory" } },
+      { "codi": "AN", "color": "#4E40D0", "text": "#1C0CBC", "nom": { "ca": "Assoliment notable", "es": "Logro notable", "en": "Good" } },
+      { "codi": "AE", "color": "#1C0CBC", "text": "#1C0CBC", "nom": { "ca": "Assoliment excel·lent", "es": "Logro excelente", "en": "Excellent" } }
+    ],
+    "comPendent": {
+      "ca": "<span class=\"tbd\">[Nombre d’avaluacions per curs, quan es lliuren els informes i com es recuperen les matèries pendents.]</span>",
+      "es": "<span class=\"tbd\">[Número de evaluaciones por curso, cuándo se entregan los informes y cómo se recuperan las materias pendientes.]</span>",
+      "en": "<span class=\"tbd\">[Number of assessment periods, when reports are issued and how failed subjects are recovered.]</span>"
+    },
+    "materiaTitol": { "ca": "Criteris per matèria", "es": "Criterios por materia", "en": "Criteria by subject" },
+    "materiaText": {
+      "ca": "Cada departament publica els criteris de qualificació de les seves matèries.",
+      "es": "Cada departamento publica los criterios de calificación de sus materias.",
+      "en": "Each department publishes the assessment criteria for its subjects."
+    },
+    "promoTitol": { "ca": "Promoció i titulació", "es": "Promoción y titulación", "en": "Progression and certification" },
+    "promoText": {
+      "ca": "<span class=\"tbd\">[Com decideix l’equip docent el pas de curs i l’obtenció del títol de Graduat en ESO.]</span>",
+      "es": "<span class=\"tbd\">[Cómo decide el equipo docente la promoción de curso y la obtención del título de Graduado en ESO.]</span>",
+      "en": "<span class=\"tbd\">[How the teaching team decides on progression and on awarding the ESO certificate.]</span>"
+    }
+  },
+  "proj": {
+    "titol": { "ca": "Projectes de l’etapa", "es": "Proyectos de la etapa", "en": "Projects in ESO" },
+    "foto": { "ca": "Foto", "es": "Foto", "en": "Photo" },
+    "items": [
+      {
+        "tag": { "ca": "1r · 2n · 3r", "es": "1º · 2º · 3º", "en": "1st · 2nd · 3rd" },
+        "titol": { "ca": "Treball de síntesi", "es": "Trabajo de síntesis", "en": "Synthesis project" },
+        "text": { "ca": "<span class=\"tbd\">[Tema de cada curs i quan es fa.]</span>", "es": "<span class=\"tbd\">[Tema de cada curso y cuándo se hace.]</span>", "en": "<span class=\"tbd\">[Topic for each year and when it takes place.]</span>" }
+      },
+      {
+        "tag": { "ca": "4t", "es": "4º", "en": "4th" },
+        "titol": { "ca": "Projecte de recerca", "es": "Proyecto de investigación", "en": "Research project" },
+        "text": { "ca": "<span class=\"tbd\">[Com s’organitza: grups, tutor, presentació final.]</span>", "es": "<span class=\"tbd\">[Cómo se organiza: grupos, tutor, presentación final.]</span>", "en": "<span class=\"tbd\">[How it works: groups, supervisor, final presentation.]</span>" }
+      },
+      {
+        "tag": { "ca": "Tota l’etapa", "es": "Toda la etapa", "en": "All years" },
+        "titol": { "ca": "Llengües Estrangeres", "es": "Lenguas Extranjeras", "en": "Foreign Languages" },
+        "text": { "ca": "Anglès i segones llengües: alemany, francès i italià.", "es": "Inglés y segundas lenguas: alemán, francés e italiano.", "en": "English and second languages: German, French and Italian." },
+        "href": "projectes-llengues-estrangeres.html"
+      },
+      {
+        "tag": { "ca": "Tota l’etapa", "es": "Toda la etapa", "en": "All years" },
+        "titol": { "ca": "Competència Lectora", "es": "Competencia Lectora", "en": "Reading Skills" },
+        "text": { "ca": "<span class=\"tbd\">[Resum en una frase.]</span>", "es": "<span class=\"tbd\">[Resumen en una frase.]</span>", "en": "<span class=\"tbd\">[One-sentence summary.]</span>" },
+        "href": "projectes-competencia-lectora.html"
+      }
+    ]
+  },
+  "ori": {
+    "titol": { "ca": "Orientació i acompanyament", "es": "Orientación y acompañamiento", "en": "Guidance and support" },
+    "tutoriaTitol": { "ca": "Tutoria", "es": "Tutoría", "en": "Tutoring" },
+    "tutoriaText": {
+      "ca": "<span class=\"tbd\">[Hora setmanal de tutoria de grup, entrevistes individuals amb alumnes i famílies, reunions per curs.]</span>",
+      "es": "<span class=\"tbd\">[Hora semanal de tutoría de grupo, entrevistas individuales con alumnos y familias, reuniones por curso.]</span>",
+      "en": "<span class=\"tbd\">[Weekly form period, individual meetings with students and families, meetings per year.]</span>"
+    },
+    "acadTitol": { "ca": "Orientació acadèmica", "es": "Orientación académica", "en": "Academic guidance" },
+    "acadText": {
+      "ca": "<span class=\"tbd\">[Tria d’optatives, consell orientador a final de curs, xerrades a 3r i 4t sobre Batxillerat i FP.]</span>",
+      "es": "<span class=\"tbd\">[Elección de optativas, consejo orientador a final de curso, charlas en 3º y 4º sobre Bachillerato y FP.]</span>",
+      "en": "<span class=\"tbd\">[Choosing electives, end-of-year guidance report, talks in 3rd and 4th on Batxillerat and Vocational Training.]</span>"
+    },
+    "divTitol": { "ca": "Atenció a la diversitat", "es": "Atención a la diversidad", "en": "Inclusion and support" },
+    "divText": {
+      "ca": "Grups flexibles reduïts a català, castellà i matemàtiques. <span class=\"tbd\">[Altres mesures: suport universal i addicional, plans individualitzats, SIEI o aula d’acollida si n’hi ha.]</span>",
+      "es": "Grupos flexibles reducidos en catalán, castellano y matemáticas. <span class=\"tbd\">[Otras medidas: apoyo universal y adicional, planes individualizados, SIEI o aula de acogida si los hay.]</span>",
+      "en": "Small flexible groups in Catalan, Spanish and Maths. <span class=\"tbd\">[Other measures: universal and additional support, individual plans, SIEI or welcome class if any.]</span>"
+    }
+  },
+  "prac": {
+    "titol": { "ca": "Informació pràctica", "es": "Información práctica", "en": "Practical information" },
+    "llibres": { "ca": "Llibres i material", "es": "Libros y material", "en": "Books and materials" },
+    "llibresMeta": { "ca": "Llistat per curs <span class=\"tbd\">(PDF pendent)</span>", "es": "Listado por curso <span class=\"tbd\">(PDF pendiente)</span>", "en": "List by year <span class=\"tbd\">(PDF pending)</span>" },
+    "calendari": { "ca": "Calendari escolar", "es": "Calendario escolar", "en": "School calendar" },
+    "calendariMeta": { "ca": "Curs 2026-2027: inici, vacances i festius <span class=\"tbd\">(enllaç pendent)</span>", "es": "Curso 2026-2027: inicio, vacaciones y festivos <span class=\"tbd\">(enlace pendiente)</span>", "en": "2026-2027: start date, holidays and days off <span class=\"tbd\">(link pending)</span>" },
+    "preins": { "ca": "Preinscripció i matrícula", "es": "Preinscripción y matrícula", "en": "Pre-registration and enrolment" },
+    "preinsMeta": { "ca": "Secretaria", "es": "Secretaría", "en": "School office" }
+  },
+  "cta": {
+    "titol": { "ca": "Tens dubtes sobre l’ESO al Joan Miró?", "es": "¿Tienes dudas sobre la ESO en el Joan Miró?", "en": "Questions about ESO at Joan Miró?" },
+    "text": { "ca": "Escriu-nos i et respondrem.", "es": "Escríbenos y te responderemos.", "en": "Write to us and we’ll get back to you." },
+    "boto": { "ca": "Contacta", "es": "Contacta", "en": "Contact us" }
+  }
+}
