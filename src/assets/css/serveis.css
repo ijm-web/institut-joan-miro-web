@@ -1,0 +1,97 @@
+/* ============ SERVEIS ============
+   Marcatge: src/_includes/serveis.njk · Dades: src/_data/serveis.json
+   Fa servir els valors comuns de base.njk (--color-text, --radius-card, --content-max…) */
+
+.srv-page{ background: var(--bg-soft); color: var(--color-text); }
+.srv-wrap{
+  max-width: var(--content-max);
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: clamp(48px, 6vw, 72px) clamp(16px, 4vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+.srv-band{ background: var(--bg-band); }
+section[id]{ scroll-margin-top: 130px; }
+.srv-wrap .section-title{ margin-bottom: 4px; }
+
+/* --- Introducció --- */
+.srv-intro{ display: flex; flex-wrap: wrap; gap: 24px 40px; align-items: flex-start; }
+.srv-kicker{
+  flex: 1 1 300px; margin: 0;
+  font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--color-orange);
+}
+.srv-lead{ flex: 999 1 560px; margin: 0; font-size: clamp(18px, 2vw, 21px); line-height: 1.6; font-weight: 300; }
+
+/* --- Botons d'accés als apartats (com a ESO) --- */
+.srv-anchors{ display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+.srv-anchors a{
+  text-decoration: none;
+  color: var(--color-blue);
+  border: 1px solid var(--color-blue);
+  border-radius: 999px;
+  padding: 11px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color .2s ease, color .2s ease;
+}
+.srv-anchors a:hover,
+.srv-anchors a:focus-visible{ background: var(--color-blue); color: #fff; }
+
+/* --- Cada servei --- */
+.srv-grid{ display: flex; flex-wrap: wrap; gap: 28px 48px; align-items: flex-start; }
+.srv-main{ flex: 1 1 380px; min-width: 0; display: flex; flex-direction: column; gap: 20px; }
+.srv-side{ flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+.srv-icon{
+  width: 64px; height: 64px; border-radius: 50%;
+  background: rgba(28, 12, 188, 0.07);
+  color: var(--color-blue);
+  display: flex; align-items: center; justify-content: center;
+}
+.srv-icon svg{ width: 32px; height: 32px; }
+.srv-text{ margin: 0; font-size: 17px; line-height: 1.7; }
+.srv-note{
+  border-left: 3px solid var(--color-orange);
+  padding: 4px 0 4px 18px;
+}
+.srv-note h3{
+  margin: 0 0 6px;
+  font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: var(--color-orange);
+}
+.srv-note p{ margin: 0; font-size: 15px; line-height: 1.65; }
+
+.srv-card{
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  border-radius: var(--radius-card);
+  padding: 24px 26px;
+}
+.srv-card h3{ margin: 0 0 12px; font-size: 17px; font-weight: 600; color: var(--color-blue); }
+.srv-card p{ margin: 0; font-size: 15px; line-height: 1.65; }
+.srv-card--how{ background: var(--color-blue); border-color: var(--color-blue); color: #fff; }
+.srv-card--how h3{ color: #fff; }
+.srv-list{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+.srv-list li{ position: relative; padding-left: 28px; font-size: 15px; line-height: 1.6; }
+.srv-list li::before{
+  content: "";
+  position: absolute; left: 2px; top: .45em;
+  width: 12px; height: 7px;
+  border-left: 2px solid var(--color-orange);
+  border-bottom: 2px solid var(--color-orange);
+  transform: rotate(-45deg);
+}
+
+/* --- Franja final --- */
+.srv-cta{ background: var(--color-blue); color: #fff; }
+.srv-cta__inner{
+  max-width: var(--content-max);
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 56px clamp(16px, 4vw, 24px);
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 24px;
+}
+.srv-cta__title{ font-size: 26px; font-weight: 300; margin: 0; }
+.srv-cta__text{ font-size: 15px; opacity: .85; margin: 6px 0 0; }

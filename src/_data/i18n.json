@@ -32,7 +32,8 @@
       "noticies": "Notícies",
       "inici": "Inici",
       "afa": "AFA",
-      "calendariEscolar": "Calendari escolar"
+      "calendariEscolar": "Calendari escolar",
+      "plaEsport": "Pla de l’Esport"
     },
     "topbar": {
       "intranetLabel": "Accés a la intranet Clickedu",
@@ -125,7 +126,8 @@
       "noticies": "Noticias",
       "inici": "Inicio",
       "afa": "AFA",
-      "calendariEscolar": "Calendario escolar"
+      "calendariEscolar": "Calendario escolar",
+      "plaEsport": "Plan del Deporte"
     },
     "topbar": {
       "intranetLabel": "Acceso a la intranet Clickedu",
@@ -218,7 +220,8 @@
       "noticies": "News",
       "inici": "Home",
       "afa": "Parents’ Association (AFA)",
-      "calendariEscolar": "School calendar"
+      "calendariEscolar": "School calendar",
+      "plaEsport": "Sports Plan"
     },
     "topbar": {
       "intranetLabel": "Clickedu intranet access",

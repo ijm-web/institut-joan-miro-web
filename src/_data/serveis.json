@@ -1,0 +1,103 @@
+{
+  "_nota": "Pàgina Serveis (ca/es/en). Font: documentació de matrícula 2026-27 (pàg. 21, 23 i 25). Sense dades concretes (preus, comptes, telèfons).",
+  "heroTitol": { "ca": "Serveis", "es": "Servicios", "en": "Services" },
+  "heroSubtitol": { "ca": "Serveis del centre", "es": "Servicios del centro", "en": "School services" },
+  "kicker": { "ca": "Serveis per a l’alumnat", "es": "Servicios para el alumnado", "en": "Services for students" },
+  "lead": {
+    "ca": "A més de les classes, l’institut ofereix alguns serveis que fan més còmode el dia a dia de l’alumnat: la cantina, que també fa de menjador, les taquilles i un aparcament tancat per a bicicletes i patinets.",
+    "es": "Además de las clases, el instituto ofrece algunos servicios que hacen más cómodo el día a día del alumnado: la cantina, que también hace de comedor, las taquillas y un aparcamiento cerrado para bicicletas y patinetes.",
+    "en": "Alongside lessons, the school offers a few services that make students’ day-to-day easier: the canteen, which also serves lunch, lockers, and a locked parking area for bikes and scooters."
+  },
+  "anchorsLabel": { "ca": "Serveis", "es": "Servicios", "en": "Services" },
+  "comFunciona": { "ca": "Com funciona", "es": "Cómo funciona", "en": "How it works" },
+  "tenirEnCompte": { "ca": "A tenir en compte", "es": "A tener en cuenta", "en": "Good to know" },
+  "solTitol": { "ca": "Com sol·licitar-lo", "es": "Cómo solicitarlo", "en": "How to apply" },
+  "seccions": [
+    {
+      "id": "cantina",
+      "icona": "cantina",
+      "titol": { "ca": "La Cantina", "es": "La Cantina", "en": "The Canteen" },
+      "intro": {
+        "ca": "La cafeteria del centre ha habilitat el seu espai per oferir servei de dinar a l’alumnat que es queda a l’institut a la tarda. La cuina és de mercat: els dinars s’elaboren cada dia a la mateixa cuina de la cafeteria.",
+        "es": "La cafetería del centro ha habilitado su espacio para ofrecer servicio de comida al alumnado que se queda en el instituto por la tarde. La cocina es de mercado: las comidas se elaboran cada día en la misma cocina de la cafetería.",
+        "en": "The school café has adapted its space to offer lunch to students who stay at school in the afternoon. The food is fresh and seasonal: meals are cooked every day in the café’s own kitchen."
+      },
+      "punts": [
+        { "ca": "Els menús es preparen cada mes i se’n lliura una còpia a totes les famílies usuàries.", "es": "Los menús se preparan cada mes y se entrega una copia a todas las familias usuarias.", "en": "Menus are planned monthly and a copy is given to every family using the service." },
+        { "ca": "Si cal un menú especial, es parla directament amb la persona responsable de la cuina.", "es": "Si hace falta un menú especial, se habla directamente con la persona responsable de la cocina.", "en": "If a special menu is needed, families talk directly to the person in charge of the kitchen." },
+        { "ca": "La reserva és mensual i es paga per avançat a la mateixa cantina.", "es": "La reserva es mensual y se paga por adelantado en la misma cantina.", "en": "Places are booked monthly and paid in advance at the canteen." },
+        { "ca": "En cas d’absència, cal avisar amb antelació.", "es": "En caso de ausencia, hay que avisar con antelación.", "en": "If a student will be absent, the canteen must be told in advance." }
+      ],
+      "notaTitol": { "ca": "Places limitades", "es": "Plazas limitadas", "en": "Limited places" },
+      "nota": {
+        "ca": "L’espai té un aforament limitat. Tenen prioritat, per aquest ordre: l’alumnat que ja feia servir el menjador, l’alumnat d’activitats extraescolars i l’alumnat dels cursos inferiors.",
+        "es": "El espacio tiene un aforo limitado. Tienen prioridad, por este orden: el alumnado que ya utilizaba el comedor, el alumnado de actividades extraescolares y el alumnado de los cursos inferiores.",
+        "en": "Space is limited. Priority goes, in this order, to students who already used the lunch service, students in after-school activities and students in the lower years."
+      },
+      "sol": {
+        "ca": "Amb el full del servei de menjador de la documentació de matrícula, indicant els dies de la setmana que l’alumne es quedarà a dinar.",
+        "es": "Con la hoja del servicio de comedor de la documentación de matrícula, indicando los días de la semana que el alumno se quedará a comer.",
+        "en": "With the lunch service form included in the enrolment documents, stating which days of the week the student will stay for lunch."
+      }
+    },
+    {
+      "id": "taquilles",
+      "icona": "taquilles",
+      "titol": { "ca": "Les Taquilles", "es": "Las Taquillas", "en": "Lockers" },
+      "intro": {
+        "ca": "L’alumnat pot llogar una taquilla per a tot el curs per guardar-hi llibres, material i objectes personals. El servei el gestiona una empresa externa.",
+        "es": "El alumnado puede alquilar una taquilla para todo el curso para guardar libros, material y objetos personales. El servicio lo gestiona una empresa externa.",
+        "en": "Students can rent a locker for the whole school year to keep books, materials and personal belongings. The service is run by an external company."
+      },
+      "punts": [
+        { "ca": "Es recomana fer la reserva abans de l’estiu per garantir que hi hagi taquilla a l’inici de curs.", "es": "Se recomienda hacer la reserva antes del verano para garantizar que haya taquilla al inicio de curso.", "en": "Booking before the summer is recommended to make sure a locker is available when term starts." },
+        { "ca": "La clau es lliura la primera setmana de setembre a la cantina, presentant el full omplert i el comprovant de pagament.", "es": "La llave se entrega la primera semana de septiembre en la cantina, presentando la hoja rellenada y el comprobante de pago.", "en": "Keys are handed out at the canteen in the first week of September, on presentation of the completed form and proof of payment." },
+        { "ca": "Si es perd la clau o es trenca el pany, se’n pot demanar la reposició.", "es": "Si se pierde la llave o se rompe la cerradura, se puede pedir la reposición.", "en": "If the key is lost or the lock is broken, a replacement can be requested." },
+        { "ca": "En acabar el curs, cal deixar la taquilla buida i retornar la clau a la cantina.", "es": "Al acabar el curso, hay que dejar la taquilla vacía y devolver la llave en la cantina.", "en": "At the end of the year, the locker must be emptied and the key returned to the canteen." }
+      ],
+      "notaTitol": { "ca": "Responsabilitat", "es": "Responsabilidad", "en": "Responsibility" },
+      "nota": {
+        "ca": "El contingut de la taquilla i la cura de la clau són responsabilitat de l’alumne. L’empresa no es fa responsable de pèrdues o sostraccions.",
+        "es": "El contenido de la taquilla y el cuidado de la llave son responsabilidad del alumno. La empresa no se hace responsable de pérdidas o sustracciones.",
+        "en": "Students are responsible for what they keep in the locker and for looking after the key. The company is not liable for loss or theft."
+      },
+      "sol": {
+        "ca": "Amb el full del servei de taquilles de la documentació de matrícula, juntament amb el comprovant de pagament.",
+        "es": "Con la hoja del servicio de taquillas de la documentación de matrícula, junto con el comprobante de pago.",
+        "en": "With the locker service form included in the enrolment documents, together with proof of payment."
+      }
+    },
+    {
+      "id": "aparcament",
+      "icona": "aparcament",
+      "titol": { "ca": "L’Aparcament de bicis i patinets", "es": "El Aparcamiento de bicis y patinetes", "en": "Bike and Scooter Parking" },
+      "intro": {
+        "ca": "L’institut aposta per la mobilitat sostenible. Per això, l’alumnat que ve en bicicleta o patinet disposa d’un espai segur per aparcar-hi durant la jornada.",
+        "es": "El instituto apuesta por la movilidad sostenible. Por eso, el alumnado que viene en bicicleta o patinete dispone de un espacio seguro para aparcar durante la jornada.",
+        "en": "The school supports sustainable transport, so students who come by bike or scooter have a safe place to park during the school day."
+      },
+      "punts": [
+        { "ca": "És un recinte tancat, amb reixa del terra al sostre, porta amb cadenat i càmera de vigilància, al costat de l’entrada del centre.", "es": "Es un recinto cerrado, con reja del suelo al techo, puerta con candado y cámara de vigilancia, junto a la entrada del centro.", "en": "It is a locked enclosure with floor-to-ceiling fencing, a padlocked door and a security camera, next to the school entrance." },
+        { "ca": "S’obre cada matí abans de l’inici de les classes i al final de la jornada.", "es": "Se abre cada mañana antes del inicio de las clases y al final de la jornada.", "en": "It is opened every morning before classes start and again at the end of the day." },
+        { "ca": "Cada usuari té la contrasenya del cadenat per si ha d’entrar-hi entremig.", "es": "Cada usuario tiene la contraseña del candado por si tiene que entrar entre medias.", "en": "Each user has the padlock code in case they need access in between." },
+        { "ca": "El servei es contracta per a tot el curs, amb un pagament únic.", "es": "El servicio se contrata para todo el curso, con un pago único.", "en": "The service is booked for the whole school year, with a single payment." }
+      ],
+      "notaTitol": { "ca": "Responsabilitat", "es": "Responsabilidad", "en": "Responsibility" },
+      "nota": {
+        "ca": "Cada alumne ha de lligar la bicicleta o el patinet, tenir cura del recinte i no compartir la contrasenya amb ningú. El centre no es fa responsable de sostraccions o desperfectes.",
+        "es": "Cada alumno debe atar la bicicleta o el patinete, cuidar el recinto y no compartir la contraseña con nadie. El centro no se hace responsable de sustracciones o desperfectos.",
+        "en": "Students must lock their bike or scooter, look after the enclosure and never share the code. The school is not liable for theft or damage."
+      },
+      "sol": {
+        "ca": "Amb el full d’acceptació de les condicions del servei d’aparcament de la documentació de matrícula.",
+        "es": "Con la hoja de aceptación de las condiciones del servicio de aparcamiento de la documentación de matrícula.",
+        "en": "With the parking service acceptance form included in the enrolment documents."
+      }
+    }
+  ],
+  "cta": {
+    "titol": { "ca": "Tens dubtes sobre algun servei?", "es": "¿Tienes dudas sobre algún servicio?", "en": "Questions about any of our services?" },
+    "text": { "ca": "Escriu-nos i et respondrem.", "es": "Escríbenos y te responderemos.", "en": "Write to us and we’ll get back to you." },
+    "boto": { "ca": "Contacta", "es": "Contacta", "en": "Contact us" }
+  }
+}

@@ -129,6 +129,16 @@
             {%- for o in c.opts %}<li{% if o.pendent %} class="tbd"{% endif %}>{{ o.n[L] }}</li>{% endfor %}
           </ul>
         </div>
+        {%- if c.destacat %}
+        <div class="eso-pool">
+          <span class="eso-pool__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1 2.5-1 4-1"/><path d="M2 20c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1 2.5-1 4-1"/><path d="M8 13V5a2 2 0 0 1 4 0M16 13V5a2 2 0 0 0-4 0M8 8h8M8 11h8"/></svg></span>
+          <div class="eso-pool__body">
+            <h3>{{ c.destacat.titol[L] }}</h3>
+            <p>{{ c.destacat.text[L] }}</p>
+            <a href="/{{ P }}{{ c.destacat.href }}">{{ c.destacat.enllac[L] }} <span aria-hidden="true">→</span></a>
+          </div>
+        </div>
+        {%- endif %}
         <a class="eso-doc eso-doc--row" href="#" target="_blank" rel="noopener">
           <span>{{ e.curr.pdfOpt[L] }} {{ c.label[L] }} <span class="tbd">{{ e.curr.pdfPendent[L] }}</span></span>
           <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>

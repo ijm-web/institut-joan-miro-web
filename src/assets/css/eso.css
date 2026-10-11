@@ -245,6 +245,30 @@ section[id]{ scroll-margin-top: 130px; }
 }
 .eso-opts li.tbd{ background: #FFE95C; border-color: #FFE95C; color: #1E1E2A; }
 
+/* --- Destacat de la pestanya (p. ex. piscina a 1r) --- */
+.eso-pool{
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  border-left: 4px solid var(--color-orange);
+  border-radius: var(--radius-card);
+  padding: 20px 22px;
+}
+.eso-pool__icon{
+  flex: none;
+  width: 48px; height: 48px; border-radius: 50%;
+  background: #FCE6D8; color: #C9530A;
+  display: flex; align-items: center; justify-content: center;
+}
+.eso-pool__icon svg{ width: 26px; height: 26px; }
+.eso-pool__body{ display: flex; flex-direction: column; gap: 6px; }
+.eso-pool h3{ margin: 0; font-size: 17px; font-weight: 600; color: var(--color-blue); }
+.eso-pool p{ margin: 0; font-size: 15px; line-height: 1.6; }
+.eso-pool a{ color: var(--color-blue); font-weight: 600; font-size: 15px; text-decoration: none; }
+.eso-pool a:hover, .eso-pool a:focus-visible{ color: var(--color-orange); }
+
 /* --- Enllaços a documents --- */
 .eso-doc{
   text-decoration: none;

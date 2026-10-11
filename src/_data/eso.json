@@ -399,7 +399,25 @@
             }
           }
         ],
-        "optHores": 3
+        "optHores": 3,
+        "destacat": {
+          "titol": {
+            "ca": "Piscina a 1r d’ESO",
+            "es": "Piscina en 1.º de ESO",
+            "en": "Swimming in 1st ESO"
+          },
+          "text": {
+            "ca": "L’Educació física de 1r inclou 1 hora setmanal de piscina al Poliesportiu PELL.",
+            "es": "La Educación física de 1.º incluye 1 hora semanal de piscina en el Polideportivo PELL.",
+            "en": "1st-year Physical Education includes 1 hour of swimming a week at the PELL sports centre."
+          },
+          "enllac": {
+            "ca": "Pla de l’Esport",
+            "es": "Plan del Deporte",
+            "en": "Sports Plan"
+          },
+          "href": "projectes-pla-esport.html"
+        }
       },
       {
         "label": {
