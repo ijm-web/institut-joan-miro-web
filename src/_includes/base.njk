@@ -235,6 +235,43 @@
     .intranet-link{ padding-right: 10px; margin-right: 2px; }
     .intranet-link img{ height: 16px; }
   }
+  /* --- Guia de Clickedu per a famílies: icona-llibre a la dreta del logo, amb rètol en passar-hi el ratolí --- */
+  .header-actions .intranet-link{ border-right: none; padding-right: 0; margin-right: 0; }
+  .guide-link{
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+    width: 30px; height: 30px; margin: 0 8px 0 4px;
+    color: var(--color-blue);
+    border-radius: 50%;
+    transition: color .18s ease, background-color .18s ease;
+  }
+  .guide-link::after{ /* separador, com abans al costat de Clickedu */
+    content: ""; position: absolute; right: -9px; top: 5px; bottom: 5px;
+    border-right: 1px solid var(--color-border);
+  }
+  .guide-link svg{ width: 18px; height: 18px; }
+  .guide-link:hover, .guide-link:focus-visible{ color: var(--color-orange); background: rgba(232, 96, 12, .08); }
+  .guide-link__tip{
+    position: absolute; top: calc(100% + 12px); right: -40px;
+    display: flex; flex-direction: column; gap: 2px;
+    width: max-content; max-width: 260px;
+    background: #fff; color: var(--color-text-muted);
+    border: 1px solid var(--color-border); border-radius: 8px;
+    box-shadow: 0 16px 34px rgba(28,12,188,0.12);
+    padding: 10px 14px;
+    font-size: 12px; font-weight: 400; line-height: 1.4; text-align: left; white-space: normal;
+    opacity: 0; visibility: hidden; transform: translateY(6px);
+    transition: opacity .16s ease, transform .16s ease;
+    pointer-events: none; z-index: 30;
+  }
+  .guide-link__tip strong{ font-size: 13.5px; font-weight: 600; color: var(--color-blue); }
+  .guide-link:hover .guide-link__tip,
+  .guide-link:focus-visible .guide-link__tip{ opacity: 1; visibility: visible; transform: translateY(0); }
+  @media (max-width: 560px){
+    .guide-link{ margin: 0 6px 0 2px; width: 28px; height: 28px; }
+    .guide-link::after{ right: -7px; }
+    .guide-link__tip{ display: none; }
+  }
   /* ============ MENÚ HORITZONTAL (placeholder visual — sempre visible) ============ */
   .mainheader{
     display:flex;
@@ -975,8 +1012,6 @@
                 <a href="/{{ langPrefix }}secretaria-recollida-titols.html">{{ t.menu.recollidaTitols }}</a>
                 <a href="/{{ langPrefix }}secretaria-sollicitud-titols.html">{{ t.menu.sollicitudTitols }}</a>
                 <a href="/{{ langPrefix }}secretaria-beques-ajuts.html">{{ t.menu.bequesAjuts }}</a>
-                <a href="/assets/docs/secretaria/sollicitud-certificat.pdf" target="_blank" rel="noopener">{{ t.menu.sollicitudCertificats }}</a>
-                <a href="/assets/docs/secretaria/sollicitud-canvi-materia.pdf" target="_blank" rel="noopener">{{ t.menu.canviMateria }}</a>
                 <a href="/assets/docs/secretaria/comunicat-inassistencia-vaga.pdf" target="_blank" rel="noopener">{{ t.menu.comunicatVaga }}</a>
                 <div class="dropdown-panel__group dropdown-panel__group--left">
                   <span class="dropdown-panel__group-trigger">
@@ -987,6 +1022,8 @@
                     <a href="https://drive.google.com/file/d/1bPkAmujbScpk_JFaQpEBJBNKsoP-SvEO/view?usp=sharing" target="_blank" rel="noopener">{{ t.menu.declaracioESO }}</a>
                     <a href="https://drive.google.com/file/d/1BXjEtyt7Hh9GVRbkeJJxx8_poV2oivx8/view?usp=sharing" target="_blank" rel="noopener">{{ t.menu.declaracioBatxillerat }}</a>
                     <a href="/assets/docs/secretaria/instancia-generica.pdf" target="_blank" rel="noopener">{{ t.menu.instanciaGenerica }}</a>
+                    <a href="/assets/docs/secretaria/sollicitud-certificat.pdf" target="_blank" rel="noopener">{{ t.menu.sollicitudCertificats }}</a>
+                    <a href="/assets/docs/secretaria/sollicitud-canvi-materia.pdf" target="_blank" rel="noopener">{{ t.menu.canviMateria }}</a>
                   </div>
                 </div>
               </div>
@@ -1017,6 +1054,10 @@
       <div class="header-actions">
         <a href="https://institutjoanmiro.clickedu.eu/user.php?action=login" target="_blank" rel="noopener" class="intranet-link" aria-label="{{ t.topbar.intranetLabel }}">
           <img src="data:image/png;base64,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" alt="Clickedu — Intranet">
+        </a>
+        <a href="/assets/docs/families/guia-families-clickedu.pdf" target="_blank" rel="noopener" class="guide-link" aria-label="{{ t.topbar.clickeduGuia }}: {{ t.topbar.clickeduGuiaSub }} (PDF)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M6.5 17A2.5 2.5 0 0 0 4 19.5 2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg>
+          <span class="guide-link__tip" aria-hidden="true"><strong>{{ t.topbar.clickeduGuia }}</strong>{{ t.topbar.clickeduGuiaSub }}</span>
         </a>
         <button class="search-toggle" id="searchToggle" aria-label="{{ t.search.toggleLabel }}" aria-expanded="false">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/></svg>
@@ -1094,13 +1135,13 @@
             <li><a href="/{{ langPrefix }}secretaria-recollida-titols.html">{{ t.menu.recollidaTitols }}</a></li>
             <li><a href="/{{ langPrefix }}secretaria-sollicitud-titols.html">{{ t.menu.sollicitudTitols }}</a></li>
             <li><a href="/{{ langPrefix }}secretaria-beques-ajuts.html">{{ t.menu.bequesAjuts }}</a></li>
-            <li><a href="/assets/docs/secretaria/sollicitud-certificat.pdf" target="_blank" rel="noopener">{{ t.menu.sollicitudCertificats }}</a></li>
-            <li><a href="/assets/docs/secretaria/sollicitud-canvi-materia.pdf" target="_blank" rel="noopener">{{ t.menu.canviMateria }}</a></li>
             <li><a href="/assets/docs/secretaria/comunicat-inassistencia-vaga.pdf" target="_blank" rel="noopener">{{ t.menu.comunicatVaga }}</a></li>
             <li class="mobile-submenu__group-label">{{ t.menu.solicituds }}</li>
             <li><a href="https://drive.google.com/file/d/1bPkAmujbScpk_JFaQpEBJBNKsoP-SvEO/view?usp=sharing" target="_blank" rel="noopener" class="mobile-submenu__sub">{{ t.menu.declaracioESO }}</a></li>
             <li><a href="https://drive.google.com/file/d/1BXjEtyt7Hh9GVRbkeJJxx8_poV2oivx8/view?usp=sharing" target="_blank" rel="noopener" class="mobile-submenu__sub">{{ t.menu.declaracioBatxillerat }}</a></li>
             <li><a href="/assets/docs/secretaria/instancia-generica.pdf" target="_blank" rel="noopener" class="mobile-submenu__sub">{{ t.menu.instanciaGenerica }}</a></li>
+            <li><a href="/assets/docs/secretaria/sollicitud-certificat.pdf" target="_blank" rel="noopener" class="mobile-submenu__sub">{{ t.menu.sollicitudCertificats }}</a></li>
+            <li><a href="/assets/docs/secretaria/sollicitud-canvi-materia.pdf" target="_blank" rel="noopener" class="mobile-submenu__sub">{{ t.menu.canviMateria }}</a></li>
           </ul>
         </li>
         <li class="mobile-nav-item has-submenu">

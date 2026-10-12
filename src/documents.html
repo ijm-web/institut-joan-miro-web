@@ -37,6 +37,7 @@ pageStyles: |
   }
 
   /* --- Caixes de documents: grises, passen a taronja amb el hover (1 s) --- */
+  .docs-section{ margin-top: clamp(48px, 6vw, 72px); }
   .docs-grid{
     display: grid;
     grid-template-columns: repeat(4, 1fr);
@@ -116,6 +117,16 @@ pageScript: |
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8"/><path d="M12 17v4"/></svg>
         <p class="doc-card__label">Estratègia Digital de Centre</p>
       </div>
+    </div>
+  </section>
+
+  <section class="docs-section">
+    <h2 class="docs-title">Documentació per a famílies</h2>
+    <div class="docs-grid">
+      <a class="doc-card" href="/assets/docs/families/guia-families-clickedu.pdf" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5v14z"/><path d="M6.5 17A2.5 2.5 0 0 0 4 19.5 2.5 2.5 0 0 0 6.5 22H20v-5"/><path d="M9 7h7M9 11h5"/></svg>
+        <p class="doc-card__label">Guia de Clickedu per a famílies</p>
+      </a>
     </div>
   </section>
 </div>
