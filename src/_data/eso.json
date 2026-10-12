@@ -854,9 +854,9 @@
       "en": "Books and materials"
     },
     "llibresMeta": {
-      "ca": "Llistat per curs <span class=\"tbd\">(PDF pendent)</span>",
-      "es": "Listado por curso <span class=\"tbd\">(PDF pendiente)</span>",
-      "en": "List by year <span class=\"tbd\">(PDF pending)</span>"
+      "ca": "Llibres de text, lectures i materials per curs",
+      "es": "Libros de texto, lecturas y materiales por curso (en catalán)",
+      "en": "Textbooks, readers and materials by year (in Catalan)"
     },
     "calendari": {
       "ca": "Calendari escolar",
