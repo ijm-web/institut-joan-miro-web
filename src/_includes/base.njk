@@ -951,7 +951,18 @@
                 <a href="/{{ langPrefix }}projectes-pla-esport.html">{{ t.menu.plaEsport }}</a>
               </div>
             </li>
-            <li><a href="/{{ langPrefix }}serveis.html">{{ t.menu.serveis }}</a></li>
+            <li class="has-dropdown">
+              <button class="dropdown-trigger" aria-haspopup="true" aria-expanded="false">
+                {{ t.menu.serveis }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+              </button>
+              <div class="dropdown-panel">
+                <a href="/{{ langPrefix }}serveis.html#cantina">{{ t.menu.serveisCantina }}</a>
+                <a href="/{{ langPrefix }}serveis.html#taquilles">{{ t.menu.serveisTaquilles }}</a>
+                <a href="/{{ langPrefix }}serveis.html#aparcament">{{ t.menu.serveisAparcament }}</a>
+                <a href="https://sites.google.com/institutjoanmiro.cat/incidenciesjoanmiro/p%C3%A0gina-principal?authuser=0" target="_blank" rel="noopener">{{ t.menu.incidenciesPortatils }}</a>
+              </div>
+            </li>
             <li class="has-dropdown">
               <button class="dropdown-trigger" aria-haspopup="true" aria-expanded="false">
                 {{ t.menu.secretaria }}
@@ -1059,7 +1070,18 @@
             <li><a href="/{{ langPrefix }}projectes-pla-esport.html">{{ t.menu.plaEsport }}</a></li>
           </ul>
         </li>
-        <li><a href="/{{ langPrefix }}serveis.html">{{ t.menu.serveis }}</a></li>
+        <li class="mobile-nav-item has-submenu">
+          <button class="mobile-nav-item__trigger" aria-expanded="false">
+            {{ t.menu.serveis }}
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+          </button>
+          <ul class="mobile-submenu">
+            <li><a href="/{{ langPrefix }}serveis.html#cantina">{{ t.menu.serveisCantina }}</a></li>
+            <li><a href="/{{ langPrefix }}serveis.html#taquilles">{{ t.menu.serveisTaquilles }}</a></li>
+            <li><a href="/{{ langPrefix }}serveis.html#aparcament">{{ t.menu.serveisAparcament }}</a></li>
+            <li><a href="https://sites.google.com/institutjoanmiro.cat/incidenciesjoanmiro/p%C3%A0gina-principal?authuser=0" target="_blank" rel="noopener">{{ t.menu.incidenciesPortatils }}</a></li>
+          </ul>
+        </li>
         <li class="mobile-nav-item has-submenu">
           <button class="mobile-nav-item__trigger" aria-expanded="false">
             {{ t.menu.secretaria }}
@@ -1227,6 +1249,14 @@
     menuToggle.addEventListener('click', function(){
       var isOpen = mobilePanel.classList.toggle('is-open');
       menuToggle.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+    });
+    // Enllaços a una secció (#…), p. ex. Serveis › La Cantina: tanquem el menú
+    // perquè, si ja som a la mateixa pàgina, es vegi la secció.
+    mobilePanel.querySelectorAll('a[href*="#"]').forEach(function(a){
+      a.addEventListener('click', function(){
+        mobilePanel.classList.remove('is-open');
+        menuToggle.setAttribute('aria-expanded', 'false');
+      });
     });
   })();
 
