@@ -68,6 +68,8 @@ pageStyles: |
       gap: 28px;
       margin-bottom: 56px;
     }
+    /* #horari: destí dels enllaços «horari d'atenció al públic» (Secretaria) */
+    #horari{ scroll-margin-top: 140px; }
     .info-card{
       display: flex;
       flex-direction: column;
@@ -384,7 +386,7 @@ pageScript: |
     <section class="contact-info-grid" aria-label="Informació de contacte">
 
       <!-- Horari -->
-      <div class="info-card">
+      <div class="info-card" id="horari">
         <span class="info-card__icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg>
         </span>

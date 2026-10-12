@@ -33,7 +33,11 @@
       "inici": "Inici",
       "afa": "AFA",
       "calendariEscolar": "Calendari escolar",
-      "plaEsport": "Pla de l’Esport"
+      "plaEsport": "Pla de l’Esport",
+      "recollidaTitols": "Recollida de títols",
+      "sollicitudTitols": "Sol·licitud de títols",
+      "bequesAjuts": "Beques i ajuts",
+      "sollicitudCertificats": "Sol·licitud de certificats"
     },
     "topbar": {
       "intranetLabel": "Accés a la intranet Clickedu",
@@ -127,7 +131,11 @@
       "inici": "Inicio",
       "afa": "AFA",
       "calendariEscolar": "Calendario escolar",
-      "plaEsport": "Plan del Deporte"
+      "plaEsport": "Plan del Deporte",
+      "recollidaTitols": "Recogida de títulos",
+      "sollicitudTitols": "Solicitud de títulos",
+      "bequesAjuts": "Becas y ayudas",
+      "sollicitudCertificats": "Solicitud de certificados"
     },
     "topbar": {
       "intranetLabel": "Acceso a la intranet Clickedu",
@@ -221,7 +229,11 @@
       "inici": "Home",
       "afa": "Parents’ Association (AFA)",
       "calendariEscolar": "School calendar",
-      "plaEsport": "Sports Plan"
+      "plaEsport": "Sports Plan",
+      "recollidaTitols": "Collecting certificates",
+      "sollicitudTitols": "Applying for certificates",
+      "bequesAjuts": "Grants and financial aid",
+      "sollicitudCertificats": "Requesting school records"
     },
     "topbar": {
       "intranetLabel": "Clickedu intranet access",
