@@ -38,7 +38,9 @@
       "recollidaTitols": "Recollida de títols",
       "sollicitudTitols": "Sol·licitud de títols",
       "bequesAjuts": "Beques i ajuts",
-      "sollicitudCertificats": "Sol·licitud de certificats"
+      "sollicitudCertificats": "Sol·licitud de certificats",
+      "comunicatVaga": "Comunicat d'inassistència (vaga)",
+      "canviMateria": "Sol·licitud de canvi de matèria"
     },
     "topbar": {
       "intranetLabel": "Accés a la intranet Clickedu",
@@ -137,7 +139,9 @@
       "recollidaTitols": "Recogida de títulos",
       "sollicitudTitols": "Solicitud de títulos",
       "bequesAjuts": "Becas y ayudas",
-      "sollicitudCertificats": "Solicitud de certificados"
+      "sollicitudCertificats": "Solicitud de certificados",
+      "comunicatVaga": "Comunicado de inasistencia (huelga)",
+      "canviMateria": "Solicitud de cambio de materia"
     },
     "topbar": {
       "intranetLabel": "Acceso a la intranet Clickedu",
@@ -236,7 +240,9 @@
       "recollidaTitols": "Collecting certificates",
       "sollicitudTitols": "Applying for certificates",
       "bequesAjuts": "Grants and financial aid",
-      "sollicitudCertificats": "Requesting school records"
+      "sollicitudCertificats": "Requesting school records",
+      "comunicatVaga": "Strike absence notice",
+      "canviMateria": "Subject change request"
     },
     "topbar": {
       "intranetLabel": "Clickedu intranet access",
