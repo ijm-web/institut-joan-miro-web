@@ -1,0 +1,67 @@
+{#- El nostre centre › Professorat: marcatge comú (ca/es/en).
+    Dades: src/_data/professorat.json · Estils: src/assets/css/professorat.css -#}
+{%- set L = lang | default('ca') -%}
+{%- set d = professorat -%}
+<div class="prof-page">
+
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-1-facana-2400.jpg" srcset="/assets/img/inici/inici-1-facana-1600.jpg 1600w, /assets/img/inici/inici-1-facana-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ d.textos.heroTitol[L] }}</span><span class="qs-hero__subtitle">{{ d.textos.heroSubtitol[L] }}</span></h1>
+  </div>
+</div>
+
+<div class="prof-wrap">
+  <div class="prof-intro">
+    <h2 class="prof-kicker">{{ d.textos.kicker[L] }}</h2>
+    <p class="prof-lead">{{ d.textos.lead[L] }}</p>
+  </div>
+
+  <div class="prof-tools">
+    <label class="prof-search">
+      <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+      <span class="prof-sr">{{ d.textos.cerca[L] }}</span>
+      <input type="search" id="profSearch" placeholder="{{ d.textos.cerca[L] }}" autocomplete="off">
+    </label>
+    <p class="prof-count" aria-live="polite"><strong id="profCount">{{ d.persones | length }}</strong> {{ d.textos.total[L] }}</p>
+  </div>
+
+  <table class="prof-table">
+    <thead>
+      <tr><th scope="col">{{ d.textos.nom[L] }}</th><th scope="col">{{ d.textos.especialitat[L] }}</th><th scope="col">{{ d.textos.email[L] }}</th></tr>
+    </thead>
+    <tbody id="profBody">
+      {%- for p in d.persones %}
+      <tr>
+        <th scope="row" class="prof-name">{{ p.nom }}</th>
+        <td class="prof-esp">{{ p.especialitat[L] }}</td>
+        <td class="prof-mail">{% if p.email %}<a href="mailto:{{ p.email }}">{{ p.email }}</a>{% else %}<span aria-hidden="true">—</span>{% endif %}</td>
+      </tr>
+      {%- endfor %}
+    </tbody>
+  </table>
+  <p class="prof-empty" id="profEmpty" hidden>{{ d.textos.cap[L] }}</p>
+</div>
+
+</div>
+
+{% raw %}
+<script>
+  // Professorat: filtre per nom o especialitat (sense accents ni majúscules)
+  (function(){
+    var input = document.getElementById('profSearch');
+    if (!input) return;
+    var rows = Array.prototype.slice.call(document.querySelectorAll('#profBody tr'));
+    var count = document.getElementById('profCount');
+    var empty = document.getElementById('profEmpty');
+    function norm(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
+    var texts = rows.map(function(r){ return norm(r.querySelector('.prof-name').textContent + ' ' + r.querySelector('.prof-esp').textContent); });
+    input.addEventListener('input', function(){
+      var q = norm(input.value.trim()), n = 0;
+      rows.forEach(function(r, i){ var on = !q || texts[i].indexOf(q) !== -1; r.hidden = !on; if (on) n++; });
+      count.textContent = n;
+      empty.hidden = n !== 0;
+    });
+  })();
+</script>
+{% endraw %}

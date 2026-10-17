@@ -13,6 +13,7 @@
     "@portabletext/to-html": "^6.0.0",
     "@sanity/client": "^8.6.1",
     "@sanity/image-url": "^2.1.1",
-    "nodemailer": "^9.0.5"
+    "nodemailer": "^9.0.5",
+    "pdfkit": "^0.17.2"
   }
 }

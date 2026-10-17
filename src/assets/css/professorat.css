@@ -1,0 +1,79 @@
+/* ============ PROFESSORAT (El nostre centre › Professorat) ============
+   Marcatge: src/_includes/professorat.njk · Dades: src/_data/professorat.json */
+
+.prof-page{ background: var(--bg-soft); color: var(--color-text); }
+.prof-wrap{
+  max-width: var(--content-max, 1220px);
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: clamp(44px, 6vw, 72px) clamp(16px, 4vw, 24px);
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+.prof-sr{
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+}
+
+/* --- Introducció --- */
+.prof-intro{ display: flex; flex-wrap: wrap; gap: 16px 40px; align-items: baseline; }
+.prof-kicker{
+  flex: 1 1 260px; margin: 0;
+  font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--color-orange);
+}
+.prof-lead{ flex: 999 1 560px; margin: 0; font-size: clamp(18px, 2vw, 21px); line-height: 1.6; font-weight: 300; }
+
+/* --- Cercador --- */
+.prof-tools{ display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px; }
+.prof-search{
+  flex: 0 1 420px;
+  display: flex; align-items: center; gap: 10px;
+  background: #fff; border: 1px solid #CFD6E4; border-radius: var(--radius-btn);
+  padding: 0 14px; color: var(--color-blue);
+}
+.prof-search:focus-within{ border-color: var(--color-blue); box-shadow: 0 0 0 3px rgba(28,12,188,.12); }
+.prof-search input{
+  flex: 1; min-width: 0; border: 0; outline: none; background: transparent;
+  font: inherit; font-size: 15px; color: var(--color-text); padding: 12px 0;
+}
+.prof-count{ margin: 0; font-size: 14px; color: #5A6070; }
+.prof-count strong{ color: var(--color-blue); font-weight: 600; }
+
+/* --- Taula --- */
+.prof-table{
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  font-size: 15px;
+}
+.prof-table thead th{
+  text-align: left; font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  color: #fff; background: var(--color-blue); padding: 14px 20px;
+}
+.prof-table tbody th, .prof-table td{ padding: 13px 20px; border-top: 1px solid #EEF1F6; text-align: left; vertical-align: middle; }
+.prof-table tbody tr:first-child th, .prof-table tbody tr:first-child td{ border-top: 0; }
+.prof-table tbody tr:nth-child(even){ background: #FAFAFD; }
+.prof-name{ font-weight: 600; color: var(--color-text); }
+.prof-esp{ color: #5A6070; }
+.prof-mail a{ color: var(--color-blue); text-decoration: none; word-break: break-all; }
+.prof-mail a:hover, .prof-mail a:focus-visible{ color: var(--color-orange); text-decoration: underline; }
+.prof-mail span{ color: #9096A0; }
+.prof-empty{ margin: 0; text-align: center; color: #5A6070; }
+
+/* --- Mòbil: cada fila es converteix en una targeta --- */
+@media (max-width: 720px){
+  .prof-table, .prof-table tbody, .prof-table tr, .prof-table th, .prof-table td{ display: block; }
+  .prof-table thead{ display: none; }
+  .prof-table tbody tr{ padding: 14px 18px; border-top: 1px solid #EEF1F6; }
+  .prof-table tbody tr:first-child{ border-top: 0; }
+  .prof-table tbody th, .prof-table td{ padding: 0; border: 0; }
+  .prof-esp{ font-size: 14px; margin-top: 2px; }
+  .prof-mail{ font-size: 14px; margin-top: 4px; }
+  .prof-table tbody tr[hidden]{ display: none; }
+}

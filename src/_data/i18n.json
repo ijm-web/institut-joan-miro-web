@@ -44,7 +44,12 @@
       "bequesAjuts": "Beques i ajuts",
       "sollicitudCertificats": "Sol·licitud de certificats",
       "comunicatVaga": "Comunicat d'inassistència (vaga)",
-      "canviMateria": "Sol·licitud de canvi de matèria"
+      "canviMateria": "Sol·licitud de canvi de matèria",
+      "professorat": "Professorat",
+      "biblioteca": "Biblioteca",
+      "fundacioMiro": "Fundació Joan Miró",
+      "paraulaCentre": "La paraula al centre",
+      "certificatC1": "Sol·licitud de certificat C1 de català"
     },
     "topbar": {
       "intranetLabel": "Accés a la intranet Clickedu",
@@ -151,7 +156,12 @@
       "bequesAjuts": "Becas y ayudas",
       "sollicitudCertificats": "Solicitud de certificados",
       "comunicatVaga": "Comunicado de inasistencia (huelga)",
-      "canviMateria": "Solicitud de cambio de materia"
+      "canviMateria": "Solicitud de cambio de materia",
+      "professorat": "Profesorado",
+      "biblioteca": "Biblioteca",
+      "fundacioMiro": "Fundació Joan Miró",
+      "paraulaCentre": "La paraula al centre",
+      "certificatC1": "Solicitud de certificado C1 de catalán"
     },
     "topbar": {
       "intranetLabel": "Acceso a la intranet Clickedu",
@@ -258,7 +268,12 @@
       "bequesAjuts": "Grants and financial aid",
       "sollicitudCertificats": "Requesting school records",
       "comunicatVaga": "Strike absence notice",
-      "canviMateria": "Subject change request"
+      "canviMateria": "Subject change request",
+      "professorat": "Teaching staff",
+      "biblioteca": "Library",
+      "fundacioMiro": "Fundació Joan Miró",
+      "paraulaCentre": "La paraula al centre",
+      "certificatC1": "Catalan C1 certificate request"
     },
     "topbar": {
       "intranetLabel": "Clickedu intranet access",

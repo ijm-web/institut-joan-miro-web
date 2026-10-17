@@ -413,6 +413,44 @@ a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px r
 .eso-cols > div{ display: flex; flex-direction: column; gap: 12px; }
 .eso-cols h3{ margin: 0; font-size: 18px; font-weight: 600; color: var(--color-blue); }
 .eso-cols p{ margin: 0; font-size: 15px; line-height: 1.7; }
+.eso-more{ align-self: flex-start; color: var(--color-blue); font-weight: 600; font-size: 15px; text-decoration: none; }
+.eso-more:hover, .eso-more:focus-visible{ color: var(--color-orange); }
+
+/* Franges de 4t dins la caixa d'optatives */
+.eso-opts__band{ margin: 6px 0 -4px; font-size: 13px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
+
+/* Orientació a 4t d'ESO */
+.eso-guide{
+  margin-top: 48px;
+  background: #fff;
+  border: 1px solid #E6EBF2;
+  border-top: 4px solid var(--color-orange);
+  border-radius: var(--radius-card);
+  padding: clamp(24px, 3.5vw, 40px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 28px 48px;
+  scroll-margin-top: 120px;
+}
+.eso-guide__intro{ grid-column: 1 / -1; display: flex; flex-direction: column; gap: 10px; max-width: 760px; }
+.eso-guide__tag{ font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--color-orange); }
+.eso-guide h3{ margin: 0; font-size: 22px; font-weight: 300; color: var(--color-blue); }
+.eso-guide h4{ margin: 0 0 12px; font-size: 16px; font-weight: 600; color: var(--color-blue); }
+.eso-guide p{ margin: 0; font-size: 15px; line-height: 1.7; }
+.eso-guide__sub{ margin: 6px 0 0; padding-left: 1.1em; list-style: disc; }
+.eso-guide__sub strong{ font-weight: 600; }
+.eso-guide__links{ list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.eso-guide__links a{
+  display: grid; grid-template-columns: 1fr auto; column-gap: 12px; align-items: center;
+  padding: 12px 16px; border: 1px solid #E6EBF2; border-radius: var(--radius-btn);
+  color: var(--color-text); text-decoration: none; transition: border-color .2s ease, color .2s ease;
+}
+.eso-guide__links a svg{ grid-row: 1 / span 2; grid-column: 2; color: var(--color-blue); }
+.eso-guide__lt{ font-weight: 600; color: var(--color-blue); font-size: 15px; }
+.eso-guide__ld{ font-size: 13px; color: #5A6070; }
+.eso-guide__links a:hover, .eso-guide__links a:focus-visible{ border-color: var(--color-orange); }
+@media (max-width: 760px){ .eso-guide{ grid-template-columns: minmax(0, 1fr); } }
+.eso-guide__links a:hover .eso-guide__lt, .eso-guide__links a:hover svg{ color: var(--color-orange); }
 
 /* --- Franja final --- */
 .eso-cta{ background: var(--color-blue); color: #fff; }

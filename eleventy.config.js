@@ -1,6 +1,14 @@
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/assets");
 
+  // Any del copyright del peu: s'actualitza sol en cada build
+  eleventyConfig.addGlobalData("anyActual", () => new Date().getFullYear());
+
+  // PDF del calendari escolar (ca/es/en), generat a partir de src/_data/calendari.js
+  eleventyConfig.on("eleventy.after", ({ dir }) => {
+    require("./lib/calendari-pdf.js")(dir.output);
+  });
+
   return {
     dir: {
       input: "src",

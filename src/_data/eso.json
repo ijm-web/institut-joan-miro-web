@@ -21,25 +21,25 @@
     "en": "Compulsory Secondary Education"
   },
   "lead": {
-    "ca": "L’ESO és l’última etapa de l’ensenyament obligatori, dels 12 als 16 anys. Al Joan Miró l’entenem com una etapa d’exigència acadèmica i d’atenció a cada alumne, amb les llengües i la lectura com a eixos: llegir, escriure, calcular, parlar i pensar. En acabar, l’alumnat pot continuar al Batxillerat o a la Formació Professional.",
-    "es": "La ESO es la última etapa de la enseñanza obligatoria, de los 12 a los 16 años. En el Joan Miró la entendemos como una etapa de exigencia académica y de atención a cada alumno, con las lenguas y la lectura como ejes: leer, escribir, calcular, hablar y pensar. Al terminar, el alumnado puede continuar en el Bachillerato o en la Formación Profesional.",
+    "ca": "L’ESO és l’última etapa de l’ensenyament obligatori, dels 12 als 16 anys. Al Joan Miró l’entenem com una etapa d’exigència acadèmica i d’atenció a cada estudiant, amb les llengües i la lectura com a eixos: llegir, escriure, calcular, parlar i pensar. En acabar, l’alumnat pot continuar al Batxillerat o a la Formació Professional.",
+    "es": "La ESO es la última etapa de la enseñanza obligatoria, de los 12 a los 16 años. En el Joan Miró la entendemos como una etapa de exigencia académica y de atención a cada estudiante, con las lenguas y la lectura como ejes: leer, escribir, calcular, hablar y pensar. Al terminar, el alumnado puede continuar en el Bachillerato o en la Formación Profesional.",
     "en": "ESO is the last stage of compulsory education, from age 12 to 16. At Joan Miró we see it as a stage of academic rigour and attention to each student, built around languages and reading: reading, writing, calculating, speaking and thinking. Afterwards, students can go on to Batxillerat or to Vocational Training."
   },
   "stats": [
     {
       "num": "4",
       "label": {
-        "ca": "cursos, de 1r a 4t",
-        "es": "cursos, de 1º a 4º",
-        "en": "years, from 1st to 4th"
+        "ca": "nivells, de 1r a 4t",
+        "es": "niveles, de 1º a 4º",
+        "en": "levels, from 1st to 4th"
       }
     },
     {
       "num": "4",
       "label": {
-        "ca": "grups per curs",
-        "es": "grupos por curso",
-        "en": "classes per year"
+        "ca": "grups per nivell",
+        "es": "grupos por nivel",
+        "en": "classes per level"
       }
     },
     {
@@ -137,9 +137,9 @@
       "en": "How we are organised"
     },
     "com1": {
-      "ca": "Cada curs té 4 grups heterogenis.",
-      "es": "Cada curso tiene 4 grupos heterogéneos.",
-      "en": "Each year has 4 mixed-ability classes."
+      "ca": "Cada nivell té 4 grups heterogenis.",
+      "es": "Cada nivel tiene 4 grupos heterogéneos.",
+      "en": "Each level has 4 mixed-ability classes."
     },
     "com2": {
       "ca": "Cada grup té un tutor o tutora de referència que fa el seguiment individual i és l’interlocutor de les famílies.",
@@ -152,8 +152,8 @@
       "en": "School timetable"
     },
     "horariText": {
-      "ca": "De dilluns a divendres, de 8.15 a 14.45 h, amb un esbarjo d’11.15 a 11.45 h. L’horari personal de cada alumne es consulta a Clickedu.",
-      "es": "De lunes a viernes, de 8.15 a 14.45 h, con un recreo de 11.15 a 11.45 h. El horario personal de cada alumno se consulta en Clickedu.",
+      "ca": "De dilluns a divendres, de 8.15 a 14.45 h, amb un esbarjo d’11.15 a 11.45 h. L’horari personal de cada estudiant es consulta a Clickedu.",
+      "es": "De lunes a viernes, de 8.15 a 14.45 h, con un recreo de 11.15 a 11.45 h. El horario personal de cada estudiante se consulta en Clickedu.",
       "en": "Monday to Friday, from 8.15 am to 2.45 pm, with a break from 11.15 to 11.45 am. Each student’s personal timetable is on Clickedu."
     },
     "dies": {
@@ -222,26 +222,26 @@
       "en": "Phone-free school"
     },
     "mobilsText": {
-      "ca": "Som un espai lliure de mòbils: no s’hi fan servir mòbils ni xarxes socials durant la jornada escolar. Volem recuperar el contacte directe i la conversa entre els alumnes, i reduir la dependència digital per millorar la concentració i la convivència.",
-      "es": "Somos un espacio libre de móviles: no se usan móviles ni redes sociales durante la jornada escolar. Queremos recuperar el contacto directo y la conversación entre los alumnos, y reducir la dependencia digital para mejorar la concentración y la convivencia.",
+      "ca": "Som un espai lliure de mòbils: no s’hi fan servir mòbils ni xarxes socials durant la jornada escolar. Volem recuperar el contacte directe i la conversa entre l’alumnat, i reduir la dependència digital per millorar la concentració i la convivència.",
+      "es": "Somos un espacio libre de móviles: no se usan móviles ni redes sociales durante la jornada escolar. Queremos recuperar el contacto directo y la conversación entre el alumnado, y reducir la dependencia digital para mejorar la concentración y la convivencia.",
       "en": "We are a phone-free space: no mobile phones or social media during the school day. We want students to talk to each other face to face again, and to reduce digital dependence so they can concentrate better and get along better."
     }
   },
   "curr": {
     "titol": {
-      "ca": "Currículum per curs",
-      "es": "Currículo por curso",
-      "en": "Curriculum by year"
+      "ca": "Currículum per nivell",
+      "es": "Currículo por nivel",
+      "en": "Curriculum by level"
     },
     "sub": {
-      "ca": "Tria un curs per veure’n les matèries comunes i les optatives.",
-      "es": "Elige un curso para ver sus materias comunes y optativas.",
-      "en": "Choose a year to see its core and elective subjects."
+      "ca": "Tria un nivell per veure’n les matèries comunes i les optatives.",
+      "es": "Elige un nivel para ver sus materias comunes y optativas.",
+      "en": "Choose a level to see its core and elective subjects."
     },
     "tabsLabel": {
-      "ca": "Cursos d’ESO",
-      "es": "Cursos de ESO",
-      "en": "ESO years"
+      "ca": "Nivells d’ESO",
+      "es": "Niveles de ESO",
+      "en": "ESO levels"
     },
     "comunes": {
       "ca": "Matèries comunes",
@@ -344,9 +344,9 @@
         ],
         "comunesPendent": false,
         "optText": {
-          "ca": "Cal escollir-ne una (3 h/setmana). L’optativa s’assigna segons la informació de l’escola de primària i l’ordre de preferència de la família. Alemany, francès i italià es poden continuar fins a 4t.",
-          "es": "Hay que escoger una (3 h/semana). La optativa se asigna según la información de la escuela de primaria y el orden de preferencia de la familia. Alemán, francés e italiano se pueden continuar hasta 4º.",
-          "en": "Students choose one (3 h/week). Electives are assigned using information from the primary school and the family’s order of preference. German, French and Italian can be continued up to 4th."
+          "ca": "Cal escollir-ne una (3 h/setmana). L’optativa s’assigna segons la informació de l’escola de primària i l’ordre de preferència de la família. Alemany, francès i italià són matèries de continuïtat fins a 4t.",
+          "es": "Hay que escoger una (3 h/semana). La optativa se asigna según la información de la escuela de primaria y el orden de preferencia de la familia. Alemán, francés e italiano son materias de continuidad hasta 4º.",
+          "en": "Students choose one (3 h/week). Electives are assigned using information from the primary school and the family’s order of preference. German, French and Italian continue through to 4th."
         },
         "opts": [
           {
@@ -400,6 +400,7 @@
           }
         ],
         "optHores": 3,
+        "optPdf": "/assets/docs/eso/optatives-1r-eso.pdf",
         "destacat": {
           "titol": {
             "ca": "Piscina a 1r d’ESO",
@@ -427,16 +428,71 @@
         },
         "comunes": [
           {
-            "ca": "[Matèries comunes de 2n pendents]",
-            "es": "[Materias comunes de 2º pendientes]",
-            "en": "[2nd-year core subjects pending]"
+            "ca": "Llengua catalana i literatura",
+            "es": "Lengua catalana y literatura",
+            "en": "Catalan language and literature",
+            "h": 3
+          },
+          {
+            "ca": "Llengua castellana i literatura",
+            "es": "Lengua castellana y literatura",
+            "en": "Spanish language and literature",
+            "h": 3
+          },
+          {
+            "ca": "Ciències socials",
+            "es": "Ciencias sociales",
+            "en": "Social sciences",
+            "h": 3
+          },
+          {
+            "ca": "Matemàtiques",
+            "es": "Matemáticas",
+            "en": "Mathematics",
+            "h": 3
+          },
+          {
+            "ca": "Educació física",
+            "es": "Educación física",
+            "en": "Physical education",
+            "h": 2
+          },
+          {
+            "ca": "Música",
+            "es": "Música",
+            "en": "Music",
+            "h": 2
+          },
+          {
+            "ca": "Anglès",
+            "es": "Inglés",
+            "en": "English",
+            "h": 3
+          },
+          {
+            "ca": "Ciències experimentals (física i química)",
+            "es": "Ciencias experimentales (física y química)",
+            "en": "Natural sciences (physics and chemistry)",
+            "h": 3
+          },
+          {
+            "ca": "Tecnologia",
+            "es": "Tecnología",
+            "en": "Technology",
+            "h": 3
+          },
+          {
+            "ca": "Lectura",
+            "es": "Lectura",
+            "en": "Reading",
+            "h": 1
           }
         ],
-        "comunesPendent": true,
+        "comunesPendent": false,
         "optText": {
-          "ca": "Continuïtat de la segona llengua estrangera (3 h/setmana). <span class=\"tbd\">[Resta d’optatives pendent.]</span>",
-          "es": "Continuidad de la segunda lengua extranjera (3 h/semana). <span class=\"tbd\">[Resto de optativas pendiente.]</span>",
-          "en": "Second foreign language continues (3 h/week). <span class=\"tbd\">[Other electives pending.]</span>"
+          "ca": "Cal escollir-ne una (3 h/setmana). L’alumnat que cursa alemany, francès o italià hi dona continuïtat.",
+          "es": "Hay que escoger una (3 h/semana). El alumnado que cursa alemán, francés o italiano le da continuidad.",
+          "en": "Students choose one (3 h/week). Students taking German, French or Italian carry on with it."
         },
         "opts": [
           {
@@ -462,13 +518,34 @@
           },
           {
             "n": {
-              "ca": "[Optatives pendents]",
-              "es": "[Optativas pendientes]",
-              "en": "[Electives pending]"
-            },
-            "pendent": true
+              "ca": "Anglès",
+              "es": "Inglés",
+              "en": "English"
+            }
+          },
+          {
+            "n": {
+              "ca": "Taller d’expressió",
+              "es": "Taller de expresión",
+              "en": "Expression workshop"
+            }
+          },
+          {
+            "n": {
+              "ca": "Expressió artística",
+              "es": "Expresión artística",
+              "en": "Art and expression"
+            }
+          },
+          {
+            "n": {
+              "ca": "Tecnificació en esports de raqueta",
+              "es": "Tecnificación en deportes de raqueta",
+              "en": "Racket sports (advanced)"
+            }
           }
-        ]
+        ],
+        "optHores": 3
       },
       {
         "label": {
@@ -478,16 +555,83 @@
         },
         "comunes": [
           {
-            "ca": "[Matèries comunes de 3r pendents]",
-            "es": "[Materias comunes de 3º pendientes]",
-            "en": "[3rd-year core subjects pending]"
+            "ca": "Llengua catalana i literatura",
+            "es": "Lengua catalana y literatura",
+            "en": "Catalan language and literature",
+            "h": 2
+          },
+          {
+            "ca": "Llengua castellana i literatura",
+            "es": "Lengua castellana y literatura",
+            "en": "Spanish language and literature",
+            "h": 2
+          },
+          {
+            "ca": "Ciències socials",
+            "es": "Ciencias sociales",
+            "en": "Social sciences",
+            "h": 3
+          },
+          {
+            "ca": "Matemàtiques",
+            "es": "Matemáticas",
+            "en": "Mathematics",
+            "h": 3
+          },
+          {
+            "ca": "Educació física",
+            "es": "Educación física",
+            "en": "Physical education",
+            "h": 2
+          },
+          {
+            "ca": "Anglès",
+            "es": "Inglés",
+            "en": "English",
+            "h": 3
+          },
+          {
+            "ca": "Tecnologia",
+            "es": "Tecnología",
+            "en": "Technology",
+            "h": 2
+          },
+          {
+            "ca": "Física i química",
+            "es": "Física y química",
+            "en": "Physics and chemistry",
+            "h": 2
+          },
+          {
+            "ca": "Biologia i geologia",
+            "es": "Biología y geología",
+            "en": "Biology and geology",
+            "h": 2
+          },
+          {
+            "ca": "Educació visual i plàstica",
+            "es": "Educación visual y plástica",
+            "en": "Visual arts",
+            "h": 2
+          },
+          {
+            "ca": "Lectura",
+            "es": "Lectura",
+            "en": "Reading",
+            "h": 1
+          },
+          {
+            "ca": "Projecte de ciències",
+            "es": "Proyecto de ciencias",
+            "en": "Science project",
+            "h": 2
           }
         ],
-        "comunesPendent": true,
+        "comunesPendent": false,
         "optText": {
-          "ca": "Continuïtat de la segona llengua estrangera (3 h/setmana). <span class=\"tbd\">[Resta d’optatives pendent.]</span>",
-          "es": "Continuidad de la segunda lengua extranjera (3 h/semana). <span class=\"tbd\">[Resto de optativas pendiente.]</span>",
-          "en": "Second foreign language continues (3 h/week). <span class=\"tbd\">[Other electives pending.]</span>"
+          "ca": "Cal escollir-ne una (3 h/setmana). L’alumnat que cursa alemany, francès o italià hi dona continuïtat.",
+          "es": "Hay que escoger una (3 h/semana). El alumnado que cursa alemán, francés o italiano le da continuidad.",
+          "en": "Students choose one (3 h/week). Students taking German, French or Italian carry on with it."
         },
         "opts": [
           {
@@ -513,13 +657,27 @@
           },
           {
             "n": {
-              "ca": "[Optatives pendents]",
-              "es": "[Optativas pendientes]",
-              "en": "[Electives pending]"
-            },
-            "pendent": true
+              "ca": "Anglès",
+              "es": "Inglés",
+              "en": "English"
+            }
+          },
+          {
+            "n": {
+              "ca": "Esports de raqueta",
+              "es": "Deportes de raqueta",
+              "en": "Racket sports"
+            }
+          },
+          {
+            "n": {
+              "ca": "Teatre",
+              "es": "Teatro",
+              "en": "Drama"
+            }
           }
-        ]
+        ],
+        "optHores": 3
       },
       {
         "label": {
@@ -529,50 +687,209 @@
         },
         "comunes": [
           {
-            "ca": "[Matèries comunes de 4t pendents]",
-            "es": "[Materias comunes de 4º pendientes]",
-            "en": "[4th-year core subjects pending]"
+            "ca": "Llengua catalana i literatura",
+            "es": "Lengua catalana y literatura",
+            "en": "Catalan language and literature",
+            "h": 3
+          },
+          {
+            "ca": "Llengua castellana i literatura",
+            "es": "Lengua castellana y literatura",
+            "en": "Spanish language and literature",
+            "h": 3
+          },
+          {
+            "ca": "Ciències socials",
+            "es": "Ciencias sociales",
+            "en": "Social sciences",
+            "h": 3
+          },
+          {
+            "ca": "Matemàtiques",
+            "es": "Matemáticas",
+            "en": "Mathematics",
+            "h": 4
+          },
+          {
+            "ca": "Educació física",
+            "es": "Educación física",
+            "en": "Physical education",
+            "h": 2
+          },
+          {
+            "ca": "Anglès",
+            "es": "Inglés",
+            "en": "English",
+            "h": 3
+          },
+          {
+            "ca": "Educació en valors cívics i ètics",
+            "es": "Educación en valores cívicos y éticos",
+            "en": "Civic and ethical values",
+            "h": 2
           }
         ],
-        "comunesPendent": true,
+        "comunesPendent": false,
         "optText": {
-          "ca": "Continuïtat de la segona llengua estrangera (3 h/setmana). <span class=\"tbd\">[Matèries d’opció i itineraris pendents.]</span>",
-          "es": "Continuidad de la segunda lengua extranjera (3 h/semana). <span class=\"tbd\">[Materias de opción e itinerarios pendientes.]</span>",
-          "en": "Second foreign language continues (3 h/week). <span class=\"tbd\">[Optional subjects and pathways pending.]</span>"
+          "ca": "A més de les matèries comunes, es tria una matèria de cada franja (3 h/setmana cadascuna), segons l’itinerari: científic, social o tecnològic. La segona llengua estrangera continua a la franja 3.",
+          "es": "Además de las materias comunes, se elige una materia de cada franja (3 h/semana cada una), según el itinerario: científico, social o tecnológico. La segunda lengua extranjera continúa en la franja 3.",
+          "en": "On top of the core subjects, students pick one subject from each block (3 h/week each), depending on their pathway: science, social sciences or technology. The second foreign language continues in block 3."
         },
-        "opts": [
+        "franges": [
           {
             "n": {
-              "ca": "Alemany",
-              "es": "Alemán",
-              "en": "German"
-            }
-          },
-          {
-            "n": {
-              "ca": "Francès",
-              "es": "Francés",
-              "en": "French"
-            }
-          },
-          {
-            "n": {
-              "ca": "Italià",
-              "es": "Italiano",
-              "en": "Italian"
-            }
-          },
-          {
-            "n": {
-              "ca": "[Matèries d’opció pendents]",
-              "es": "[Materias de opción pendientes]",
-              "en": "[Optional subjects pending]"
+              "ca": "Franja 1",
+              "es": "Franja 1",
+              "en": "Block 1"
             },
-            "pendent": true
+            "opts": [
+              {
+                "n": {
+                  "ca": "Biologia i geologia",
+                  "es": "Biología y geología",
+                  "en": "Biology and geology"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Física i química",
+                  "es": "Física y química",
+                  "en": "Physics and chemistry"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Informàtica",
+                  "es": "Informática",
+                  "en": "Computing"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Economia",
+                  "es": "Economía",
+                  "en": "Economics"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Educació visual i plàstica",
+                  "es": "Educación visual y plástica",
+                  "en": "Visual arts"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Filosofia",
+                  "es": "Filosofía",
+                  "en": "Philosophy"
+                }
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Franja 2",
+              "es": "Franja 2",
+              "en": "Block 2"
+            },
+            "opts": [
+              {
+                "n": {
+                  "ca": "Biologia i geologia",
+                  "es": "Biología y geología",
+                  "en": "Biology and geology"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Física i química",
+                  "es": "Física y química",
+                  "en": "Physics and chemistry"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Informàtica",
+                  "es": "Informática",
+                  "en": "Computing"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Economia",
+                  "es": "Economía",
+                  "en": "Economics"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Llatí",
+                  "es": "Latín",
+                  "en": "Latin"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Música",
+                  "es": "Música",
+                  "en": "Music"
+                }
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Franja 3",
+              "es": "Franja 3",
+              "en": "Block 3"
+            },
+            "opts": [
+              {
+                "n": {
+                  "ca": "Alemany",
+                  "es": "Alemán",
+                  "en": "German"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Francès",
+                  "es": "Francés",
+                  "en": "French"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Italià",
+                  "es": "Italiano",
+                  "en": "Italian"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Emprenedoria",
+                  "es": "Emprendimiento",
+                  "en": "Entrepreneurship"
+                }
+              },
+              {
+                "n": {
+                  "ca": "Tecnologia",
+                  "es": "Tecnología",
+                  "en": "Technology"
+                }
+              }
+            ]
           }
         ]
       }
-    ]
+    ],
+    "franjaTitol": {
+      "ca": "Matèries d’opció",
+      "es": "Materias de opción",
+      "en": "Optional subjects"
+    }
   },
   "qual": {
     "titol": {
@@ -596,14 +913,9 @@
       "en": "Progression and certification"
     },
     "promoText": {
-      "ca": "D’acord amb el Decret 175/2022 (art. 24), passen de curs els alumnes que han assolit les competències de totes les matèries i els que tenen avaluació negativa en una o dues matèries, sempre que l’equip docent consideri que les matèries no superades no els impedeixen continuar el curs següent. La permanència un any més en el mateix curs té caràcter excepcional. Obtenen el títol de graduat en ESO els alumnes que, en acabar l’etapa, han adquirit, a criteri de l’equip docent, les competències establertes i han assolit els objectius de l’etapa.",
-      "es": "De acuerdo con el Decreto 175/2022 (art. 24), promocionan de curso los alumnos que han alcanzado las competencias de todas las materias y los que tienen evaluación negativa en una o dos materias, siempre que el equipo docente considere que las materias no superadas no les impiden seguir el curso siguiente. La permanencia un año más en el mismo curso tiene carácter excepcional. Obtienen el título de graduado en ESO los alumnos que, al terminar la etapa, han adquirido, a criterio del equipo docente, las competencias establecidas y han alcanzado los objetivos de la etapa.",
-      "en": "Under Decree 175/2022 (art. 24), students move up a year when they have achieved the competences of all subjects, or have failed one or two subjects provided the teaching team considers this does not prevent them from following the next year. Repeating a year is exceptional. Students obtain the ESO certificate when, at the end of the stage, the teaching team considers they have acquired the required competences and met the objectives of the stage."
-    },
-    "butlletinsText": {
-      "ca": "A final de cada trimestre s’expedeix un butlletí de qualificacions, i a la meitat del primer trimestre, un butlletí de seguiment. Tots es poden descarregar a Clickedu. A final de curs, s’expedeix un butlletí en paper amb les notes finals de cada matèria.",
-      "es": "Al final de cada trimestre se expide un boletín de calificaciones, y a mitad del primer trimestre, un boletín de seguimiento. Todos se pueden descargar en Clickedu. Al final de curso, se expide un boletín en papel con las notas finales de cada materia.",
-      "en": "A report is issued at the end of each term, plus a progress report halfway through the first term. All of them can be downloaded from Clickedu. At the end of the year, a paper report with the final marks for each subject is issued."
+      "ca": "D’acord amb el Decret 175/2022 (art. 24), promocionen de curs els alumnes que han assolit les competències de totes les matèries i els que tenen avaluació negativa en una o dues matèries, sempre que l’equip docent consideri que les matèries no superades no els impedeixen continuar el nivell següent. La permanència un any més en el mateix nivell té caràcter excepcional. Obté el títol de graduat en ESO l’alumnat que, en acabar l’etapa, ha adquirit, a criteri de l’equip docent, les competències establertes i ha assolit els objectius de l’etapa.",
+      "es": "De acuerdo con el Decreto 175/2022 (art. 24), promocionan de curso los alumnos que han alcanzado las competencias de todas las materias y los que tienen evaluación negativa en una o dos materias, siempre que el equipo docente considere que las materias no superadas no les impiden seguir el nivel siguiente. La permanencia un año más en el mismo nivel tiene carácter excepcional. Obtiene el título de graduado en ESO el alumnado que, al terminar la etapa, ha adquirido, a criterio del equipo docente, las competencias establecidas y ha alcanzado los objetivos de la etapa.",
+      "en": "Under Decree 175/2022 (art. 24), students are promoted to the next level when they have achieved the competences of all subjects, or have failed one or two subjects provided the teaching team considers this does not prevent them from following the next level. Repeating a level is exceptional. Students obtain the ESO certificate when, at the end of the stage, the teaching team considers they have acquired the required competences and met the objectives of the stage."
     },
     "butlletins": [
       {
@@ -718,9 +1030,9 @@
           "en": "Synthesis project"
         },
         "text": {
-          "ca": "<span class=\"tbd\">[Tema de cada curs i quan es fa.]</span>",
-          "es": "<span class=\"tbd\">[Tema de cada curso y cuándo se hace.]</span>",
-          "en": "<span class=\"tbd\">[Topic for each year and when it takes place.]</span>"
+          "ca": "<span class=\"tbd\">[Tema de cada nivell i quan es fa.]</span>",
+          "es": "<span class=\"tbd\">[Tema de cada nivel y cuándo se hace.]</span>",
+          "en": "<span class=\"tbd\">[Topic for each level and when it takes place.]</span>"
         }
       },
       {
@@ -790,8 +1102,8 @@
       "en": "Tutoring"
     },
     "tutoriaText": {
-      "ca": "Una hora setmanal de tutoria de grup i entrevistes individuals amb els alumnes i les famílies. Fem reunions de grup amb les famílies dos cops al llarg del curs, i la comunicació diària es fa per la missatgeria de Clickedu (web i app).",
-      "es": "Una hora semanal de tutoría de grupo y entrevistas individuales con los alumnos y las familias. Hacemos reuniones de grupo con las familias dos veces a lo largo del curso, y la comunicación diaria se hace por la mensajería de Clickedu (web y app).",
+      "ca": "Una hora setmanal de tutoria de grup i entrevistes individuals amb l’alumnat i les famílies. Fem reunions de grup amb les famílies dos cops al llarg del curs, i la comunicació diària es fa per la missatgeria de Clickedu (web i app).",
+      "es": "Una hora semanal de tutoría de grupo y entrevistas individuales con el alumnado y las familias. Hacemos reuniones de grupo con las familias dos veces a lo largo del curso, y la comunicación diaria se hace por la mensajería de Clickedu (web y app).",
       "en": "A weekly form period and individual meetings with students and families. Class meetings with families are held twice a year, and day-to-day communication is through Clickedu messaging (web and app)."
     },
     "acadTitol": {
@@ -800,9 +1112,9 @@
       "en": "Academic guidance"
     },
     "acadText": {
-      "ca": "<span class=\"tbd\">[Tria d’optatives, consell orientador a final de curs, xerrades a 3r i 4t sobre Batxillerat i FP.]</span>",
-      "es": "<span class=\"tbd\">[Elección de optativas, consejo orientador a final de curso, charlas en 3º y 4º sobre Bachillerato y FP.]</span>",
-      "en": "<span class=\"tbd\">[Choosing electives, end-of-year guidance report, talks in 3rd and 4th on Batxillerat and Vocational Training.]</span>"
+      "ca": "Acompanyem l’alumnat en cada decisió acadèmica de l’etapa:",
+      "es": "Acompañamos al alumnado en cada decisión académica de la etapa:",
+      "en": "We support students with every academic decision during ESO:"
     },
     "divTitol": {
       "ca": "Atenció a la diversitat",
@@ -840,7 +1152,165 @@
         "es": "Atención individualizada",
         "en": "One-to-one attention"
       }
-    ]
+    ],
+    "acadList": [
+      {
+        "ca": "Tria d’optatives (1r i 2n d’ESO)",
+        "es": "Elección de optativas (1º y 2º de ESO)",
+        "en": "Choosing electives (1st and 2nd ESO)"
+      },
+      {
+        "ca": "Tria de l’itinerari de 4t (a 3r d’ESO)",
+        "es": "Elección del itinerario de 4º (en 3º de ESO)",
+        "en": "Choosing the 4th-year pathway (in 3rd ESO)"
+      },
+      {
+        "ca": "Tria d’estudis postobligatoris (a 4t d’ESO)",
+        "es": "Elección de estudios postobligatorios (en 4º de ESO)",
+        "en": "Choosing what to study after ESO (in 4th ESO)"
+      },
+      {
+        "ca": "Xerrades sobre el Batxillerat i la Formació Professional (a 4t d’ESO)",
+        "es": "Charlas sobre el Bachillerato y la Formación Profesional (en 4º de ESO)",
+        "en": "Talks on Batxillerat and Vocational Training (in 4th ESO)"
+      }
+    ],
+    "quart": {
+      "titol": {
+        "ca": "Orientació a 4t d’ESO",
+        "es": "Orientación en 4º de ESO",
+        "en": "Guidance in 4th ESO"
+      },
+      "text": {
+        "ca": "En acabar l’ESO, l’alumnat ha de decidir què vol estudiar. És una decisió important que pren amb la seva família, amb l’orientació del professorat del centre.",
+        "es": "Al terminar la ESO, el alumnado debe decidir qué quiere estudiar. Es una decisión importante que toma con su familia, con la orientación del profesorado del centro.",
+        "en": "At the end of ESO, students have to decide what to study next. It is an important decision they make with their family, guided by the school’s teachers."
+      },
+      "aspectesTitol": {
+        "ca": "Què cal tenir en compte",
+        "es": "Qué hay que tener en cuenta",
+        "en": "What to consider"
+      },
+      "explorar": {
+        "ca": "Conèixer les opcions formatives i acadèmiques que hi ha.",
+        "es": "Conocer las opciones formativas y académicas que existen.",
+        "en": "Finding out about the education and training options available."
+      },
+      "autoTitol": {
+        "ca": "Autoconeixement:",
+        "es": "Autoconocimiento:",
+        "en": "Knowing yourself:"
+      },
+      "auto": [
+        {
+          "t": {
+            "ca": "Personalitat",
+            "es": "Personalidad",
+            "en": "Personality"
+          },
+          "d": {
+            "ca": "com soc",
+            "es": "cómo soy",
+            "en": "who I am"
+          }
+        },
+        {
+          "t": {
+            "ca": "Aptituds i habilitats",
+            "es": "Aptitudes y habilidades",
+            "en": "Skills and abilities"
+          },
+          "d": {
+            "ca": "què faig bé i quines capacitats tinc",
+            "es": "qué hago bien y qué capacidades tengo",
+            "en": "what I do well and what I am good at"
+          }
+        },
+        {
+          "t": {
+            "ca": "Valors",
+            "es": "Valores",
+            "en": "Values"
+          },
+          "d": {
+            "ca": "què és important per a mi",
+            "es": "qué es importante para mí",
+            "en": "what matters to me"
+          }
+        },
+        {
+          "t": {
+            "ca": "Interessos professionals",
+            "es": "Intereses profesionales",
+            "en": "Career interests"
+          },
+          "d": {
+            "ca": "què m’agrada i què prefereixo",
+            "es": "qué me gusta y qué prefiero",
+            "en": "what I enjoy and prefer"
+          }
+        }
+      ],
+      "recursosTitol": {
+        "ca": "Recursos per explorar les opcions",
+        "es": "Recursos para explorar las opciones",
+        "en": "Resources to explore the options"
+      },
+      "recursos": [
+        {
+          "href": "https://triaeducativa.gencat.cat/ca/inici",
+          "t": {
+            "ca": "Tria Educativa",
+            "es": "Tria Educativa",
+            "en": "Tria Educativa"
+          },
+          "d": {
+            "ca": "Portal de la Generalitat amb tota l’oferta d’estudis",
+            "es": "Portal de la Generalitat con toda la oferta de estudios (en catalán)",
+            "en": "Catalan Government portal with all study options (in Catalan)"
+          }
+        },
+        {
+          "href": "https://educacio.gencat.cat/web/.content/home/departament/publicacions/guies-estudis/desplegable-con.pdf",
+          "t": {
+            "ca": "Guia d’estudis (PDF)",
+            "es": "Guía de estudios (PDF)",
+            "en": "Study guide (PDF)"
+          },
+          "d": {
+            "ca": "Esquema dels camins després de l’ESO",
+            "es": "Esquema de los caminos después de la ESO (en catalán)",
+            "en": "Overview of the paths after ESO (in Catalan)"
+          }
+        },
+        {
+          "href": "https://www.educaweb.cat/",
+          "t": {
+            "ca": "Educaweb",
+            "es": "Educaweb",
+            "en": "Educaweb"
+          },
+          "d": {
+            "ca": "Guia d’estudis, professions i tests d’orientació",
+            "es": "Guía de estudios, profesiones y tests de orientación",
+            "en": "Guide to studies, careers and guidance tests"
+          }
+        },
+        {
+          "href": "https://www.edubcn.cat/ca/centres_serveis_educatius/servei_orientacio/carpeta_de_lorientador",
+          "t": {
+            "ca": "Carpeta de l’orientador",
+            "es": "Carpeta del orientador",
+            "en": "Guidance folder"
+          },
+          "d": {
+            "ca": "Materials d’orientació del Consorci d’Educació de Barcelona",
+            "es": "Materiales de orientación del Consorci d’Educació de Barcelona",
+            "en": "Guidance materials from the Barcelona Education Consortium"
+          }
+        }
+      ]
+    }
   },
   "prac": {
     "titol": {
@@ -854,9 +1324,9 @@
       "en": "Books and materials"
     },
     "llibresMeta": {
-      "ca": "Llibres de text, lectures i materials per curs",
-      "es": "Libros de texto, lecturas y materiales por curso (en catalán)",
-      "en": "Textbooks, readers and materials by year (in Catalan)"
+      "ca": "Llibres de text, lectures i materials per nivell",
+      "es": "Libros de texto, lecturas y materiales por nivel (en catalán)",
+      "en": "Textbooks, readers and materials by level (in Catalan)"
     },
     "calendari": {
       "ca": "Calendari escolar",
@@ -864,9 +1334,9 @@
       "en": "School calendar"
     },
     "calendariMeta": {
-      "ca": "Curs 2026-2027: inici, vacances i festius",
-      "es": "Curso 2026-2027: inicio, vacaciones y festivos",
-      "en": "2026-2027: start date, holidays and days off"
+      "ca": "inici, vacances i festius",
+      "es": "inicio, vacaciones y festivos",
+      "en": "start date, holidays and days off"
     },
     "preins": {
       "ca": "Preinscripció i matrícula",

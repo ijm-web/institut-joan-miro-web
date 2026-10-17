@@ -35,8 +35,8 @@
         "en": "Space is limited. Priority goes, in this order, to students who already used the lunch service, students in after-school activities and students in the lower years."
       },
       "sol": {
-        "ca": "Amb el full del servei de menjador de la documentació de matrícula, indicant els dies de la setmana que l’alumne es quedarà a dinar.",
-        "es": "Con la hoja del servicio de comedor de la documentación de matrícula, indicando los días de la semana que el alumno se quedará a comer.",
+        "ca": "Amb el full del servei de menjador de la documentació de matrícula, indicant els dies de la setmana que l’alumne o alumna es quedarà a dinar.",
+        "es": "Con la hoja del servicio de comedor de la documentación de matrícula, indicando los días de la semana que el alumno o alumna se quedará a comer.",
         "en": "With the lunch service form included in the enrolment documents, stating which days of the week the student will stay for lunch."
       }
     },
@@ -57,8 +57,8 @@
       ],
       "notaTitol": { "ca": "Responsabilitat", "es": "Responsabilidad", "en": "Responsibility" },
       "nota": {
-        "ca": "El contingut de la taquilla i la cura de la clau són responsabilitat de l’alumne. L’empresa no es fa responsable de pèrdues o sostraccions.",
-        "es": "El contenido de la taquilla y el cuidado de la llave son responsabilidad del alumno. La empresa no se hace responsable de pérdidas o sustracciones.",
+        "ca": "El contingut de la taquilla i la cura de la clau són responsabilitat de l’alumnat. L’empresa no es fa responsable de pèrdues o sostraccions.",
+        "es": "El contenido de la taquilla y el cuidado de la llave son responsabilidad del alumnado. La empresa no se hace responsable de pérdidas o sustracciones.",
         "en": "Students are responsible for what they keep in the locker and for looking after the key. The company is not liable for loss or theft."
       },
       "sol": {
@@ -79,13 +79,13 @@
       "punts": [
         { "ca": "És un recinte tancat, amb reixa del terra al sostre, porta amb cadenat i càmera de vigilància, al costat de l’entrada del centre.", "es": "Es un recinto cerrado, con reja del suelo al techo, puerta con candado y cámara de vigilancia, junto a la entrada del centro.", "en": "It is a locked enclosure with floor-to-ceiling fencing, a padlocked door and a security camera, next to the school entrance." },
         { "ca": "S’obre cada matí abans de l’inici de les classes i al final de la jornada.", "es": "Se abre cada mañana antes del inicio de las clases y al final de la jornada.", "en": "It is opened every morning before classes start and again at the end of the day." },
-        { "ca": "Cada usuari té la contrasenya del cadenat per si ha d’entrar-hi entremig.", "es": "Cada usuario tiene la contraseña del candado por si tiene que entrar entre medias.", "en": "Each user has the padlock code in case they need access in between." },
+        { "ca": "Cada usuari té la contrasenya del cadenat per si ha d’entrar-hi al llarg del matí.", "es": "Cada usuario tiene la contraseña del candado por si tiene que entrar a lo largo de la mañana.", "en": "Each user has the padlock code in case they need access during the morning." },
         { "ca": "El servei es contracta per a tot el curs, amb un pagament únic.", "es": "El servicio se contrata para todo el curso, con un pago único.", "en": "The service is booked for the whole school year, with a single payment." }
       ],
       "notaTitol": { "ca": "Responsabilitat", "es": "Responsabilidad", "en": "Responsibility" },
       "nota": {
-        "ca": "Cada alumne ha de lligar la bicicleta o el patinet, tenir cura del recinte i no compartir la contrasenya amb ningú. El centre no es fa responsable de sostraccions o desperfectes.",
-        "es": "Cada alumno debe atar la bicicleta o el patinete, cuidar el recinto y no compartir la contraseña con nadie. El centro no se hace responsable de sustracciones o desperfectos.",
+        "ca": "Cada estudiant ha de lligar la bicicleta o el patinet, tenir cura del recinte i no compartir la contrasenya amb ningú. El centre no es fa responsable de sostraccions o desperfectes.",
+        "es": "Cada estudiante debe atar la bicicleta o el patinete, cuidar el recinto y no compartir la contraseña con nadie. El centro no se hace responsable de sustracciones o desperfectos.",
         "en": "Students must lock their bike or scooter, look after the enclosure and never share the code. The school is not liable for theft or damage."
       },
       "sol": {

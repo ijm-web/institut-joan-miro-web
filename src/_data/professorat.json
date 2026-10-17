@@ -1,0 +1,615 @@
+{
+  "_comentari": "Llistat del professorat (El nostre centre › Professorat). Per actualitzar-lo cada curs: afegir, treure o modificar persones d’aquesta llista. L’ordre de la pàgina és el d’aquesta llista (alfabètic pel primer cognom). Si una persona encara no té adreça @institutjoanmiro.cat, deixeu \"email\": \"\" i a la pàgina sortirà un guió.",
+  "textos": {
+    "heroTitol": {
+      "ca": "El nostre centre",
+      "es": "Nuestro centro",
+      "en": "Our school"
+    },
+    "heroSubtitol": {
+      "ca": "Professorat",
+      "es": "Profesorado",
+      "en": "Teaching staff"
+    },
+    "kicker": {
+      "ca": "Claustre",
+      "es": "Claustro",
+      "en": "Teaching staff"
+    },
+    "lead": {
+      "ca": "El professorat de l’Institut Joan Miró, amb l’especialitat i l’adreça electrònica de cada docent.",
+      "es": "El profesorado del Institut Joan Miró, con la especialidad y la dirección electrónica de cada docente.",
+      "en": "The teaching staff at Institut Joan Miró, with each teacher’s subject and email address."
+    },
+    "cerca": {
+      "ca": "Cerca per nom o especialitat",
+      "es": "Busca por nombre o especialidad",
+      "en": "Search by name or subject"
+    },
+    "nom": {
+      "ca": "Nom i cognoms",
+      "es": "Nombre y apellidos",
+      "en": "Name"
+    },
+    "especialitat": {
+      "ca": "Especialitat",
+      "es": "Especialidad",
+      "en": "Subject"
+    },
+    "email": {
+      "ca": "Correu electrònic",
+      "es": "Correo electrónico",
+      "en": "Email"
+    },
+    "cap": {
+      "ca": "No hi ha cap resultat.",
+      "es": "No hay ningún resultado.",
+      "en": "No results."
+    },
+    "total": {
+      "ca": "docents",
+      "es": "docentes",
+      "en": "teachers"
+    }
+  },
+  "persones": [
+    {
+      "nom": "Ferran Adam Chavarría",
+      "especialitat": {
+        "ca": "Física i química",
+        "es": "Física y química",
+        "en": "Physics and chemistry"
+      },
+      "email": "ferran.adam@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Marco Albano",
+      "especialitat": {
+        "ca": "Italià",
+        "es": "Italiano",
+        "en": "Italian"
+      },
+      "email": "marco.albano@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Daniel Álvarez Gorgojo",
+      "especialitat": {
+        "ca": "Educació física",
+        "es": "Educación física",
+        "en": "Physical education"
+      },
+      "email": "daniel.alvarez@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Elisabet Armengol Gimeno",
+      "especialitat": {
+        "ca": "Llengua catalana",
+        "es": "Lengua catalana",
+        "en": "Catalan"
+      },
+      "email": "elisabet.armengol@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Begoña Balaña Alonso",
+      "especialitat": {
+        "ca": "Anglès",
+        "es": "Inglés",
+        "en": "English"
+      },
+      "email": "begona.balana@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Arnau Baldoví Fletes",
+      "especialitat": {
+        "ca": "Llengua catalana",
+        "es": "Lengua catalana",
+        "en": "Catalan"
+      },
+      "email": "arnau.baldovi@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Sergi Batlle Ferrer",
+      "especialitat": {
+        "ca": "Llengua castellana",
+        "es": "Lengua castellana",
+        "en": "Spanish"
+      },
+      "email": "sergi.batlle@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Tània Biscarri Israel",
+      "especialitat": {
+        "ca": "Orientació educativa",
+        "es": "Orientación educativa",
+        "en": "Educational guidance"
+      },
+      "email": "tania.biscarri@institutjoanmiro.cat"
+    },
+    {
+      "nom": "José Luís Blanco Martínez",
+      "especialitat": {
+        "ca": "Educació física",
+        "es": "Educación física",
+        "en": "Physical education"
+      },
+      "email": "jblanco@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Adrià Boix Argemí",
+      "especialitat": {
+        "ca": "Llengua castellana",
+        "es": "Lengua castellana",
+        "en": "Spanish"
+      },
+      "email": ""
+    },
+    {
+      "nom": "Mireia Burguès Vela",
+      "especialitat": {
+        "ca": "Geografia i història",
+        "es": "Geografía e historia",
+        "en": "Geography and history"
+      },
+      "email": "mireia.burgues@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Carlos Carrasco Córdoba",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": "carlos.carrasco@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Eva Carretero Ordóñez",
+      "especialitat": {
+        "ca": "Llengua castellana",
+        "es": "Lengua castellana",
+        "en": "Spanish"
+      },
+      "email": "eva.carretero@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Eugenia Colell Sort",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": "eugenia.colell@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Miquel de los Cobos Ruiz",
+      "especialitat": {
+        "ca": "Física i química",
+        "es": "Física y química",
+        "en": "Physics and chemistry"
+      },
+      "email": ""
+    },
+    {
+      "nom": "Josep de Nicolás Román",
+      "especialitat": {
+        "ca": "Llengua catalana",
+        "es": "Lengua catalana",
+        "en": "Catalan"
+      },
+      "email": "josep.denicolas@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Montse Díaz Gutiérrez",
+      "especialitat": {
+        "ca": "Llengua castellana",
+        "es": "Lengua castellana",
+        "en": "Spanish"
+      },
+      "email": "montse.diaz@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Elena Estela Collado",
+      "especialitat": {
+        "ca": "Orientació educativa",
+        "es": "Orientación educativa",
+        "en": "Educational guidance"
+      },
+      "email": "elena.estela@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Josep Fas Coma",
+      "especialitat": {
+        "ca": "Geografia i història",
+        "es": "Geografía e historia",
+        "en": "Geography and history"
+      },
+      "email": "josep.fas@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Xavier Figueredo Rodríguez",
+      "especialitat": {
+        "ca": "Tecnologia",
+        "es": "Tecnología",
+        "en": "Technology"
+      },
+      "email": "xavier.figueredo@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Joan Florit Llorens",
+      "especialitat": {
+        "ca": "Física i química",
+        "es": "Física y química",
+        "en": "Physics and chemistry"
+      },
+      "email": ""
+    },
+    {
+      "nom": "Gonzalo Flox Chillarón",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": ""
+    },
+    {
+      "nom": "Silke Fresno Moreno",
+      "especialitat": {
+        "ca": "Tecnologia",
+        "es": "Tecnología",
+        "en": "Technology"
+      },
+      "email": "silke.fresno@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Gemma Gamarra Rúbio",
+      "especialitat": {
+        "ca": "Anglès",
+        "es": "Inglés",
+        "en": "English"
+      },
+      "email": "gemma.gamarra@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Olga García Chacón",
+      "especialitat": {
+        "ca": "Economia",
+        "es": "Economía",
+        "en": "Economics"
+      },
+      "email": "olga.garcia@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Xavier García Ros",
+      "especialitat": {
+        "ca": "Anglès",
+        "es": "Inglés",
+        "en": "English"
+      },
+      "email": "xavier.garcia@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Vanesa García Rovira",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": "vanesa.garcia@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Laura García Salgado",
+      "especialitat": {
+        "ca": "Anglès",
+        "es": "Inglés",
+        "en": "English"
+      },
+      "email": "laura.garcia@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Patricia Gelis Doblado",
+      "especialitat": {
+        "ca": "Música",
+        "es": "Música",
+        "en": "Music"
+      },
+      "email": "patricia.gelis@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Cristina González Simón",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": "cristina.gonzalez@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Laura Güell Vicedo",
+      "especialitat": {
+        "ca": "Educació física",
+        "es": "Educación física",
+        "en": "Physical education"
+      },
+      "email": "laura.guell@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Balbi Iglesias Ferrer",
+      "especialitat": {
+        "ca": "Llengua catalana",
+        "es": "Lengua catalana",
+        "en": "Catalan"
+      },
+      "email": "balbi.iglesias@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Laura León García",
+      "especialitat": {
+        "ca": "Geografia i història",
+        "es": "Geografía e historia",
+        "en": "Geography and history"
+      },
+      "email": "laura.leon@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Nora Manchado Safont",
+      "especialitat": {
+        "ca": "Llengua catalana",
+        "es": "Lengua catalana",
+        "en": "Catalan"
+      },
+      "email": "nora.manchado@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Lluís Marias Barber",
+      "especialitat": {
+        "ca": "Física i química",
+        "es": "Física y química",
+        "en": "Physics and chemistry"
+      },
+      "email": "lluis.marias@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Mar Martín Navarro",
+      "especialitat": {
+        "ca": "Biologia i geologia",
+        "es": "Biología y geología",
+        "en": "Biology and geology"
+      },
+      "email": "mar.martin@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Beatriz Martínez Pascual",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": "beatriz.martinez@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Dolors Mateo García",
+      "especialitat": {
+        "ca": "Llengua catalana",
+        "es": "Lengua catalana",
+        "en": "Catalan"
+      },
+      "email": "dolors.mateo@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Romà Mendoza Niella",
+      "especialitat": {
+        "ca": "Tecnologia",
+        "es": "Tecnología",
+        "en": "Technology"
+      },
+      "email": "roma.mendoza@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Marc Monereo Cuscó",
+      "especialitat": {
+        "ca": "Filosofia",
+        "es": "Filosofía",
+        "en": "Philosophy"
+      },
+      "email": "marc.monereo@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Archi Montañés Sales",
+      "especialitat": {
+        "ca": "Alemany",
+        "es": "Alemán",
+        "en": "German"
+      },
+      "email": "archi.montanes@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Gemma Montero Carpio",
+      "especialitat": {
+        "ca": "Llengua castellana",
+        "es": "Lengua castellana",
+        "en": "Spanish"
+      },
+      "email": "gemma.montero@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Cristina Mora Lobato",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": "cristina.mora@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Gemma Munné Esteban",
+      "especialitat": {
+        "ca": "Religió",
+        "es": "Religión",
+        "en": "Religion"
+      },
+      "email": "gemma.munne@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Assumpta Muñoz Cantueso",
+      "especialitat": {
+        "ca": "Orientació educativa",
+        "es": "Orientación educativa",
+        "en": "Educational guidance"
+      },
+      "email": "asuncion.munoz@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Josep Maria Navero Cazorla",
+      "especialitat": {
+        "ca": "Geografia i història",
+        "es": "Geografía e historia",
+        "en": "Geography and history"
+      },
+      "email": "josepmaria.navero@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Anna Nos Ripollés",
+      "especialitat": {
+        "ca": "Dibuix",
+        "es": "Dibujo",
+        "en": "Art and design"
+      },
+      "email": "anna.nos@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Genís Prats Pueyo",
+      "especialitat": {
+        "ca": "Matemàtiques",
+        "es": "Matemáticas",
+        "en": "Mathematics"
+      },
+      "email": "genis.prats@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Ernest Prieto Merino",
+      "especialitat": {
+        "ca": "Tecnologia",
+        "es": "Tecnología",
+        "en": "Technology"
+      },
+      "email": "ernest.prieto@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Oscar Rescalvo Palomares",
+      "especialitat": {
+        "ca": "Llatí i grec",
+        "es": "Latín y griego",
+        "en": "Classics"
+      },
+      "email": "oscar.rescalvo@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Anabel Ridruejo Millán",
+      "especialitat": {
+        "ca": "Anglès",
+        "es": "Inglés",
+        "en": "English"
+      },
+      "email": "anabel.ridruejo@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Pere Rios Marín",
+      "especialitat": {
+        "ca": "Geografia i història",
+        "es": "Geografía e historia",
+        "en": "Geography and history"
+      },
+      "email": "pere.rios@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Sergi Rodríguez Toha",
+      "especialitat": {
+        "ca": "Biologia i geologia",
+        "es": "Biología y geología",
+        "en": "Biology and geology"
+      },
+      "email": "sergi.rodriguez@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Sergi Rofes Barceló",
+      "especialitat": {
+        "ca": "Física i química",
+        "es": "Física y química",
+        "en": "Physics and chemistry"
+      },
+      "email": "sergi.rofes@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Montse Roquet Pugès",
+      "especialitat": {
+        "ca": "Anglès",
+        "es": "Inglés",
+        "en": "English"
+      },
+      "email": "montse.roquet@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Antonia Salido Porcel",
+      "especialitat": {
+        "ca": "Anglès",
+        "es": "Inglés",
+        "en": "English"
+      },
+      "email": "antonia.salido@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Carla Sancho Torta",
+      "especialitat": {
+        "ca": "Francès",
+        "es": "Francés",
+        "en": "French"
+      },
+      "email": ""
+    },
+    {
+      "nom": "Esther Saranga Pinhas",
+      "especialitat": {
+        "ca": "Economia",
+        "es": "Economía",
+        "en": "Economics"
+      },
+      "email": "esther.saranga@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Deborah Silvestre Terrón",
+      "especialitat": {
+        "ca": "Orientació educativa",
+        "es": "Orientación educativa",
+        "en": "Educational guidance"
+      },
+      "email": ""
+    },
+    {
+      "nom": "Josep Sunyer Monfort",
+      "especialitat": {
+        "ca": "Biologia i geologia",
+        "es": "Biología y geología",
+        "en": "Biology and geology"
+      },
+      "email": "josep.sunyer@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Noelia Torrego Solana",
+      "especialitat": {
+        "ca": "Biologia i geologia",
+        "es": "Biología y geología",
+        "en": "Biology and geology"
+      },
+      "email": "noelia.torrego@institutjoanmiro.cat"
+    },
+    {
+      "nom": "Raquel Vilda Andrés",
+      "especialitat": {
+        "ca": "Dibuix",
+        "es": "Dibujo",
+        "en": "Art and design"
+      },
+      "email": "raquel.vilda@institutjoanmiro.cat"
+    }
+  ]
+}

@@ -17,6 +17,7 @@ const dates = [
   { des: "2026-12-07", tipus: "lliure" },
   { des: "2026-12-08", tipus: "festiu", nom: { ca: "La Immaculada", es: "La Inmaculada", en: "Immaculate Conception" } },
   { des: "2026-12-22", fins: "2027-01-07", tipus: "vacances", nom: { ca: "Vacances de Nadal", es: "Vacaciones de Navidad", en: "Christmas holidays" } },
+  { des: "2027-02-08", tipus: "lliure" },
   { des: "2027-03-20", fins: "2027-03-29", tipus: "vacances", nom: { ca: "Vacances de Setmana Santa", es: "Vacaciones de Semana Santa", en: "Easter holidays" } },
   { des: "2027-05-01", tipus: "festiu", nom: { ca: "Festa del Treball", es: "Fiesta del Trabajo", en: "Labour Day" } },
   { des: "2027-05-17", tipus: "local" },
@@ -60,6 +61,7 @@ const textos = {
   mesAMes: { ca: "Mes a mes", es: "Mes a mes", en: "Month by month" },
   llegenda: { ca: "Llegenda", es: "Leyenda", en: "Key" },
   festius: { ca: "Festius i dies sense classe", es: "Festivos y días sin clase", en: "Holidays and days off" },
+  descarrega: { ca: "Descarrega el calendari (PDF)", es: "Descarga el calendario (PDF)", en: "Download the calendar (PDF)" },
   nota: {
     ca: "Els dies de lliure disposició i les festes locals no són lectius. Qualsevol canvi es comunicarà a les famílies per Clickedu.",
     es: "Los días de libre disposición y las fiestas locales no son lectivos. Cualquier cambio se comunicará a las familias por Clickedu.",
@@ -131,8 +133,16 @@ for (const L of langs) {
     .map((e) => ({ data: etiqueta(e, L), tipus: e.tipus, text: e.nom ? e.nom[L] : tipusText[e.tipus][L] }));
 }
 
+// PDF del calendari: el genera sol lib/calendari-pdf.js en cada build (no cal fer res a mà).
+const pdf = {
+  ca: `/assets/docs/calendari/calendari-escolar-${curs}-ca.pdf`,
+  es: `/assets/docs/calendari/calendari-escolar-${curs}-es.pdf`,
+  en: `/assets/docs/calendari/calendari-escolar-${curs}-en.pdf`
+};
+
 module.exports = {
   curs,
+  pdf,
   mesos,
   diesSetmana,
   tipusText,

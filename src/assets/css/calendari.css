@@ -26,6 +26,8 @@
 }
 .cal-lead{ flex: 999 1 560px; margin: 0; font-size: clamp(18px, 2vw, 21px); line-height: 1.6; font-weight: 300; }
 
+.cal-download{ display: inline-flex; align-items: center; gap: 10px; }
+
 /* --- Títols amb línies --- */
 .cal-ttl{
   margin: 0 0 28px;
