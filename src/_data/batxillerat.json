@@ -1,0 +1,1202 @@
+{
+  "_nota": "Pàgina Estudis › Batxillerat. Mateixa plantilla que l'ESO (src/_includes/etapa.njk). Horari marc, centre sense mòbils, tutoria i franja final surten d'eso.json.",
+  "heroTitol": {
+    "ca": "Estudis",
+    "es": "Estudios",
+    "en": "Programmes"
+  },
+  "heroSubtitol": {
+    "ca": "Batxillerat",
+    "es": "Bachillerato",
+    "en": "Batxillerat"
+  },
+  "heroImg": "inici-4-edifici",
+  "kicker": {
+    "ca": "Batxillerat",
+    "es": "Bachillerato",
+    "en": "Batxillerat (upper secondary)"
+  },
+  "lead": {
+    "ca": "El Batxillerat és una etapa postobligatòria de dos cursos, dels 16 als 18 anys, que prepara per a la universitat i per a la formació professional de grau superior. Al Joan Miró impartim dues modalitats, Ciències i tecnologia i Humanitats i ciències socials, en quatre itineraris: tecnològic, científic, social i humanístic.",
+    "es": "El Bachillerato es una etapa postobligatoria de dos cursos, de los 16 a los 18 años, que prepara para la universidad y para la formación profesional de grado superior. En el Joan Miró impartimos dos modalidades, Ciencias y tecnología y Humanidades y ciencias sociales, en cuatro itinerarios: tecnológico, científico, social y humanístico.",
+    "en": "Batxillerat is a two-year, non-compulsory stage, from age 16 to 18, that prepares students for university and for higher vocational training. At Joan Miró we offer two strands, Science and Technology and Humanities and Social Sciences, in four pathways: technology, science, social sciences and humanities."
+  },
+  "stats": [
+    {
+      "num": "2",
+      "label": {
+        "ca": "nivells, 1r i 2n",
+        "es": "niveles, 1º y 2º",
+        "en": "levels, 1st and 2nd"
+      }
+    },
+    {
+      "num": "3",
+      "label": {
+        "ca": "grups per nivell",
+        "es": "grupos por nivel",
+        "en": "classes per level"
+      }
+    },
+    {
+      "num": "2 · 4",
+      "label": {
+        "ca": "modalitats i itineraris",
+        "es": "modalidades e itinerarios",
+        "en": "strands and pathways"
+      }
+    },
+    {
+      "num": "8.15–14.45",
+      "label": {
+        "ca": "horari lectiu, de dilluns a divendres",
+        "es": "horario lectivo, de lunes a viernes",
+        "en": "school hours, Monday to Friday"
+      }
+    },
+    {
+      "num": "3",
+      "label": {
+        "ca": "segones llengües: alemany, francès i italià",
+        "es": "segundas lenguas: alemán, francés e italiano",
+        "en": "second languages: German, French and Italian"
+      }
+    }
+  ],
+  "anchors": [
+    {
+      "id": "organitzacio",
+      "label": {
+        "ca": "Organització",
+        "es": "Organización",
+        "en": "Organisation"
+      }
+    },
+    {
+      "id": "arribar",
+      "label": {
+        "ca": "Arribar a 1r",
+        "es": "Llegar a 1º",
+        "en": "Starting Batxillerat"
+      }
+    },
+    {
+      "id": "curriculum",
+      "label": {
+        "ca": "Currículum",
+        "es": "Currículo",
+        "en": "Curriculum"
+      }
+    },
+    {
+      "id": "qualificacio",
+      "label": {
+        "ca": "Com avaluem",
+        "es": "Cómo evaluamos",
+        "en": "How we assess"
+      }
+    },
+    {
+      "id": "projectes",
+      "label": {
+        "ca": "Projectes",
+        "es": "Proyectos",
+        "en": "Projects"
+      }
+    },
+    {
+      "id": "orientacio",
+      "label": {
+        "ca": "Orientació",
+        "es": "Orientación",
+        "en": "Guidance"
+      }
+    },
+    {
+      "id": "practica",
+      "label": {
+        "ca": "Informació pràctica",
+        "es": "Información práctica",
+        "en": "Practical information"
+      }
+    }
+  ],
+  "org": {
+    "titol": {
+      "ca": "Organització i horari",
+      "es": "Organización y horario",
+      "en": "Organisation and timetable"
+    },
+    "comTitol": {
+      "ca": "Com ens organitzem",
+      "es": "Cómo nos organizamos",
+      "en": "How we are organised"
+    },
+    "com1": {
+      "ca": "Cada nivell té 3 grups. L’alumnat es distribueix en els grups segons les matèries que cursa.",
+      "es": "Cada nivel tiene 3 grupos. El alumnado se distribuye en los grupos según las materias que cursa.",
+      "en": "Each level has 3 classes. Students are placed in classes according to the subjects they take."
+    },
+    "com2": {
+      "ca": "Cada grup té un tutor o tutora de referència que fa el seguiment individual i és l’interlocutor de les famílies.",
+      "es": "Cada grupo tiene un tutor o tutora de referencia que hace el seguimiento individual y es el interlocutor de las familias.",
+      "en": "Each class has a form tutor who follows each student individually and is the families’ main contact."
+    },
+    "llenguesTitol": {
+      "ca": "Segones llengües estrangeres",
+      "es": "Segundas lenguas extranjeras",
+      "en": "Second foreign languages"
+    },
+    "llenguesText": {
+      "ca": "A 1r i 2n de batxillerat, l’alumnat pot cursar una segona llengua estrangera.",
+      "es": "En 1º y 2º de bachillerato, el alumnado puede cursar una segunda lengua extranjera.",
+      "en": "In both years of Batxillerat, students can take a second foreign language."
+    },
+    "llengues": {
+      "ca": [
+        "Alemany",
+        "Francès",
+        "Italià"
+      ],
+      "es": [
+        "Alemán",
+        "Francés",
+        "Italiano"
+      ],
+      "en": [
+        "German",
+        "French",
+        "Italian"
+      ]
+    }
+  },
+  "arribar": {
+    "titol": {
+      "ca": "Arribar a 1r de Batxillerat",
+      "es": "Llegar a 1º de Bachillerato",
+      "en": "Starting Batxillerat"
+    },
+    "text": {
+      "ca": "Acollim l’alumnat que comença el batxillerat, tant el que ve del nostre centre com el que s’hi incorpora de nou.",
+      "es": "Acogemos al alumnado que empieza el bachillerato, tanto el que viene de nuestro centro como el que se incorpora de nuevo.",
+      "en": "We welcome all students starting Batxillerat, both those coming from our own ESO and those joining us from other schools."
+    },
+    "passos": [
+      {
+        "quan": {
+          "ca": "Inici de curs",
+          "es": "Inicio de curso",
+          "en": "Start of the year"
+        },
+        "titol": {
+          "ca": "Jornada d’acollida",
+          "es": "Jornada de acogida",
+          "en": "Welcome day"
+        },
+        "text": {
+          "ca": "Una jornada d’acollida pensada per a l’alumnat nou de 1r de batxillerat.",
+          "es": "Una jornada de acogida pensada para el alumnado nuevo de 1º de bachillerato.",
+          "en": "A welcome day designed for students new to 1st-year Batxillerat."
+        }
+      }
+    ]
+  },
+  "curr": {
+    "titol": {
+      "ca": "Currículum per nivell",
+      "es": "Currículo por nivel",
+      "en": "Curriculum by level"
+    },
+    "sub": {
+      "ca": "Tria un nivell per veure’n les matèries comunes, les de modalitat i les optatives.",
+      "es": "Elige un nivel para ver sus materias comunes, de modalidad y optativas.",
+      "en": "Choose a level to see its core, strand and elective subjects."
+    },
+    "tabsLabel": {
+      "ca": "Nivells de Batxillerat",
+      "es": "Niveles de Bachillerato",
+      "en": "Batxillerat levels"
+    },
+    "comunes": {
+      "ca": "Matèries comunes",
+      "es": "Materias comunes",
+      "en": "Core subjects"
+    },
+    "hores": {
+      "ca": "Hores/setmana",
+      "es": "Horas/semana",
+      "en": "Hours/week"
+    },
+    "optatives": {
+      "ca": "Optatives",
+      "es": "Optativas",
+      "en": "Electives"
+    },
+    "franjaTitol": {
+      "ca": "Optatives",
+      "es": "Optativas",
+      "en": "Electives"
+    },
+    "cursos": [
+      {
+        "label": {
+          "ca": "1r Batxillerat",
+          "es": "1º Bachillerato",
+          "en": "1st Batxillerat"
+        },
+        "comunes": [
+          {
+            "ca": "Llengua catalana i literatura",
+            "es": "Lengua catalana y literatura",
+            "en": "Catalan language and literature",
+            "h": 2
+          },
+          {
+            "ca": "Llengua castellana i literatura",
+            "es": "Lengua castellana y literatura",
+            "en": "Spanish language and literature",
+            "h": 2
+          },
+          {
+            "ca": "Anglès",
+            "es": "Inglés",
+            "en": "English",
+            "h": 3
+          },
+          {
+            "ca": "Educació física",
+            "es": "Educación física",
+            "en": "Physical education",
+            "h": 2
+          },
+          {
+            "ca": "Filosofia",
+            "es": "Filosofía",
+            "en": "Philosophy",
+            "h": 2
+          }
+        ],
+        "optText": {
+          "ca": "A més de les matèries comunes i les de modalitat, l’alumnat cursa 6 hores d’optatives.",
+          "es": "Además de las materias comunes y las de modalidad, el alumnado cursa 6 horas de optativas.",
+          "en": "In addition to core and strand subjects, students take 6 hours of electives."
+        },
+        "itineraris": [
+          {
+            "n": {
+              "ca": "Itinerari tecnològic",
+              "es": "Itinerario tecnológico",
+              "en": "Technology pathway"
+            },
+            "obligatoria": {
+              "ca": "Matemàtiques I",
+              "es": "Matemáticas I",
+              "en": "Mathematics I"
+            },
+            "especifiques": [
+              {
+                "ca": "Física i Química",
+                "es": "Física y Química",
+                "en": "Physics and Chemistry"
+              },
+              {
+                "ca": "Tecnologia i Enginyeria I",
+                "es": "Tecnología e Ingeniería I",
+                "en": "Technology and Engineering I"
+              },
+              {
+                "ca": "Dibuix Tècnic I",
+                "es": "Dibujo Técnico I",
+                "en": "Technical Drawing I"
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Itinerari científic",
+              "es": "Itinerario científico",
+              "en": "Science pathway"
+            },
+            "obligatoria": {
+              "ca": "Matemàtiques I",
+              "es": "Matemáticas I",
+              "en": "Mathematics I"
+            },
+            "especifiques": [
+              {
+                "ca": "Física i Química",
+                "es": "Física y Química",
+                "en": "Physics and Chemistry"
+              },
+              {
+                "ca": "Biologia, Geologia i Ciències Ambientals",
+                "es": "Biología, Geología y Ciencias Ambientales",
+                "en": "Biology, Geology and Environmental Science"
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Itinerari social",
+              "es": "Itinerario social",
+              "en": "Social sciences pathway"
+            },
+            "obligatoria": {
+              "ca": "Matemàtiques Aplicades a les Ciències Socials I",
+              "es": "Matemáticas Aplicadas a las Ciencias Sociales I",
+              "en": "Mathematics for Social Sciences I"
+            },
+            "especifiques": [
+              {
+                "ca": "Economia",
+                "es": "Economía",
+                "en": "Economics"
+              },
+              {
+                "ca": "Història del Món Contemporani",
+                "es": "Historia del Mundo Contemporáneo",
+                "en": "Contemporary World History"
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Itinerari humanístic",
+              "es": "Itinerario humanístico",
+              "en": "Humanities pathway"
+            },
+            "obligatoria": {
+              "ca": "Llatí I",
+              "es": "Latín I",
+              "en": "Latin I"
+            },
+            "especifiques": [
+              {
+                "ca": "Grec I",
+                "es": "Griego I",
+                "en": "Greek I"
+              },
+              {
+                "ca": "Història del Món Contemporani",
+                "es": "Historia del Mundo Contemporáneo",
+                "en": "Contemporary World History"
+              }
+            ]
+          }
+        ],
+        "opts": [
+          {
+            "n": {
+              "ca": "Programació",
+              "es": "Programación",
+              "en": "Programming"
+            }
+          },
+          {
+            "n": {
+              "ca": "Ampliació de Biologia",
+              "es": "Ampliación de Biología",
+              "en": "Further Biology"
+            }
+          },
+          {
+            "n": {
+              "ca": "Ampliació de Química",
+              "es": "Ampliación de Química",
+              "en": "Further Chemistry"
+            }
+          },
+          {
+            "n": {
+              "ca": "Ampliació de Física",
+              "es": "Ampliación de Física",
+              "en": "Further Physics"
+            }
+          },
+          {
+            "n": {
+              "ca": "Psicologia",
+              "es": "Psicología",
+              "en": "Psychology"
+            }
+          },
+          {
+            "n": {
+              "ca": "Problemàtiques socials",
+              "es": "Problemáticas sociales",
+              "en": "Social issues"
+            }
+          },
+          {
+            "n": {
+              "ca": "Funcionament de l’empresa",
+              "es": "Funcionamiento de la empresa",
+              "en": "How businesses work"
+            }
+          },
+          {
+            "n": {
+              "ca": "Ciutadania, política i dret",
+              "es": "Ciudadanía, política y derecho",
+              "en": "Citizenship, politics and law"
+            }
+          },
+          {
+            "n": {
+              "ca": "Formació i orientació personal i professional",
+              "es": "Formación y orientación personal y profesional",
+              "en": "Personal and career guidance"
+            }
+          },
+          {
+            "n": {
+              "ca": "Món clàssic",
+              "es": "Mundo clásico",
+              "en": "The classical world"
+            }
+          },
+          {
+            "n": {
+              "ca": "Alemany",
+              "es": "Alemán",
+              "en": "German"
+            }
+          },
+          {
+            "n": {
+              "ca": "Italià",
+              "es": "Italiano",
+              "en": "Italian"
+            }
+          }
+        ],
+        "itinerarisText": {
+          "ca": "Cada itinerari té una matèria de modalitat obligatòria i matèries de modalitat específiques, de 4 hores setmanals cadascuna.",
+          "es": "Cada itinerario tiene una materia de modalidad obligatoria y materias de modalidad específicas, de 4 horas semanales cada una.",
+          "en": "Each pathway has one compulsory strand subject and specific strand subjects, 4 hours a week each."
+        }
+      },
+      {
+        "label": {
+          "ca": "2n Batxillerat",
+          "es": "2º Bachillerato",
+          "en": "2nd Batxillerat"
+        },
+        "comunes": [
+          {
+            "ca": "Llengua catalana i literatura",
+            "es": "Lengua catalana y literatura",
+            "en": "Catalan language and literature",
+            "h": 2
+          },
+          {
+            "ca": "Llengua castellana i literatura",
+            "es": "Lengua castellana y literatura",
+            "en": "Spanish language and literature",
+            "h": 2
+          },
+          {
+            "ca": "Anglès",
+            "es": "Inglés",
+            "en": "English",
+            "h": 3
+          },
+          {
+            "ca": "Història de la Filosofia",
+            "es": "Historia de la Filosofía",
+            "en": "History of Philosophy",
+            "h": 3
+          },
+          {
+            "ca": "Història",
+            "es": "Historia",
+            "en": "History",
+            "h": 3
+          }
+        ],
+        "optText": {
+          "ca": "A 2n, l’alumnat cursa 4 hores d’optatives, entre les quals hi ha la segona llengua estrangera.",
+          "es": "En 2º, el alumnado cursa 4 horas de optativas, entre ellas la segunda lengua extranjera.",
+          "en": "In 2nd year, students take 4 hours of electives, including the second foreign language."
+        },
+        "itineraris": [
+          {
+            "n": {
+              "ca": "Itinerari tecnològic",
+              "es": "Itinerario tecnológico",
+              "en": "Technology pathway"
+            },
+            "obligatoria": {
+              "ca": "Matemàtiques II",
+              "es": "Matemáticas II",
+              "en": "Mathematics II"
+            },
+            "especifiques": [
+              {
+                "ca": "Física",
+                "es": "Física",
+                "en": "Physics"
+              },
+              {
+                "ca": "Tecnologia i Enginyeria II",
+                "es": "Tecnología e Ingeniería II",
+                "en": "Technology and Engineering II"
+              },
+              {
+                "ca": "Dibuix Tècnic II",
+                "es": "Dibujo Técnico II",
+                "en": "Technical Drawing II"
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Itinerari científic",
+              "es": "Itinerario científico",
+              "en": "Science pathway"
+            },
+            "obligatoria": {
+              "ca": "Matemàtiques II",
+              "es": "Matemáticas II",
+              "en": "Mathematics II"
+            },
+            "especifiques": [
+              {
+                "ca": "Biologia",
+                "es": "Biología",
+                "en": "Biology"
+              },
+              {
+                "ca": "Química",
+                "es": "Química",
+                "en": "Chemistry"
+              },
+              {
+                "ca": "Física",
+                "es": "Física",
+                "en": "Physics"
+              },
+              {
+                "ca": "Geologia i Ciències Ambientals",
+                "es": "Geología y Ciencias Ambientales",
+                "en": "Geology and Environmental Science"
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Itinerari social",
+              "es": "Itinerario social",
+              "en": "Social sciences pathway"
+            },
+            "obligatoria": {
+              "ca": "Matemàtiques Aplicades a les Ciències Socials II",
+              "es": "Matemáticas Aplicadas a las Ciencias Sociales II",
+              "en": "Mathematics for Social Sciences II"
+            },
+            "especifiques": [
+              {
+                "ca": "Empresa i Disseny de Models de Negoci",
+                "es": "Empresa y Diseño de Modelos de Negocio",
+                "en": "Business and Business Model Design"
+              },
+              {
+                "ca": "Geografia",
+                "es": "Geografía",
+                "en": "Geography"
+              },
+              {
+                "ca": "Història de l’Art",
+                "es": "Historia del Arte",
+                "en": "History of Art"
+              }
+            ]
+          },
+          {
+            "n": {
+              "ca": "Itinerari humanístic",
+              "es": "Itinerario humanístico",
+              "en": "Humanities pathway"
+            },
+            "obligatoria": {
+              "ca": "Llatí II",
+              "es": "Latín II",
+              "en": "Latin II"
+            },
+            "especifiques": [
+              {
+                "ca": "Grec II",
+                "es": "Griego II",
+                "en": "Greek II"
+              },
+              {
+                "ca": "Literatura Catalana",
+                "es": "Literatura Catalana",
+                "en": "Catalan Literature"
+              },
+              {
+                "ca": "Literatura Castellana",
+                "es": "Literatura Castellana",
+                "en": "Spanish Literature"
+              },
+              {
+                "ca": "Història de l’Art",
+                "es": "Historia del Arte",
+                "en": "History of Art"
+              }
+            ]
+          }
+        ],
+        "opts": [
+          {
+            "n": {
+              "ca": "Alemany",
+              "es": "Alemán",
+              "en": "German"
+            }
+          },
+          {
+            "n": {
+              "ca": "Francès",
+              "es": "Francés",
+              "en": "French"
+            }
+          },
+          {
+            "n": {
+              "ca": "Italià",
+              "es": "Italiano",
+              "en": "Italian"
+            }
+          }
+        ],
+        "itinerarisText": {
+          "ca": "L’alumnat continua l’itinerari de 1r, amb una matèria de modalitat obligatòria i matèries de modalitat específiques.",
+          "es": "El alumnado continúa el itinerario de 1º, con una materia de modalidad obligatoria y materias de modalidad específicas.",
+          "en": "Students continue their 1st-year pathway, with one compulsory strand subject and specific strand subjects."
+        }
+      }
+    ],
+    "itinerarisTitol": {
+      "ca": "Matèries de modalitat per itinerari",
+      "es": "Materias de modalidad por itinerario",
+      "en": "Strand subjects by pathway"
+    },
+    "obligatoria": {
+      "ca": "obligatòria",
+      "es": "obligatoria",
+      "en": "compulsory"
+    },
+    "especifiques": {
+      "ca": "Matèries específiques",
+      "es": "Materias específicas",
+      "en": "Specific subjects"
+    }
+  },
+  "qual": {
+    "titol": {
+      "ca": "Com avaluem",
+      "es": "Cómo evaluamos",
+      "en": "How we assess"
+    },
+    "comTitol": {
+      "ca": "Criteris de qualificació",
+      "es": "Criterios de calificación",
+      "en": "Assessment criteria"
+    },
+    "criterisDoc": {
+      "ca": "Criteris de qualificació",
+      "es": "Criterios de calificación",
+      "en": "Assessment criteria"
+    },
+    "pendent": {
+      "ca": "(PDF pendent)",
+      "es": "(PDF pendiente)",
+      "en": "(PDF pending)"
+    },
+    "blocs": [
+      {
+        "titol": {
+          "ca": "1r Batxillerat",
+          "es": "1º Bachillerato",
+          "en": "1st Batxillerat"
+        },
+        "butlletins": [
+          {
+            "quan": {
+              "ca": "Meitat del 1r trimestre",
+              "es": "Mitad del 1.er trimestre",
+              "en": "Mid first term"
+            },
+            "que": {
+              "ca": "Butlletí de seguiment",
+              "es": "Boletín de seguimiento",
+              "en": "Progress report"
+            },
+            "format": {
+              "ca": "Clickedu",
+              "es": "Clickedu",
+              "en": "Clickedu"
+            }
+          },
+          {
+            "quan": {
+              "ca": "Final del 1r trimestre",
+              "es": "Final del 1.er trimestre",
+              "en": "End of first term"
+            },
+            "que": {
+              "ca": "Butlletí de qualificacions",
+              "es": "Boletín de calificaciones",
+              "en": "Term report"
+            },
+            "format": {
+              "ca": "Clickedu",
+              "es": "Clickedu",
+              "en": "Clickedu"
+            }
+          },
+          {
+            "quan": {
+              "ca": "Final del 2n trimestre",
+              "es": "Final del 2.º trimestre",
+              "en": "End of second term"
+            },
+            "que": {
+              "ca": "Butlletí de qualificacions",
+              "es": "Boletín de calificaciones",
+              "en": "Term report"
+            },
+            "format": {
+              "ca": "Clickedu",
+              "es": "Clickedu",
+              "en": "Clickedu"
+            }
+          },
+          {
+            "quan": {
+              "ca": "Final del 3r trimestre",
+              "es": "Final del 3.er trimestre",
+              "en": "End of third term"
+            },
+            "que": {
+              "ca": "Butlletí de qualificacions",
+              "es": "Boletín de calificaciones",
+              "en": "Term report"
+            },
+            "format": {
+              "ca": "Clickedu",
+              "es": "Clickedu",
+              "en": "Clickedu"
+            }
+          },
+          {
+            "quan": {
+              "ca": "Final de curs",
+              "es": "Final de curso",
+              "en": "End of year"
+            },
+            "que": {
+              "ca": "Notes finals de cada matèria",
+              "es": "Notas finales de cada materia",
+              "en": "Final marks for each subject"
+            },
+            "format": {
+              "ca": "En paper",
+              "es": "En papel",
+              "en": "On paper"
+            },
+            "paper": true
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "2n Batxillerat",
+          "es": "2º Bachillerato",
+          "en": "2nd Batxillerat"
+        },
+        "butlletins": [
+          {
+            "quan": {
+              "ca": "Final del 1r trimestre",
+              "es": "Final del 1.er trimestre",
+              "en": "End of first term"
+            },
+            "que": {
+              "ca": "Butlletí de qualificacions",
+              "es": "Boletín de calificaciones",
+              "en": "Term report"
+            },
+            "format": {
+              "ca": "Clickedu",
+              "es": "Clickedu",
+              "en": "Clickedu"
+            }
+          },
+          {
+            "quan": {
+              "ca": "Final del 2n trimestre",
+              "es": "Final del 2.º trimestre",
+              "en": "End of second term"
+            },
+            "que": {
+              "ca": "Butlletí de qualificacions",
+              "es": "Boletín de calificaciones",
+              "en": "Term report"
+            },
+            "format": {
+              "ca": "Clickedu",
+              "es": "Clickedu",
+              "en": "Clickedu"
+            }
+          },
+          {
+            "quan": {
+              "ca": "Final del 3r trimestre",
+              "es": "Final del 3.er trimestre",
+              "en": "End of third term"
+            },
+            "que": {
+              "ca": "Butlletí de qualificacions",
+              "es": "Boletín de calificaciones",
+              "en": "Term report"
+            },
+            "format": {
+              "ca": "Clickedu",
+              "es": "Clickedu",
+              "en": "Clickedu"
+            }
+          },
+          {
+            "quan": {
+              "ca": "Final de curs",
+              "es": "Final de curso",
+              "en": "End of year"
+            },
+            "que": {
+              "ca": "Notes finals de cada matèria",
+              "es": "Notas finales de cada materia",
+              "en": "Final marks for each subject"
+            },
+            "format": {
+              "ca": "En paper",
+              "es": "En papel",
+              "en": "On paper"
+            },
+            "paper": true
+          }
+        ]
+      }
+    ],
+    "promoTitol": {
+      "ca": "Promoció i titulació",
+      "es": "Promoción y titulación",
+      "en": "Progression and certification"
+    },
+    "promoText": {
+      "ca": "Promociona a 2n l’alumnat que ha superat totes les matèries de 1r o que en té una o dues de no superades; en aquest cas, el centre organitza activitats de recuperació durant el curs següent. Amb tres o quatre matèries no superades, es pot repetir 1r sencer o només aquestes matèries. Obté el títol de batxiller l’alumnat que ha superat totes les matèries dels dos cursos. Excepcionalment, l’equip docent pot atorgar el títol amb una sola matèria no superada si l’alumne o alumna ha assolit els objectius i les competències de l’etapa, no ha tingut inassistència continuada i injustificada, s’ha presentat a totes les proves i la mitjana de totes les matèries és igual o superior a 5. La nota final de l’etapa és la mitjana aritmètica de totes les matèries, inclòs el treball de recerca.",
+      "es": "Promociona a 2º el alumnado que ha superado todas las materias de 1º o que tiene una o dos no superadas; en este caso, el centro organiza actividades de recuperación durante el curso siguiente. Con tres o cuatro materias no superadas, se puede repetir 1º entero o solo esas materias. Obtiene el título de bachiller el alumnado que ha superado todas las materias de los dos cursos. Excepcionalmente, el equipo docente puede otorgar el título con una sola materia no superada si el alumno o alumna ha alcanzado los objetivos y las competencias de la etapa, no ha tenido inasistencia continuada e injustificada, se ha presentado a todas las pruebas y la media de todas las materias es igual o superior a 5. La nota final de la etapa es la media aritmética de todas las materias, incluido el trabajo de investigación.",
+      "en": "Students move up to 2nd year when they have passed all 1st-year subjects or have failed one or two; in that case, the school organises catch-up activities during the following year. With three or four failed subjects, students can repeat the whole of 1st year or only those subjects. Students obtain the Batxillerat certificate when they have passed every subject in both years. Exceptionally, the teaching team may award it with one failed subject if the student has met the objectives and competences of the stage, has not been continuously absent without justification, has sat every exam and has an overall average of 5 or more. The final mark is the arithmetic mean of all subjects, including the research project."
+    }
+  },
+  "proj": {
+    "titol": {
+      "ca": "Projectes de l’etapa",
+      "es": "Proyectos de la etapa",
+      "en": "Projects in Batxillerat"
+    },
+    "foto": {
+      "ca": "Foto",
+      "es": "Foto",
+      "en": "Photo"
+    },
+    "items": [
+      {
+        "icona": "tr",
+        "tag": {
+          "ca": "1r · 2n",
+          "es": "1º · 2º",
+          "en": "1st · 2nd"
+        },
+        "titol": {
+          "ca": "Treball de recerca",
+          "es": "Trabajo de investigación",
+          "en": "Research project"
+        },
+        "text": {
+          "ca": "Investigació sobre un tema d’interès, guiada per un tutor o tutora, que l’alumnat presenta en una memòria escrita i defensa oralment davant d’un tribunal. S’inicia el 2n trimestre de 1r i s’acaba el 1r trimestre de 2n. És obligatori i té el mateix pes que una matèria a la nota final.",
+          "es": "Investigación sobre un tema de interés, guiada por un tutor o tutora, que el alumnado presenta en una memoria escrita y defiende oralmente ante un tribunal. Se inicia el 2.º trimestre de 1º y se termina el 1.er trimestre de 2º. Es obligatorio y tiene el mismo peso que una materia en la nota final.",
+          "en": "An in-depth investigation into a topic of the student’s choice, guided by a supervisor, written up as a report and defended orally before a panel. It starts in the second term of 1st year and ends in the first term of 2nd year. It is compulsory and counts as much as a subject in the final mark."
+        }
+      },
+      {
+        "icona": "llengues",
+        "tag": {
+          "ca": "Tota l’etapa",
+          "es": "Toda la etapa",
+          "en": "Both years"
+        },
+        "titol": {
+          "ca": "Llengües Estrangeres",
+          "es": "Lenguas Extranjeras",
+          "en": "Foreign Languages"
+        },
+        "text": {
+          "ca": "Anglès i segones llengües: alemany, francès i italià.",
+          "es": "Inglés y segundas lenguas: alemán, francés e italiano.",
+          "en": "English and second languages: German, French and Italian."
+        },
+        "href": "projectes-llengues-estrangeres.html"
+      }
+    ]
+  },
+  "ori": {
+    "titol": {
+      "ca": "Orientació i acompanyament",
+      "es": "Orientación y acompañamiento",
+      "en": "Guidance and support"
+    },
+    "acadTitol": {
+      "ca": "Orientació acadèmica",
+      "es": "Orientación académica",
+      "en": "Academic guidance"
+    },
+    "acadText": {
+      "ca": "Acompanyem l’alumnat en cada decisió acadèmica de l’etapa:",
+      "es": "Acompañamos al alumnado en cada decisión académica de la etapa:",
+      "en": "We support students with every academic decision during Batxillerat:"
+    },
+    "acadList": [
+      {
+        "ca": "Tria de matèries (1r de batxillerat)",
+        "es": "Elección de materias (1º de bachillerato)",
+        "en": "Choosing subjects (1st year)"
+      },
+      {
+        "ca": "Tria d’estudis posteriors (2n de batxillerat)",
+        "es": "Elección de estudios posteriores (2º de bachillerato)",
+        "en": "Choosing what to study next (2nd year)"
+      },
+      {
+        "ca": "Xerrades d’experts de les universitats",
+        "es": "Charlas de expertos de las universidades",
+        "en": "Talks by university experts"
+      },
+      {
+        "ca": "Visites a la UAB i a la UPC",
+        "es": "Visitas a la UAB y a la UPC",
+        "en": "Visits to UAB and UPC universities"
+      },
+      {
+        "ca": "Visites a les jornades de portes obertes d’algunes universitats",
+        "es": "Visitas a las jornadas de puertas abiertas de algunas universidades",
+        "en": "Visits to some universities’ open days"
+      }
+    ],
+    "guia": {
+      "id": "orientacio-2n-batxillerat",
+      "tag": {
+        "ca": "2n Batxillerat",
+        "es": "2º Bachillerato",
+        "en": "2nd Batxillerat"
+      },
+      "titol": {
+        "ca": "Orientació a 2n de Batxillerat",
+        "es": "Orientación en 2º de Bachillerato",
+        "en": "Guidance in 2nd-year Batxillerat"
+      },
+      "text": [
+        {
+          "ca": "En acabar el batxillerat, l’alumnat ha de decidir com continua els estudis. Abans, cal conèixer bé totes les opcions i com s’hi accedeix. Amb el títol de batxiller es pot cursar un cicle formatiu de grau superior o un grau universitari.",
+          "es": "Al terminar el bachillerato, el alumnado debe decidir cómo continúa sus estudios. Antes, hay que conocer bien todas las opciones y cómo se accede a ellas. Con el título de bachiller se puede cursar un ciclo formativo de grado superior o un grado universitario.",
+          "en": "At the end of Batxillerat, students have to decide how to continue their studies. First, they need to know all the options and how to get in. The Batxillerat certificate gives access to higher vocational training (CFGS) or to a university degree."
+        }
+      ],
+      "cols": [
+        {
+          "titol": {
+            "ca": "Les opcions",
+            "es": "Las opciones",
+            "en": "The options"
+          },
+          "llista": [
+            {
+              "t": {
+                "ca": "<strong>Cicle formatiu de grau superior (CFGS):</strong> estudis professionalitzadors de 2.000 hores, en dos cursos, agrupats en famílies professionals. Donen el títol de tècnic o tècnica superior, que permet treballar o accedir a qualsevol grau universitari. Si hi ha més sol·licituds que places, s’apliquen criteris de prioritat.",
+                "es": "<strong>Ciclo formativo de grado superior (CFGS):</strong> estudios profesionalizadores de 2.000 horas, en dos cursos, agrupados en familias profesionales. Dan el título de técnico o técnica superior, que permite trabajar o acceder a cualquier grado universitario. Si hay más solicitudes que plazas, se aplican criterios de prioridad.",
+                "en": "<strong>Higher vocational training (CFGS):</strong> career-focused courses of 2,000 hours over two years, grouped into professional families. They lead to the higher technician certificate, which gives access to work or to any university degree. If there are more applicants than places, priority criteria apply."
+              }
+            },
+            {
+              "t": {
+                "ca": "<strong>Grau universitari:</strong> cal fer les PAU, que donen la nota d’accés (fins a 10 punts, amb la fase general) i la nota d’admissió (fins a 14 punts, amb la fase específica). Convé consultar l’oferta d’estudis, on s’imparteixen i les notes de tall dels darrers anys.",
+                "es": "<strong>Grado universitario:</strong> hay que hacer las PAU, que dan la nota de acceso (hasta 10 puntos, con la fase general) y la nota de admisión (hasta 14 puntos, con la fase específica). Conviene consultar la oferta de estudios, dónde se imparten y las notas de corte de los últimos años.",
+                "en": "<strong>University degree:</strong> students sit the PAU entrance exams, which give the access mark (up to 10 points, general part) and the admission mark (up to 14 points, specific part). Check what degrees are offered, where, and recent cut-off marks."
+              }
+            },
+            {
+              "t": {
+                "ca": "Qui vulgui fer un grau després d’un CFGS pot fer la fase específica de les PAU aquest any: la nota es manté dos anys.",
+                "es": "Quien quiera hacer un grado después de un CFGS puede hacer la fase específica de las PAU este año: la nota se mantiene dos años.",
+                "en": "Students planning a degree after a CFGS can sit the specific part of the PAU this year: the mark is valid for two years."
+              }
+            }
+          ]
+        },
+        {
+          "titol": {
+            "ca": "Preinscripció i calendari",
+            "es": "Preinscripción y calendario",
+            "en": "Applications and key dates"
+          },
+          "llista": [
+            {
+              "t": {
+                "ca": "La preinscripció als CFGS es fa previsiblement la segona quinzena de maig.",
+                "es": "La preinscripción a los CFGS se hace previsiblemente la segunda quincena de mayo.",
+                "en": "CFGS applications are expected in the second half of May."
+              }
+            },
+            {
+              "t": {
+                "ca": "La preinscripció universitària es fa al juny. Cal omplir totes les opcions (fins a vuit), no només dues o tres.",
+                "es": "La preinscripción universitaria se hace en junio. Hay que rellenar todas las opciones (hasta ocho), no solo dos o tres.",
+                "en": "University applications take place in June. Fill in all the options (up to eight), not just two or three."
+              }
+            },
+            {
+              "t": {
+                "ca": "Alguns graus demanen proves d’aptitud personal (PAP), per exemple Educació Infantil i Primària.",
+                "es": "Algunos grados piden pruebas de aptitud personal (PAP), por ejemplo Educación Infantil y Primaria.",
+                "en": "Some degrees require personal aptitude tests (PAP), for example Early Childhood and Primary Education."
+              }
+            },
+            {
+              "t": {
+                "ca": "Després de l’assignació de places, cal formalitzar la matrícula a la universitat.",
+                "es": "Después de la asignación de plazas, hay que formalizar la matrícula en la universidad.",
+                "en": "Once places are allocated, students must enrol at the university."
+              }
+            },
+            {
+              "t": {
+                "ca": "Les beques i ajuts per a estudis superiors es tramiten a l’AGAUR.",
+                "es": "Las becas y ayudas para estudios superiores se tramitan en la AGAUR.",
+                "en": "Grants for higher education are managed by AGAUR."
+              }
+            }
+          ]
+        },
+        {
+          "titol": {
+            "ca": "Recursos",
+            "es": "Recursos",
+            "en": "Resources"
+          },
+          "links": [
+            {
+              "href": "https://docs.google.com/document/d/1Yi1XF6CZHwd8Przqh63EEzt2Re7T6oTsQOifstMN60o/edit?tab=t.0",
+              "t": {
+                "ca": "Guia de batxillerat",
+                "es": "Guía de bachillerato",
+                "en": "Batxillerat guide"
+              },
+              "d": {
+                "ca": "Document de la coordinació de batxillerat",
+                "es": "Documento de la coordinación de bachillerato (en catalán)",
+                "en": "From our Batxillerat coordinator (in Catalan)"
+              }
+            },
+            {
+              "href": "https://triaeducativa.gencat.cat/ca/fp/gs/",
+              "t": {
+                "ca": "Cicles de grau superior",
+                "es": "Ciclos de grado superior",
+                "en": "Higher vocational courses"
+              },
+              "d": {
+                "ca": "Tria Educativa, Generalitat",
+                "es": "Tria Educativa, Generalitat (en catalán)",
+                "en": "Tria Educativa, Catalan Government (in Catalan)"
+              }
+            },
+            {
+              "href": "https://universitats.gencat.cat/ca/estudis-universitaris/cercador-estudis-universitaris/",
+              "t": {
+                "ca": "Cercador d’estudis universitaris",
+                "es": "Buscador de estudios universitarios",
+                "en": "University degree finder"
+              },
+              "d": {
+                "ca": "Oferta de les universitats catalanes",
+                "es": "Oferta de las universidades catalanas",
+                "en": "Degrees at Catalan universities"
+              }
+            },
+            {
+              "href": "https://universitats.gencat.cat/ca/preinscripcions/sobre-preinscripcio/notes-tall/",
+              "t": {
+                "ca": "Notes de tall",
+                "es": "Notas de corte",
+                "en": "Cut-off marks"
+              },
+              "d": {
+                "ca": "Notes dels darrers anys",
+                "es": "Notas de los últimos años",
+                "en": "Marks from recent years"
+              }
+            },
+            {
+              "href": "https://universitats.gencat.cat/ca/preinscripcions/dates-claus-preinscripcio/",
+              "t": {
+                "ca": "Dates clau de la preinscripció",
+                "es": "Fechas clave de la preinscripción",
+                "en": "Application key dates"
+              },
+              "d": {
+                "ca": "Calendari universitari",
+                "es": "Calendario universitario",
+                "en": "University calendar"
+              }
+            },
+            {
+              "href": "https://agaur.gencat.cat/ca/inici",
+              "t": {
+                "ca": "AGAUR",
+                "es": "AGAUR",
+                "en": "AGAUR"
+              },
+              "d": {
+                "ca": "Beques i ajuts",
+                "es": "Becas y ayudas",
+                "en": "Grants and funding"
+              }
+            },
+            {
+              "href": "https://www.educaweb.cat/",
+              "t": {
+                "ca": "Educaweb",
+                "es": "Educaweb",
+                "en": "Educaweb"
+              },
+              "d": {
+                "ca": "Guia d’estudis i professions",
+                "es": "Guía de estudios y profesiones",
+                "en": "Guide to studies and careers"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "prac": {
+    "etapaLlibres": "BAT",
+    "llibresMeta": {
+      "ca": "Llibres de text, lectures i materials per nivell",
+      "es": "Libros de texto, lecturas y materiales por nivel (en catalán)",
+      "en": "Textbooks, readers and materials by level (in Catalan)"
+    }
+  }
+}

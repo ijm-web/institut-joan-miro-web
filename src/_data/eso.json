@@ -258,11 +258,6 @@
       "es": "Optativas",
       "en": "Electives"
     },
-    "pdfOpt": {
-      "ca": "Descripció de les optatives de",
-      "es": "Descripción de las optativas de",
-      "en": "Description of the electives for"
-    },
     "pdfPendent": {
       "ca": "(PDF pendent)",
       "es": "(PDF pendiente)",
@@ -400,7 +395,6 @@
           }
         ],
         "optHores": 3,
-        "optPdf": "/assets/docs/eso/optatives-1r-eso.pdf",
         "destacat": {
           "titol": {
             "ca": "Piscina a 1r d’ESO",
@@ -418,7 +412,8 @@
             "en": "Sports Plan"
           },
           "href": "projectes-pla-esport.html"
-        }
+        },
+        "pdf": "/assets/docs/eso/materies-1r-eso.pdf"
       },
       {
         "label": {
@@ -545,7 +540,8 @@
             }
           }
         ],
-        "optHores": 3
+        "optHores": 3,
+        "pdf": "/assets/docs/eso/materies-2n-eso.pdf"
       },
       {
         "label": {
@@ -677,7 +673,8 @@
             }
           }
         ],
-        "optHores": 3
+        "optHores": 3,
+        "pdf": "/assets/docs/eso/materies-3r-eso.pdf"
       },
       {
         "label": {
@@ -759,9 +756,9 @@
               },
               {
                 "n": {
-                  "ca": "Informàtica",
-                  "es": "Informática",
-                  "en": "Computing"
+                  "ca": "Digitalització",
+                  "es": "Digitalización",
+                  "en": "Digital skills"
                 }
               },
               {
@@ -810,9 +807,9 @@
               },
               {
                 "n": {
-                  "ca": "Informàtica",
-                  "es": "Informática",
-                  "en": "Computing"
+                  "ca": "Digitalització",
+                  "es": "Digitalización",
+                  "en": "Digital skills"
                 }
               },
               {
@@ -882,13 +879,19 @@
               }
             ]
           }
-        ]
+        ],
+        "pdf": "/assets/docs/eso/materies-4t-eso.pdf"
       }
     ],
     "franjaTitol": {
       "ca": "Matèries d’opció",
       "es": "Materias de opción",
       "en": "Optional subjects"
+    },
+    "pdfLabel": {
+      "ca": "Descripció de les matèries de",
+      "es": "Descripción de las materias de",
+      "en": "Subject descriptions,"
     }
   },
   "qual": {
@@ -1030,10 +1033,11 @@
           "en": "Synthesis project"
         },
         "text": {
-          "ca": "<span class=\"tbd\">[Tema de cada nivell i quan es fa.]</span>",
-          "es": "<span class=\"tbd\">[Tema de cada nivel y cuándo se hace.]</span>",
-          "en": "<span class=\"tbd\">[Topic for each level and when it takes place.]</span>"
-        }
+          "ca": "Conjunt d’activitats interdisciplinàries que l’alumnat fa en equips de quatre o cinc persones, amb un tutor o tutora per cada dos o tres equips. Integra coneixements de diverses matèries i fomenta el treball cooperatiu. Es valora com a fet, fet amb aprofitament o no fet.",
+          "es": "Conjunto de actividades interdisciplinarias que el alumnado realiza en equipos de cuatro o cinco personas, con un tutor o tutora por cada dos o tres equipos. Integra conocimientos de varias materias y fomenta el trabajo cooperativo. Se valora como hecho, hecho con aprovechamiento o no hecho.",
+          "en": "A set of cross-curricular activities carried out in teams of four or five students, with one supervisor for every two or three teams. It brings together knowledge from several subjects and builds teamwork. It is assessed as not done, done, or done with merit."
+        },
+        "icona": "sintesi"
       },
       {
         "tag": {
@@ -1047,10 +1051,11 @@
           "en": "Research project"
         },
         "text": {
-          "ca": "<span class=\"tbd\">[Com s’organitza: grups, tutor, presentació final.]</span>",
-          "es": "<span class=\"tbd\">[Cómo se organiza: grupos, tutor, presentación final.]</span>",
-          "en": "<span class=\"tbd\">[How it works: groups, supervisor, final presentation.]</span>"
-        }
+          "ca": "En grups reduïts, l’alumnat tria i delimita un tema, planteja una hipòtesi o un objectiu, planifica la recerca i presenta les conclusions en un informe escrit i una breu exposició oral. Dura unes 35 hores lectives i es valora sobretot el procés i la perseverança.",
+          "es": "En grupos reducidos, el alumnado elige y delimita un tema, plantea una hipótesis o un objetivo, planifica la investigación y presenta las conclusiones en un informe escrito y una breve exposición oral. Dura unas 35 horas lectivas y se valora sobre todo el proceso y la perseverancia.",
+          "en": "In small groups, students choose and define a topic, set a hypothesis or goal, plan their research and present their conclusions in a written report and a short oral presentation. It takes about 35 teaching hours, and the process and perseverance count most."
+        },
+        "icona": "recerca"
       },
       {
         "tag": {
@@ -1068,7 +1073,8 @@
           "es": "Inglés y segundas lenguas: alemán, francés e italiano.",
           "en": "English and second languages: German, French and Italian."
         },
-        "href": "projectes-llengues-estrangeres.html"
+        "href": "projectes-llengues-estrangeres.html",
+        "icona": "llengues"
       },
       {
         "tag": {
@@ -1082,11 +1088,12 @@
           "en": "Reading Skills"
         },
         "text": {
-          "ca": "<span class=\"tbd\">[Resum en una frase.]</span>",
-          "es": "<span class=\"tbd\">[Resumen en una frase.]</span>",
-          "en": "<span class=\"tbd\">[One-sentence summary.]</span>"
+          "ca": "La lectura és un eix del centre: una hora setmanal de Lectura a 2n i 3r d’ESO i estratègies de comprensió lectora a totes les matèries, perquè l’alumnat llegeixi més i millor.",
+          "es": "La lectura es un eje del centro: una hora semanal de Lectura en 2º y 3º de ESO y estrategias de comprensión lectora en todas las materias, para que el alumnado lea más y mejor.",
+          "en": "Reading is central to our school: one hour of Reading a week in 2nd and 3rd ESO, and reading-comprehension strategies in every subject, so that students read more and read better."
         },
-        "href": "projectes-competencia-lectora.html"
+        "href": "projectes-competencia-lectora.html",
+        "icona": "lectura"
       }
     ]
   },
@@ -1175,139 +1182,131 @@
         "en": "Talks on Batxillerat and Vocational Training (in 4th ESO)"
       }
     ],
-    "quart": {
+    "guia": {
+      "id": "orientacio-4t",
+      "tag": {
+        "ca": "4t ESO",
+        "es": "4º ESO",
+        "en": "4th ESO"
+      },
       "titol": {
         "ca": "Orientació a 4t d’ESO",
         "es": "Orientación en 4º de ESO",
         "en": "Guidance in 4th ESO"
       },
-      "text": {
-        "ca": "En acabar l’ESO, l’alumnat ha de decidir què vol estudiar. És una decisió important que pren amb la seva família, amb l’orientació del professorat del centre.",
-        "es": "Al terminar la ESO, el alumnado debe decidir qué quiere estudiar. Es una decisión importante que toma con su familia, con la orientación del profesorado del centro.",
-        "en": "At the end of ESO, students have to decide what to study next. It is an important decision they make with their family, guided by the school’s teachers."
-      },
-      "aspectesTitol": {
-        "ca": "Què cal tenir en compte",
-        "es": "Qué hay que tener en cuenta",
-        "en": "What to consider"
-      },
-      "explorar": {
-        "ca": "Conèixer les opcions formatives i acadèmiques que hi ha.",
-        "es": "Conocer las opciones formativas y académicas que existen.",
-        "en": "Finding out about the education and training options available."
-      },
-      "autoTitol": {
-        "ca": "Autoconeixement:",
-        "es": "Autoconocimiento:",
-        "en": "Knowing yourself:"
-      },
-      "auto": [
+      "text": [
         {
-          "t": {
-            "ca": "Personalitat",
-            "es": "Personalidad",
-            "en": "Personality"
-          },
-          "d": {
-            "ca": "com soc",
-            "es": "cómo soy",
-            "en": "who I am"
-          }
-        },
-        {
-          "t": {
-            "ca": "Aptituds i habilitats",
-            "es": "Aptitudes y habilidades",
-            "en": "Skills and abilities"
-          },
-          "d": {
-            "ca": "què faig bé i quines capacitats tinc",
-            "es": "qué hago bien y qué capacidades tengo",
-            "en": "what I do well and what I am good at"
-          }
-        },
-        {
-          "t": {
-            "ca": "Valors",
-            "es": "Valores",
-            "en": "Values"
-          },
-          "d": {
-            "ca": "què és important per a mi",
-            "es": "qué es importante para mí",
-            "en": "what matters to me"
-          }
-        },
-        {
-          "t": {
-            "ca": "Interessos professionals",
-            "es": "Intereses profesionales",
-            "en": "Career interests"
-          },
-          "d": {
-            "ca": "què m’agrada i què prefereixo",
-            "es": "qué me gusta y qué prefiero",
-            "en": "what I enjoy and prefer"
-          }
+          "ca": "En acabar l’ESO, l’alumnat ha de decidir què vol estudiar. És una decisió important que pren amb la seva família, amb l’orientació del professorat del centre.",
+          "es": "Al terminar la ESO, el alumnado debe decidir qué quiere estudiar. Es una decisión importante que toma con su familia, con la orientación del profesorado del centro.",
+          "en": "At the end of ESO, students have to decide what to study next. It is an important decision they make with their family, guided by the school’s teachers."
         }
       ],
-      "recursosTitol": {
-        "ca": "Recursos per explorar les opcions",
-        "es": "Recursos para explorar las opciones",
-        "en": "Resources to explore the options"
-      },
-      "recursos": [
+      "cols": [
         {
-          "href": "https://triaeducativa.gencat.cat/ca/inici",
-          "t": {
-            "ca": "Tria Educativa",
-            "es": "Tria Educativa",
-            "en": "Tria Educativa"
+          "titol": {
+            "ca": "Què cal tenir en compte",
+            "es": "Qué hay que tener en cuenta",
+            "en": "What to consider"
           },
-          "d": {
-            "ca": "Portal de la Generalitat amb tota l’oferta d’estudis",
-            "es": "Portal de la Generalitat con toda la oferta de estudios (en catalán)",
-            "en": "Catalan Government portal with all study options (in Catalan)"
-          }
+          "llista": [
+            {
+              "t": {
+                "ca": "Conèixer les opcions formatives i acadèmiques que hi ha.",
+                "es": "Conocer las opciones formativas y académicas que existen.",
+                "en": "Finding out about the education and training options available."
+              }
+            },
+            {
+              "t": {
+                "ca": "Autoconeixement:",
+                "es": "Autoconocimiento:",
+                "en": "Knowing yourself:"
+              },
+              "sub": [
+                {
+                  "ca": "<strong>Personalitat:</strong> com soc",
+                  "es": "<strong>Personalidad:</strong> cómo soy",
+                  "en": "<strong>Personality:</strong> who I am"
+                },
+                {
+                  "ca": "<strong>Aptituds i habilitats:</strong> què faig bé i quines capacitats tinc",
+                  "es": "<strong>Aptitudes y habilidades:</strong> qué hago bien y qué capacidades tengo",
+                  "en": "<strong>Skills and abilities:</strong> what I do well and what I am good at"
+                },
+                {
+                  "ca": "<strong>Valors:</strong> què és important per a mi",
+                  "es": "<strong>Valores:</strong> qué es importante para mí",
+                  "en": "<strong>Values:</strong> what matters to me"
+                },
+                {
+                  "ca": "<strong>Interessos professionals:</strong> què m’agrada i què prefereixo",
+                  "es": "<strong>Intereses profesionales:</strong> qué me gusta y qué prefiero",
+                  "en": "<strong>Career interests:</strong> what I enjoy and prefer"
+                }
+              ]
+            }
+          ]
         },
         {
-          "href": "https://educacio.gencat.cat/web/.content/home/departament/publicacions/guies-estudis/desplegable-con.pdf",
-          "t": {
-            "ca": "Guia d’estudis (PDF)",
-            "es": "Guía de estudios (PDF)",
-            "en": "Study guide (PDF)"
+          "titol": {
+            "ca": "Recursos per explorar les opcions",
+            "es": "Recursos para explorar las opciones",
+            "en": "Resources to explore the options"
           },
-          "d": {
-            "ca": "Esquema dels camins després de l’ESO",
-            "es": "Esquema de los caminos después de la ESO (en catalán)",
-            "en": "Overview of the paths after ESO (in Catalan)"
-          }
-        },
-        {
-          "href": "https://www.educaweb.cat/",
-          "t": {
-            "ca": "Educaweb",
-            "es": "Educaweb",
-            "en": "Educaweb"
-          },
-          "d": {
-            "ca": "Guia d’estudis, professions i tests d’orientació",
-            "es": "Guía de estudios, profesiones y tests de orientación",
-            "en": "Guide to studies, careers and guidance tests"
-          }
-        },
-        {
-          "href": "https://www.edubcn.cat/ca/centres_serveis_educatius/servei_orientacio/carpeta_de_lorientador",
-          "t": {
-            "ca": "Carpeta de l’orientador",
-            "es": "Carpeta del orientador",
-            "en": "Guidance folder"
-          },
-          "d": {
-            "ca": "Materials d’orientació del Consorci d’Educació de Barcelona",
-            "es": "Materiales de orientación del Consorci d’Educació de Barcelona",
-            "en": "Guidance materials from the Barcelona Education Consortium"
-          }
+          "links": [
+            {
+              "href": "https://triaeducativa.gencat.cat/ca/inici",
+              "t": {
+                "ca": "Tria Educativa",
+                "es": "Tria Educativa",
+                "en": "Tria Educativa"
+              },
+              "d": {
+                "ca": "Portal de la Generalitat amb tota l’oferta d’estudis",
+                "es": "Portal de la Generalitat con toda la oferta de estudios (en catalán)",
+                "en": "Catalan Government portal with all study options (in Catalan)"
+              }
+            },
+            {
+              "href": "https://educacio.gencat.cat/web/.content/home/departament/publicacions/guies-estudis/desplegable-con.pdf",
+              "t": {
+                "ca": "Guia d’estudis (PDF)",
+                "es": "Guía de estudios (PDF)",
+                "en": "Study guide (PDF)"
+              },
+              "d": {
+                "ca": "Esquema dels camins després de l’ESO",
+                "es": "Esquema de los caminos después de la ESO (en catalán)",
+                "en": "Overview of the paths after ESO (in Catalan)"
+              }
+            },
+            {
+              "href": "https://www.educaweb.cat/",
+              "t": {
+                "ca": "Educaweb",
+                "es": "Educaweb",
+                "en": "Educaweb"
+              },
+              "d": {
+                "ca": "Guia d’estudis, professions i tests d’orientació",
+                "es": "Guía de estudios, profesiones y tests de orientación",
+                "en": "Guide to studies, careers and guidance tests"
+              }
+            },
+            {
+              "href": "https://www.edubcn.cat/ca/centres_serveis_educatius/servei_orientacio/carpeta_de_lorientador",
+              "t": {
+                "ca": "Carpeta de l’orientador",
+                "es": "Carpeta del orientador",
+                "en": "Guidance folder"
+              },
+              "d": {
+                "ca": "Materials d’orientació del Consorci d’Educació de Barcelona",
+                "es": "Materiales de orientación del Consorci d’Educació de Barcelona",
+                "en": "Guidance materials from the Barcelona Education Consortium"
+              }
+            }
+          ]
         }
       ]
     }
@@ -1347,7 +1346,8 @@
       "ca": "Secretaria",
       "es": "Secretaría",
       "en": "School office"
-    }
+    },
+    "etapaLlibres": "ESO"
   },
   "cta": {
     "titol": {

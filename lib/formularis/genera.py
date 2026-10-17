@@ -4,7 +4,7 @@
 
 Crea:
   src/assets/docs/secretaria/sollicitud-certificat-c1-catala.pdf  (formulari emplenable)
-  src/assets/docs/eso/optatives-1r-eso.pdf                         (full informatiu)
+  src/assets/docs/eso/materies-1r-eso.pdf … materies-4t-eso.pdf      (descripció de les matèries)
 
 Requereix: pip install reportlab
 """
@@ -93,61 +93,45 @@ def certificat_c1():
 
 
 # =====================================================================
-# Optatives de 1r d'ESO (full informatiu)
+# Descripció de les matèries d'ESO, un PDF per nivell
+# (textos a lib/formularis/materies_eso.py)
 # =====================================================================
-OPTATIVES_1R = [
-    ("Alemany", "Llengua estrangera",
-     "Primer contacte amb la llengua alemanya: comunicació oral i escrita bàsica en situacions de la vida quotidiana, "
-     "vocabulari i expressions habituals i cultura dels països de parla alemanya. És una matèria de continuïtat: "
-     "es cursa de 1r a 4t d'ESO i pot preparar l'alumnat per als exàmens oficials del Goethe-Institut."),
-    ("Francès", "Llengua estrangera",
-     "Iniciació al francès des de la comunicació: presentar-se, parlar de l'entorn proper, entendre textos senzills i "
-     "conèixer la cultura francòfona. És una matèria de continuïtat fins a 4t d'ESO i obre la porta als exàmens "
-     "oficials de llengua francesa."),
-    ("Italià", "Llengua estrangera",
-     "Aprenentatge de l'italià a partir de situacions comunicatives reals, aprofitant la proximitat amb el català i el "
-     "castellà. Inclou aspectes de la cultura italiana. És una matèria de continuïtat fins a 4t d'ESO i pot preparar "
-     "per als exàmens oficials de l'Istituto Italiano di Cultura."),
-    ("Anglès (reforç)", "Reforç",
-     "Consolidació de les bases de l'anglès —vocabulari, estructures gramaticals, comprensió i expressió— perquè "
-     "l'alumnat pugui seguir amb seguretat la matèria comuna d'anglès."),
-    ("Tècniques d'estudi", "Reforç",
-     "Eines per aprendre a aprendre: organitzar el temps i el material, planificar les tasques, fer resums, esquemes "
-     "i mapes conceptuals, millorar la comprensió lectora i preparar els exàmens."),
-    ("Iniciació als esports de raqueta", "Esport i salut",
-     "Introducció a diversos esports de raqueta: tècnica bàsica, regles del joc, joc en parella i en equip, "
-     "joc net i hàbits de vida saludables."),
-    ("Construïm coneixement científic", "Matemàtiques",
-     "Matèria de matemàtiques on es consoliden els conceptes bàsics mitjançant metodologies molt actives: "
-     "manipulació, reptes, jocs i resolució de problemes en grup."),
-]
-
-
-def optatives_1r():
+def materies_eso():
+    from materies_eso import NIVELLS
     os.makedirs(OUT_ESO, exist_ok=True)
-    d = Doc(os.path.join(OUT_ESO, "optatives-1r-eso.pdf"), "Optatives de 1r d'ESO · Institut Joan Miró")
-    c = d.c
-    y = d.header("Estudis · ESO", "Optatives de 1r d'ESO")
     FW = W - 2 * MX
-    y = d.para(MX, y + 6, FW,
-               "A 1r d'ESO, cada alumne o alumna cursa <b>una matèria optativa de 3 hores setmanals</b>. "
-               "Alemany, francès i italià són matèries de continuïtat fins a 4t.",
-               size=9.5, leading=14.5)
-    y -= 18
     gap = 10
     colw = (FW - gap) / 2
-    items = OPTATIVES_1R
-    # Dues columnes; la darrera targeta, si queda sola, ocupa tota l'amplada
-    rest = items
-    for r in range(0, len(rest), 2):
-        pair = rest[r:r + 2]
-        cw = colw if len(pair) == 2 else FW
-        h = max(card_height(d, cw, t) for _, _, t in pair)
-        for k, (nom, tag, txt) in enumerate(pair):
-            draw_card(d, MX + k * (colw + gap), y, cw, h, nom, tag, txt)
-        y -= h + gap
-    d.footer("Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de 1r d'ESO.")
-    d.save()
+    for niv, dades in NIVELLS.items():
+        d = Doc(os.path.join(OUT_ESO, f"materies-{niv}-eso.pdf"), f"{dades['titol']} · Institut Joan Miró")
+        nota = f"Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de {niv} d'ESO."
+        y = d.header("Estudis · ESO", dades["titol"])
+        y = d.para(MX, y + 6, FW, dades["intro"], size=9.5, leading=14.5) - 16
+
+        def nova_pagina():
+            d.footer(nota)
+            d.c.showPage()
+            d.c.setFillColor(ORANGE); d.c.setFont("M-S", 8)
+            d.c.drawString(MX, 800, ("Estudis · ESO · " + dades["titol"]).upper())
+            return 780
+
+        for titol, items in dades["seccions"]:
+            if y < 200:
+                y = nova_pagina()
+            d.c.setFillColor(BLUE); d.c.setFont("M-S", 12); d.c.drawString(MX, y, titol)
+            y -= 14
+            for r in range(0, len(items), 2):
+                pair = items[r:r + 2]
+                cw = colw if len(pair) == 2 else FW
+                h = max(card_height(d, cw, t) for _, _, _, t in pair)
+                if y - h < 80:
+                    y = nova_pagina()
+                for k, (nom, hores, tag, txt) in enumerate(pair):
+                    draw_card(d, MX + k * (colw + gap), y, cw, h, nom, f"{tag} · {hores} h/setmana", txt)
+                y -= h + gap
+            y -= 12
+        d.footer(nota)
+        d.save()
 
 
 def card_height(d, w, txt):
@@ -155,7 +139,7 @@ def card_height(d, w, txt):
     from reportlab.lib.styles import ParagraphStyle
     st = ParagraphStyle("p", fontName="M-R", fontSize=8.5, leading=12.5)
     _, h = Paragraph(txt, st).wrap(w - 28, 1000)
-    return h + 58
+    return h + 50
 
 
 def draw_card(d, x, y, w, h, nom, tag, txt):
@@ -170,5 +154,5 @@ def draw_card(d, x, y, w, h, nom, tag, txt):
 
 if __name__ == "__main__":
     certificat_c1()
-    optatives_1r()
+    materies_eso()
     print("PDF generats.")
