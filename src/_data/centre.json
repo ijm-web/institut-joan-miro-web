@@ -1,0 +1,27 @@
+{
+  "_comentari": "Dades del centre que canvien d'un curs a l'altre i que surten en pàgines .html (ca/es/en). Escriviu-les NOMÉS aquí. El nom de la directora no és aquí: surt de src/_data/organigrama.json (direccio.directora.nom).",
+
+  "directora": {
+    "foto": "/assets/img/qui-som/directora-gemma-gamarra.jpg"
+  },
+
+  "coordinacioErasmus": [
+    "Montse Roquet",
+    "Archi Montañés",
+    "Carla Sancho",
+    "Marco Albano",
+    "Anabel Ridruejo"
+  ],
+
+  "horariSecretaria": {
+    "curs": {
+      "periode": { "ca": "octubre a maig", "es": "octubre a mayo", "en": "October to May" },
+      "hores": { "ca": "De 9 a 13 h i de 15 a 17 h", "es": "De 9 a 13 h y de 15 a 17 h", "en": "9 am to 1 pm and 3 pm to 5 pm" }
+    },
+    "estiu": {
+      "periode": { "ca": "juny a setembre", "es": "junio a septiembre", "en": "June to September" },
+      "hores": { "ca": "De 9 a 13 h", "es": "De 9 a 13 h", "en": "9 am to 1 pm" }
+    },
+    "dies": { "ca": "Dilluns a divendres", "es": "Lunes a viernes", "en": "Monday to Friday" }
+  }
+}

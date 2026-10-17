@@ -1,4 +1,5 @@
 ---
+templateEngineOverride: njk
 layout: base.njk
 title: Contact — Institut Joan Miró
 permalink: "en/contacte.html"
@@ -382,9 +383,9 @@ pageScript: |
         </span>
         <h3>Opening hours</h3>
         <div class="info-card__body">
-          Monday to Friday<br>
-          October to May: 9 am to 1 pm and 3 pm to 5 pm<br>
-          June to September: 9 am to 1 pm
+          {{ centre.horariSecretaria.dies[lang] }}<br>
+          {{ centre.horariSecretaria.curs.periode[lang] | majuscula }}: {{ centre.horariSecretaria.curs.hores[lang] | minuscula }}<br>
+          {{ centre.horariSecretaria.estiu.periode[lang] | majuscula }}: {{ centre.horariSecretaria.estiu.hores[lang] | minuscula }}
         </div>
       </div>
 

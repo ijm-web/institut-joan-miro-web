@@ -1,4 +1,5 @@
 ---
+templateEngineOverride: njk
 layout: base.njk
 title: Quiénes somos — Institut Joan Miró
 permalink: "es/qui-som.html"
@@ -343,10 +344,10 @@ pageScript: |
   </div>
 
   <div class="qui-som-director">
-    <img class="qui-som-director__photo" src="/assets/img/qui-som/directora-gemma-gamarra.jpg" width="480" height="480" alt="Gemma Gamarra, directora del Institut Joan Miró" style="object-fit: cover;">
+    <img class="qui-som-director__photo" src="{{ centre.directora.foto }}" width="480" height="480" alt="{{ organigrama.direccio.directora.nom }}, directora del Institut Joan Miró" style="object-fit: cover;">
     <div class="qui-som-director__content">
       <blockquote class="qui-som-director__quote">«Escriba aquí la cita textual de la dirección.»</blockquote>
-      <p class="qui-som-director__name">Gemma Gamarra · Directora del Institut Joan Miró</p>
+      <p class="qui-som-director__name">{{ organigrama.direccio.directora.nom }} · Directora del Institut Joan Miró</p>
       <div class="qui-som-director__audio">
         <audio controls preload="none" src="/assets/audio/directora-cita-placeholder.wav"></audio>
         <p class="qui-som-director__audio-note">Versión en audio de la cita (pendiente de grabar).</p>

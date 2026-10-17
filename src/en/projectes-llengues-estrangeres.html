@@ -1,4 +1,5 @@
 ---
+templateEngineOverride: njk
 layout: base.njk
 title: Foreign Languages — Institut Joan Miró
 permalink: "en/projectes-llengues-estrangeres.html"
@@ -510,7 +511,7 @@ pageScript: |
         <li><b>Job shadowing</b><span>Observation periods that allow teachers to see other education systems, methodologies and ways of organising a school at first hand.</span></li>
       </ol>
       <p>These experiences contribute to teachers’ professional development, encourage the exchange of good practice and enrich the school’s educational work.</p>
-      <p>The school’s <span class="kw">Erasmus+ coordination team</span> is made up of Montse Roquet, Archi Montañés, Carla Sancho, Marco Albano and Anabel Ridruejo, who plan and follow up mobilities and European projects.</p>
+      <p>The school’s <span class="kw">Erasmus+ coordination team</span> is made up of {{ centre.coordinacioErasmus | llistaNoms(lang) }}, who plan and follow up mobilities and European projects.</p>
     </div>
   </section>
 

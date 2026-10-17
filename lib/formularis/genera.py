@@ -131,7 +131,6 @@ def optatives_1r():
     FW = W - 2 * MX
     y = d.para(MX, y + 6, FW,
                "A 1r d'ESO, cada alumne o alumna cursa <b>una matèria optativa de 3 hores setmanals</b>. "
-               "L'optativa s'assigna segons la informació de l'escola de primària i l'ordre de preferència de la família. "
                "Alemany, francès i italià són matèries de continuïtat fins a 4t.",
                size=9.5, leading=14.5)
     y -= 18

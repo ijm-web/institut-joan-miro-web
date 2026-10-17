@@ -1,4 +1,5 @@
 ---
+templateEngineOverride: njk
 layout: base.njk
 title: Lenguas Extranjeras — Institut Joan Miró
 permalink: "es/projectes-llengues-estrangeres.html"
@@ -510,7 +511,7 @@ pageScript: |
         <li><b>Job shadowing</b><span>Estancias de observación que permiten al profesorado conocer de cerca otros sistemas educativos, metodologías y formas de organización escolar.</span></li>
       </ol>
       <p>Estas experiencias contribuyen al desarrollo profesional del profesorado, favorecen el intercambio de buenas prácticas y enriquecen la labor educativa del centro.</p>
-      <p>La <span class="kw">Coordinación Erasmus+</span> del centro está formada por Montse Roquet, Archi Montañés, Carla Sancho, Marco Albano y Anabel Ridruejo, que planifican y hacen el seguimiento de las movilidades y de los proyectos europeos.</p>
+      <p>La <span class="kw">Coordinación Erasmus+</span> del centro está formada por {{ centre.coordinacioErasmus | llistaNoms(lang) }}, que planifican y hacen el seguimiento de las movilidades y de los proyectos europeos.</p>
     </div>
   </section>
 

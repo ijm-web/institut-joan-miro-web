@@ -344,9 +344,9 @@
         ],
         "comunesPendent": false,
         "optText": {
-          "ca": "Cal escollir-ne una (3 h/setmana). L’optativa s’assigna segons la informació de l’escola de primària i l’ordre de preferència de la família. Alemany, francès i italià són matèries de continuïtat fins a 4t.",
-          "es": "Hay que escoger una (3 h/semana). La optativa se asigna según la información de la escuela de primaria y el orden de preferencia de la familia. Alemán, francés e italiano son materias de continuidad hasta 4º.",
-          "en": "Students choose one (3 h/week). Electives are assigned using information from the primary school and the family’s order of preference. German, French and Italian continue through to 4th."
+          "ca": "Cal escollir-ne una (3 h/setmana). Alemany, francès i italià són matèries de continuïtat fins a 4t.",
+          "es": "Hay que escoger una (3 h/semana). Alemán, francés e italiano son materias de continuidad hasta 4º.",
+          "en": "Students choose one (3 h/week). German, French and Italian continue through to 4th."
         },
         "opts": [
           {
@@ -731,9 +731,9 @@
         ],
         "comunesPendent": false,
         "optText": {
-          "ca": "A més de les matèries comunes, es tria una matèria de cada franja (3 h/setmana cadascuna), segons l’itinerari: científic, social o tecnològic. La segona llengua estrangera continua a la franja 3.",
-          "es": "Además de las materias comunes, se elige una materia de cada franja (3 h/semana cada una), según el itinerario: científico, social o tecnológico. La segunda lengua extranjera continúa en la franja 3.",
-          "en": "On top of the core subjects, students pick one subject from each block (3 h/week each), depending on their pathway: science, social sciences or technology. The second foreign language continues in block 3."
+          "ca": "A més de les matèries comunes, es tria una matèria de cada franja (3 h/setmana cadascuna), segons l’itinerari: tecnològic, científic, social, humanístic i artístic. La segona llengua estrangera es troba a la franja 3.",
+          "es": "Además de las materias comunes, se elige una materia de cada franja (3 h/semana cada una), según el itinerario: tecnológico, científico, social, humanístico y artístico. La segunda lengua extranjera se encuentra en la franja 3.",
+          "en": "On top of the core subjects, students pick one subject from each block (3 h/week each), depending on their pathway: technology, science, social sciences, humanities or arts. The second foreign language is in block 3."
         },
         "franges": [
           {
@@ -913,8 +913,8 @@
       "en": "Progression and certification"
     },
     "promoText": {
-      "ca": "D’acord amb el Decret 175/2022 (art. 24), promocionen de curs els alumnes que han assolit les competències de totes les matèries i els que tenen avaluació negativa en una o dues matèries, sempre que l’equip docent consideri que les matèries no superades no els impedeixen continuar el nivell següent. La permanència un any més en el mateix nivell té caràcter excepcional. Obté el títol de graduat en ESO l’alumnat que, en acabar l’etapa, ha adquirit, a criteri de l’equip docent, les competències establertes i ha assolit els objectius de l’etapa.",
-      "es": "De acuerdo con el Decreto 175/2022 (art. 24), promocionan de curso los alumnos que han alcanzado las competencias de todas las materias y los que tienen evaluación negativa en una o dos materias, siempre que el equipo docente considere que las materias no superadas no les impiden seguir el nivel siguiente. La permanencia un año más en el mismo nivel tiene carácter excepcional. Obtiene el título de graduado en ESO el alumnado que, al terminar la etapa, ha adquirido, a criterio del equipo docente, las competencias establecidas y ha alcanzado los objetivos de la etapa.",
+      "ca": "D’acord amb el Decret 175/2022 (art. 24), promociona de curs l’alumnat que ha assolit les competències de totes les matèries i el que té avaluació negativa en una o dues matèries, sempre que l’equip docent consideri que les matèries no superades no li impedeixen continuar el nivell següent. La permanència un any més en el mateix nivell té caràcter excepcional. Obté el títol de graduat en ESO l’alumnat que, en acabar l’etapa, ha adquirit, a criteri de l’equip docent, les competències establertes i ha assolit els objectius de l’etapa.",
+      "es": "De acuerdo con el Decreto 175/2022 (art. 24), promociona de curso el alumnado que ha alcanzado las competencias de todas las materias y el que tiene evaluación negativa en una o dos materias, siempre que el equipo docente considere que las materias no superadas no le impiden seguir el nivel siguiente. La permanencia un año más en el mismo nivel tiene carácter excepcional. Obtiene el título de graduado en ESO el alumnado que, al terminar la etapa, ha adquirido, a criterio del equipo docente, las competencias establecidas y ha alcanzado los objetivos de la etapa.",
       "en": "Under Decree 175/2022 (art. 24), students are promoted to the next level when they have achieved the competences of all subjects, or have failed one or two subjects provided the teaching team considers this does not prevent them from following the next level. Repeating a level is exceptional. Students obtain the ESO certificate when, at the end of the stage, the teaching team considers they have acquired the required competences and met the objectives of the stage."
     },
     "butlletins": [

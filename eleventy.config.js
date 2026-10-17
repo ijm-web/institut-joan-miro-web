@@ -1,6 +1,13 @@
 module.exports = function (eleventyConfig) {
   eleventyConfig.addPassthroughCopy("src/assets");
 
+  // Filtres per a les dades de src/_data/centre.json
+  const conj = { ca: " i ", es: " y ", en: " and " };
+  eleventyConfig.addFilter("llistaNoms", (noms, lang) =>
+    noms.length < 2 ? noms.join("") : noms.slice(0, -1).join(", ") + (conj[lang] || conj.ca) + noms[noms.length - 1]);
+  eleventyConfig.addFilter("majuscula", (s) => s.charAt(0).toUpperCase() + s.slice(1));
+  eleventyConfig.addFilter("minuscula", (s) => s.charAt(0).toLowerCase() + s.slice(1));
+
   // Any del copyright del peu: s'actualitza sol en cada build
   eleventyConfig.addGlobalData("anyActual", () => new Date().getFullYear());
 
