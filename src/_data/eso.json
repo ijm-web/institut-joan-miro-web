@@ -413,7 +413,12 @@
           },
           "href": "projectes-pla-esport.html"
         },
-        "pdf": "/assets/docs/eso/materies-1r-eso.pdf"
+        "pdf": "/assets/docs/eso/optatives-1r-eso.pdf",
+        "pdfText": {
+          "ca": "Descripció de les optatives de 1r ESO",
+          "es": "Descripción de las optativas de 1º ESO",
+          "en": "Elective descriptions, 1st ESO"
+        }
       },
       {
         "label": {
@@ -541,7 +546,12 @@
           }
         ],
         "optHores": 3,
-        "pdf": "/assets/docs/eso/materies-2n-eso.pdf"
+        "pdf": "/assets/docs/eso/optatives-2n-eso.pdf",
+        "pdfText": {
+          "ca": "Descripció de les optatives de 2n ESO",
+          "es": "Descripción de las optativas de 2º ESO",
+          "en": "Elective descriptions, 2nd ESO"
+        }
       },
       {
         "label": {
@@ -674,7 +684,12 @@
           }
         ],
         "optHores": 3,
-        "pdf": "/assets/docs/eso/materies-3r-eso.pdf"
+        "pdf": "/assets/docs/eso/optatives-3r-eso.pdf",
+        "pdfText": {
+          "ca": "Descripció de les optatives de 3r ESO",
+          "es": "Descripción de las optativas de 3º ESO",
+          "en": "Elective descriptions, 3rd ESO"
+        }
       },
       {
         "label": {
@@ -880,7 +895,12 @@
             ]
           }
         ],
-        "pdf": "/assets/docs/eso/materies-4t-eso.pdf"
+        "pdf": "/assets/docs/eso/materies-opcio-4t-eso.pdf",
+        "pdfText": {
+          "ca": "Descripció de les matèries d’opció de 4t ESO",
+          "es": "Descripción de las materias de opción de 4º ESO",
+          "en": "Optional subject descriptions, 4th ESO"
+        }
       }
     ],
     "franjaTitol": {
@@ -1033,9 +1053,9 @@
           "en": "Synthesis project"
         },
         "text": {
-          "ca": "Conjunt d’activitats interdisciplinàries que l’alumnat fa en equips de quatre o cinc persones, amb un tutor o tutora per cada dos o tres equips. Integra coneixements de diverses matèries i fomenta el treball cooperatiu. Es valora com a fet, fet amb aprofitament o no fet.",
-          "es": "Conjunto de actividades interdisciplinarias que el alumnado realiza en equipos de cuatro o cinco personas, con un tutor o tutora por cada dos o tres equipos. Integra conocimientos de varias materias y fomenta el trabajo cooperativo. Se valora como hecho, hecho con aprovechamiento o no hecho.",
-          "en": "A set of cross-curricular activities carried out in teams of four or five students, with one supervisor for every two or three teams. It brings together knowledge from several subjects and builds teamwork. It is assessed as not done, done, or done with merit."
+          "ca": "Conjunt d’activitats interdisciplinàries que fomenta el treball cooperatiu en grup. Es valora com a fet, fet amb aprofitament o no fet.",
+          "es": "Conjunto de actividades interdisciplinarias que fomenta el trabajo cooperativo en grupo. Se valora como hecho, hecho con aprovechamiento o no hecho.",
+          "en": "A set of cross-curricular activities that builds cooperative group work. It is assessed as done, done with merit, or not done."
         },
         "icona": "sintesi"
       },
@@ -1051,9 +1071,9 @@
           "en": "Research project"
         },
         "text": {
-          "ca": "En grups reduïts, l’alumnat tria i delimita un tema, planteja una hipòtesi o un objectiu, planifica la recerca i presenta les conclusions en un informe escrit i una breu exposició oral. Dura unes 35 hores lectives i es valora sobretot el procés i la perseverança.",
-          "es": "En grupos reducidos, el alumnado elige y delimita un tema, plantea una hipótesis o un objetivo, planifica la investigación y presenta las conclusiones en un informe escrito y una breve exposición oral. Dura unas 35 horas lectivas y se valora sobre todo el proceso y la perseverancia.",
-          "en": "In small groups, students choose and define a topic, set a hypothesis or goal, plan their research and present their conclusions in a written report and a short oral presentation. It takes about 35 teaching hours, and the process and perseverance count most."
+          "ca": "Treball grupal de recerca on es delimita un tema i uns objectius, es planifica la recerca i es presenten les conclusions en un informe escrit i es realitza una breu exposició oral. Es valora sobretot el procés.",
+          "es": "Trabajo grupal de investigación en el que se delimita un tema y unos objetivos, se planifica la investigación, se presentan las conclusiones en un informe escrito y se realiza una breve exposición oral. Se valora sobre todo el proceso.",
+          "en": "A group research project: students define a topic and objectives, plan the research, present their conclusions in a written report and give a short oral presentation. The process counts most."
         },
         "icona": "recerca"
       },

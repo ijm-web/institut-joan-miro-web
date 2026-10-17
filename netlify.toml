@@ -22,3 +22,10 @@
   from = "/en/historia.html"
   to = "/en/qui-som.html"
   status = 301
+
+# Programacions (àrea privada): no s'ha d'indexar ni desar a la memòria cau
+[[headers]]
+  for = "/programacions/*"
+  [headers.values]
+    X-Robots-Tag = "noindex, nofollow"
+    Cache-Control = "no-store"

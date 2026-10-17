@@ -142,7 +142,7 @@
             {%- for o in f.opts %}<li>{{ o.n[L] }}</li>{% endfor %}
           </ul>
           {%- endfor %}
-          {%- else %}
+          {%- elif c.opts %}
           <ul>
             {%- for o in c.opts %}<li{% if o.pendent %} class="tbd"{% endif %}>{{ o.n[L] }}</li>{% endfor %}
           </ul>
@@ -160,7 +160,7 @@
         {%- endif %}
         {%- if c.pdf %}
         <a class="eso-doc eso-doc--row" href="{{ c.pdf }}" target="_blank" rel="noopener">
-          <span>{{ e.curr.pdfLabel[L] }} {{ c.label[L] }} (PDF)</span>
+          <span>{{ c.pdfText[L] if c.pdfText else (e.curr.pdfLabel[L] ~ " " ~ c.label[L]) }} (PDF)</span>
           <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
         </a>
         {%- endif %}
@@ -176,8 +176,17 @@
           <li class="eso-path">
             <h4>{{ it.n[L] }}</h4>
             <p class="eso-path__ob"><span>{{ e.curr.obligatoria[L] }}</span>{{ it.obligatoria[L] }}</p>
-            <p class="eso-path__lbl">{{ e.curr.especifiques[L] }}</p>
-            <ul>{% for x in it.especifiques %}<li>{{ x[L] }}</li>{% endfor %}</ul>
+            <p class="eso-path__lbl">{{ e.curr.modalitat[L] }}</p>
+            <ul>{% for x in it.modalitat %}<li>{{ x[L] }}</li>{% endfor %}</ul>
+            {%- for f in it.franges %}
+            <p class="eso-path__lbl">{{ f.titol[L] }}</p>
+            {%- for g in f.grups %}
+            <div class="eso-path__grup">
+              {%- if f.grups | length > 1 %}<span class="eso-path__gt">{{ g.titol[L] }}</span>{% endif %}
+              <ul>{% for x in g.opts %}<li>{{ x[L] }}</li>{% endfor %}</ul>
+            </div>
+            {%- endfor %}
+            {%- endfor %}
           </li>
           {%- endfor %}
         </ul>

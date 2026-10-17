@@ -177,9 +177,9 @@
       "en": "Starting Batxillerat"
     },
     "text": {
-      "ca": "Acollim l’alumnat que comença el batxillerat, tant el que ve del nostre centre com el que s’hi incorpora de nou.",
-      "es": "Acogemos al alumnado que empieza el bachillerato, tanto el que viene de nuestro centro como el que se incorpora de nuevo.",
-      "en": "We welcome all students starting Batxillerat, both those coming from our own ESO and those joining us from other schools."
+      "ca": "Acollim l’alumnat que comença el batxillerat al centre.",
+      "es": "Acogemos al alumnado que empieza el bachillerato en el centro.",
+      "en": "We welcome students starting Batxillerat at our school."
     },
     "passos": [
       {
@@ -198,6 +198,23 @@
           "es": "Una jornada de acogida pensada para el alumnado nuevo de 1º de bachillerato.",
           "en": "A welcome day designed for students new to 1st-year Batxillerat."
         }
+      },
+      {
+        "quan": {
+          "ca": "El primer dia",
+          "es": "El primer día",
+          "en": "On the first day"
+        },
+        "titol": {
+          "ca": "Entrada esglaonada",
+          "es": "Entrada escalonada",
+          "en": "Staggered start"
+        },
+        "text": {
+          "ca": "El primer dia de curs, l’entrada dels grups es fa de manera esglaonada.",
+          "es": "El primer día de curso, la entrada de los grupos se hace de forma escalonada.",
+          "en": "On the first day, classes arrive at staggered times."
+        }
       }
     ]
   },
@@ -208,9 +225,9 @@
       "en": "Curriculum by level"
     },
     "sub": {
-      "ca": "Tria un nivell per veure’n les matèries comunes, les de modalitat i les optatives.",
-      "es": "Elige un nivel para ver sus materias comunes, de modalidad y optativas.",
-      "en": "Choose a level to see its core, strand and elective subjects."
+      "ca": "Tria un nivell per veure’n les matèries comunes i les de cada itinerari.",
+      "es": "Elige un nivel para ver sus materias comunes y las de cada itinerario.",
+      "en": "Choose a level to see its core subjects and the subjects in each pathway."
     },
     "tabsLabel": {
       "ca": "Nivells de Batxillerat",
@@ -228,14 +245,14 @@
       "en": "Hours/week"
     },
     "optatives": {
-      "ca": "Optatives",
-      "es": "Optativas",
-      "en": "Electives"
+      "ca": "Com es tria",
+      "es": "Cómo se elige",
+      "en": "How to choose"
     },
     "franjaTitol": {
-      "ca": "Optatives",
-      "es": "Optativas",
-      "en": "Electives"
+      "ca": "Com es tria",
+      "es": "Cómo se elige",
+      "en": "How to choose"
     },
     "cursos": [
       {
@@ -274,12 +291,18 @@
             "es": "Filosofía",
             "en": "Philosophy",
             "h": 2
+          },
+          {
+            "ca": "Tutoria",
+            "es": "Tutoría",
+            "en": "Form period",
+            "h": 1
           }
         ],
         "optText": {
-          "ca": "A més de les matèries comunes i les de modalitat, l’alumnat cursa 6 hores d’optatives.",
-          "es": "Además de las materias comunes y las de modalidad, el alumnado cursa 6 horas de optativas.",
-          "en": "In addition to core and strand subjects, students take 6 hours of electives."
+          "ca": "<strong>Franja 1:</strong> una matèria de 4 h, o bé dues de 2 h (una del grup A i una del grup B).<br><strong>Franja 2:</strong> una matèria de 2 h.<br>Les segones llengües estrangeres (alemany, francès i italià) s’ofereixen cada curs.",
+          "es": "<strong>Franja 1:</strong> una materia de 4 h, o bien dos de 2 h (una del grupo A y una del grupo B).<br><strong>Franja 2:</strong> una materia de 2 h.<br>Las segundas lenguas extranjeras (alemán, francés e italiano) se ofrecen cada curso.",
+          "en": "<strong>Block 1:</strong> one 4-hour subject, or two 2-hour subjects (one from group A and one from group B).<br><strong>Block 2:</strong> one 2-hour subject.<br>Second foreign languages (German, French and Italian) are offered every year."
         },
         "itineraris": [
           {
@@ -293,7 +316,7 @@
               "es": "Matemáticas I",
               "en": "Mathematics I"
             },
-            "especifiques": [
+            "modalitat": [
               {
                 "ca": "Física i Química",
                 "es": "Física y Química",
@@ -303,11 +326,117 @@
                 "ca": "Tecnologia i Enginyeria I",
                 "es": "Tecnología e Ingeniería I",
                 "en": "Technology and Engineering I"
+              }
+            ],
+            "franges": [
+              {
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria de 4 h",
+                      "es": "Una materia de 4 h",
+                      "en": "One 4-hour subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Dibuix Tècnic I",
+                        "es": "Dibujo Técnico I",
+                        "en": "Technical Drawing I"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "O bé dues de 2 h · A",
+                      "es": "O bien dos de 2 h · A",
+                      "en": "Or two 2-hour subjects · A"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Programació",
+                        "es": "Programación",
+                        "en": "Programming"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "i B",
+                      "es": "y B",
+                      "en": "and B"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Robòtica",
+                        "es": "Robótica",
+                        "en": "Robotics"
+                      },
+                      {
+                        "ca": "Ampliació de Química",
+                        "es": "Ampliación de Química",
+                        "en": "Further Chemistry"
+                      }
+                    ]
+                  }
+                ]
               },
               {
-                "ca": "Dibuix Tècnic I",
-                "es": "Dibujo Técnico I",
-                "en": "Technical Drawing I"
+                "titol": {
+                  "ca": "Franja 2 · 2 h",
+                  "es": "Franja 2 · 2 h",
+                  "en": "Block 2 · 2 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Ampliació de Geologia i Ciències Ambientals",
+                        "es": "Ampliación de Geología y Ciencias Ambientales",
+                        "en": "Further Geology and Environmental Science"
+                      },
+                      {
+                        "ca": "Ampliació de Física",
+                        "es": "Ampliación de Física",
+                        "en": "Further Physics"
+                      },
+                      {
+                        "ca": "Biomedicina",
+                        "es": "Biomedicina",
+                        "en": "Biomedicine"
+                      },
+                      {
+                        "ca": "Psicologia",
+                        "es": "Psicología",
+                        "en": "Psychology"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -322,7 +451,7 @@
               "es": "Matemáticas I",
               "en": "Mathematics I"
             },
-            "especifiques": [
+            "modalitat": [
               {
                 "ca": "Física i Química",
                 "es": "Física y Química",
@@ -332,6 +461,122 @@
                 "ca": "Biologia, Geologia i Ciències Ambientals",
                 "es": "Biología, Geología y Ciencias Ambientales",
                 "en": "Biology, Geology and Environmental Science"
+              }
+            ],
+            "franges": [
+              {
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria de 4 h",
+                      "es": "Una materia de 4 h",
+                      "en": "One 4-hour subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Dibuix Tècnic I",
+                        "es": "Dibujo Técnico I",
+                        "en": "Technical Drawing I"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "O bé dues de 2 h · A",
+                      "es": "O bien dos de 2 h · A",
+                      "en": "Or two 2-hour subjects · A"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Programació",
+                        "es": "Programación",
+                        "en": "Programming"
+                      },
+                      {
+                        "ca": "Ampliació de Biologia",
+                        "es": "Ampliación de Biología",
+                        "en": "Further Biology"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "i B",
+                      "es": "y B",
+                      "en": "and B"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Robòtica",
+                        "es": "Robótica",
+                        "en": "Robotics"
+                      },
+                      {
+                        "ca": "Ampliació de Química",
+                        "es": "Ampliación de Química",
+                        "en": "Further Chemistry"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "titol": {
+                  "ca": "Franja 2 · 2 h",
+                  "es": "Franja 2 · 2 h",
+                  "en": "Block 2 · 2 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Ampliació de Geologia i Ciències Ambientals",
+                        "es": "Ampliación de Geología y Ciencias Ambientales",
+                        "en": "Further Geology and Environmental Science"
+                      },
+                      {
+                        "ca": "Ampliació de Física",
+                        "es": "Ampliación de Física",
+                        "en": "Further Physics"
+                      },
+                      {
+                        "ca": "Biomedicina",
+                        "es": "Biomedicina",
+                        "en": "Biomedicine"
+                      },
+                      {
+                        "ca": "Psicologia",
+                        "es": "Psicología",
+                        "en": "Psychology"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -346,16 +591,127 @@
               "es": "Matemáticas Aplicadas a las Ciencias Sociales I",
               "en": "Mathematics for Social Sciences I"
             },
-            "especifiques": [
-              {
-                "ca": "Economia",
-                "es": "Economía",
-                "en": "Economics"
-              },
+            "modalitat": [
               {
                 "ca": "Història del Món Contemporani",
                 "es": "Historia del Mundo Contemporáneo",
                 "en": "Contemporary World History"
+              },
+              {
+                "ca": "Economia",
+                "es": "Economía",
+                "en": "Economics"
+              }
+            ],
+            "franges": [
+              {
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria de 4 h",
+                      "es": "Una materia de 4 h",
+                      "en": "One 4-hour subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Literatura Universal",
+                        "es": "Literatura Universal",
+                        "en": "World Literature"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "O bé dues de 2 h · A",
+                      "es": "O bien dos de 2 h · A",
+                      "en": "Or two 2-hour subjects · A"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Funcionament de l’Empresa",
+                        "es": "Funcionamiento de la Empresa",
+                        "en": "How Businesses Work"
+                      },
+                      {
+                        "ca": "Problemàtiques Socials",
+                        "es": "Problemáticas Sociales",
+                        "en": "Social Issues"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "i B",
+                      "es": "y B",
+                      "en": "and B"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Ciutadania, Política i Dret",
+                        "es": "Ciudadanía, Política y Derecho",
+                        "en": "Citizenship, Politics and Law"
+                      },
+                      {
+                        "ca": "Formació i Orientació Personal i Professional",
+                        "es": "Formación y Orientación Personal y Profesional",
+                        "en": "Personal and Career Guidance"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "titol": {
+                  "ca": "Franja 2 · 2 h",
+                  "es": "Franja 2 · 2 h",
+                  "en": "Block 2 · 2 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Creació Literària",
+                        "es": "Creación Literaria",
+                        "en": "Creative Writing"
+                      },
+                      {
+                        "ca": "Món Clàssic",
+                        "es": "Mundo Clásico",
+                        "en": "The Classical World"
+                      },
+                      {
+                        "ca": "Psicologia",
+                        "es": "Psicología",
+                        "en": "Psychology"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -370,110 +726,141 @@
               "es": "Latín I",
               "en": "Latin I"
             },
-            "especifiques": [
-              {
-                "ca": "Grec I",
-                "es": "Griego I",
-                "en": "Greek I"
-              },
+            "modalitat": [
               {
                 "ca": "Història del Món Contemporani",
                 "es": "Historia del Mundo Contemporáneo",
                 "en": "Contemporary World History"
+              },
+              {
+                "ca": "Grec I",
+                "es": "Griego I",
+                "en": "Greek I"
+              }
+            ],
+            "franges": [
+              {
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria de 4 h",
+                      "es": "Una materia de 4 h",
+                      "en": "One 4-hour subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Literatura Universal",
+                        "es": "Literatura Universal",
+                        "en": "World Literature"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "O bé dues de 2 h · A",
+                      "es": "O bien dos de 2 h · A",
+                      "en": "Or two 2-hour subjects · A"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Funcionament de l’Empresa",
+                        "es": "Funcionamiento de la Empresa",
+                        "en": "How Businesses Work"
+                      },
+                      {
+                        "ca": "Problemàtiques Socials",
+                        "es": "Problemáticas Sociales",
+                        "en": "Social Issues"
+                      }
+                    ]
+                  },
+                  {
+                    "titol": {
+                      "ca": "i B",
+                      "es": "y B",
+                      "en": "and B"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Ciutadania, Política i Dret",
+                        "es": "Ciudadanía, Política y Derecho",
+                        "en": "Citizenship, Politics and Law"
+                      },
+                      {
+                        "ca": "Formació i Orientació Personal i Professional",
+                        "es": "Formación y Orientación Personal y Profesional",
+                        "en": "Personal and Career Guidance"
+                      }
+                    ]
+                  }
+                ]
+              },
+              {
+                "titol": {
+                  "ca": "Franja 2 · 2 h",
+                  "es": "Franja 2 · 2 h",
+                  "en": "Block 2 · 2 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Creació Literària",
+                        "es": "Creación Literaria",
+                        "en": "Creative Writing"
+                      },
+                      {
+                        "ca": "Món Clàssic",
+                        "es": "Mundo Clásico",
+                        "en": "The Classical World"
+                      },
+                      {
+                        "ca": "Psicologia",
+                        "es": "Psicología",
+                        "en": "Psychology"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
         ],
-        "opts": [
-          {
-            "n": {
-              "ca": "Programació",
-              "es": "Programación",
-              "en": "Programming"
-            }
-          },
-          {
-            "n": {
-              "ca": "Ampliació de Biologia",
-              "es": "Ampliación de Biología",
-              "en": "Further Biology"
-            }
-          },
-          {
-            "n": {
-              "ca": "Ampliació de Química",
-              "es": "Ampliación de Química",
-              "en": "Further Chemistry"
-            }
-          },
-          {
-            "n": {
-              "ca": "Ampliació de Física",
-              "es": "Ampliación de Física",
-              "en": "Further Physics"
-            }
-          },
-          {
-            "n": {
-              "ca": "Psicologia",
-              "es": "Psicología",
-              "en": "Psychology"
-            }
-          },
-          {
-            "n": {
-              "ca": "Problemàtiques socials",
-              "es": "Problemáticas sociales",
-              "en": "Social issues"
-            }
-          },
-          {
-            "n": {
-              "ca": "Funcionament de l’empresa",
-              "es": "Funcionamiento de la empresa",
-              "en": "How businesses work"
-            }
-          },
-          {
-            "n": {
-              "ca": "Ciutadania, política i dret",
-              "es": "Ciudadanía, política y derecho",
-              "en": "Citizenship, politics and law"
-            }
-          },
-          {
-            "n": {
-              "ca": "Formació i orientació personal i professional",
-              "es": "Formación y orientación personal y profesional",
-              "en": "Personal and career guidance"
-            }
-          },
-          {
-            "n": {
-              "ca": "Món clàssic",
-              "es": "Mundo clásico",
-              "en": "The classical world"
-            }
-          },
-          {
-            "n": {
-              "ca": "Alemany",
-              "es": "Alemán",
-              "en": "German"
-            }
-          },
-          {
-            "n": {
-              "ca": "Italià",
-              "es": "Italiano",
-              "en": "Italian"
-            }
-          }
-        ],
         "itinerarisText": {
-          "ca": "Cada itinerari té una matèria de modalitat obligatòria i matèries de modalitat específiques, de 4 hores setmanals cadascuna.",
-          "es": "Cada itinerario tiene una materia de modalidad obligatoria y materias de modalidad específicas, de 4 horas semanales cada una.",
-          "en": "Each pathway has one compulsory strand subject and specific strand subjects, 4 hours a week each."
+          "ca": "Cada itinerari té una matèria obligatòria i dues de modalitat, de 4 hores setmanals cadascuna, i les franges d’opció.",
+          "es": "Cada itinerario tiene una materia obligatoria y dos de modalidad, de 4 horas semanales cada una, y las franjas de opción.",
+          "en": "Each pathway has one compulsory subject and two strand subjects, 4 hours a week each, plus the option blocks."
+        },
+        "pdf": "/assets/docs/batxillerat/optatives-1r-batxillerat.pdf",
+        "pdfText": {
+          "ca": "Descripció d’optatives de 1r de Batxillerat",
+          "es": "Descripción de optativas de 1º de Bachillerato",
+          "en": "Elective descriptions, 1st Batxillerat"
         }
       },
       {
@@ -512,12 +899,18 @@
             "es": "Historia",
             "en": "History",
             "h": 3
+          },
+          {
+            "ca": "Tutoria",
+            "es": "Tutoría",
+            "en": "Form period",
+            "h": 1
           }
         ],
         "optText": {
-          "ca": "A 2n, l’alumnat cursa 4 hores d’optatives, entre les quals hi ha la segona llengua estrangera.",
-          "es": "En 2º, el alumnado cursa 4 horas de optativas, entre ellas la segunda lengua extranjera.",
-          "en": "In 2nd year, students take 4 hours of electives, including the second foreign language."
+          "ca": "<strong>Franja 1:</strong> una matèria de 4 h, entre les quals hi ha la segona llengua estrangera (alemany, francès o italià).",
+          "es": "<strong>Franja 1:</strong> una materia de 4 h, entre ellas la segunda lengua extranjera (alemán, francés o italiano).",
+          "en": "<strong>Block 1:</strong> one 4-hour subject, including the second foreign language option (German, French or Italian)."
         },
         "itineraris": [
           {
@@ -531,7 +924,7 @@
               "es": "Matemáticas II",
               "en": "Mathematics II"
             },
-            "especifiques": [
+            "modalitat": [
               {
                 "ca": "Física",
                 "es": "Física",
@@ -541,11 +934,56 @@
                 "ca": "Tecnologia i Enginyeria II",
                 "es": "Tecnología e Ingeniería II",
                 "en": "Technology and Engineering II"
-              },
+              }
+            ],
+            "franges": [
               {
-                "ca": "Dibuix Tècnic II",
-                "es": "Dibujo Técnico II",
-                "en": "Technical Drawing II"
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Dibuix Tècnic II",
+                        "es": "Dibujo Técnico II",
+                        "en": "Technical Drawing II"
+                      },
+                      {
+                        "ca": "Geologia i Ciències Ambientals",
+                        "es": "Geología y Ciencias Ambientales",
+                        "en": "Geology and Environmental Science"
+                      },
+                      {
+                        "ca": "Química",
+                        "es": "Química",
+                        "en": "Chemistry"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -560,7 +998,7 @@
               "es": "Matemáticas II",
               "en": "Mathematics II"
             },
-            "especifiques": [
+            "modalitat": [
               {
                 "ca": "Biologia",
                 "es": "Biología",
@@ -570,16 +1008,51 @@
                 "ca": "Química",
                 "es": "Química",
                 "en": "Chemistry"
-              },
+              }
+            ],
+            "franges": [
               {
-                "ca": "Física",
-                "es": "Física",
-                "en": "Physics"
-              },
-              {
-                "ca": "Geologia i Ciències Ambientals",
-                "es": "Geología y Ciencias Ambientales",
-                "en": "Geology and Environmental Science"
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Física",
+                        "es": "Física",
+                        "en": "Physics"
+                      },
+                      {
+                        "ca": "Geologia i Ciències Ambientals",
+                        "es": "Geología y Ciencias Ambientales",
+                        "en": "Geology and Environmental Science"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -594,7 +1067,7 @@
               "es": "Matemáticas Aplicadas a las Ciencias Sociales II",
               "en": "Mathematics for Social Sciences II"
             },
-            "especifiques": [
+            "modalitat": [
               {
                 "ca": "Empresa i Disseny de Models de Negoci",
                 "es": "Empresa y Diseño de Modelos de Negocio",
@@ -604,11 +1077,51 @@
                 "ca": "Geografia",
                 "es": "Geografía",
                 "en": "Geography"
-              },
+              }
+            ],
+            "franges": [
               {
-                "ca": "Història de l’Art",
-                "es": "Historia del Arte",
-                "en": "History of Art"
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Història de l’Art",
+                        "es": "Historia del Arte",
+                        "en": "History of Art"
+                      },
+                      {
+                        "ca": "Literatura Castellana",
+                        "es": "Literatura Castellana",
+                        "en": "Spanish Literature"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           },
@@ -623,57 +1136,69 @@
               "es": "Latín II",
               "en": "Latin II"
             },
-            "especifiques": [
-              {
-                "ca": "Grec II",
-                "es": "Griego II",
-                "en": "Greek II"
-              },
+            "modalitat": [
               {
                 "ca": "Literatura Catalana",
                 "es": "Literatura Catalana",
                 "en": "Catalan Literature"
               },
               {
-                "ca": "Literatura Castellana",
-                "es": "Literatura Castellana",
-                "en": "Spanish Literature"
-              },
+                "ca": "Grec II",
+                "es": "Griego II",
+                "en": "Greek II"
+              }
+            ],
+            "franges": [
               {
-                "ca": "Història de l’Art",
-                "es": "Historia del Arte",
-                "en": "History of Art"
+                "titol": {
+                  "ca": "Franja 1 · 4 h",
+                  "es": "Franja 1 · 4 h",
+                  "en": "Block 1 · 4 h"
+                },
+                "grups": [
+                  {
+                    "titol": {
+                      "ca": "Una matèria",
+                      "es": "Una materia",
+                      "en": "One subject"
+                    },
+                    "opts": [
+                      {
+                        "ca": "Història de l’Art",
+                        "es": "Historia del Arte",
+                        "en": "History of Art"
+                      },
+                      {
+                        "ca": "Literatura Castellana",
+                        "es": "Literatura Castellana",
+                        "en": "Spanish Literature"
+                      },
+                      {
+                        "ca": "Alemany",
+                        "es": "Alemán",
+                        "en": "German"
+                      },
+                      {
+                        "ca": "Francès",
+                        "es": "Francés",
+                        "en": "French"
+                      },
+                      {
+                        "ca": "Italià",
+                        "es": "Italiano",
+                        "en": "Italian"
+                      }
+                    ]
+                  }
+                ]
               }
             ]
           }
         ],
-        "opts": [
-          {
-            "n": {
-              "ca": "Alemany",
-              "es": "Alemán",
-              "en": "German"
-            }
-          },
-          {
-            "n": {
-              "ca": "Francès",
-              "es": "Francés",
-              "en": "French"
-            }
-          },
-          {
-            "n": {
-              "ca": "Italià",
-              "es": "Italiano",
-              "en": "Italian"
-            }
-          }
-        ],
         "itinerarisText": {
-          "ca": "L’alumnat continua l’itinerari de 1r, amb una matèria de modalitat obligatòria i matèries de modalitat específiques.",
-          "es": "El alumnado continúa el itinerario de 1º, con una materia de modalidad obligatoria y materias de modalidad específicas.",
-          "en": "Students continue their 1st-year pathway, with one compulsory strand subject and specific strand subjects."
+          "ca": "L’alumnat continua l’itinerari de 1r: una matèria obligatòria, dues de modalitat i una matèria de la franja 1.",
+          "es": "El alumnado continúa el itinerario de 1º: una materia obligatoria, dos de modalidad y una materia de la franja 1.",
+          "en": "Students continue their 1st-year pathway: one compulsory subject, two strand subjects and one subject from block 1."
         }
       }
     ],
@@ -687,10 +1212,10 @@
       "es": "obligatoria",
       "en": "compulsory"
     },
-    "especifiques": {
-      "ca": "Matèries específiques",
-      "es": "Materias específicas",
-      "en": "Specific subjects"
+    "modalitat": {
+      "ca": "Modalitat",
+      "es": "Modalidad",
+      "en": "Strand subjects"
     }
   },
   "qual": {
@@ -1197,6 +1722,23 @@
       "ca": "Llibres de text, lectures i materials per nivell",
       "es": "Libros de texto, lecturas y materiales por nivel (en catalán)",
       "en": "Textbooks, readers and materials by level (in Catalan)"
+    }
+  },
+  "cta": {
+    "titol": {
+      "ca": "Tens dubtes sobre el Batxillerat al Joan Miró?",
+      "es": "¿Tienes dudas sobre el Bachillerato en el Joan Miró?",
+      "en": "Questions about Batxillerat at Joan Miró?"
+    },
+    "text": {
+      "ca": "Escriu-nos i et respondrem.",
+      "es": "Escríbenos y te responderemos.",
+      "en": "Write to us and we’ll get back to you."
+    },
+    "boto": {
+      "ca": "Contacta",
+      "es": "Contacta",
+      "en": "Contact us"
     }
   }
 }

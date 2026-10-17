@@ -4,7 +4,8 @@
 
 Crea:
   src/assets/docs/secretaria/sollicitud-certificat-c1-catala.pdf  (formulari emplenable)
-  src/assets/docs/eso/materies-1r-eso.pdf … materies-4t-eso.pdf      (descripció de les matèries)
+  src/assets/docs/eso/optatives-{1r,2n,3r}-eso.pdf i materies-opcio-4t-eso.pdf
+  src/assets/docs/batxillerat/optatives-1r-batxillerat.pdf
 
 Requereix: pip install reportlab
 """
@@ -93,7 +94,7 @@ def certificat_c1():
 
 
 # =====================================================================
-# Descripció de les matèries d'ESO, un PDF per nivell
+# Optatives (1r-3r) i matèries d'opció (4t) d'ESO, un PDF per nivell
 # (textos a lib/formularis/materies_eso.py)
 # =====================================================================
 def materies_eso():
@@ -103,7 +104,7 @@ def materies_eso():
     gap = 10
     colw = (FW - gap) / 2
     for niv, dades in NIVELLS.items():
-        d = Doc(os.path.join(OUT_ESO, f"materies-{niv}-eso.pdf"), f"{dades['titol']} · Institut Joan Miró")
+        d = Doc(os.path.join(OUT_ESO, dades["fitxer"]), f"{dades['titol']} · Institut Joan Miró")
         nota = f"Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de {niv} d'ESO."
         y = d.header("Estudis · ESO", dades["titol"])
         y = d.para(MX, y + 6, FW, dades["intro"], size=9.5, leading=14.5) - 16
@@ -152,7 +153,43 @@ def draw_card(d, x, y, w, h, nom, tag, txt):
     d.para(x + 14, y - 42, w - 28, txt, size=8.5, leading=12.5)
 
 
+
+# =====================================================================
+# Optatives de 1r de Batxillerat (descripció)
+# =====================================================================
+OUT_BAT = os.path.join(ROOT, "src", "assets", "docs", "batxillerat")
+OPTATIVES_BAT = [
+    ("Programació", "Franja 1 · 2 h", "Fonaments de la programació: algorismes, estructures de control, funcions i dades, amb un llenguatge actual (Python). L'alumnat resol problemes i desenvolupa petits projectes, com aplicacions senzilles o programes per a dispositius físics."),
+    ("Psicologia", "Franja 2 · 2 h", "Introducció a l'estudi científic de la conducta i dels processos mentals: el cervell, la percepció, la memòria, l'aprenentatge, la motivació, les emocions, la personalitat i les relacions socials. Ajuda a conèixer-se millor i a entendre els altres."),
+    ("Problemàtiques socials", "Franja 1 · 2 h", "Anàlisi dels grans reptes de la societat actual (desigualtats, pobresa, migracions, gènere, medi ambient, conflictes) a partir de dades i fonts diverses, per formar una mirada crítica i plantejar propostes de millora."),
+    ("Funcionament de l'empresa", "Franja 1 · 2 h", "Què és una empresa i com s'organitza: àrees funcionals, producció, màrqueting, recursos humans, comptabilitat bàsica i finançament. Es treballa a partir de casos reals i de la creació d'un petit projecte empresarial."),
+    ("Ciutadania, política i dret", "Franja 1 · 2 h", "Els fonaments de la vida democràtica: l'Estat i les institucions, la Constitució i l'Estatut, els drets i deures, el sistema judicial i la participació ciutadana. Es treballa amb casos d'actualitat i debats."),
+    ("Formació i orientació personal i professional", "Franja 1 · 2 h", "Autoconeixement, presa de decisions i planificació de l'itinerari formatiu i professional: estudis universitaris i de formació professional, món laboral, cerca de feina i competències per a l'ocupació."),
+    ("Món clàssic", "Franja 2 · 2 h", "Aproximació a la cultura de Grècia i Roma: història, mitologia, art, literatura, pensament i vida quotidiana, i el seu llegat en la llengua, les institucions i la cultura actuals."),
+]
+
+
+def optatives_batxillerat():
+    os.makedirs(OUT_BAT, exist_ok=True)
+    d = Doc(os.path.join(OUT_BAT, "optatives-1r-batxillerat.pdf"), "Optatives de 1r de Batxillerat · Institut Joan Miró")
+    FW = W - 2 * MX
+    gap = 10
+    colw = (FW - gap) / 2
+    y = d.header("Estudis · Batxillerat", "Optatives de 1r de Batxillerat")
+    y = d.para(MX, y + 6, FW, "Descripció d'algunes de les matèries optatives de 1r de batxillerat. A la franja 1 es pot triar una matèria de 4 hores o dues de 2 hores (una del grup A i una del grup B); a la franja 2, una matèria de 2 hores.", size=9.5, leading=14.5) - 16
+    items = OPTATIVES_BAT
+    for r in range(0, len(items), 2):
+        pair = items[r:r + 2]
+        cw = colw if len(pair) == 2 else FW
+        h = max(card_height(d, cw, t) for _, _, t in pair)
+        for k, (nom, tag, txt) in enumerate(pair):
+            draw_card(d, MX + k * (colw + gap), y, cw, h, nom, tag, txt)
+        y -= h + gap
+    d.footer("Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de batxillerat.")
+    d.save()
+
 if __name__ == "__main__":
     certificat_c1()
     materies_eso()
+    optatives_batxillerat()
     print("PDF generats.")

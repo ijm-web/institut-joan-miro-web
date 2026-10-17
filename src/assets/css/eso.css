@@ -520,3 +520,6 @@ a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px r
 .eso-path li::marker{ color: var(--color-orange); }
 .eso-guide--3{ grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 1000px){ .eso-guide--3{ grid-template-columns: minmax(0, 1fr); } }
+.eso-path__grup{ display: flex; flex-direction: column; gap: 2px; }
+.eso-path__gt{ font-size: 12px; font-weight: 600; color: #5A6070; }
+.eso-path__grup + .eso-path__grup{ margin-top: 4px; }
