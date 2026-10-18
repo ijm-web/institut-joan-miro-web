@@ -26,7 +26,7 @@ export default async (req) => {
     }
     const r = await cridaFull('loginEmail', { email });
     if (!r.ok) return json({ ok: false, error: r.error || 'sense_acces', email }, 403);
-    return json({ ok: true, email }, 200, { 'Set-Cookie': galeta(creaToken(email)) });
+    return json({ ok: true, email }, 200, { 'Set-Cookie': galeta(creaToken(email, r.departaments || [], r.admin)) });
   } catch (err) {
     console.error('[programacions-login]', err.message);
     return json({ ok: false, error: 'error_servidor' }, 500);

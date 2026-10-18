@@ -523,3 +523,41 @@ a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px r
 .eso-path__grup{ display: flex; flex-direction: column; gap: 2px; }
 .eso-path__gt{ font-size: 12px; font-weight: 600; color: #5A6070; }
 .eso-path__grup + .eso-path__grup{ margin-top: 4px; }
+
+/* ---------- Itineraris de Batxillerat en taula (files = tipologia, columnes = itinerari) ---------- */
+.eso-paths{ min-width: 0; max-width: 100%; box-sizing: border-box; }
+.eso-ptable__wrap{ overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #E6EBF2; border-radius: var(--radius-btn); }
+.eso-ptable__wrap:focus-visible{ outline: 2px solid var(--color-blue); outline-offset: 2px; }
+.eso-ptable{ width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; line-height: 1.55; table-layout: fixed; }
+.eso-ptable th, .eso-ptable td{ padding: 12px 14px; border-top: 1px solid #E6EBF2; border-left: 1px solid #E6EBF2; text-align: left; vertical-align: top; }
+.eso-ptable thead th{ border-top: 0; background: var(--color-blue); color: #fff; font-size: 15px; font-weight: 600; }
+.eso-ptable thead th.eso-ptable__corner{ background: #F2F3FA; color: #5A6070; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; vertical-align: bottom; }
+.eso-ptable tr > :first-child{ border-left: 0; }
+.eso-ptable tbody th{ width: 150px; background: #FAFAFD; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-orange); }
+.eso-ptable thead th:first-child{ width: 150px; }
+.eso-ptable tbody tr:nth-child(2) td{ background: #FAFAFD; }
+.eso-ptable td strong{ font-weight: 600; color: var(--color-text); }
+.eso-ptable ul{ margin: 0; padding-left: 1.05em; }
+.eso-ptable li::marker{ color: var(--color-orange); }
+.eso-ptable__grup + .eso-ptable__grup{ margin-top: 8px; padding-top: 8px; border-top: 1px dashed #E0E3EC; }
+.eso-ptable__gt{ display: block; font-size: 12px; font-weight: 600; color: #5A6070; margin-bottom: 2px; }
+
+/* ---------- Orientació plegable ---------- */
+.eso-guide-toggle{ margin-top: 48px; }
+.eso-guide-toggle__btn{
+  width: 100%; display: flex; align-items: center; gap: 16px; padding: 20px clamp(18px, 3vw, 28px); cursor: pointer; text-align: left;
+  background: #fff; border: 1px solid #E6EBF2; border-left: 4px solid var(--color-orange); border-radius: var(--radius-card);
+  font: inherit; color: var(--color-text); transition: box-shadow .2s ease, border-color .2s ease; scroll-margin-top: 110px;
+}
+.eso-guide-toggle__btn:hover, .eso-guide-toggle__btn:focus-visible{ box-shadow: 0 6px 22px rgba(28, 12, 188, .08); }
+.eso-guide-toggle__txt{ flex: 1 1 auto; display: flex; flex-direction: column; gap: 4px; }
+.eso-guide-toggle__titol{ font-size: 20px; font-weight: 300; color: var(--color-blue); }
+.eso-guide-toggle__accio{ flex: 0 0 auto; font-size: 14px; font-weight: 600; color: var(--color-blue); }
+.eso-guide-toggle__btn:hover .eso-guide-toggle__accio{ color: var(--color-orange); }
+.eso-guide-toggle__chev{ flex: 0 0 auto; color: var(--color-blue); transition: transform .2s ease; }
+.eso-guide-toggle__btn[aria-expanded="true"] .eso-guide-toggle__chev{ transform: rotate(180deg); }
+.eso-guide-toggle__btn[aria-expanded="true"]{ border-bottom-left-radius: 0; border-bottom-right-radius: 0; }
+.eso-guide-toggle .eso-guide{ margin-top: 0; border-top-left-radius: 0; border-top-right-radius: 0; border-top: 0; border-left: 4px solid var(--color-orange); }
+.eso-guide[hidden]{ display: none !important; }
+.eso-guide-toggle .eso-guide__intro > .eso-guide__tag, .eso-guide-toggle .eso-guide__intro > h3{ display: none; }
+@media (max-width: 600px){ .eso-guide-toggle__accio{ display: none; } }

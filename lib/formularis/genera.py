@@ -6,6 +6,7 @@ Crea:
   src/assets/docs/secretaria/sollicitud-certificat-c1-catala.pdf  (formulari emplenable)
   src/assets/docs/eso/optatives-{1r,2n,3r}-eso.pdf i materies-opcio-4t-eso.pdf
   src/assets/docs/batxillerat/optatives-1r-batxillerat.pdf
+  src/assets/docs/batxillerat/materies-2n-batxillerat.pdf
 
 Requereix: pip install reportlab
 """
@@ -188,8 +189,48 @@ def optatives_batxillerat():
     d.footer("Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de batxillerat.")
     d.save()
 
+# =====================================================================
+# Matèries de 2n de Batxillerat (descripció)
+# =====================================================================
+MATERIES_BAT2 = [
+    ("Empresa i Disseny de Models de Negoci", "Itinerari social · modalitat · 4 h",
+     "L'empresa com a motor de l'economia i la seva relació amb l'entorn: tipus d'empreses, forma jurídica, "
+     "estratègia i creixement, internacionalització i responsabilitat social i ambiental. L'alumnat aprèn a "
+     "<b>dissenyar i validar models de negoci</b> amb eines actuals (llenç de model de negoci, proposta de valor, "
+     "prototipatge i validació amb clients) i a gestionar les àrees funcionals: producció i costos, màrqueting, "
+     "recursos humans i finançament i inversió. Inclou l'anàlisi del patrimoni, dels comptes anuals i de ràtios "
+     "econòmiques i financeres per prendre decisions. Es treballa amb casos reals i amb un projecte de model de "
+     "negoci propi. És matèria de les PAU i dona una bona base per a estudis d'economia, empresa, dret, turisme o màrqueting."),
+    ("Història de l'Art", "Franja 1 · itinerari social i humanístic · 4 h",
+     "Recorregut per l'evolució de les arts visuals (arquitectura, escultura, pintura i, a l'època contemporània, "
+     "fotografia, cinema i noves formes d'expressió) des de l'antiguitat clàssica fins a l'actualitat. L'alumnat aprèn "
+     "a <b>llegir i comentar obres d'art</b>: el llenguatge formal, la iconografia i la funció, i la relació de l'obra amb "
+     "el seu context històric, social i cultural, amb una atenció especial a l'art i al patrimoni de Catalunya. "
+     "També es reflexiona sobre la conservació del patrimoni, el paper de les dones en la història de l'art i el "
+     "mercat i els museus. Inclou sortides i treball amb fonts diverses. És matèria de les PAU i és recomanable per a "
+     "estudis d'història de l'art, arqueologia, humanitats, arquitectura, belles arts, disseny o turisme."),
+]
+
+
+def materies_batxillerat_2n():
+    os.makedirs(OUT_BAT, exist_ok=True)
+    d = Doc(os.path.join(OUT_BAT, "materies-2n-batxillerat.pdf"), "Matèries de 2n de Batxillerat · Institut Joan Miró")
+    FW = W - 2 * MX
+    y = d.header("Estudis · Batxillerat", "Matèries de 2n de Batxillerat")
+    y = d.para(MX, y + 6, FW, "Descripció de dues matèries de 2n de batxillerat: Empresa i Disseny de Models de Negoci "
+               "(matèria de modalitat de l'itinerari social) i Història de l'Art (franja 1 dels itineraris social i humanístic).",
+               size=9.5, leading=14.5) - 16
+    for nom, tag, txt in MATERIES_BAT2:
+        h = card_height(d, FW, txt)
+        draw_card(d, MX, y, FW, h, nom, tag, txt)
+        y -= h + 12
+    d.footer("Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de batxillerat.")
+    d.save()
+
+
 if __name__ == "__main__":
     certificat_c1()
     materies_eso()
     optatives_batxillerat()
+    materies_batxillerat_2n()
     print("PDF generats.")

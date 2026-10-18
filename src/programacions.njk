@@ -8,10 +8,11 @@ noindex: true
 eleventyExcludeFromCollections: true
 extraCss: /assets/css/programacions.css
 ---
-{#- Àrea privada del professorat. Aquesta pàgina només conté el formulari d'entrada:
-    el contingut el dona la funció /api/programacions/contingut si la sessió és vàlida.
-    Accés: compte @institutjoanmiro.cat que consti a la pestanya «departaments» del full de dades.
-    Funcions: netlify/functions/programacions-*.mjs · Variables: vegeu LEGIR_PROGRAMACIONS.md -#}
+{#- Àrea privada del professorat. Aquesta pàgina no conté cap dada: tot ho serveixen les funcions
+    /api/programacions/* i només si la sessió és vàlida.
+    Accés: compte @institutjoanmiro.cat que consti a la pestanya «departaments» de joanmiro_db.
+    Apartats: Gestió Criteris de Qualificació (dades a programacions_db).
+    Funcions: netlify/functions/programacions-*.mjs · Script: /assets/js/programacions.js · Vegeu LEGIR_PROGRAMACIONS.md -#}
 <div class="qs-hero" id="qsHero">
   <img src="/assets/img/inici/inici-3-vestibul-2400.jpg" srcset="/assets/img/inici/inici-3-vestibul-1600.jpg 1600w, /assets/img/inici/inici-3-vestibul-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
   <div class="qs-hero__box">
@@ -19,9 +20,8 @@ extraCss: /assets/css/programacions.css
   </div>
 </div>
 
-<section class="uc prog">
+<section class="uc prog" id="progAcces">
   <div class="uc__inner">
-
     <div class="prog-card" id="progLogin" hidden>
       <svg class="prog-card__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.5"/></svg>
       <p class="uc__kicker">Àrea privada</p>
@@ -30,79 +30,78 @@ extraCss: /assets/css/programacions.css
       <div id="progGoogle" class="prog-card__btn"></div>
       <p class="prog-msg" id="progMsg" role="alert" hidden></p>
     </div>
-
-    <div id="progContingut" hidden></div>
-    <div class="prog-user" id="progUser" hidden>
-      <span id="progEmail"></span>
-      <button type="button" class="btn btn--secondary" id="progSortir">Surt</button>
-    </div>
-
     <p class="uc__text" id="progCarregant">Comprovant l’accés…</p>
   </div>
 </section>
 
-{% raw %}
-<script>
-(function(){
-  var $ = function(id){ return document.getElementById(id); };
-  var MISSATGES = {
-    domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
-    email_sense_departament: 'Aquest compte no té accés a les programacions. Si creieu que és un error, parleu amb la coordinació pedagògica.',
-    sense_acces: 'Aquest compte no té accés a les programacions.',
-    acces_google_desactivat: 'L’accés amb Google està desactivat temporalment.',
-    google_token_invalid: 'No s’ha pogut validar l’inici de sessió amb Google. Torneu-ho a provar.',
-    google_no_configurat: 'L’accés encara no està configurat.',
-    error_servidor: 'Hi ha hagut un error. Torneu-ho a provar d’aquí a una estona.'
-  };
-  function missatge(codi){ var m = $('progMsg'); m.textContent = MISSATGES[codi] || MISSATGES.error_servidor; m.hidden = false; }
+<section class="prog prog-app" id="progApp" hidden>
+  <div class="prog-app__inner">
+    <div class="prog-bar">
+      <nav class="prog-crumbs" aria-label="Ruta">
+        <a href="#" id="progCrumbInici">Programacions</a>
+        <span id="progCrumbCrit" hidden><span aria-hidden="true">›</span> <a href="#criteris">Gestió Criteris de Qualificació</a></span>
+        <span id="progCrumbMat" hidden><span aria-hidden="true">›</span> <span id="progCrumbMatNom"></span></span>
+      </nav>
+      <div class="prog-user">
+        <span id="progEmail"></span>
+        <button type="button" class="prog-btn prog-btn--ghost" id="progSortir">Surt</button>
+      </div>
+    </div>
 
-  function mostraContingut(d){
-    $('progCarregant').hidden = true;
-    $('progLogin').hidden = true;
-    $('progContingut').innerHTML = d.html;
-    $('progContingut').hidden = false;
-    $('progEmail').textContent = d.email;
-    $('progUser').hidden = false;
-  }
+    {#- ===== Portada ===== #}
+    <div id="vistaInici" class="prog-vista" hidden>
+      <header class="prog-head">
+        <p class="prog-kicker">Àrea privada del professorat</p>
+        <h2 class="prog-title">PROGRAMACIONS</h2>
+        <p class="prog-lead">Eines per gestionar les programacions de centre. De moment hi ha disponible la gestió dels criteris de qualificació de les matèries.</p>
+      </header>
+      <div class="prog-apartats">
+        <a class="prog-apartat" href="#criteris">
+          <svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="6" width="30" height="36" rx="3"/><path d="M17 6v4h14V6"/><path d="M16 20h4M16 28h4M16 36h4"/><path d="M24 20h8M24 28h8M24 36h5"/><path class="prog-apartat__acc" d="M33 33l3 3 6-7"/></svg>
+          <span class="prog-apartat__tag">Disponible</span>
+          <span class="prog-apartat__nom">Gestió Criteris de Qualificació</span>
+          <span class="prog-apartat__txt">Activitats avaluatives, percentatges i competències de cada trimestre, competències específiques, criteri per aprovar, recuperació i observacions de les matèries del vostre departament. Consulta i informes.</span>
+          <span class="prog-apartat__cta">Obre <span aria-hidden="true">→</span></span>
+        </a>
+        <div class="prog-apartat prog-apartat--aviat" aria-disabled="true">
+          <svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h20l8 8v24a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/><path d="M30 8v8h8"/><path d="M16 26h16M16 33h10"/></svg>
+          <span class="prog-apartat__tag">Properament</span>
+          <span class="prog-apartat__nom">Altres apartats de les programacions</span>
+          <span class="prog-apartat__txt">Més endavant s’hi afegiran els apartats per gestionar completament les programacions de centre.</span>
+        </div>
+      </div>
+    </div>
 
-  function mostraLogin(){
-    $('progCarregant').hidden = true;
-    $('progLogin').hidden = false;
-    fetch('/api/programacions/config').then(function(r){ return r.json(); }).then(function(c){
-      if (!c.ok || !c.google_client_id){ missatge('google_no_configurat'); return; }
-      var s = document.createElement('script');
-      s.src = 'https://accounts.google.com/gsi/client'; s.async = true;
-      s.onload = function(){
-        google.accounts.id.initialize({ client_id: c.google_client_id, callback: entra, hd: c.domini, ux_mode: 'popup' });
-        google.accounts.id.renderButton($('progGoogle'), { theme: 'outline', size: 'large', text: 'signin_with', locale: 'ca' });
-      };
-      document.head.appendChild(s);
-    }).catch(function(){ missatge('error_servidor'); });
-  }
+    {#- ===== Gestió Criteris de Qualificació ===== #}
+    <div id="vistaCriteris" class="prog-vista" hidden>
+      <header class="prog-head prog-head--row">
+        <div>
+          <p class="prog-kicker">Programacions</p>
+          <h2 class="prog-title prog-title--sm">Gestió Criteris de Qualificació</h2>
+        </div>
+        <div class="prog-filtres">
+          <label>Curs <select id="selCurs"></select></label>
+          <label id="lblDep">Departament <select id="selDep"></select></label>
+        </div>
+      </header>
+      <p class="prog-avis" id="critMissatge" hidden></p>
+      <p class="prog-avis prog-avis--info" id="critLectura" hidden></p>
+      <div id="critLlista"></div>
+      <div id="critEditor" hidden></div>
+    </div>
 
-  function entra(resp){
-    $('progMsg').hidden = true;
-    fetch('/api/programacions/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ credential: resp.credential }), credentials: 'same-origin' })
-      .then(function(r){ return r.json(); })
-      .then(function(d){ if (d.ok) carrega(); else missatge(d.error); })
-      .catch(function(){ missatge('error_servidor'); });
-  }
+    <p class="prog-carregant" id="appCarregant" hidden>Carregant…</p>
+  </div>
+</section>
 
-  function carrega(){
-    fetch('/api/programacions/contingut', { credentials: 'same-origin', cache: 'no-store' })
-      .then(function(r){ return r.ok ? r.json() : null; })
-      .then(function(d){ if (d && d.ok) mostraContingut(d); else mostraLogin(); })
-      .catch(mostraLogin);
-  }
+<div class="prog-modal" id="progModal" hidden role="dialog" aria-modal="true" aria-labelledby="progModalTitol">
+  <div class="prog-modal__box">
+    <h3 id="progModalTitol"></h3>
+    <div id="progModalText"></div>
+    <div class="prog-modal__btns" id="progModalBtns"></div>
+  </div>
+</div>
+<div class="prog-toast" id="progToast" role="status" aria-live="polite" hidden></div>
+<div id="progPrint" class="prog-print" aria-hidden="true"></div>
 
-  $('progSortir').addEventListener('click', function(){
-    fetch('/api/programacions/sortir', { method: 'POST', credentials: 'same-origin' }).then(function(){
-      if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
-      location.reload();
-    });
-  });
-
-  carrega();
-})();
-</script>
-{% endraw %}
+<script src="/assets/js/programacions.js" defer></script>

@@ -1,51 +1,85 @@
-# Programacions (àrea privada) · com activar-la
+# Programacions (àrea privada) · com funciona i com activar-la
 
 Adreça: **https://institutjoanmiro.netlify.app/programacions**
 
-## Com funciona
+## Què hi ha
 
-1. La pàgina `/programacions` només mostra el botó «Inicia la sessió amb Google». No conté cap informació privada.
-2. Google comprova el compte. La funció `programacions-login` verifica que:
-   - el compte és del domini **@institutjoanmiro.cat**;
-   - el correu consta a la pestanya **departaments** del full de dades (columna `email`), consultant-ho pel mateix pont d'Apps Script que fa servir el web de llibres (acció `loginEmail`). També hi entren els correus de `config › admins`.
-3. Si té accés, rep una galeta de sessió signada (HttpOnly, 8 hores).
-4. El contingut privat el serveix la funció `programacions-contingut` només si la galeta és vàlida. De moment és una pàgina «En construcció».
+1. **Accés** amb el compte de Google de l'escola (botó «Inicia la sessió amb Google").
+2. **Portada PROGRAMACIONS** amb els apartats. De moment: **Gestió Criteris de Qualificació** (la resta, «properament»).
+3. **Gestió Criteris de Qualificació**: per a cada matèria dels departaments de l'usuari i per a cada curs escolar:
+   - **Competències específiques** de la matèria: codi + descripció.
+   - **Criteris de qualificació** de cada trimestre: activitat avaluativa, percentatge, competències específiques i competència digital (es marquen amb botons a partir dels catàlegs). Es mostra el total per trimestre (ha de sumar 100 %).
+   - **Criteri per aprovar**, **mecanismes de recuperació** i **observacions** (text lliure).
+   - Alta / baixa / modificació / consulta: botons Afegeix, ✕, ↑↓, Desa, Descarta, «Dona de baixa» (esborra la matèria sencera; queda a l'historial).
+   - **Informes**: PDF de la matèria i del departament (amb portada-resum de l'estat de totes les matèries) i CSV (Excel) de la matèria o del departament.
+   - Llista de matèries amb l'estat: **Completa** (els tres trimestres sumen 100 %, té competències, criteri per aprovar i recuperació), **En curs** o **Pendent**.
+   - **Carrega dades…**: omple l'editor amb la mateixa matèria del curs anterior o amb un dels fulls de criteris 2025-2026 importats. No es desa fins que es prem Desa.
+   - Si dues persones editen la mateixa matèria alhora, la segona que desa rep un avís i tria si torna a carregar o si desa la seva versió.
 
-Per donar o treure accés a algú: afegiu o traieu el seu correu a la pestanya `departaments` (fila del curs de gestió). No cal tocar el web.
+## Permisos
 
-## Configuració (una sola vegada)
+- Entra qui té el correu a la pestanya **departaments** de **joanmiro_db** (fila del curs de gestió) o a `config › admins`. És la mateixa llista que dona accés al web de llibres (acció `loginEmail` del pont).
+- Cada persona només veu i modifica les matèries dels seus departaments (pestanya **materies** de joanmiro_db del curs seleccionat). Els admins les veuen totes.
+- Els cursos anteriors a l'actual són només de consulta (excepte per als admins).
+- `config › estat = tancat` (a programacions_db) bloqueja les desades de tothom menys dels admins. `config › missatge` mostra un avís a dalt de la gestió (p. ex. el termini).
+- El curs actual es calcula sol (de l'1 d'agost al 31 de juliol). Es pot fixar amb la variable `PROG_CURS` (p. ex. `2026-2027`).
 
-### 1. Variables d'entorn a Netlify (web de l'institut)
+## Dades: programacions_db
 
-Netlify › site **institutjoanmiro** › Site configuration › Environment variables › Add a variable:
+Full **programacions_db** (`1qQ7tiVMl9MsHkEssmUdXxyJnp_PdNeElp_oFxFH2_Ag`). Pestanyes (les crea la funció `configura`):
+
+| Pestanya | Columnes |
+|---|---|
+| `criteris` | curs · id_materia · departament · trimestre · ordre · activitat · percentatge · competencies · competencia_digital · data · desat_per |
+| `competencies` | curs · id_materia · departament · codi · descripcio · data · desat_per |
+| `materies_info` | curs · id_materia · departament · criteri_aprovar · recuperacio · observacions · data · desat_per |
+| `competencies_digitals` | codi · descripcio (catàleg comú CD1-CD11; s'edita directament al full) |
+| `historial` | data_canvi · canvi_per · accio · curs · id_materia · contingut (estat anterior en JSON) |
+| `config` | estat (obert/tancat) · missatge |
+| `imp_criteris`, `imp_competencies`, `imp_info` | dades 2025-2026 per importar (opcional) |
+
+`id_materia` = «nivell - matèria», igual que a joanmiro_db (p. ex. `ESO 1r - Matemàtiques`). Les competències d'una activitat es desen com a codis separats per comes (`CE1, CE3`).
+
+## Activació (una sola vegada)
+
+### 1. Apps Script de programacions_db
+
+1. Obriu **programacions_db** › Extensions › Apps Script.
+2. Substituïu el contingut de `Code.gs` pel fitxer `apps-script/programacions_db/Code.gs` d'aquest repositori. Deseu.
+3. Configuració del projecte (⚙️) › Propietats de l'script › Afegeix: `PROG_SECRET` = un text llarg i aleatori (p. ex. 40 caràcters).
+4. Editor › tria la funció **configura** › ▶ Executa (autoritzeu-la). Crea les pestanyes.
+5. Desplega › Desplegament nou › Tipus: Aplicació web · Executa com a: **Jo** · Qui hi té accés: **Qualsevol**. Copieu l'URL que acaba en `/exec`.
+
+Cada vegada que es canviï `Code.gs`: Desplega › Gestiona els desplegaments › ✏️ › Versió nova › Desplega (l'URL no canvia).
+
+### 2. Variables d'entorn a Netlify (web de l'institut)
+
+Ja hi ha `APPS_SCRIPT_URL`, `APPS_SCRIPT_SECRET`, `GOOGLE_CLIENT_ID`, `PROGRAMACIONS_SECRET` (pas 4). Afegiu:
 
 | Variable | Valor |
 |---|---|
-| `APPS_SCRIPT_URL` | El mateix valor que té el site de llibres |
-| `APPS_SCRIPT_SECRET` | El mateix valor que té el site de llibres |
-| `GOOGLE_CLIENT_ID` | El mateix Client ID que fa servir el site de llibres |
-| `PROGRAMACIONS_SECRET` | Un text llarg i aleatori nou (p. ex. 40 caràcters), diferent dels altres |
-| `GOOGLE_DOMINI` | `institutjoanmiro.cat` (opcional; és el valor per defecte) |
+| `PROG_SCRIPT_URL` | L'URL `/exec` del pas 1.5 |
+| `PROG_SCRIPT_SECRET` | El mateix text que `PROG_SECRET` del pas 1.3 |
+| `PROG_CURS` | (opcional) curs que s'obre per defecte, p. ex. `2026-2027` |
 
-Després de desar-les: Deploys › Trigger deploy › Deploy site.
+Després: Deploys › Trigger deploy › Deploy site. Les sessions obertes abans del canvi demanen tornar a entrar (ara la sessió porta els departaments).
 
-### 2. Autoritzar el web a Google
+### 3. Importar els criteris 2025-2026 (opcional, recomanat)
 
-Google Cloud Console › APIs i serveis › Credencials › el client OAuth del web de llibres › **Orígens de JavaScript autoritzats** › afegiu:
+El fitxer `importacio_criteris_2025-2026.xlsx` (generat amb `lib/programacions/importa_criteris.py` a partir dels sis fulls «Criteris de qualificació … 25-26») té les pestanyes `imp_criteris`, `imp_competencies` i `imp_info`.
 
-- `https://institutjoanmiro.netlify.app`
-- (quan es canviï el domini) `https://institutjoanmiro.cat`
+programacions_db › Fitxer › Importa › Penja › el fitxer › **Insereix fulls nous**. A partir d'aquí, a cada matèria, «Carrega dades…» ofereix els fulls 2025-2026 del mateix nivell (preselecciona el que té el nom més semblant). Les dades no passen a ser oficials fins que algú les revisa i desa.
 
-Desa. Pot trigar uns minuts a funcionar.
+Regles de la conversió: percentatges 0-1 → 0-100; un percentatge compartit per diverses activitats (cel·la combinada) → una sola activitat amb els noms units per « · »; la columna de pes per bloc (Català, Castellà, Tecnologia) s'ignora; «Competència personal i social» (Música) passa a observacions; els percentatges no numèrics i els trimestres que no sumen 100 queden com a avisos que es mostren en carregar-los.
 
-### 3. Comprovar-ho
+### 4. Comprovar-ho
 
-- Amb un compte que consti a `departaments` → ha d'aparèixer «En construcció» i el vostre correu.
-- Amb un compte de l'institut que no hi consti → missatge «Aquest compte no té accés…».
-- Amb un compte de Gmail → missatge «Cal entrar amb un compte @institutjoanmiro.cat».
+- Amb un compte que consti a `departaments` → portada PROGRAMACIONS → Gestió Criteris de Qualificació → les matèries del vostre departament.
+- Amb un compte de l'institut que no hi consti → «Aquest compte no té accés…».
+- Amb un compte de Gmail → «Cal entrar amb un compte @institutjoanmiro.cat».
 
-## Nota
+## Fitxers
 
-L'accés depèn de l'opció `config › acces_google = si` del full de dades (la mateixa que el web de llibres). Si es desactiva, tampoc es podrà entrar a Programacions.
+`src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
 
-Fitxers: `src/programacions.njk`, `src/assets/css/programacions.css`, `netlify/functions/programacions-*.mjs`, `netlify/lib/programacions.mjs`.
+Funcions: `GET /api/programacions/criteris?curs=` (dades) · `POST /api/programacions/criteris` amb `accio` = `desa` | `esborra` | `materia` | `importacio`.

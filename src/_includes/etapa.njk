@@ -171,25 +171,45 @@
           <h3>{{ e.curr.itinerarisTitol[L] }} · {{ c.label[L] }}</h3>
           <p>{{ c.itinerarisText[L] }}</p>
         </div>
-        <ul class="eso-paths__grid">
-          {%- for it in c.itineraris %}
-          <li class="eso-path">
-            <h4>{{ it.n[L] }}</h4>
-            <p class="eso-path__ob"><span>{{ e.curr.obligatoria[L] }}</span>{{ it.obligatoria[L] }}</p>
-            <p class="eso-path__lbl">{{ e.curr.modalitat[L] }}</p>
-            <ul>{% for x in it.modalitat %}<li>{{ x[L] }}</li>{% endfor %}</ul>
-            {%- for f in it.franges %}
-            <p class="eso-path__lbl">{{ f.titol[L] }}</p>
-            {%- for g in f.grups %}
-            <div class="eso-path__grup">
-              {%- if f.grups | length > 1 %}<span class="eso-path__gt">{{ g.titol[L] }}</span>{% endif %}
-              <ul>{% for x in g.opts %}<li>{{ x[L] }}</li>{% endfor %}</ul>
-            </div>
+        {#- Taula: una fila per tipologia de matèria i una columna per itinerari -#}
+        {%- set it0 = c.itineraris[0] %}
+        <div class="eso-ptable__wrap" tabindex="0" role="region" aria-label="{{ e.curr.itinerarisTitol[L] }} · {{ c.label[L] }}">
+        <table class="eso-ptable">
+          <thead>
+            <tr>
+              <th scope="col" class="eso-ptable__corner">{{ {'ca': 'Tipologia', 'es': 'Tipología', 'en': 'Type'}[L] }}</th>
+              {%- for it in c.itineraris %}<th scope="col">{{ it.n[L] }}</th>{% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th scope="row">{{ e.curr.obligatoria[L] }}</th>
+              {%- for it in c.itineraris %}<td><strong>{{ it.obligatoria[L] }}</strong></td>{% endfor %}
+            </tr>
+            <tr>
+              <th scope="row">{{ e.curr.modalitat[L] }}</th>
+              {%- for it in c.itineraris %}<td><ul>{% for x in it.modalitat %}<li>{{ x[L] }}</li>{% endfor %}</ul></td>{% endfor %}
+            </tr>
+            {%- for f0 in it0.franges %}
+            {%- set fi = loop.index0 %}
+            <tr class="eso-ptable__franja">
+              <th scope="row">{{ f0.titol[L] }}</th>
+              {%- for it in c.itineraris %}
+              {%- set f = it.franges[fi] %}
+              <td>
+                {%- for g in f.grups %}
+                <div class="eso-ptable__grup">
+                  {%- if f.grups | length > 1 %}<span class="eso-ptable__gt">{{ g.titol[L] }}</span>{% endif %}
+                  <ul>{% for x in g.opts %}<li>{{ x[L] }}</li>{% endfor %}</ul>
+                </div>
+                {%- endfor %}
+              </td>
+              {%- endfor %}
+            </tr>
             {%- endfor %}
-            {%- endfor %}
-          </li>
-          {%- endfor %}
-        </ul>
+          </tbody>
+        </table>
+        </div>
       </div>
       {%- endif %}
     </div>
@@ -285,7 +305,7 @@
         <ul class="eso-list">
           {%- for x in e.ori.acadList %}<li>{{ x[L] }}</li>{% endfor %}
         </ul>
-        {%- if e.ori.guia %}<a class="eso-more" href="#{{ e.ori.guia.id }}">{{ e.ori.guia.titol[L] }} <span aria-hidden="true">↓</span></a>{% endif %}
+        {%- if e.ori.guia %}<a class="eso-more" href="#{{ e.ori.guia.id }}" data-obre-guia="{{ e.ori.guia.id }}">{{ e.ori.guia.titol[L] }} <span aria-hidden="true">↓</span></a>{% endif %}
       </div>
       {%- if e.ori.divList %}
       <div>
@@ -301,7 +321,14 @@
 
     {%- set g = e.ori.guia %}
     {%- if g %}
-    <div class="eso-guide{% if g.cols | length == 3 %} eso-guide--3{% endif %}" id="{{ g.id }}">
+    {#- Bloc plegable: per defecte ocult, s'obre amb el botó (o amb l'enllaç «… ↓» / l'adreça #id) -#}
+    <div class="eso-guide-toggle">
+      <button type="button" class="eso-guide-toggle__btn" id="{{ g.id }}-boto" aria-expanded="false" aria-controls="{{ g.id }}">
+        <span class="eso-guide-toggle__txt"><span class="eso-guide__tag">{{ g.tag[L] }}</span><span class="eso-guide-toggle__titol">{{ g.titol[L] }}</span></span>
+        <span class="eso-guide-toggle__accio" data-mostra="{{ {'ca': 'Mostra la informació', 'es': 'Muestra la información', 'en': 'Show information'}[L] }}" data-amaga="{{ {'ca': 'Amaga la informació', 'es': 'Oculta la información', 'en': 'Hide information'}[L] }}">{{ {'ca': 'Mostra la informació', 'es': 'Muestra la información', 'en': 'Show information'}[L] }}</span>
+        <svg class="eso-guide-toggle__chev" aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+    <div class="eso-guide{% if g.cols | length == 3 %} eso-guide--3{% endif %}" id="{{ g.id }}" hidden>
       <div class="eso-guide__intro">
         <span class="eso-guide__tag">{{ g.tag[L] }}</span>
         <h3>{{ g.titol[L] }}</h3>
@@ -333,6 +360,7 @@
         {%- endif %}
       </div>
       {%- endfor %}
+    </div>
     </div>
     {%- endif %}
   </div>
@@ -401,6 +429,29 @@
         if (n){ ev.preventDefault(); select(n); n.focus(); }
       });
     });
+  })();
+
+  // ============ Orientació (4t d'ESO / 2n de Batxillerat): bloc plegable, ocult per defecte ============
+  (function(){
+    var btn = document.querySelector('.eso-guide-toggle__btn');
+    if (!btn) return;
+    var guia = document.getElementById(btn.getAttribute('aria-controls'));
+    var accio = btn.querySelector('.eso-guide-toggle__accio');
+    function posa(obert){
+      guia.hidden = !obert;
+      btn.setAttribute('aria-expanded', obert ? 'true' : 'false');
+      accio.textContent = obert ? accio.getAttribute('data-amaga') : accio.getAttribute('data-mostra');
+    }
+    btn.addEventListener('click', function(){ posa(guia.hidden); });
+    // L'enllaç «… ↓» de la columna d'orientació obre el bloc i hi porta
+    document.querySelectorAll('[data-obre-guia]').forEach(function(a){
+      a.addEventListener('click', function(ev){
+        ev.preventDefault();
+        posa(true);
+        btn.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
+    if (location.hash === '#' + guia.id){ posa(true); setTimeout(function(){ btn.scrollIntoView(); }, 50); }
   })();
 </script>
 {% endraw %}

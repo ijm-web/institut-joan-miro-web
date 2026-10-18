@@ -6,3 +6,4 @@ _site/
 Thumbs.db
 *.bundle
 __pycache__/
+importacio_criteris_*.xlsx

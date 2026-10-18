@@ -1199,6 +1199,12 @@
           "ca": "L’alumnat continua l’itinerari de 1r: una matèria obligatòria, dues de modalitat i una matèria de la franja 1.",
           "es": "El alumnado continúa el itinerario de 1º: una materia obligatoria, dos de modalidad y una materia de la franja 1.",
           "en": "Students continue their 1st-year pathway: one compulsory subject, two strand subjects and one subject from block 1."
+        },
+        "pdf": "/assets/docs/batxillerat/materies-2n-batxillerat.pdf",
+        "pdfText": {
+          "ca": "Descripció d’Empresa i Disseny de Models de Negoci i d’Història de l’Art",
+          "es": "Descripción de Empresa y Diseño de Modelos de Negocio y de Historia del Arte",
+          "en": "Description of Business and Business Model Design and of History of Art"
         }
       }
     ],
@@ -1509,14 +1515,14 @@
         "en": "Talks by university experts"
       },
       {
-        "ca": "Visites a la UAB i a la UPC",
-        "es": "Visitas a la UAB y a la UPC",
-        "en": "Visits to UAB and UPC universities"
-      },
-      {
         "ca": "Visites a les jornades de portes obertes d’algunes universitats",
         "es": "Visitas a las jornadas de puertas abiertas de algunas universidades",
         "en": "Visits to some universities’ open days"
+      },
+      {
+        "ca": "Acompanyament per a la preinscripció a CFGS, a les PAU i a la universitat",
+        "es": "Acompañamiento para la preinscripción a CFGS, a las PAU y a la universidad",
+        "en": "Support with applications for higher vocational training (CFGS), the university entrance exams (PAU) and university"
       }
     ],
     "guia": {
