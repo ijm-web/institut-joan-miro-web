@@ -89,6 +89,7 @@ textarea.prog-in{ width: 100%; resize: vertical; min-height: 46px; }
 .prog-avis{ margin: 0 0 20px; padding: 14px 18px; border-radius: var(--radius-btn); background: #FFF4E5; color: #8A4B00; font-size: 14px; line-height: 1.6; border: 1px solid #FBD9A8; }
 .prog-avis--info{ background: #EEF0FF; color: #2A2470; border-color: #D6D9FF; }
 .prog-avis--error{ background: #FEF3F2; color: #B42318; border-color: #FCD2CD; }
+.prog-avis__codi{ display: block; margin-top: 6px; font-size: 12px; opacity: .75; font-family: ui-monospace, Consolas, monospace; word-break: break-word; }
 .prog-ajuda{ margin: 0 0 24px; font-size: 13px; color: var(--color-text-muted); line-height: 1.6; }
 .prog-buit{ margin: 0; font-size: 14px; color: var(--color-text-muted); }
 

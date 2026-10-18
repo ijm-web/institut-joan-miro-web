@@ -7,33 +7,43 @@ import crypto from 'node:crypto';
 export const GALETA = 'ijm_prog';
 const DURADA_S = 8 * 3600;
 
-export async function cridaFull(action, dades = {}) {
-  const url = process.env.APPS_SCRIPT_URL;
-  const secret = process.env.APPS_SCRIPT_SECRET;
-  if (!url || !secret) throw new Error('Falten les variables APPS_SCRIPT_URL / APPS_SCRIPT_SECRET');
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ secret, action, ...dades }),
-    redirect: 'follow',
-  });
-  const text = await resp.text();
-  try { return JSON.parse(text); } catch { throw new Error(`Resposta inesperada de l'Apps Script (HTTP ${resp.status})`); }
+/** Error amb un codi que la pàgina sap explicar (p. ex. «prog_no_autoritzat»). */
+export class ErrorCodi extends Error {
+  constructor(codi, missatge, detall = '') { super(missatge); this.codi = codi; this.detall = detall; }
 }
 
-export async function cridaProg(action, dades = {}) {
-  const url = process.env.PROG_SCRIPT_URL;
-  const secret = process.env.PROG_SCRIPT_SECRET;
-  if (!url || !secret) throw new Error('Falten les variables PROG_SCRIPT_URL / PROG_SCRIPT_SECRET');
-  const resp = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ secret, action, ...dades }),
-    redirect: 'follow',
-  });
+// Crida un Apps Script publicat com a aplicació web. prefix = 'pont' (joanmiro_db) o 'prog' (programacions_db).
+// Els errors de configuració es tornen com a ErrorCodi perquè la pàgina pugui dir què falla.
+async function cridaScript(prefix, nomUrl, nomSecret, action, dades) {
+  const url = process.env[nomUrl];
+  const secret = process.env[nomSecret];
+  if (!url || !secret) throw new ErrorCodi(`${prefix}_no_configurat`, `Falten les variables ${nomUrl} / ${nomSecret}`);
+  let resp;
+  try {
+    resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ secret, action, ...dades }),
+      redirect: 'follow',
+    });
+  } catch (err) {
+    throw new ErrorCodi(`${prefix}_url_invalida`, `No es pot connectar amb ${nomUrl}: ${err.message}`);
+  }
   const text = await resp.text();
-  try { return JSON.parse(text); } catch { throw new Error(`Resposta inesperada de l'Apps Script de programacions (HTTP ${resp.status})`); }
+  let r;
+  try { r = JSON.parse(text); } catch {
+    // Normalment és la pàgina d'inici de sessió de Google: el desplegament no és «Qualsevol» o l'URL no és /exec
+    const titol = (text.match(/<title>([^<]*)<\/title>/i) || [])[1] || '';
+    throw new ErrorCodi(`${prefix}_resposta_invalida`, `Resposta no JSON de ${nomUrl} (HTTP ${resp.status})`, `HTTP ${resp.status}${titol ? ' · ' + titol.trim() : ''}`);
+  }
+  if (r && r.ok === false && ['no_autoritzat', 'accio_desconeguda', 'error_script', 'peticio_invalida'].includes(r.error)) {
+    throw new ErrorCodi(`${prefix}_${r.error}`, `${nomUrl} ha respost ${r.error}${r.detall ? ': ' + r.detall : ''}`, r.detall || '');
+  }
+  return r;
 }
+
+export const cridaFull = (action, dades = {}) => cridaScript('pont', 'APPS_SCRIPT_URL', 'APPS_SCRIPT_SECRET', action, dades);
+export const cridaProg = (action, dades = {}) => cridaScript('prog', 'PROG_SCRIPT_URL', 'PROG_SCRIPT_SECRET', action, dades);
 
 /** Curs escolar actual (de l'1 d'agost al 31 de juliol), p. ex. «2026-2027». Es pot fixar amb PROG_CURS. */
 export function cursActual(ara = new Date()) {
@@ -82,7 +92,7 @@ export async function materiesPermeses(s, curs) {
   const c = cau.get(clau);
   if (c && c.fins > ara) return c.dades;
   const r = await cridaFull('dades', { departaments: s.departaments, curs, admin: s.admin });
-  if (!r.ok) throw new Error('El pont de joanmiro_db ha respost: ' + (r.error || 'error'));
+  if (!r.ok) throw new ErrorCodi('pont_' + (r.error || 'error'), 'El pont de joanmiro_db ha respost: ' + (r.error || 'error'), r.error || '');
   const dades = {
     departaments: (r.departaments || []).map((d) => ({ id: d.id, nom: d.nom })),
     materies: (r.materies || []).map((m) => ({ id_materia: m.id_materia, nivell: m.nivell, materia: m.materia, tipus: m.tipus, departament: m.departament })),

@@ -29,8 +29,28 @@
     percentatge_invalid: 'Hi ha un percentatge que no és vàlid (ha de ser un número entre 0 i 100).',
     codi_repetit: 'Hi ha dues competències amb el mateix codi.',
     trimestre_invalid: 'Hi ha una activitat sense trimestre.',
-    peticio_invalida: 'La petició no és vàlida.'
+    peticio_invalida: 'La petició no és vàlida.',
+    // Errors de configuració (els veu qui administra el web)
+    prog_no_configurat: 'Falten les variables PROG_SCRIPT_URL i PROG_SCRIPT_SECRET a Netlify, o no s’ha tornat a publicar el web després d’afegir-les.',
+    prog_url_invalida: 'No es pot connectar amb l’adreça de PROG_SCRIPT_URL. Reviseu-la (ha d’acabar en /exec).',
+    prog_resposta_invalida: 'L’Apps Script de programacions_db no respon com a aplicació web. Reviseu el desplegament: tipus «Aplicació web», «Executa com a: Jo», «Qui hi té accés: Qualsevol», i que PROG_SCRIPT_URL sigui l’URL que acaba en /exec.',
+    prog_no_autoritzat: 'El secret no coincideix: la variable PROG_SCRIPT_SECRET de Netlify ha de ser exactament igual que la propietat PROG_SECRET de l’Apps Script de programacions_db.',
+    prog_accio_desconeguda: 'L’Apps Script de programacions_db no és la versió d’aquest web: enganxeu-hi el Code.gs del repositori i desplegueu una versió nova.',
+    prog_error_script: 'Hi ha hagut un error dins de l’Apps Script de programacions_db.',
+    prog_curs_invalid: 'El curs no és vàlid.',
+    pont_no_configurat: 'Falten les variables APPS_SCRIPT_URL i APPS_SCRIPT_SECRET a Netlify.',
+    pont_url_invalida: 'No es pot connectar amb l’adreça de APPS_SCRIPT_URL (pont de joanmiro_db).',
+    pont_resposta_invalida: 'El pont de joanmiro_db (APPS_SCRIPT_URL) no respon com a aplicació web.',
+    pont_no_autoritzat: 'El secret del pont de joanmiro_db no coincideix (APPS_SCRIPT_SECRET).',
+    pont_accio_desconeguda: 'El pont de joanmiro_db no té l’acció «dades»: cal la versió 5 de Code.gs del projecte de llibres.',
+    pont_error_script: 'Hi ha hagut un error dins del pont de joanmiro_db.'
   };
+  /** Missatge + codi i detall tècnic (per poder-ho diagnosticar) */
+  function textError(d) {
+    var codi = d && d.error || 'error_servidor';
+    var extra = [codi, d && d.detall].filter(Boolean).join(' · ');
+    return esc(text(codi)) + '<small class="prog-avis__codi">' + esc(extra) + '</small>';
+  }
   var text = function (codi) { return MISSATGES[codi] || MISSATGES.error_servidor; };
 
   // ------------------------------------------------------------------ utilitats
@@ -224,14 +244,14 @@
     $('critLlista').innerHTML = '';
     return api('criteris?curs=' + encodeURIComponent(S.curs)).then(function (d) {
       $('appCarregant').hidden = true;
-      if (!d.ok) { $('critLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + esc(text(d.error)) + '</p>'; return; }
+      if (!d.ok) { $('critLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + textError(d) + '</p>'; return; }
       S.dades = d;
       S.curs = d.curs;
       indexa();
       pintaFiltres();
-    }).catch(function () {
+    }).catch(function (err) {
       $('appCarregant').hidden = true;
-      $('critLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + esc(text('error_servidor')) + '</p>';
+      $('critLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + textError({ error: 'error_servidor', detall: err && err.message }) + '</p>';
     });
   }
 
@@ -680,7 +700,7 @@
             });
             return;
           }
-          toast(text(r.error), true);
+          toast(text(r.error) + (MISSATGES[r.error] ? '' : ' (' + r.error + ')'), true);
         }).catch(function () { if (boto) { boto.disabled = false; boto.textContent = 'Desa'; } toast(text('error_servidor'), true); });
     });
   }

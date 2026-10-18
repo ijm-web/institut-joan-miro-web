@@ -25,7 +25,7 @@ export default async (req) => {
       const curs = cursValid(url.searchParams.get('curs')) ? url.searchParams.get('curs') : actual;
       const perm = await materiesPermeses(s, curs);
       const r = await cridaProg('inici', { curs, materies: perm.materies.map((m) => m.id_materia) });
-      if (!r.ok) return json({ ok: false, error: r.error || 'error_servidor' }, 502);
+      if (!r.ok) return json({ ok: false, error: 'prog_' + (r.error || 'error'), detall: r.detall || '' }, 502);
       const cursos = [...new Set([actual, curs, ...perm.cursos, ...(r.cursos || [])])].filter(cursValid).sort().reverse();
       const editable = (s.admin || curs >= actual) && (String(r.config.estat).toLowerCase() === 'obert' || s.admin);
       return json({
@@ -72,8 +72,8 @@ export default async (req) => {
 
     return json({ ok: false, error: 'accio_desconeguda' }, 400);
   } catch (err) {
-    console.error('[programacions-criteris]', err.message);
-    return json({ ok: false, error: 'error_servidor' }, 500);
+    console.error('[programacions-criteris]', err.codi || '', err.message);
+    return json({ ok: false, error: err.codi || 'error_servidor', detall: err.detall || (err.codi ? '' : err.message) }, 500);
   }
 };
 
