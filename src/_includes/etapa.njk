@@ -119,6 +119,7 @@
       {%- endfor %}
     </div>
     {%- for c in e.curr.cursos %}
+    {%- set ci = loop.index %}
     <div class="eso-panel" role="tabpanel" id="eso-panel-{{ loop.index }}" aria-labelledby="eso-tab-{{ loop.index }}"{% if not loop.first %} hidden{% endif %}>
       <div class="eso-common">
         <div class="eso-common__head">
@@ -171,45 +172,62 @@
           <h3>{{ e.curr.itinerarisTitol[L] }} · {{ c.label[L] }}</h3>
           <p>{{ c.itinerarisText[L] }}</p>
         </div>
-        {#- Taula: una fila per tipologia de matèria i una columna per itinerari -#}
-        {%- set it0 = c.itineraris[0] %}
-        <div class="eso-ptable__wrap" tabindex="0" role="region" aria-label="{{ e.curr.itinerarisTitol[L] }} · {{ c.label[L] }}">
-        <table class="eso-ptable">
-          <thead>
-            <tr>
-              <th scope="col" class="eso-ptable__corner">{{ {'ca': 'Tipologia', 'es': 'Tipología', 'en': 'Type'}[L] }}</th>
-              {%- for it in c.itineraris %}<th scope="col">{{ it.n[L] }}</th>{% endfor %}
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <th scope="row">{{ e.curr.obligatoria[L] }}</th>
-              {%- for it in c.itineraris %}<td><strong>{{ it.obligatoria[L] }}</strong></td>{% endfor %}
-            </tr>
-            <tr>
-              <th scope="row">{{ e.curr.modalitat[L] }}</th>
-              {%- for it in c.itineraris %}<td><ul>{% for x in it.modalitat %}<li>{{ x[L] }}</li>{% endfor %}</ul></td>{% endfor %}
-            </tr>
-            {%- for f0 in it0.franges %}
-            {%- set fi = loop.index0 %}
-            <tr class="eso-ptable__franja">
-              <th scope="row">{{ f0.titol[L] }}</th>
-              {%- for it in c.itineraris %}
-              {%- set f = it.franges[fi] %}
-              <td>
-                {%- for g in f.grups %}
-                <div class="eso-ptable__grup">
-                  {%- if f.grups | length > 1 %}<span class="eso-ptable__gt">{{ g.titol[L] }}</span>{% endif %}
-                  <ul>{% for x in g.opts %}<li>{{ x[L] }}</li>{% endfor %}</ul>
-                </div>
-                {%- endfor %}
-              </td>
-              {%- endfor %}
-            </tr>
-            {%- endfor %}
-          </tbody>
-        </table>
+        {#- Un botó per itinerari; cada itinerari mostra una taula amb una fila per tipologia.
+            Franja 1 amb grup de 4 h + grups A i B → llista de les combinacions possibles. -#}
+        {%- set T = {
+          'itinerari': {'ca': 'Itineraris', 'es': 'Itinerarios', 'en': 'Pathways'},
+          'tipologia': {'ca': 'Tipologia', 'es': 'Tipología', 'en': 'Type'},
+          'materies': {'ca': 'Matèries', 'es': 'Materias', 'en': 'Subjects'},
+          'combinacions': {'ca': 'Tria una d’aquestes combinacions:', 'es': 'Elige una de estas combinaciones:', 'en': 'Choose one of these combinations:'},
+          'una': {'ca': 'Tria’n una:', 'es': 'Elige una:', 'en': 'Choose one:'},
+          'o': {'ca': 'o', 'es': 'o', 'en': 'or'}
+        } %}
+        <div class="eso-ittabs" role="tablist" aria-label="{{ T.itinerari[L] }} · {{ c.label[L] }}">
+          {%- for it in c.itineraris %}
+          <button type="button" role="tab" id="eso-it-{{ ci }}-{{ loop.index }}" aria-controls="eso-itp-{{ ci }}-{{ loop.index }}" data-it="{{ loop.index0 }}" aria-selected="{{ 'true' if loop.first else 'false' }}"{% if not loop.first %} tabindex="-1"{% endif %}>{{ it.n[L] }}</button>
+          {%- endfor %}
         </div>
+        {%- for it in c.itineraris %}
+        <div class="eso-itpanel" role="tabpanel" id="eso-itp-{{ ci }}-{{ loop.index }}" aria-labelledby="eso-it-{{ ci }}-{{ loop.index }}"{% if not loop.first %} hidden{% endif %}>
+          <table class="eso-ittable">
+            <thead><tr><th scope="col">{{ T.tipologia[L] }}</th><th scope="col">{{ T.materies[L] }} · {{ it.n[L] }}</th></tr></thead>
+            <tbody>
+              <tr>
+                <th scope="row">{{ e.curr.obligatoria[L] | capitalize }} · 4 h</th>
+                <td><span class="eso-ittable__ob">{{ it.obligatoria[L] }}</span></td>
+              </tr>
+              <tr>
+                <th scope="row">{{ e.curr.modalitat[L] }} · 4 h</th>
+                <td><ul class="eso-ittable__chips">{% for x in it.modalitat %}<li>{{ x[L] }}</li>{% endfor %}</ul></td>
+              </tr>
+              {%- for f in it.franges %}
+              <tr class="eso-ittable__franja">
+                <th scope="row">{{ f.titol[L] }}</th>
+                <td>
+                  {%- if f.grups | length == 3 %}
+                  {%- set g4 = f.grups[0] %}{%- set gA = f.grups[1] %}{%- set gB = f.grups[2] %}
+                  <p class="eso-comb__intro">{{ T.combinacions[L] }}</p>
+                  <ol class="eso-comb">
+                    {%- for x in g4.opts %}
+                    <li><span class="eso-comb__mat">{{ x[L] }}</span><span class="eso-comb__h">4 h</span></li>
+                    {%- endfor %}
+                    {%- for a in gA.opts %}{%- for b in gB.opts %}
+                    <li><span class="eso-comb__mat">{{ a[L] }} <span class="eso-comb__mes" aria-hidden="true">+</span><span class="sr-only"> i </span>{{ b[L] }}</span><span class="eso-comb__h">2 h + 2 h</span></li>
+                    {%- endfor %}{%- endfor %}
+                  </ol>
+                  {%- else %}
+                  <p class="eso-comb__intro">{{ T.una[L] }}</p>
+                  <ul class="eso-ittable__chips">
+                    {%- for g in f.grups %}{%- for x in g.opts %}<li>{{ x[L] }}</li>{%- endfor %}{%- endfor %}
+                  </ul>
+                  {%- endif %}
+                </td>
+              </tr>
+              {%- endfor %}
+            </tbody>
+          </table>
+        </div>
+        {%- endfor %}
       </div>
       {%- endif %}
     </div>
@@ -427,6 +445,39 @@
         else if (ev.key === 'Home') n = tabs[0];
         else if (ev.key === 'End') n = tabs[tabs.length - 1];
         if (n){ ev.preventDefault(); select(n); n.focus(); }
+      });
+    });
+  })();
+
+  // ============ Batxillerat: botons d'itinerari (sincronitzats entre 1r i 2n) ============
+  (function(){
+    var grups = Array.prototype.slice.call(document.querySelectorAll('.eso-ittabs'));
+    if (!grups.length) return;
+    function tria(n, focus){
+      grups.forEach(function(g){
+        var bs = Array.prototype.slice.call(g.querySelectorAll('[role="tab"]'));
+        bs.forEach(function(b){
+          var on = b.getAttribute('data-it') === String(n);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+          b.tabIndex = on ? 0 : -1;
+          var p = document.getElementById(b.getAttribute('aria-controls'));
+          if (p) p.hidden = !on;
+          if (on && focus === g) b.focus();
+        });
+      });
+    }
+    grups.forEach(function(g){
+      var bs = Array.prototype.slice.call(g.querySelectorAll('[role="tab"]'));
+      bs.forEach(function(b, i){
+        b.addEventListener('click', function(){ tria(b.getAttribute('data-it')); });
+        b.addEventListener('keydown', function(ev){
+          var k = null;
+          if (ev.key === 'ArrowRight') k = (i + 1) % bs.length;
+          else if (ev.key === 'ArrowLeft') k = (i - 1 + bs.length) % bs.length;
+          else if (ev.key === 'Home') k = 0;
+          else if (ev.key === 'End') k = bs.length - 1;
+          if (k !== null){ ev.preventDefault(); tria(bs[k].getAttribute('data-it'), g); }
+        });
       });
     });
   })();

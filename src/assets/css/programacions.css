@@ -33,6 +33,7 @@
 .prog-kicker{ margin: 0; font-size: 12px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--color-orange); }
 .prog-title{ margin: 8px 0 0; font-size: clamp(32px, 4.4vw, 52px); font-weight: 300; letter-spacing: .06em; color: var(--color-blue); line-height: 1.1; }
 .prog-title--sm{ font-size: clamp(24px, 3vw, 34px); letter-spacing: 0; }
+.prog-subtitol{ margin: 10px 0 0; font-size: 14px; font-weight: 600; letter-spacing: .22em; color: var(--color-orange); }
 .prog-lead{ margin: 14px 0 0; max-width: 720px; font-size: 16px; line-height: 1.7; color: var(--color-text); }
 
 /* ---------- Botons ---------- */
@@ -208,7 +209,6 @@ span.buit{ border-radius: 6px; }
   padding: 12px 20px; border-radius: var(--radius-btn); background: #1E7B3E; color: #fff; font-size: 14px; font-weight: 600; box-shadow: 0 8px 24px rgba(0, 0, 0, .2);
 }
 .prog-toast--error{ background: #B42318; }
-.prog-print{ display: none; }
 
 /* ---------- Mòbil ---------- */
 @media (max-width: 900px){
@@ -230,30 +230,4 @@ span.buit{ border-radius: 6px; }
   .prog-desa{ justify-content: stretch; }
   .prog-desa__estat{ flex-basis: 100%; }
   .prog-desa .prog-btn{ flex: 1 1 auto; }
-}
-
-/* ---------- Impressió (informes en PDF: «Desa com a PDF» del navegador) ---------- */
-@media print{
-  @page{ size: A4; margin: 14mm 14mm 16mm; }
-  body.prog-imprimint > *:not(.prog-print){ display: none !important; }
-  body.prog-imprimint .prog-print{ display: block !important; }
-  .prog-print{ font: 9.5pt/1.45 var(--font-main); color: #1E1E2A; }
-  .pp-portada, .pp-materia{ break-after: page; }
-  .pp-materia:last-child{ break-after: auto; }
-  .pp-kicker{ margin: 0; font-size: 7.5pt; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #E8600C; }
-  .prog-print h1{ margin: 4mm 0 1mm; font-size: 22pt; font-weight: 300; color: #1C0CBC; }
-  .prog-print h2{ margin: 2mm 0 1mm; font-size: 17pt; font-weight: 600; color: #1C0CBC; }
-  .prog-print h3{ margin: 5mm 0 2mm; font-size: 10.5pt; font-weight: 700; color: #1C0CBC; break-after: avoid; }
-  .pp-sub{ margin: 0 0 4mm; color: #555; }
-  .pp-taula{ width: 100%; border-collapse: collapse; table-layout: fixed; }
-  .pp-crit th:nth-child(3), .pp-crit th:nth-child(4){ width: 40mm; }
-  .pp-portada .pp-taula th:nth-child(1){ width: 16mm; } .pp-portada .pp-taula th:nth-child(2){ width: 52mm; }
-  .pp-taula th, .pp-taula td{ border: .5pt solid #C9CEDB; padding: 1.6mm 2mm; text-align: left; vertical-align: top; }
-  .pp-taula thead th{ background: #EEF0FF; font-size: 8pt; text-transform: uppercase; letter-spacing: .04em; }
-  .pp-taula tr{ break-inside: avoid; }
-  .pp-n{ text-align: right !important; width: 14mm; }
-  .pp-total td{ font-weight: 700; background: #F6F7FA; }
-  .pp-ce th{ width: 14mm; color: #1C0CBC; }
-  .pp-text{ margin: 0; white-space: normal; }
-  .pp-peu{ margin-top: 4mm; color: #555; }
 }

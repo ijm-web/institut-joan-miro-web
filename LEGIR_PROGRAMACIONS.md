@@ -11,7 +11,8 @@ Adreça: **https://institutjoanmiro.netlify.app/programacions**
    - **Criteris de qualificació** de cada trimestre: activitat avaluativa, percentatge, competències específiques i competència digital (es marquen amb botons a partir dels catàlegs). Es mostra el total per trimestre (ha de sumar 100 %).
    - **Criteri per aprovar**, **mecanismes de recuperació** i **observacions** (text lliure).
    - Alta / baixa / modificació / consulta: botons Afegeix, ✕, ↑↓, Desa, Descarta, «Dona de baixa» (esborra la matèria sencera; queda a l'historial).
-   - **Informes**: PDF de la matèria i del departament (amb portada-resum de l'estat de totes les matèries) i CSV (Excel) de la matèria o del departament.
+   - **Informes**: PDF que es descarrega directament (jsPDF des de cdnjs, amb Montserrat i el logo de `src/assets/programacions/`), de la matèria o del departament (amb portada-resum de l'estat de totes les matèries), i CSV (Excel) de la matèria o del departament.
+   - **Barra de progrés** (`src/assets/js/progres.js`) en totes les càrregues i desades. L'Apps Script no informa de l'avanç real: la barra avança sola fins al 90 % i acaba quan arriba la resposta. El mateix fitxer és al web de llibres.
    - Llista de matèries amb l'estat: **Completa** (els tres trimestres sumen 100 %, té competències, criteri per aprovar i recuperació), **En curs** o **Pendent**.
    - **Carrega dades…**: omple l'editor amb la mateixa matèria del curs anterior o amb un dels fulls de criteris 2025-2026 importats. No es desa fins que es prem Desa.
    - Si dues persones editen la mateixa matèria alhora, la segona que desa rep un avís i tria si torna a carregar o si desa la seva versió.
@@ -80,6 +81,6 @@ Regles de la conversió: percentatges 0-1 → 0-100; un percentatge compartit pe
 
 ## Fitxers
 
-`src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
+`src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/js/progres.js` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
 
 Funcions: `GET /api/programacions/criteris?curs=` (dades) · `POST /api/programacions/criteris` amb `accio` = `desa` | `esborra` | `materia` | `importacio`.

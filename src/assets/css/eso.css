@@ -524,23 +524,48 @@ a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px r
 .eso-path__gt{ font-size: 12px; font-weight: 600; color: #5A6070; }
 .eso-path__grup + .eso-path__grup{ margin-top: 4px; }
 
-/* ---------- Itineraris de Batxillerat en taula (files = tipologia, columnes = itinerari) ---------- */
+/* ---------- Itineraris de Batxillerat: un botó per itinerari i taula per tipologia ---------- */
 .eso-paths{ min-width: 0; max-width: 100%; box-sizing: border-box; }
-.eso-ptable__wrap{ overflow-x: auto; -webkit-overflow-scrolling: touch; border: 1px solid #E6EBF2; border-radius: var(--radius-btn); }
-.eso-ptable__wrap:focus-visible{ outline: 2px solid var(--color-blue); outline-offset: 2px; }
-.eso-ptable{ width: 100%; min-width: 760px; border-collapse: collapse; font-size: 14px; line-height: 1.55; table-layout: fixed; }
-.eso-ptable th, .eso-ptable td{ padding: 12px 14px; border-top: 1px solid #E6EBF2; border-left: 1px solid #E6EBF2; text-align: left; vertical-align: top; }
-.eso-ptable thead th{ border-top: 0; background: var(--color-blue); color: #fff; font-size: 15px; font-weight: 600; }
-.eso-ptable thead th.eso-ptable__corner{ background: #F2F3FA; color: #5A6070; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; vertical-align: bottom; }
-.eso-ptable tr > :first-child{ border-left: 0; }
-.eso-ptable tbody th{ width: 150px; background: #FAFAFD; font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--color-orange); }
-.eso-ptable thead th:first-child{ width: 150px; }
-.eso-ptable tbody tr:nth-child(2) td{ background: #FAFAFD; }
-.eso-ptable td strong{ font-weight: 600; color: var(--color-text); }
-.eso-ptable ul{ margin: 0; padding-left: 1.05em; }
-.eso-ptable li::marker{ color: var(--color-orange); }
-.eso-ptable__grup + .eso-ptable__grup{ margin-top: 8px; padding-top: 8px; border-top: 1px dashed #E0E3EC; }
-.eso-ptable__gt{ display: block; font-size: 12px; font-weight: 600; color: #5A6070; margin-bottom: 2px; }
+.sr-only{ position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+.eso-ittabs{ display: flex; flex-wrap: wrap; gap: 8px; }
+.eso-ittabs button{
+  min-height: 40px; padding: 0 20px; font-family: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--color-blue); background: #fff; color: var(--color-blue); border-radius: 999px;
+  transition: background-color .2s ease, color .2s ease, border-color .2s ease;
+}
+.eso-ittabs button:hover{ border-color: var(--color-orange); color: var(--color-orange); }
+.eso-ittabs button[aria-selected="true"]{ background: var(--color-blue); border-color: var(--color-blue); color: #fff; }
+.eso-ittabs button:focus-visible{ outline: 3px solid var(--color-orange); outline-offset: 2px; }
+.eso-itpanel[hidden]{ display: none !important; }
+.eso-ittable{ width: 100%; border-collapse: separate; border-spacing: 0; font-size: 14.5px; line-height: 1.55; border: 1px solid #E6EBF2; border-radius: var(--radius-btn); overflow: hidden; }
+.eso-ittable th, .eso-ittable td{ padding: 14px 18px; text-align: left; vertical-align: top; border-top: 1px solid #E6EBF2; }
+.eso-ittable thead th{ border-top: 0; background: var(--color-blue); color: #fff; font-size: 13px; font-weight: 600; letter-spacing: .02em; }
+.eso-ittable thead th:first-child{ width: 190px; }
+.eso-ittable tbody th{ width: 190px; background: #FAFAFD; font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-orange); border-right: 1px solid #E6EBF2; }
+.eso-ittable__ob{ font-weight: 600; color: var(--color-text); }
+.eso-ittable__chips{ list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px; }
+.eso-ittable__chips li{ padding: 5px 12px; border-radius: 999px; background: #F2F3FA; color: var(--color-text); font-size: 14px; }
+.eso-comb__intro{ margin: 0 0 8px; font-size: 13px; color: #5A6070; }
+.eso-comb{ margin: 0; padding: 0; list-style: none; counter-reset: comb; display: flex; flex-direction: column; gap: 6px; }
+.eso-comb li{
+  counter-increment: comb; display: flex; align-items: center; gap: 12px; padding: 9px 14px;
+  border: 1px solid #E6EBF2; border-radius: var(--radius-btn); background: #fff;
+}
+.eso-comb li::before{
+  content: counter(comb); flex: 0 0 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--color-blue); color: #fff; font-size: 12px; font-weight: 700;
+}
+.eso-comb__mat{ flex: 1 1 auto; font-weight: 500; }
+.eso-comb__mes{ color: var(--color-orange); font-weight: 700; margin: 0 4px; }
+.eso-comb__h{ flex: 0 0 auto; font-size: 12px; font-weight: 600; color: #5A6070; background: #F2F3FA; padding: 3px 9px; border-radius: 999px; white-space: nowrap; }
+@media (max-width: 640px){
+  .eso-ittable, .eso-ittable tbody, .eso-ittable tr, .eso-ittable th, .eso-ittable td{ display: block; width: auto !important; }
+  .eso-ittable thead{ display: none; }
+  .eso-ittable tbody th{ border-right: 0; padding: 10px 14px 6px; }
+  .eso-ittable td{ border-top: 0; padding: 4px 14px 14px; }
+  .eso-comb li{ align-items: flex-start; gap: 10px; padding: 9px 10px; }
+  .eso-comb__mat{ min-width: 0; }
+}
 
 /* ---------- Orientació plegable ---------- */
 .eso-guide-toggle{ margin-top: 48px; }
