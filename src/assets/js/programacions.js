@@ -780,161 +780,39 @@
   }
 
   // ------------------------------------------------------------------ PDF (es descarrega directament)
-  // jsPDF i jspdf-autotable (cdnjs) es carreguen només el primer cop; Montserrat i el logo, de /assets/programacions/.
-  var LIBS = [
-    'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js'
-  ];
-  var recursosPdf = null;
-  function carregaScript(src) {
-    return new Promise(function (ok, ko) {
-      var s = document.createElement('script');
-      s.src = src; s.onload = ok; s.onerror = function () { ko(new Error('No s’ha pogut carregar ' + src)); };
-      document.head.appendChild(s);
-    });
-  }
-  function base64(url) {
-    return fetch(url).then(function (r) { if (!r.ok) throw new Error(url); return r.arrayBuffer(); }).then(function (buf) {
-      var b = new Uint8Array(buf), t = '', pas = 0x8000;
-      for (var i = 0; i < b.length; i += pas) t += String.fromCharCode.apply(null, b.subarray(i, i + pas));
-      return btoa(t);
-    });
-  }
-  function preparaPdf() {
-    if (recursosPdf) return recursosPdf;
-    Progres.posa(0.1, 'Preparant el PDF…');
-    recursosPdf = carregaScript(LIBS[0]).then(function () { Progres.posa(0.3); return carregaScript(LIBS[1]); }).then(function () {
-      Progres.posa(0.45, 'Carregant la tipografia…');
-      return Promise.all([base64('/assets/programacions/Montserrat-400.ttf'), base64('/assets/programacions/Montserrat-600.ttf'), base64('/assets/programacions/logo-ijm.png')]);
-    }).then(function (r) { return { regular: r[0], negreta: r[1], logo: 'data:image/png;base64,' + r[2] }; });
-    recursosPdf.catch(function () { recursosPdf = null; });
-    return recursosPdf;
-  }
-
-  var BLAU = [28, 12, 188], TARONJA = [232, 96, 12], GRIS = [90, 96, 112], TEXT = [30, 30, 42], VORA = [214, 218, 230];
-
+  // El document el construeix /assets/js/criteris-pdf.js (també el fan servir les pàgines d'ESO i Batxillerat).
   function pdf(ids, titolGrup, actual) {
     var d = S.dades;
     var amb = ids.filter(function (id) { var x = dadesInforme(id, actual); return x.criteris.length || x.competencies.length || (x.info && (x.info.criteri_aprovar || x.info.recuperacio || x.info.observacions)); });
     if (!amb.length && !titolGrup) return toast('Aquesta matèria encara no té dades.', true);
     Progres.inici('Generant el PDF…');
-    preparaPdf().then(function (R) {
+    CriterisPdf.prepara(function (f) { Progres.posa(f, f > 0.4 ? 'Carregant la tipografia…' : 'Preparant el PDF…'); }).then(function (R) {
       Progres.posa(0.7, 'Generant el PDF…');
-      var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' });
-      doc.addFileToVFS('Montserrat-400.ttf', R.regular); doc.addFont('Montserrat-400.ttf', 'Montserrat', 'normal');
-      doc.addFileToVFS('Montserrat-600.ttf', R.negreta); doc.addFont('Montserrat-600.ttf', 'Montserrat', 'bold');
-      doc.setFont('Montserrat', 'normal');
-      var W = 210, H = 297, MX = 16, AMPLE = W - 2 * MX, DALT = 34, BAIX = 22;
-      var cdDesc = {};
-      (d.competencies_digitals || []).forEach(function (c) { cdDesc[c.codi] = c.descripcio; });
-      var y = DALT;
-      var titolPagina = '';
-
-      function capcalera() {
-        doc.addImage(R.logo, 'PNG', MX, 10, 30, 30 * 432 / 1100);
-        doc.setFont('Montserrat', 'bold'); doc.setFontSize(7); doc.setTextColor.apply(doc, TARONJA);
-        doc.text('PROGRAMACIONS · CRITERIS DE QUALIFICACIÓ', W - MX, 13.5, { align: 'right' });
-        doc.setFont('Montserrat', 'normal'); doc.setFontSize(7.5); doc.setTextColor.apply(doc, GRIS);
-        doc.text('Institut Joan Miró · Curs ' + d.curs + (titolPagina ? ' · ' + titolPagina : ''), W - MX, 18, { align: 'right' });
-        doc.setDrawColor.apply(doc, BLAU); doc.setLineWidth(0.6); doc.line(MX, 24, W - MX, 24);
-      }
-      function novaPagina() { doc.addPage(); capcalera(); y = DALT; }
-      function espai(h) { if (y + h > H - BAIX) novaPagina(); }
-      function titol3(t) {
-        espai(14);
-        doc.setFont('Montserrat', 'bold'); doc.setFontSize(10.5); doc.setTextColor.apply(doc, BLAU);
-        doc.text(t, MX, y); y += 3;
-      }
-      function paragraf(t) {
-        doc.setFont('Montserrat', 'normal'); doc.setFontSize(9); doc.setTextColor.apply(doc, TEXT);
-        var linies = doc.splitTextToSize(String(t), AMPLE);
-        linies.forEach(function (l) { espai(5); doc.text(l, MX, y + 3.2); y += 4.6; });
-        y += 3;
-      }
-      function taula(opcions) {
-        doc.autoTable(Object.assign({
-          startY: y + 1, margin: { left: MX, right: MX, top: DALT, bottom: BAIX },
-          styles: { font: 'Montserrat', fontSize: 8.5, cellPadding: 2, textColor: TEXT, lineColor: VORA, lineWidth: 0.2, valign: 'top' },
-          headStyles: { font: 'Montserrat', fontStyle: 'bold', fillColor: [238, 240, 255], textColor: BLAU, fontSize: 7.5 },
-          didDrawPage: function (data) { if (data.pageNumber > 1 || doc.internal.getNumberOfPages() > 1) capcalera(); }
-        }, opcions));
-        y = doc.lastAutoTable.finalY + 7;
-      }
-
-      capcalera();
-      // Portada-resum del departament
+      var portada = null;
       if (titolGrup) {
-        doc.setFont('Montserrat', 'normal'); doc.setFontSize(22); doc.setTextColor.apply(doc, BLAU);
-        doc.text('Criteris de qualificació', MX, y + 6); y += 13;
-        doc.setFontSize(10.5); doc.setTextColor.apply(doc, GRIS);
-        doc.text(titolGrup + ' · Curs ' + d.curs, MX, y); y += 6;
         var compta = { completa: 0, curs: 0, pendent: 0 };
         ids.forEach(function (id) { compta[estat(S.idx[id]).codi]++; });
-        taula({
+        portada = {
+          titol: 'Criteris de qualificació', subtitol: titolGrup + ' · Curs ' + d.curs,
           head: [['Nivell', 'Matèria', '1r', '2n', '3r', 'CE', 'Aprovar', 'Recup.', 'Estat']],
           body: ids.map(function (id) {
             var e = S.idx[id], st = estat(e), info = e.info || {};
             return [e.m.nivell, e.m.materia].concat(TRIMESTRES.map(function (t) { return st.s[t].n ? fmtNum(st.s[t].total) + ' %' : '—'; }),
               [String(e.competencies.length), info.criteri_aprovar ? 'Sí' : '—', info.recuperacio ? 'Sí' : '—', st.nom]);
           }),
-          columnStyles: { 0: { cellWidth: 17 }, 2: { halign: 'right', cellWidth: 15 }, 3: { halign: 'right', cellWidth: 15 }, 4: { halign: 'right', cellWidth: 15 }, 5: { halign: 'right', cellWidth: 10 }, 6: { cellWidth: 15 }, 7: { cellWidth: 15 }, 8: { cellWidth: 19 } }
-        });
-        paragraf(ids.length + ' matèries · ' + compta.completa + ' completes · ' + compta.curs + ' en curs · ' + compta.pendent + ' pendents.');
+          columnStyles: { 0: { cellWidth: 17 }, 2: { halign: 'right', cellWidth: 15 }, 3: { halign: 'right', cellWidth: 15 }, 4: { halign: 'right', cellWidth: 15 }, 5: { halign: 'right', cellWidth: 10 }, 6: { cellWidth: 15 }, 7: { cellWidth: 15 }, 8: { cellWidth: 19 } },
+          nota: ids.length + ' matèries · ' + compta.completa + ' completes · ' + compta.curs + ' en curs · ' + compta.pendent + ' pendents.'
+        };
       }
-
-      amb.forEach(function (id, k) {
-        var x = dadesInforme(id, actual), info = x.info || {};
-        if (titolGrup || k > 0) { titolPagina = x.m.nivell + ' · ' + x.m.materia; novaPagina(); }
-        else titolPagina = '';
-        doc.setFont('Montserrat', 'bold'); doc.setFontSize(18); doc.setTextColor.apply(doc, BLAU);
-        doc.text(doc.splitTextToSize(x.m.materia, AMPLE)[0], MX, y + 5); y += 11;
-        doc.setFont('Montserrat', 'normal'); doc.setFontSize(9.5); doc.setTextColor.apply(doc, GRIS);
-        doc.text((NOM_NIVELL[x.m.nivell] || x.m.nivell) + ' · ' + nomDep(x.m.departament) + (x.data ? ' · Actualitzat el ' + dataCurta(x.data).split(' ')[0] : ''), MX, y); y += 8;
-
-        TRIMESTRES.forEach(function (t) {
-          var files = x.criteris.filter(function (c) { return c.trimestre === t; });
-          if (!files.length) return;
-          var tot = files.reduce(function (s2, c) { var p = num(c.percentatge); return s2 + (p && !isNaN(p) ? p : 0); }, 0);
-          titol3(t + ' trimestre');
-          taula({
-            head: [['Activitat avaluativa', '%', 'Competència específica', 'Competència digital']],
-            body: files.map(function (c) {
-              var p = num(c.percentatge);
-              return [c.activitat, p !== null && !isNaN(p) ? fmtNum(p) : '', (c.competencies || []).join(', '), (c.competencia_digital || []).join(', ')];
-            }),
-            foot: [['Total', fmtNum(tot), '', '']],
-            footStyles: { font: 'Montserrat', fontStyle: 'bold', fillColor: [246, 247, 250], textColor: Math.abs(tot - 100) < 0.01 ? TEXT : [163, 90, 0] },
-            showFoot: 'lastPage',
-            columnStyles: { 1: { halign: 'right', cellWidth: 14 }, 2: { cellWidth: 40 }, 3: { cellWidth: 34 } }
-          });
-        });
-        if (x.competencies.length) {
-          titol3('Competències específiques');
-          taula({ body: x.competencies.map(function (c) { return [c.codi, c.descripcio]; }),
-            columnStyles: { 0: { cellWidth: 16, fontStyle: 'bold', textColor: BLAU } } });
-        }
-        var usats = [];
-        x.criteris.forEach(function (c) { (c.competencia_digital || []).forEach(function (v) { if (usats.indexOf(v) < 0) usats.push(v); }); });
-        if (usats.length) {
-          usats.sort(ordenaCodis);
-          titol3('Competència digital');
-          taula({ body: usats.map(function (v) { return [v, cdDesc[v] || '']; }),
-            columnStyles: { 0: { cellWidth: 16, fontStyle: 'bold', textColor: [15, 122, 110] } } });
-        }
-        [['criteri_aprovar', 'Criteri per aprovar la matèria'], ['recuperacio', 'Mecanismes de recuperació'], ['observacions', 'Observacions']].forEach(function (c) {
-          if (info[c[0]]) { titol3(c[1]); y += 1; paragraf(info[c[0]]); }
-        });
+      var doc = CriterisPdf.genera(R, {
+        curs: d.curs, lang: 'ca', capcalera: 'Programacions · Criteris de qualificació', portada: portada,
+        competenciesDigitals: d.competencies_digitals,
+        materies: amb.map(function (id) {
+          var x = dadesInforme(id, actual);
+          return { titol: x.m.materia, pagina: x.m.nivell + ' · ' + x.m.materia, criteris: x.criteris, competencies: x.competencies, info: x.info,
+            subtitol: (NOM_NIVELL[x.m.nivell] || x.m.nivell) + ' · ' + nomDep(x.m.departament) + (x.data ? ' · Actualitzat el ' + dataCurta(x.data).split(' ')[0] : '') };
+        })
       });
-
-      // Peu amb la data i la paginació
-      var n = doc.internal.getNumberOfPages(), avui = new Date().toLocaleDateString('ca-ES');
-      for (var pg = 1; pg <= n; pg++) {
-        doc.setPage(pg);
-        doc.setDrawColor.apply(doc, VORA); doc.setLineWidth(0.2); doc.line(MX, H - 14, W - MX, H - 14);
-        doc.setFont('Montserrat', 'normal'); doc.setFontSize(7.5); doc.setTextColor.apply(doc, GRIS);
-        doc.text('Institut Joan Miró · Cornellà de Llobregat · Generat el ' + avui, MX, H - 9.5);
-        doc.text('Pàgina ' + pg + ' de ' + n, W - MX, H - 9.5, { align: 'right' });
-      }
       var nom = 'criteris-' + (titolGrup ? normalitza(titolGrup) : normalitza(dadesInforme(ids[0], actual).m.nivell + ' ' + dadesInforme(ids[0], actual).m.materia)).replace(/ /g, '-') + '-' + d.curs + '.pdf';
       doc.save(nom);
       Progres.fi();

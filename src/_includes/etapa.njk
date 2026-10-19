@@ -248,7 +248,7 @@
           {%- for bl in e.qual.blocs %}
           <div class="eso-qbox">
             <h4>{{ bl.titol[L] }}</h4>
-            <a class="eso-doc eso-doc--row" href="{{ bl.pdf if bl.pdf else '#' }}" target="_blank" rel="noopener"><span>{{ e.qual.criterisDoc[L] }}{% if not bl.pdf %} <span class="tbd">{{ e.qual.pendent[L] }}</span>{% endif %}</span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+            <a class="eso-doc eso-doc--row" href="#qualificacio" data-criteris="{{ bl.nivell }}" data-nom="{{ bl.titol[L] }}"><span>{{ E.qual.criterisPdf[L] }}</span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
             <ol class="eso-reports">
               {%- for b in bl.butlletins %}
               <li{% if b.paper %} class="eso-reports__item--paper"{% endif %}><span class="eso-reports__when">{{ b.quan[L] }}</span><span class="eso-reports__what">{{ b.que[L] }}</span><span class="eso-reports__fmt">{{ b.format[L] }}</span></li>
@@ -261,7 +261,7 @@
         <p>{{ e.qual.comText[L] }}</p>
         <div class="eso-docs">
           {%- for c in e.curr.cursos %}
-          <a class="eso-doc" href="#" target="_blank" rel="noopener"><span class="eso-doc__title">{{ c.label[L] }}</span><span class="eso-doc__meta tbd">{{ e.curr.pdfPendent[L] | replace('(', '') | replace(')', '') }}</span></a>
+          <a class="eso-doc" href="#qualificacio" data-criteris="{{ c.nivell }}" data-nom="{{ c.label[L] }}"><span class="eso-doc__title">{{ c.label[L] }}</span><span class="eso-doc__meta">{{ E.qual.criterisPdf[L] }}</span></a>
           {%- endfor %}
         </div>
         <ol class="eso-reports">
@@ -421,8 +421,70 @@
 
 </div>
 
+<script src="/assets/js/progres.js" defer></script>
+<script src="/assets/js/criteris-pdf.js" defer></script>
 {% raw %}
 <script>
+  // ============ Criteris de qualificació: PDF per nivell amb les dades de programacions_db ============
+  // Enllaços amb data-criteris="ESO 1r"… → /api/criteris-publics → PDF (assets/js/criteris-pdf.js) en una pestanya nova.
+  document.addEventListener('DOMContentLoaded', function(){
+    var enllacos = document.querySelectorAll('[data-criteris]');
+    if (!enllacos.length) return;
+    var lang = (document.documentElement.lang || 'ca').slice(0, 2);
+    var TX = {
+      ca: { gen: 'Generant el PDF dels criteris de qualificació…', titol: 'Criteris de qualificació', curs: 'Curs', mat: 'Matèria', act: 'Actualització',
+        nota: 'Hi surten les matèries que ja han publicat els seus criteris. La resta s’hi aniran afegint.', buit: 'Encara no s’han publicat els criteris de qualificació d’aquest nivell.',
+        error: 'No s’ha pogut generar el PDF. Torneu-ho a provar d’aquí a una estona.', actualitzat: 'Actualitzat el', fitxer: 'criteris-qualificacio' },
+      es: { gen: 'Generando el PDF de los criterios de calificación…', titol: 'Criterios de calificación', curs: 'Curso', mat: 'Materia', act: 'Actualización',
+        nota: 'Aparecen las materias que ya han publicado sus criterios. El resto se irán añadiendo.', buit: 'Todavía no se han publicado los criterios de calificación de este nivel.',
+        error: 'No se ha podido generar el PDF. Vuelva a intentarlo dentro de un rato.', actualitzat: 'Actualizado el', fitxer: 'criterios-calificacion' },
+      en: { gen: 'Generating the assessment criteria PDF…', titol: 'Assessment criteria', curs: 'School year', mat: 'Subject', act: 'Updated',
+        nota: 'Only subjects that have already published their criteria are included. The rest will be added.', buit: 'The assessment criteria for this level have not been published yet.',
+        error: 'The PDF could not be generated. Please try again later.', actualitzat: 'Updated on', fitxer: 'assessment-criteria' }
+    }[lang] || {};
+    var data = function(d){ var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[3]) + '/' + Number(m[2]) + '/' + m[1] : ''; };
+    var esc = function(t){ return String(t).replace(/[&<>]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); };
+    function avis(w, text){
+      if (w && !w.closed) w.document.body.innerHTML = '<p style="font:16px/1.6 Montserrat,system-ui,sans-serif;color:#1E1E2A;max-width:560px;margin:15vh auto;padding:0 16px;text-align:center">' + esc(text) + '</p>';
+      else if (window.alert) alert(text);
+    }
+    Array.prototype.forEach.call(enllacos, function(a){
+      a.addEventListener('click', function(ev){
+        ev.preventDefault();
+        var nivell = a.getAttribute('data-criteris'), nom = a.getAttribute('data-nom') || nivell;
+        // La pestanya s'obre en el moment del clic (si s'obre després, el navegador la bloqueja)
+        var w = window.open('', '_blank');
+        if (w) { w.document.title = TX.titol + ' · ' + nom; avis(w, TX.gen); }
+        var crida = fetch('/api/criteris-publics?nivell=' + encodeURIComponent(nivell)).then(function(r){ return r.json(); });
+        var feina = Promise.all([crida, CriterisPdf.prepara()]);
+        (window.Progres ? Progres.amb(feina.then(function(x){ return x; }), TX.gen) : feina).then(function(x){
+          var d = x[0], R = x[1];
+          if (!d || !d.ok) throw new Error((d && d.error) || 'error');
+          var materies = d.materies.filter(function(m){ var i = m.info || {}; return m.criteris.length || m.competencies.length || i.criteri_aprovar || i.recuperacio || i.observacions; });
+          var doc = CriterisPdf.genera(R, {
+            curs: d.curs, lang: lang, capcalera: TX.titol,
+            portada: { titol: TX.titol, subtitol: nom + ' · ' + TX.curs + ' ' + d.curs,
+              head: [[TX.mat, TX.act]], body: materies.map(function(m){ return [m.materia, data((m.info || {}).data) || '—']; }),
+              columnStyles: { 1: { cellWidth: 34 } }, nota: materies.length ? TX.nota : TX.buit },
+            competenciesDigitals: d.competencies_digitals,
+            materies: materies.map(function(m){
+              var dt = data((m.info || {}).data);
+              return { titol: m.materia, pagina: nom + ' · ' + m.materia, subtitol: nom + (dt ? ' · ' + TX.actualitzat + ' ' + dt : ''),
+                criteris: m.criteris, competencies: m.competencies, info: m.info || {} };
+            })
+          });
+          doc.setProperties({ title: TX.titol + ' · ' + nom + ' · ' + d.curs });
+          var fitxer = TX.fitxer + '-' + nivell.toLowerCase().replace(/\s+/g, '-') + '-' + d.curs + '.pdf';
+          if (w && !w.closed) w.location.href = doc.output('bloburl', { filename: fitxer });
+          else doc.save(fitxer);
+        }).catch(function(err){
+          avis(w, TX.error);
+          if (window.console) console.error(err);
+        });
+      });
+    });
+  });
+
   // ============ ESO / Batxillerat: pestanyes del currículum per nivell ============
   (function(){
     var tabs = Array.prototype.slice.call(document.querySelectorAll('.eso-tabs [role="tab"]'));

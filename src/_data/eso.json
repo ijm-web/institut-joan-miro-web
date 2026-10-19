@@ -418,7 +418,8 @@
           "ca": "Descripció de les optatives de 1r ESO",
           "es": "Descripción de las optativas de 1º ESO",
           "en": "Elective descriptions, 1st ESO"
-        }
+        },
+        "nivell": "ESO 1r"
       },
       {
         "label": {
@@ -551,7 +552,8 @@
           "ca": "Descripció de les optatives de 2n ESO",
           "es": "Descripción de las optativas de 2º ESO",
           "en": "Elective descriptions, 2nd ESO"
-        }
+        },
+        "nivell": "ESO 2n"
       },
       {
         "label": {
@@ -689,7 +691,8 @@
           "ca": "Descripció de les optatives de 3r ESO",
           "es": "Descripción de las optativas de 3º ESO",
           "en": "Elective descriptions, 3rd ESO"
-        }
+        },
+        "nivell": "ESO 3r"
       },
       {
         "label": {
@@ -900,7 +903,8 @@
           "ca": "Descripció de les matèries d’opció de 4t ESO",
           "es": "Descripción de las materias de opción de 4º ESO",
           "en": "Optional subject descriptions, 4th ESO"
-        }
+        },
+        "nivell": "ESO 4t"
       }
     ],
     "franjaTitol": {
@@ -1027,7 +1031,12 @@
         },
         "paper": true
       }
-    ]
+    ],
+    "criterisPdf": {
+      "ca": "Criteris de qualificació (PDF)",
+      "es": "Criterios de calificación (PDF)",
+      "en": "Assessment criteria (PDF)"
+    }
   },
   "proj": {
     "titol": {

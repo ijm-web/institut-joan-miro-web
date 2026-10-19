@@ -17,6 +17,16 @@ Adreça: **https://institutjoanmiro.netlify.app/programacions**
    - **Carrega dades…**: omple l'editor amb la mateixa matèria del curs anterior o amb un dels fulls de criteris 2025-2026 importats. No es desa fins que es prem Desa.
    - Si dues persones editen la mateixa matèria alhora, la segona que desa rep un avís i tria si torna a carregar o si desa la seva versió.
 
+## PDF públics per nivell (pàgines d'ESO i Batxillerat)
+
+Els enllaços «Criteris de qualificació (PDF)» de **Estudis › ESO** (un per nivell) i **Estudis › Batxillerat** (1r i 2n) generen al moment un PDF amb els criteris de totes les matèries d'aquell nivell que tenen dades a programacions_db (curs actual), i l'obren en una pestanya nova.
+
+- Dades: `GET /api/criteris-publics?nivell=ESO%201r` (funció `criteris-publics.mjs`, pública, sense correus) → acció `publics` de l'Apps Script. Resposta guardada 5 minuts: un canvi desat a Programacions pot trigar fins a 5 minuts a sortir al PDF públic.
+- PDF: `src/assets/js/criteris-pdf.js` (el mateix generador que fa servir Programacions), textos de capçalera en l'idioma de la pàgina; el contingut és el que han escrit els departaments.
+- Portada amb la llista de matèries publicades i la data d'actualització; si encara no n'hi ha cap, ho diu.
+- Codis de nivell a `eso.json › curr.cursos[].nivell` i `batxillerat.json › qual.blocs[].nivell`.
+- **Cal actualitzar l'Apps Script** de programacions_db amb el `Code.gs` d'aquest repositori (acció `publics`) i desplegar una versió nova.
+
 ## Permisos
 
 - Entra qui té el correu a la pestanya **departaments** de **joanmiro_db** (fila del curs de gestió) o a `config › admins`. És la mateixa llista que dona accés al web de llibres (acció `loginEmail` del pont).
@@ -81,6 +91,6 @@ Regles de la conversió: percentatges 0-1 → 0-100; un percentatge compartit pe
 
 ## Fitxers
 
-`src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/js/progres.js` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
+`src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/js/progres.js` · `src/assets/js/criteris-pdf.js` · `netlify/functions/criteris-publics.mjs` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
 
 Funcions: `GET /api/programacions/criteris?curs=` (dades) · `POST /api/programacions/criteris` amb `accio` = `desa` | `esborra` | `materia` | `importacio`.

@@ -1339,7 +1339,8 @@
             },
             "paper": true
           }
-        ]
+        ],
+        "nivell": "BAT 1r"
       },
       {
         "titol": {
@@ -1417,7 +1418,8 @@
             },
             "paper": true
           }
-        ]
+        ],
+        "nivell": "BAT 2n"
       }
     ],
     "promoTitol": {

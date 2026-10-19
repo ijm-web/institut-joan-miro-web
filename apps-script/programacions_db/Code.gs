@@ -20,6 +20,8 @@
  *   historial             : data_canvi | canvi_per | accio | curs | id_materia | contingut (JSON de l'estat anterior)
  *   imp_criteris, imp_competencies, imp_info : dades del curs 2025-2026 per importar (opcional; vegeu LEGIR_PROGRAMACIONS.md)
  *
+ * Accions: ping, inici, materia, desa, esborra, importacio (àrea privada) i publics (PDF públic per nivell de les pàgines d'ESO i Batxillerat).
+ *
  * id_materia = «nivell - materia», el mateix identificador que la pestanya materies de joanmiro_db (p. ex. «ESO 1r - Matemàtiques»).
  * Competències i competència digital: codis separats per comes («CE1, CE3», «CD2, CD8»).
  *
@@ -75,6 +77,7 @@ function doPost(e) {
       case 'desa':       return json_(desa_(req));
       case 'esborra':    return json_(esborra_(req));
       case 'importacio': return json_(importacio_(req.origen));
+      case 'publics':    return json_(publics_(req.curs, req.nivell));
       default:           return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -102,6 +105,32 @@ function inici_(curs, materies) {
     competencies: llegeix_(FULL.comp).filter(enLlista).map(netComp_),
     info: llegeix_(FULL.info).filter(enLlista).map(netInfo_),
     origens: origensImportacio_(),
+  };
+}
+
+// Criteris publicats d'un nivell (pàgines ESO i Batxillerat del web, PDF per nivell).
+// Sense correus de qui ha desat: només el contingut i la data.
+function publics_(curs, nivell) {
+  const niv = String(nivell || '').trim();
+  if (!cursValid_(curs) || !/^(ESO [1-4]|BAT [12])(r|n|t)$/.test(niv)) return { ok: false, error: 'peticio_invalida' };
+  const prefix = niv + ' - ';
+  const f = (r) => r.curs === curs && String(r.id_materia).indexOf(prefix) === 0;
+  const perId = {};
+  const assegura = (id) => (perId[id] = perId[id] || { id_materia: id, materia: id.slice(prefix.length), criteris: [], competencies: [], info: null });
+  llegeix_(FULL.crit).filter(f).forEach((r) => {
+    const c = netCriteri_(r);
+    assegura(r.id_materia).criteris.push({ trimestre: c.trimestre, ordre: c.ordre, activitat: c.activitat, percentatge: c.percentatge,
+      competencies: c.competencies, competencia_digital: c.competencia_digital });
+  });
+  llegeix_(FULL.comp).filter(f).forEach((r) => assegura(r.id_materia).competencies.push({ codi: r.codi, descripcio: r.descripcio }));
+  llegeix_(FULL.info).filter(f).forEach((r) => {
+    assegura(r.id_materia).info = { criteri_aprovar: r.criteri_aprovar, recuperacio: r.recuperacio, observacions: r.observacions, data: r.data };
+  });
+  const materies = Object.keys(perId).map((k) => perId[k]).sort((a, b) => a.materia.localeCompare(b.materia, 'ca'));
+  materies.forEach((m) => m.criteris.sort((a, b) => TRIMESTRES.indexOf(a.trimestre) - TRIMESTRES.indexOf(b.trimestre) || a.ordre - b.ordre));
+  return {
+    ok: true, curs: curs, nivell: niv, materies: materies,
+    competencies_digitals: llegeix_(FULL.cd).map((r) => ({ codi: r.codi, descripcio: r.descripcio })).filter((r) => r.codi),
   };
 }
 
