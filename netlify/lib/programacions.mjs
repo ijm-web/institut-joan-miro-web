@@ -45,12 +45,33 @@ async function cridaScript(prefix, nomUrl, nomSecret, action, dades) {
 export const cridaFull = (action, dades = {}) => cridaScript('pont', 'APPS_SCRIPT_URL', 'APPS_SCRIPT_SECRET', action, dades);
 export const cridaProg = (action, dades = {}) => cridaScript('prog', 'PROG_SCRIPT_URL', 'PROG_SCRIPT_SECRET', action, dades);
 
-/** Curs escolar actual (de l'1 d'agost al 31 de juliol), p. ex. «2026-2027». Es pot fixar amb PROG_CURS. */
+/** Curs escolar actual (de l'1 d'agost al 31 de juliol), p. ex. «2026-2027». Es pot fixar amb PROG_CURS.
+ *  Només es fa servir si programacions_db no té config › curs_gestio. */
 export function cursActual(ara = new Date()) {
   const fix = process.env.PROG_CURS;
   if (fix && /^\d{4}-\d{4}$/.test(fix)) return fix;
   const a = ara.getFullYear() - (ara.getMonth() < 7 ? 1 : 0);
   return `${a}-${a + 1}`;
+}
+
+// Cursos de programacions_db (config › curs_gestio i curs_publicat). Guardats 1 minut a la memòria de la funció.
+// Si l'Apps Script encara és la versió anterior (sense l'acció «config»), es fa servir el curs actual.
+let cauConfig = null;
+export async function configProg() {
+  const ara = Date.now();
+  if (cauConfig && cauConfig.fins > ara) return cauConfig.dades;
+  let c = {};
+  try {
+    const r = await cridaProg('config');
+    if (r.ok) c = r.config || {};
+  } catch (err) {
+    if (err.codi !== 'prog_accio_desconeguda') throw err;
+  }
+  const valid = (x) => /^\d{4}-\d{4}$/.test(String(x || ''));
+  const gestio = valid(c.curs_gestio) ? c.curs_gestio : cursActual();
+  const dades = { estat: c.estat || 'obert', missatge: c.missatge || '', curs_gestio: gestio, curs_publicat: valid(c.curs_publicat) ? c.curs_publicat : gestio };
+  cauConfig = { fins: ara + 60 * 1000, dades };
+  return dades;
 }
 
 const signa = (dades, secret) => crypto.createHmac('sha256', secret).update(dades).digest('base64url');

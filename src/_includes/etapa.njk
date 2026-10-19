@@ -478,7 +478,8 @@
           if (w && !w.closed) w.location.href = doc.output('bloburl', { filename: fitxer });
           else doc.save(fitxer);
         }).catch(function(err){
-          avis(w, TX.error);
+          var codi = err && err.message && err.message !== 'error' ? err.message : '';
+          avis(w, TX.error + (codi ? ' (' + codi + ')' : ''));
           if (window.console) console.error(err);
         });
       });

@@ -19,21 +19,30 @@ Adreça: **https://institutjoanmiro.netlify.app/programacions**
 
 ## PDF públics per nivell (pàgines d'ESO i Batxillerat)
 
-Els enllaços «Criteris de qualificació (PDF)» de **Estudis › ESO** (un per nivell) i **Estudis › Batxillerat** (1r i 2n) generen al moment un PDF amb els criteris de totes les matèries d'aquell nivell que tenen dades a programacions_db (curs actual), i l'obren en una pestanya nova.
+Els enllaços «Criteris de qualificació (PDF)» de **Estudis › ESO** (un per nivell) i **Estudis › Batxillerat** (1r i 2n) generen al moment un PDF amb els criteris de totes les matèries d'aquell nivell que tenen dades a programacions_db del **curs publicat** (`config › curs_publicat`), i l'obren en una pestanya nova.
 
-- Dades: `GET /api/criteris-publics?nivell=ESO%201r` (funció `criteris-publics.mjs`, pública, sense correus) → acció `publics` de l'Apps Script. Resposta guardada 5 minuts: un canvi desat a Programacions pot trigar fins a 5 minuts a sortir al PDF públic.
+- Dades: `GET /api/criteris-publics?nivell=ESO%201r` (funció `criteris-publics.mjs`, pública, sense correus) → acció `publics` de l'Apps Script. Resposta guardada 5 minuts: un canvi desat a Programacions (o de `curs_publicat`) pot trigar uns minuts a sortir al PDF públic.
 - PDF: `src/assets/js/criteris-pdf.js` (el mateix generador que fa servir Programacions), textos de capçalera en l'idioma de la pàgina; el contingut és el que han escrit els departaments.
 - Portada amb la llista de matèries publicades i la data d'actualització; si encara no n'hi ha cap, ho diu.
 - Codis de nivell a `eso.json › curr.cursos[].nivell` i `batxillerat.json › qual.blocs[].nivell`.
-- **Cal actualitzar l'Apps Script** de programacions_db amb el `Code.gs` d'aquest repositori (acció `publics`) i desplegar una versió nova.
+- **Cal actualitzar l'Apps Script** de programacions_db amb el `Code.gs` d'aquest repositori (accions `publics` i `config`), executar `configura` (afegeix `curs_publicat` i `curs_gestio` a config) i desplegar una versió nova.
+
+## Dos cursos: publicat i de gestió (`programacions_db › config`)
+
+| Clau | Per a què serveix |
+|---|---|
+| `curs_publicat` | Curs dels PDF públics de les pàgines d'ESO i Batxillerat. |
+| `curs_gestio` | Curs que s'obre a Programacions i l'únic que poden modificar els departaments (els altres cursos, de consulta; els admins els poden modificar tots). |
+
+Canvi de curs habitual: al juny/juliol es posa `curs_gestio` = curs vinent perquè els departaments el preparin (amb «Carrega dades…» del curs anterior) mentre el web continua mostrant `curs_publicat`; al setembre es canvia `curs_publicat` al curs nou. Si config no té `curs_gestio`, es fa servir el curs escolar actual.
 
 ## Permisos
 
 - Entra qui té el correu a la pestanya **departaments** de **joanmiro_db** (fila del curs de gestió) o a `config › admins`. És la mateixa llista que dona accés al web de llibres (acció `loginEmail` del pont).
 - Cada persona només veu i modifica les matèries dels seus departaments (pestanya **materies** de joanmiro_db del curs seleccionat). Els admins les veuen totes.
-- Els cursos anteriors a l'actual són només de consulta (excepte per als admins).
+- Només es pot modificar el curs de gestió (`config › curs_gestio`); la resta són de consulta (excepte per als admins).
 - `config › estat = tancat` (a programacions_db) bloqueja les desades de tothom menys dels admins. `config › missatge` mostra un avís a dalt de la gestió (p. ex. el termini).
-- El curs actual es calcula sol (de l'1 d'agost al 31 de juliol). Es pot fixar amb la variable `PROG_CURS` (p. ex. `2026-2027`).
+- Si `config › curs_gestio` és buit, el curs de gestió és el curs escolar actual (de l'1 d'agost al 31 de juliol) o el de la variable `PROG_CURS`.
 
 ## Dades: programacions_db
 
@@ -46,7 +55,7 @@ Full **programacions_db** (`1qQ7tiVMl9MsHkEssmUdXxyJnp_PdNeElp_oFxFH2_Ag`). Pest
 | `materies_info` | curs · id_materia · departament · criteri_aprovar · recuperacio · observacions · data · desat_per |
 | `competencies_digitals` | codi · descripcio (catàleg comú CD1-CD11; s'edita directament al full) |
 | `historial` | data_canvi · canvi_per · accio · curs · id_materia · contingut (estat anterior en JSON) |
-| `config` | estat (obert/tancat) · missatge |
+| `config` | estat (obert/tancat) · missatge · curs_publicat · curs_gestio |
 | `imp_criteris`, `imp_competencies`, `imp_info` | dades 2025-2026 per importar (opcional) |
 
 `id_materia` = «nivell - matèria», igual que a joanmiro_db (p. ex. `ESO 1r - Matemàtiques`). Les competències d'una activitat es desen com a codis separats per comes (`CE1, CE3`).

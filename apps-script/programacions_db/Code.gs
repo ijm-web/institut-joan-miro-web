@@ -43,6 +43,8 @@ const CAP = {
 const CONFIG_PER_DEFECTE = [
   ['estat', 'obert', 'obert o tancat. Si és tancat, els departaments poden consultar però no desar (els admins sí).'],
   ['missatge', '', 'Text opcional que es mostra a dalt de la Gestió de criteris (p. ex. el termini de lliurament).'],
+  ['curs_publicat', '2026-2027', 'Curs dels criteris que surten als PDF de les pàgines d\'ESO i Batxillerat del web.'],
+  ['curs_gestio', '2026-2027', 'Curs que gestionen els departaments (s\'obre per defecte). Els altres cursos són de consulta, excepte per als admins.'],
 ];
 
 const TRIMESTRES = ['1r', '2n', '3r'];
@@ -72,6 +74,7 @@ function doPost(e) {
   try {
     switch (req.action) {
       case 'ping':       return json_({ ok: true, missatge: 'Connexió correcta amb programacions_db' });
+      case 'config':     return json_({ ok: true, config: configPublica_() });
       case 'inici':      return json_(inici_(req.curs, req.materies));
       case 'materia':    return json_(materia_(req.curs, req.id_materia));
       case 'desa':       return json_(desa_(req));
@@ -98,7 +101,7 @@ function inici_(curs, materies) {
   const cfg = llegeixConfig_();
   return {
     ok: true,
-    config: { estat: cfg.estat, missatge: cfg.missatge || '' },
+    config: configPublica_(cfg),
     cursos: cursosAmbDades_(),
     competencies_digitals: llegeix_(FULL.cd).map((r) => ({ codi: r.codi, descripcio: r.descripcio })).filter((r) => r.codi),
     criteris: llegeix_(FULL.crit).filter(enLlista).map(netCriteri_),
@@ -111,6 +114,7 @@ function inici_(curs, materies) {
 // Criteris publicats d'un nivell (pàgines ESO i Batxillerat del web, PDF per nivell).
 // Sense correus de qui ha desat: només el contingut i la data.
 function publics_(curs, nivell) {
+  if (!curs) curs = configPublica_().curs_publicat;   // per defecte, el curs publicat (config › curs_publicat)
   const niv = String(nivell || '').trim();
   if (!cursValid_(curs) || !/^(ESO [1-4]|BAT [12])(r|n|t)$/.test(niv)) return { ok: false, error: 'peticio_invalida' };
   const prefix = niv + ' - ';
@@ -155,6 +159,8 @@ function desa_(req) {
   if (!cursValid_(curs) || !id || !usuari) return { ok: false, error: 'peticio_invalida' };
   const cfg = llegeixConfig_();
   if (String(cfg.estat).toLowerCase() !== 'obert' && !req.admin) return { ok: false, error: 'tancat' };
+  const gestio = configPublica_(cfg).curs_gestio;
+  if (!req.admin && gestio && curs !== gestio) return { ok: false, error: 'curs_nomes_lectura' };
 
   const v = valida_(req);
   if (!v.ok) return v;
@@ -198,6 +204,8 @@ function esborra_(req) {
   if (!cursValid_(curs) || !id || !usuari) return { ok: false, error: 'peticio_invalida' };
   const cfg = llegeixConfig_();
   if (String(cfg.estat).toLowerCase() !== 'obert' && !req.admin) return { ok: false, error: 'tancat' };
+  const gestio = configPublica_(cfg).curs_gestio;
+  if (!req.admin && gestio && curs !== gestio) return { ok: false, error: 'curs_nomes_lectura' };
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -359,6 +367,14 @@ function cursValid_(c) { return /^\d{4}-\d{4}$/.test(String(c || '').trim()); }
 function normalitza_(s) {
   return String(s || '').toLowerCase().replace(/\(.*?\)/g, '')
     .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '_').trim();
+}
+
+/** Config que es pot ensenyar a Netlify: estat, missatge, curs publicat i curs de gestió */
+function configPublica_(cfg) {
+  cfg = cfg || llegeixConfig_();
+  const gestio = cursValid_(cfg.curs_gestio) ? String(cfg.curs_gestio).trim() : '';
+  const publicat = cursValid_(cfg.curs_publicat) ? String(cfg.curs_publicat).trim() : gestio;
+  return { estat: cfg.estat, missatge: cfg.missatge || '', curs_gestio: gestio, curs_publicat: publicat };
 }
 
 function llegeixConfig_() {

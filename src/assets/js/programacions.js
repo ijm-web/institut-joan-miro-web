@@ -24,7 +24,7 @@
     error_servidor: 'Hi ha hagut un error. Torneu-ho a provar d’aquí a una estona.',
     sessio_no_valida: 'La sessió ha caducat. Torneu a entrar.',
     materia_no_permesa: 'No podeu modificar aquesta matèria.',
-    curs_nomes_lectura: 'Aquest curs és només de consulta.',
+    curs_nomes_lectura: 'Aquest curs és només de consulta: només es pot modificar el curs de gestió.',
     tancat: 'La gestió de criteris està tancada. Podeu consultar, però no desar.',
     percentatge_invalid: 'Hi ha un percentatge que no és vàlid (ha de ser un número entre 0 i 100).',
     codi_repetit: 'Hi ha dues competències amb el mateix codi.',
@@ -180,7 +180,7 @@
 
   function obreApp(sessio) {
     S.sessio = sessio;
-    S.curs = sessio.curs;
+    S.curs = '';   // el primer cop, el servidor obre el curs de gestió (programacions_db › config › curs_gestio)
     $('progAcces').hidden = true;
     $('progApp').hidden = false;
     $('progEmail').textContent = sessio.email + (sessio.admin ? ' · administració' : '');
@@ -244,7 +244,7 @@
   function carregaCriteris() {
     $('appCarregant').hidden = !window.Progres ? false : true;
     $('critLlista').innerHTML = '';
-    return api('criteris?curs=' + encodeURIComponent(S.curs), { progres: 'Carregant les dades del curs ' + S.curs + '…' }).then(function (d) {
+    return api('criteris' + (S.curs ? '?curs=' + encodeURIComponent(S.curs) : ''), { progres: S.curs ? 'Carregant les dades del curs ' + S.curs + '…' : 'Carregant les dades…' }).then(function (d) {
       $('appCarregant').hidden = true;
       if (!d.ok) { $('critLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + textError(d) + '</p>'; return; }
       S.dades = d;
@@ -273,7 +273,7 @@
   function pintaFiltres() {
     var d = S.dades;
     $('selCurs').innerHTML = d.cursos.map(function (c) {
-      return '<option value="' + esc(c) + '"' + (c === d.curs ? ' selected' : '') + '>' + esc(nomCurs(c)) + (c === d.curs_actual ? ' (actual)' : '') + '</option>';
+      return '<option value="' + esc(c) + '"' + (c === d.curs ? ' selected' : '') + '>' + esc(nomCurs(c)) + ([c === d.curs_gestio ? 'en gestió' : '', c === d.curs_publicat ? 'publicat al web' : ''].filter(Boolean).map(function (x) { return ' (' + x + ')'; }).join('')) + '</option>';
     }).join('');
     var deps = d.departaments.filter(function (x) { return d.materies.some(function (m) { return m.departament === x.id; }); });
     if (S.dep && !deps.some(function (x) { return x.id === S.dep; })) S.dep = '';
@@ -288,7 +288,7 @@
     var lec = $('critLectura');
     if (!d.editable) {
       lec.hidden = false;
-      lec.textContent = String(d.estat).toLowerCase() !== 'obert' ? text('tancat') : 'El curs ' + d.curs + ' és només de consulta.';
+      lec.textContent = String(d.estat).toLowerCase() !== 'obert' ? text('tancat') : 'El curs ' + d.curs + ' és només de consulta. Ara es gestiona el curs ' + d.curs_gestio + '.';
     } else lec.hidden = true;
   }
 
