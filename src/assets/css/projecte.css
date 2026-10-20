@@ -1,0 +1,234 @@
+/* ============ PÀGINES DE PROJECTES (Comprensió Lectora, Fundació Joan Miró, La Paraula al Centre) ============
+   Mateix format que Projectes › Llengües estrangeres (estils le-* copiats d'aquella pàgina).
+   Plantilla: src/_includes/projecte.njk · dades: src/_data/projectes.json */
+.le-wrap{
+  max-width: 1220px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0 clamp(16px, 4vw, 48px);
+}
+
+/* --- Introducció --- */
+.le-kicker{
+  display: inline-block;
+  margin: 0 0 18px;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-orange);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+.le-intro{
+  padding: clamp(44px, 6vw, 80px) 0 clamp(36px, 5vw, 56px);
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+.le-intro--logo{
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: clamp(28px, 5vw, 72px);
+  align-items: center;
+}
+.le-lead{
+  max-width: 900px;
+  margin: 0;
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.55;
+  font-weight: 300;
+  color: var(--color-text);
+}
+.le-lead .kw{ color: var(--color-blue); font-weight: 700; }
+
+/* --- Logotip del projecte --- */
+.pj-logo{
+  margin: 0;
+  width: clamp(180px, 22vw, 280px);
+  box-sizing: border-box;
+  padding: 22px;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pj-logo img{ display: block; width: 100%; height: auto; }
+.pj-logo--foto{ padding: 0; border: none; overflow: hidden; background: none; box-shadow: 0 14px 40px rgba(20, 10, 90, 0.18); }
+
+/* --- Xifres destacades --- */
+.le-stats{
+  list-style: none;
+  margin: 0;
+  padding: clamp(26px, 3vw, 36px) 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  border-top: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--color-border);
+}
+.le-stats li{
+  padding: 4px clamp(12px, 2vw, 28px);
+  border-left: 1px solid var(--color-border);
+}
+.le-stats li:first-child{ border-left: none; padding-left: 0; }
+.le-stats__num{
+  display: block;
+  font-size: clamp(30px, 3.6vw, 48px);
+  font-weight: 300;
+  color: var(--color-blue);
+  line-height: 1.05;
+  overflow-wrap: anywhere;
+}
+.le-stats__num small{ font-size: 0.5em; font-weight: 600; margin-left: 2px; }
+.le-stats__num small:first-child{ margin-left: 0; }
+.le-stats__label{
+  display: block;
+  margin-top: 8px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+
+/* --- Seccions editorials: títol a l'esquerra, contingut a la dreta --- */
+.le-section{
+  display: grid;
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  gap: clamp(24px, 5vw, 72px);
+  padding: clamp(48px, 6vw, 88px) 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.le-section:last-of-type{ border-bottom: none; }
+.le-section__head{ align-self: start; position: sticky; top: 130px; }
+.le-section__num{
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: var(--color-orange);
+  margin-bottom: 12px;
+}
+.le-section__head h2{
+  margin: 0;
+  font-size: clamp(24px, 2.6vw, 30px);
+  font-weight: 300;
+  line-height: 1.15;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-blue);
+}
+.le-section__body p{
+  margin: 0 0 1.1em;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--color-text);
+}
+.le-section__body p:last-child{ margin-bottom: 0; }
+.le-section__body .kw{ color: var(--color-blue); font-weight: 700; }
+
+/* --- Etiquetes --- */
+.le-tags{
+  list-style: none;
+  margin: 0 0 clamp(26px, 3vw, 36px);
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.le-tags li{
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 18px 10px 12px;
+  border: 1px solid rgba(28, 12, 188, 0.22);
+  border-radius: 999px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-blue);
+}
+.le-tags--plain li{ padding: 8px 16px; }
+.le-tags--plain li::before{
+  content: "";
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--color-orange);
+}
+.le-section__body p + .le-tags{ margin-top: clamp(22px, 2.6vw, 30px); margin-bottom: 0; }
+
+/* --- Accions numerades --- */
+.le-actions{
+  list-style: none;
+  counter-reset: le;
+  margin: clamp(26px, 3vw, 36px) 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: clamp(18px, 2.5vw, 32px);
+}
+.le-actions:last-child{ margin-bottom: 0; }
+.le-actions li{ counter-increment: le; }
+.le-actions li::before{
+  content: counter(le, decimal-leading-zero);
+  display: block;
+  font-size: 34px;
+  font-weight: 300;
+  color: var(--color-orange);
+  line-height: 1;
+  margin-bottom: 12px;
+}
+.le-actions b{ display: block; font-size: 15px; color: var(--color-blue); margin-bottom: 6px; }
+.le-actions span{ display: block; font-size: 14px; line-height: 1.6; color: var(--color-text); }
+
+/* --- Tancament a tota amplada --- */
+.le-closing{
+  background: var(--bg-band);
+  margin-top: clamp(20px, 3vw, 40px);
+}
+.le-closing__inner{
+  max-width: 980px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: clamp(56px, 7vw, 96px) clamp(16px, 4vw, 48px);
+  text-align: center;
+}
+.le-closing__inner::before{
+  content: "";
+  display: block;
+  width: 56px;
+  height: 4px;
+  margin: 0 auto 28px;
+  border-radius: 2px;
+  background: var(--color-orange);
+}
+.le-closing p{
+  margin: 0;
+  font-size: clamp(19px, 2vw, 25px);
+  line-height: 1.6;
+  color: var(--color-text);
+  font-weight: 300;
+}
+.le-closing p .kw{ color: var(--color-blue); font-weight: 700; }
+
+/* --- Aparició en fer scroll --- */
+.le-reveal{ opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+.le-reveal.is-in{ opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce){
+  .le-reveal{ opacity: 1; transform: none; transition: none; }
+}
+
+/* --- Responsive --- */
+@media (max-width: 900px){
+  .le-section{ grid-template-columns: minmax(0, 1fr); gap: 20px; }
+  .le-section__head{ position: static; }
+  .le-stats{ grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 24px; }
+  .le-stats li:nth-child(3){ border-left: none; padding-left: 0; }
+}
+@media (max-width: 760px){
+  .le-intro--logo{ grid-template-columns: minmax(0, 1fr); }
+  .le-intro--logo .pj-logo{ order: -1; width: 170px; padding: 16px; }
+  .le-intro--logo .pj-logo--foto{ width: 200px; padding: 0; }
+}
+@media (max-width: 640px){
+  .le-actions{ grid-template-columns: minmax(0, 1fr); }
+  .le-stats__num{ font-size: 30px; }
+}

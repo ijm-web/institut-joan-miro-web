@@ -1,0 +1,92 @@
+{#- Pàgina de projecte amb el format de Projectes › Llengües estrangeres.
+    Cada pàgina defineix al front matter: lang, heroTitle i projecte (clau de src/_data/projectes.json).
+    Estils: src/assets/css/projecte.css (extraCss) -#}
+{%- set L = lang | default('ca') -%}
+{%- set pj = projectes[projecte] -%}
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-1-facana-2400.jpg" srcset="/assets/img/inici/inici-1-facana-1600.jpg 1600w, /assets/img/inici/inici-1-facana-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ heroTitle }}</span><span class="qs-hero__subtitle">{{ pj.subtitol[L] }}</span></h1>
+  </div>
+</div>
+
+<div class="le-wrap">
+
+  <div class="le-intro{% if pj.logo %} le-intro--logo{% endif %} le-reveal">
+    <div>
+      <h2 class="le-kicker">{{ pj.kicker[L] }}</h2>
+      <p class="le-lead">{{ pj.lead[L] | safe }}</p>
+    </div>
+    {%- if pj.logo %}
+    <figure class="pj-logo{% if pj.logo.foto %} pj-logo--foto{% endif %}">
+      <img src="{{ pj.logo.src }}" width="{{ pj.logo.w }}" height="{{ pj.logo.h }}" alt="{{ pj.logo.alt[L] }}" loading="lazy">
+    </figure>
+    {%- endif %}
+  </div>
+
+  {%- if pj.stats %}
+  <ul class="le-stats le-reveal">
+    {%- for s in pj.stats %}
+    <li><span class="le-stats__num">{{ (s.num[L] if s.num[L] else s.num) | safe }}</span><span class="le-stats__label">{{ s.label[L] }}</span></li>
+    {%- endfor %}
+  </ul>
+  {%- endif %}
+
+  {%- for sec in pj.seccions %}
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">{{ '0' if loop.index < 10 }}{{ loop.index }}</span>
+      <h2>{{ sec.titol[L] }}</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      {%- for p in sec.paras %}
+      <p>{{ p[L] | safe }}</p>
+      {%- endfor %}
+      {%- if sec.accions %}
+      <ul class="le-actions">
+        {%- for a in sec.accions %}
+        <li><b>{{ a.t[L] }}</b><span>{{ a.d[L] }}</span></li>
+        {%- endfor %}
+      </ul>
+      {%- endif %}
+      {%- for p in sec.parasFinal %}
+      <p>{{ p[L] | safe }}</p>
+      {%- endfor %}
+      {%- if sec.chips %}
+      <ul class="le-tags le-tags--plain">
+        {%- for c in sec.chips %}
+        <li>{{ c[L] }}</li>
+        {%- endfor %}
+      </ul>
+      {%- endif %}
+    </div>
+  </section>
+  {%- endfor %}
+
+</div>
+
+{%- if pj.tancament %}
+<section class="le-closing">
+  <div class="le-closing__inner le-reveal">
+    <p>{{ pj.tancament[L] | safe }}</p>
+  </div>
+</section>
+{%- endif %}
+
+<script>
+  // Aparicions en fer scroll (com a Llengües estrangeres)
+  (function(){
+    var els = document.querySelectorAll('.le-reveal');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)){
+      els.forEach(function(el){ el.classList.add('is-in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.15 });
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>

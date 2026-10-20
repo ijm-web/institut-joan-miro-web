@@ -1,0 +1,175 @@
+{
+  "_info": "Pàgines de projectes amb el format de Llengües estrangeres (plantilla src/_includes/projecte.njk, estils /assets/css/projecte.css). Cada pàgina fa {% set pj = projectes.<id> %}. Textos en ca/es/en; <span class=\"kw\"> marca les paraules destacades.",
+
+  "lectora": {
+    "subtitol": { "ca": "Comprensió Lectora", "es": "Comprensión Lectora", "en": "Reading Comprehension" },
+    "kicker": { "ca": "Xarxa de Competència Lectora", "es": "Red de Competencia Lectora", "en": "Reading Literacy Network" },
+    "lead": {
+      "ca": "A l’Institut Joan Miró, la millora de la competència lectora és un dels <span class=\"kw\">objectius principals del nostre projecte educatiu</span>. Entenem la lectura com una eina fonamental per a l’aprenentatge, el desenvolupament del pensament crític i el creixement personal de l’alumnat.",
+      "es": "En el Institut Joan Miró, la mejora de la competencia lectora es uno de los <span class=\"kw\">objetivos principales de nuestro proyecto educativo</span>. Entendemos la lectura como una herramienta fundamental para el aprendizaje, el desarrollo del pensamiento crítico y el crecimiento personal del alumnado.",
+      "en": "At Institut Joan Miró, improving reading literacy is one of the <span class=\"kw\">main goals of our educational project</span>. We see reading as a key tool for learning, for developing critical thinking and for students’ personal growth."
+    },
+    "logo": { "src": "/assets/img/projectes/xarxa-competencia-lectora.jpg", "w": 235, "h": 228, "alt": { "ca": "Logotip de la Xarxa de Competència Lectora", "es": "Logotipo de la Red de Competencia Lectora", "en": "Reading Literacy Network logo" } },
+    "stats": [
+      { "num": "2025-26", "label": { "ca": "curs en què el centre s’incorpora a la Xarxa de Competència Lectora", "es": "curso en que el centro se incorpora a la Red de Competencia Lectora", "en": "school year in which the school joined the Reading Literacy Network" } },
+      { "num": "XCL", "label": { "ca": "iniciativa del Departament d’Educació de Catalunya", "es": "iniciativa del Departament d’Educació de Catalunya", "en": "an initiative of the Catalan Department of Education" } },
+      { "num": "4", "label": { "ca": "línies del pla integral: biblioteques, formació, xarxes i hàbit lector", "es": "líneas del plan integral: bibliotecas, formación, redes y hábito lector", "en": "strands of the plan: libraries, training, networks and reading habits" } },
+      { "num": { "ca": "Totes", "es": "Todas", "en": "All" }, "label": { "ca": "les àrees i matèries treballen la lectura", "es": "las áreas y materias trabajan la lectura", "en": "subjects work on reading" } }
+    ],
+    "seccions": [
+      {
+        "titol": { "ca": "La lectura, una prioritat educativa", "es": "La lectura, una prioridad educativa", "en": "Reading, an educational priority" },
+        "paras": [
+          { "ca": "Llegir no és només desxifrar paraules: és <span class=\"kw\">comprendre, analitzar, interpretar i transformar</span> la informació.", "es": "Leer no es solo descifrar palabras: es <span class=\"kw\">comprender, analizar, interpretar y transformar</span> la información.", "en": "Reading is not just decoding words: it means <span class=\"kw\">understanding, analysing, interpreting and transforming</span> information." },
+          { "ca": "Una bona competència lectora permet aprendre amb més profunditat, ser més autònom en el propi procés educatiu i construir una mirada crítica i participativa davant del món.", "es": "Una buena competencia lectora permite aprender con más profundidad, ser más autónomo en el propio proceso educativo y construir una mirada crítica y participativa ante el mundo.", "en": "Strong reading skills help students learn in greater depth, become more independent in their own learning and build a critical, engaged view of the world." }
+        ],
+        "chips": [
+          { "ca": "Comprendre", "es": "Comprender", "en": "Understand" },
+          { "ca": "Analitzar", "es": "Analizar", "en": "Analyse" },
+          { "ca": "Interpretar", "es": "Interpretar", "en": "Interpret" },
+          { "ca": "Transformar", "es": "Transformar", "en": "Transform" }
+        ]
+      },
+      {
+        "titol": { "ca": "La Xarxa de Competència Lectora", "es": "La Red de Competencia Lectora", "en": "The Reading Literacy Network" },
+        "paras": [
+          { "ca": "Des del curs 2025-2026, el nostre centre forma part de la <span class=\"kw\">Xarxa de Competència Lectora (XCL)</span>, una iniciativa del Departament d’Educació de Catalunya que promou la millora de la competència lectora en tots els àmbits i nivells educatius.", "es": "Desde el curso 2025-2026, nuestro centro forma parte de la <span class=\"kw\">Red de Competencia Lectora (XCL)</span>, una iniciativa del Departament d’Educació de Catalunya que promueve la mejora de la competencia lectora en todos los ámbitos y niveles educativos.", "en": "Since the 2025-2026 school year, our school has been part of the <span class=\"kw\">Reading Literacy Network (XCL)</span>, an initiative of the Catalan Department of Education that promotes better reading skills across all subjects and levels." },
+          { "ca": "Aquesta xarxa s’emmarca en un pla integral per millorar la comprensió lectora de l’alumnat, que inclou aquestes accions:", "es": "Esta red se enmarca en un plan integral para mejorar la comprensión lectora del alumnado, que incluye estas acciones:", "en": "The network is part of a comprehensive plan to improve students’ reading comprehension, which includes these actions:" }
+        ],
+        "accions": [
+          { "t": { "ca": "Biblioteques escolars", "es": "Bibliotecas escolares", "en": "School libraries" }, "d": { "ca": "Actualització de les biblioteques dels centres.", "es": "Actualización de las bibliotecas de los centros.", "en": "Updating school libraries." } },
+          { "t": { "ca": "Formació del professorat", "es": "Formación del profesorado", "en": "Teacher training" }, "d": { "ca": "Formació específica en competència lectora.", "es": "Formación específica en competencia lectora.", "en": "Specific training in reading literacy." } },
+          { "t": { "ca": "Xarxes i hàbit lector", "es": "Redes y hábito lector", "en": "Networks and reading habits" }, "d": { "ca": "Creació de xarxes de comprensió lectora i impuls de l’hàbit lector.", "es": "Creación de redes de comprensión lectora e impulso del hábito lector.", "en": "Building reading comprehension networks and encouraging reading habits." } }
+        ],
+        "parasFinal": [
+          { "ca": "La XCL té com a objectiu promoure l’<span class=\"kw\">aprenentatge entre iguals</span> a través de la reflexió, l’intercanvi de coneixements i de bones pràctiques. També ofereix materials, eines, estratègies i activitats per millorar la comprensió lectora d’infants i joves, tenint en compte els components que intervenen en el desenvolupament d’aquesta competència.", "es": "La XCL tiene como objetivo promover el <span class=\"kw\">aprendizaje entre iguales</span> a través de la reflexión, el intercambio de conocimientos y de buenas prácticas. También ofrece materiales, herramientas, estrategias y actividades para mejorar la comprensión lectora de niños y jóvenes, teniendo en cuenta los componentes que intervienen en el desarrollo de esta competencia.", "en": "The XCL aims to promote <span class=\"kw\">peer learning</span> through reflection and the sharing of knowledge and good practice. It also provides materials, tools, strategies and activities to improve the reading comprehension of children and young people, taking into account the components involved in developing this skill." }
+        ]
+      },
+      {
+        "titol": { "ca": "El nostre compromís", "es": "Nuestro compromiso", "en": "Our commitment" },
+        "paras": [
+          { "ca": "La participació en la Xarxa de Competència Lectora ens permet reforçar el compromís del centre amb una educació de <span class=\"kw\">qualitat, equitativa i inclusiva</span>.", "es": "La participación en la Red de Competencia Lectora nos permite reforzar el compromiso del centro con una educación de <span class=\"kw\">calidad, equitativa e inclusiva</span>.", "en": "Taking part in the Reading Literacy Network strengthens the school’s commitment to <span class=\"kw\">high-quality, fair and inclusive</span> education." }
+        ]
+      }
+    ],
+    "tancament": {
+      "ca": "Apostem per un <span class=\"kw\">enfocament global de la lectura</span>, present en totes les àrees i matèries, com a eina clau per a l’<span class=\"kw\">èxit educatiu i personal</span> de tot l’alumnat.",
+      "es": "Apostamos por un <span class=\"kw\">enfoque global de la lectura</span>, presente en todas las áreas y materias, como herramienta clave para el <span class=\"kw\">éxito educativo y personal</span> de todo el alumnado.",
+      "en": "We are committed to a <span class=\"kw\">whole-school approach to reading</span>, present in every subject, as a key tool for the <span class=\"kw\">educational and personal success</span> of all our students."
+    }
+  },
+
+  "fundacio": {
+    "subtitol": { "ca": "Fundació Joan Miró", "es": "Fundació Joan Miró", "en": "Fundació Joan Miró" },
+    "kicker": { "ca": "Una nova aliança", "es": "Una nueva alianza", "en": "A new partnership" },
+    "lead": {
+      "ca": "Aquest curs encetem una <span class=\"kw\">nova aliança amb la Fundació Joan Miró</span>, amb la voluntat d’aproximar l’alumnat a l’art com a eina per observar, qüestionar i comprendre el món.",
+      "es": "Este curso iniciamos una <span class=\"kw\">nueva alianza con la Fundació Joan Miró</span>, con la voluntad de acercar al alumnado al arte como herramienta para observar, cuestionar y comprender el mundo.",
+      "en": "This school year we are starting a <span class=\"kw\">new partnership with the Fundació Joan Miró</span>, to bring students closer to art as a way to observe, question and understand the world."
+    },
+    "logo": { "src": "/assets/img/projectes/fundacio-joan-miro.png", "w": 676, "h": 295, "alt": { "ca": "Logotip de la Fundació Joan Miró", "es": "Logotipo de la Fundació Joan Miró", "en": "Fundació Joan Miró logo" } },
+    "stats": [
+      { "num": "2n", "label": { "ca": "d’ESO: el projecte es desenvolupa en una matèria optativa", "es": "de ESO: el proyecto se desarrolla en una materia optativa", "en": "year of ESO: the project runs in an elective subject" } },
+      { "num": { "ca": "1<small>/trim.</small>", "es": "1<small>/trim.</small>", "en": "1<small>/term</small>" }, "label": { "ca": "visita a la Fundació Joan Miró per treballar al museu", "es": "visita a la Fundació Joan Miró para trabajar en el museo", "en": "visit per term to work at the Fundació Joan Miró" } },
+      { "num": { "ca": "1<small>/trim.</small>", "es": "1<small>/trim.</small>", "en": "1<small>/term</small>" }, "label": { "ca": "sessió al centre amb l’equip educatiu de la Fundació", "es": "sesión en el centro con el equipo educativo de la Fundació", "en": "session per term at school with the Fundació’s education team" } },
+      { "num": "2", "label": { "ca": "mirades en diàleg: la pintura de Miró i la fotografia de Joan Gomis", "es": "miradas en diálogo: la pintura de Miró y la fotografía de Joan Gomis", "en": "perspectives in dialogue: Miró’s painting and Joan Gomis’s photography" } }
+    ],
+    "seccions": [
+      {
+        "titol": { "ca": "La mirada de l’artista", "es": "La mirada del artista", "en": "Through the artist’s eyes" },
+        "paras": [
+          { "ca": "A partir de la figura de <span class=\"kw\">Joan Miró</span>, artista que dona nom al nostre centre, volem fomentar l’esperit crític i el pensament creatiu mitjançant la mirada de l’artista: la capacitat d’observar la realitat des de perspectives diferents, de formular preguntes i d’expressar idees a través del llenguatge visual.", "es": "A partir de la figura de <span class=\"kw\">Joan Miró</span>, artista que da nombre a nuestro centro, queremos fomentar el espíritu crítico y el pensamiento creativo mediante la mirada del artista: la capacidad de observar la realidad desde perspectivas diferentes, de formular preguntas y de expresar ideas a través del lenguaje visual.", "en": "Starting from <span class=\"kw\">Joan Miró</span>, the artist our school is named after, we want to encourage critical and creative thinking through the artist’s way of looking: the ability to see reality from different perspectives, to ask questions and to express ideas through visual language." }
+        ],
+        "chips": [
+          { "ca": "Observar", "es": "Observar", "en": "Observe" },
+          { "ca": "Formular preguntes", "es": "Formular preguntas", "en": "Ask questions" },
+          { "ca": "Expressar idees", "es": "Expresar ideas", "en": "Express ideas" }
+        ]
+      },
+      {
+        "titol": { "ca": "Joan Miró i Joan Gomis", "es": "Joan Miró y Joan Gomis", "en": "Joan Miró and Joan Gomis" },
+        "paras": [
+          { "ca": "El projecte també posa en valor la relació entre Joan Miró i el fotògraf <span class=\"kw\">Joan Gomis</span>, la col·laboració del qual ofereix una mirada diferent i enriquidora sobre l’obra de l’artista.", "es": "El proyecto también pone en valor la relación entre Joan Miró y el fotógrafo <span class=\"kw\">Joan Gomis</span>, cuya colaboración ofrece una mirada diferente y enriquecedora sobre la obra del artista.", "en": "The project also highlights the relationship between Joan Miró and the photographer <span class=\"kw\">Joan Gomis</span>, whose collaboration offers a different and enriching view of the artist’s work." },
+          { "ca": "Aquest <span class=\"kw\">diàleg entre pintura i fotografia</span> permet a l’alumnat descobrir els processos artístics, la importància del context creatiu i les múltiples formes d’interpretar una mateixa obra.", "es": "Este <span class=\"kw\">diálogo entre pintura y fotografía</span> permite al alumnado descubrir los procesos artísticos, la importancia del contexto creativo y las múltiples formas de interpretar una misma obra.", "en": "This <span class=\"kw\">dialogue between painting and photography</span> helps students discover artistic processes, the importance of the creative context and the many ways of interpreting the same work." }
+        ]
+      },
+      {
+        "titol": { "ca": "Com ho fem", "es": "Cómo lo hacemos", "en": "How it works" },
+        "paras": [
+          { "ca": "En aquesta primera etapa, el projecte es desenvolupa dins d’una <span class=\"kw\">matèria optativa de 2n d’ESO</span>.", "es": "En esta primera etapa, el proyecto se desarrolla dentro de una <span class=\"kw\">materia optativa de 2.º de ESO</span>.", "en": "In this first stage, the project runs as part of an <span class=\"kw\">elective subject in the 2nd year of ESO</span>." }
+        ],
+        "accions": [
+          { "t": { "ca": "Al museu", "es": "En el museo", "en": "At the museum" }, "d": { "ca": "Un cop per trimestre, l’alumnat visita la Fundació Joan Miró per treballar en contacte amb les obres, els espais i els recursos de la institució.", "es": "Una vez por trimestre, el alumnado visita la Fundació Joan Miró para trabajar en contacto con las obras, los espacios y los recursos de la institución.", "en": "Once a term, students visit the Fundació Joan Miró to work directly with the artworks, spaces and resources of the institution." } },
+          { "t": { "ca": "Al centre", "es": "En el centro", "en": "At school" }, "d": { "ca": "Un cop per trimestre, la Noemí Tomàs, responsable de programes educatius de la Fundació, ve al centre a col·laborar en el projecte.", "es": "Una vez por trimestre, Noemí Tomàs, responsable de programas educativos de la Fundació, viene al centro a colaborar en el proyecto.", "en": "Once a term, Noemí Tomàs, head of education programmes at the Fundació, comes to the school to work on the project." } }
+        ]
+      }
+    ],
+    "tancament": {
+      "ca": "Amb aquesta aliança, el centre reafirma el seu compromís amb una educació que connecta <span class=\"kw\">cultura, creativitat i pensament crític</span>, i que posa l’alumnat en el centre del procés d’aprenentatge.",
+      "es": "Con esta alianza, el centro reafirma su compromiso con una educación que conecta <span class=\"kw\">cultura, creatividad y pensamiento crítico</span>, y que pone al alumnado en el centro del proceso de aprendizaje.",
+      "en": "With this partnership, the school reaffirms its commitment to an education that brings together <span class=\"kw\">culture, creativity and critical thinking</span>, and places students at the heart of learning."
+    }
+  },
+
+  "paraula": {
+    "subtitol": { "ca": "La Paraula al Centre", "es": "La Paraula al Centre", "en": "La Paraula al Centre" },
+    "kicker": { "ca": "Creativitat, català i esperit crític", "es": "Creatividad, catalán y espíritu crítico", "en": "Creativity, Catalan and critical thinking" },
+    "lead": {
+      "ca": "Aquest curs, el nostre centre participa en La Paraula al Centre, un <span class=\"kw\">projecte artístic i educatiu de llengua catalana, música i creació</span> en què, a través del rap, la glosa, la jota i altres formes de creació oral i musical, l’alumnat converteix la llengua en un espai de joc, expressió i creació col·lectiva.",
+      "es": "Este curso, nuestro centro participa en La Paraula al Centre, un <span class=\"kw\">proyecto artístico y educativo de lengua catalana, música y creación</span> en el que, a través del rap, la glosa, la jota y otras formas de creación oral y musical, el alumnado convierte la lengua en un espacio de juego, expresión y creación colectiva.",
+      "en": "This school year our school is taking part in La Paraula al Centre, an <span class=\"kw\">arts and education project combining Catalan, music and creative work</span>: through rap, glosa, jota and other oral and musical forms, students turn language into a space for play, expression and collective creation."
+    },
+    "logo": { "src": "/assets/img/projectes/paraula-al-centre.jpg", "w": 640, "h": 720, "foto": true, "alt": { "ca": "Imatge del projecte La Paraula al Centre", "es": "Imagen del proyecto La Paraula al Centre", "en": "La Paraula al Centre project image" } },
+    "stats": [
+      { "num": "2n", "label": { "ca": "d’ESO: alumnat que participa en el projecte", "es": "de ESO: alumnado que participa en el proyecto", "en": "year of ESO: the students taking part" } },
+      { "num": "Rap", "label": { "ca": "punt de partida, amb la glosa, la jota i altres formes orals", "es": "punto de partida, con la glosa, la jota y otras formas orales", "en": "the starting point, alongside glosa, jota and other oral forms" } },
+      { "num": "<small>Versembrant</small>", "label": { "ca": "escola popular itinerant d’art urbà i hip hop", "es": "escuela popular itinerante de arte urbano y hip hop", "en": "a travelling community school of urban art and hip hop" } },
+      { "num": { "ca": "1 <small>curs</small>", "es": "1 <small>curso</small>", "en": "1 <small>year</small>" }, "label": { "ca": "de creació col·lectiva al llarg de tot l’any escolar", "es": "de creación colectiva a lo largo de todo el año escolar", "en": "of collective creation throughout the school year" } }
+    ],
+    "seccions": [
+      {
+        "titol": { "ca": "La llengua com a espai de creació", "es": "La lengua como espacio de creación", "en": "Language as a creative space" },
+        "paras": [
+          { "ca": "El projecte treballa les <span class=\"kw\">competències comunicatives i el coneixement del català</span> des de l’experiència artística i la participació activa, amb la voluntat de fomentar-ne l’ús social d’una manera viva, contemporània i propera als joves.", "es": "El proyecto trabaja las <span class=\"kw\">competencias comunicativas y el conocimiento del catalán</span> desde la experiencia artística y la participación activa, con la voluntad de fomentar su uso social de una manera viva, contemporánea y cercana a los jóvenes.", "en": "The project develops <span class=\"kw\">communication skills and knowledge of Catalan</span> through artistic experience and active participation, aiming to encourage its everyday use in a lively, contemporary way that speaks to young people." }
+        ],
+        "chips": [
+          { "ca": "Rap", "es": "Rap", "en": "Rap" },
+          { "ca": "Glosa", "es": "Glosa", "en": "Glosa" },
+          { "ca": "Jota", "es": "Jota", "en": "Jota" },
+          { "ca": "Creació oral i musical", "es": "Creación oral y musical", "en": "Oral and musical creation" }
+        ]
+      },
+      {
+        "titol": { "ca": "Amb Versembrant", "es": "Con Versembrant", "en": "With Versembrant" },
+        "paras": [
+          { "ca": "El projecte s’articula al voltant d’una entitat cultural del territori. En el nostre cas, <span class=\"kw\">Versembrant</span>, una escola popular itinerant que fomenta la consciència crítica del jovent a través de l’art urbà i el hip hop.", "es": "El proyecto se articula alrededor de una entidad cultural del territorio. En nuestro caso, <span class=\"kw\">Versembrant</span>, una escuela popular itinerante que fomenta la conciencia crítica de la juventud a través del arte urbano y el hip hop.", "en": "The project is built around a local cultural organisation. In our case, <span class=\"kw\">Versembrant</span>, a travelling community school that fosters young people’s critical awareness through urban art and hip hop." },
+          { "ca": "Els tallers de rap, producció i arts plàstiques —sobre temes com el racisme, la xenofòbia o el sexisme— posen l’estètica al servei de la crítica. En aquest procés creatiu, els protagonistes no són només els talleristes, sinó l’alumnat, que crea, repensa el seu entorn i es transforma en el procés.", "es": "Los talleres de rap, producción y artes plásticas —sobre temas como el racismo, la xenofobia o el sexismo— ponen la estética al servicio de la crítica. En este proceso creativo, los protagonistas no son solo los talleristas, sino el alumnado, que crea, repiensa su entorno y se transforma en el proceso.", "en": "Workshops in rap, production and visual arts —on issues such as racism, xenophobia and sexism— put aesthetics at the service of critique. In this creative process the protagonists are not only the workshop leaders but the students, who create, rethink their surroundings and are transformed along the way." }
+        ]
+      },
+      {
+        "titol": { "ca": "L’alumnat de 2n d’ESO", "es": "El alumnado de 2.º de ESO", "en": "Students in the 2nd year of ESO" },
+        "paras": [
+          { "ca": "La iniciativa es durà a terme amb l’<span class=\"kw\">alumnat de 2n d’ESO</span>, i combina la creació artística amb el foment de l’expressió oral en català i el desenvolupament de l’esperit crític, prenent el gènere del rap com a punt de partida.", "es": "La iniciativa se llevará a cabo con el <span class=\"kw\">alumnado de 2.º de ESO</span>, y combina la creación artística con el fomento de la expresión oral en catalán y el desarrollo del espíritu crítico, tomando el género del rap como punto de partida.", "en": "The initiative will take place with <span class=\"kw\">students in the 2nd year of ESO</span>, combining artistic creation with oral expression in Catalan and critical thinking, taking rap as the starting point." },
+          { "ca": "A través de la paraula, el ritme i la posada en escena, l’alumnat explora temes que li són propers, reflexiona sobre la realitat que l’envolta i troba noves formes de dir-la i compartir-la.", "es": "A través de la palabra, el ritmo y la puesta en escena, el alumnado explora temas que le son cercanos, reflexiona sobre la realidad que lo rodea y encuentra nuevas formas de decirla y compartirla.", "en": "Through words, rhythm and performance, students explore topics close to them, reflect on the world around them and find new ways to put it into words and share it." }
+        ]
+      },
+      {
+        "titol": { "ca": "Què aporta", "es": "Qué aporta", "en": "What it brings" },
+        "paras": [
+          { "ca": "A partir de la pràctica oral, creativa i col·lectiva, el projecte contribueix a la millora de la qualitat de l’educació lingüística, garanteix la inclusió i la igualtat de gènere, reforça el benestar emocional de l’alumnat i impulsa una ciutadania crítica i democràtica. Al mateix temps, connecta amb aprenentatges competencials en contextos reals i afavoreix una mirada oberta i universal del currículum.", "es": "A partir de la práctica oral, creativa y colectiva, el proyecto contribuye a la mejora de la calidad de la educación lingüística, garantiza la inclusión y la igualdad de género, refuerza el bienestar emocional del alumnado e impulsa una ciudadanía crítica y democrática. Al mismo tiempo, conecta con aprendizajes competenciales en contextos reales y favorece una mirada abierta y universal del currículo.", "en": "Through oral, creative and collective practice, the project helps improve the quality of language education, ensures inclusion and gender equality, strengthens students’ emotional well-being and promotes critical, democratic citizenship. It also links to competence-based learning in real contexts and encourages an open, universal view of the curriculum." },
+          { "ca": "La participació en La Paraula al Centre permet treballar de manera transversal la <span class=\"kw\">competència lingüística, la creació pròpia, la cooperació i la comunicació davant d’un públic real</span>. Alhora, contribueix a donar veu a l’alumnat i a reforçar el català com a llengua viva, creativa i de relació.", "es": "La participación en La Paraula al Centre permite trabajar de manera transversal la <span class=\"kw\">competencia lingüística, la creación propia, la cooperación y la comunicación ante un público real</span>. A la vez, contribuye a dar voz al alumnado y a reforzar el catalán como lengua viva, creativa y de relación.", "en": "Taking part in La Paraula al Centre develops, across subjects, <span class=\"kw\">language skills, original creation, cooperation and communication before a real audience</span>. It also gives students a voice and strengthens Catalan as a living, creative, everyday language." }
+        ],
+        "chips": [
+          { "ca": "Inclusió i igualtat de gènere", "es": "Inclusión e igualdad de género", "en": "Inclusion and gender equality" },
+          { "ca": "Benestar emocional", "es": "Bienestar emocional", "en": "Emotional well-being" },
+          { "ca": "Ciutadania crítica", "es": "Ciudadanía crítica", "en": "Critical citizenship" }
+        ]
+      }
+    ],
+    "tancament": {
+      "ca": "Amb aquest projecte, el centre reafirma el seu compromís amb una educació que connecta <span class=\"kw\">llengua, cultura, art i pensament crític</span>, i que posa l’alumnat en el centre del procés d’aprenentatge.",
+      "es": "Con este proyecto, el centro reafirma su compromiso con una educación que conecta <span class=\"kw\">lengua, cultura, arte y pensamiento crítico</span>, y que pone al alumnado en el centro del proceso de aprendizaje.",
+      "en": "With this project, the school reaffirms its commitment to an education that brings together <span class=\"kw\">language, culture, art and critical thinking</span>, and places students at the heart of learning."
+    }
+  }
+}
