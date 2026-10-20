@@ -402,9 +402,9 @@
             "en": "Swimming in 1st ESO"
           },
           "text": {
-            "ca": "L’Educació física de 1r inclou 1 hora setmanal de piscina al Poliesportiu PELL.",
-            "es": "La Educación física de 1.º incluye 1 hora semanal de piscina en el Polideportivo PELL.",
-            "en": "1st-year Physical Education includes 1 hour of swimming a week at the PELL sports centre."
+            "ca": "L’Educació física de 1r inclou 1 hora setmanal de piscina al Poliesportiu PELL, d’octubre a maig.",
+            "es": "La Educación física de 1.º incluye 1 hora semanal de piscina en el Polideportivo PELL, de octubre a mayo.",
+            "en": "1st-year Physical Education includes 1 hour of swimming a week at the PELL sports centre, from October to May."
           },
           "enllac": {
             "ca": "Pla de l’Esport",
@@ -547,6 +547,25 @@
           }
         ],
         "optHores": 3,
+        "destacat": {
+          "icona": "esport",
+          "titol": {
+            "ca": "Pla de l’Esport a 2n d’ESO",
+            "es": "Plan del Deporte en 2.º de ESO",
+            "en": "Sports Plan in 2nd ESO"
+          },
+          "text": {
+            "ca": "1 hora setmanal de classes dirigides al Gimnàs Delfos durant un trimestre i 1 hora setmanal d’atletisme a les pistes municipals durant un altre trimestre.",
+            "es": "1 hora semanal de clases dirigidas en el Gimnasio Delfos durante un trimestre y 1 hora semanal de atletismo en las pistas municipales durante otro trimestre.",
+            "en": "1 hour a week of instructor-led classes at Gimnàs Delfos for one term, and 1 hour a week of athletics at the municipal track for another term."
+          },
+          "enllac": {
+            "ca": "Pla de l’Esport",
+            "es": "Plan del Deporte",
+            "en": "Sports Plan"
+          },
+          "href": "projectes-pla-esport.html"
+        },
         "pdf": "/assets/docs/eso/optatives-2n-eso.pdf",
         "pdfText": {
           "ca": "Descripció de les optatives de 2n ESO",
@@ -686,6 +705,25 @@
           }
         ],
         "optHores": 3,
+        "destacat": {
+          "icona": "esport",
+          "titol": {
+            "ca": "Pla de l’Esport a 3r d’ESO",
+            "es": "Plan del Deporte en 3.º de ESO",
+            "en": "Sports Plan in 3rd ESO"
+          },
+          "text": {
+            "ca": "1 hora setmanal de classes dirigides variades al Gimnàs Delfos durant un trimestre.",
+            "es": "1 hora semanal de clases dirigidas variadas en el Gimnasio Delfos durante un trimestre.",
+            "en": "1 hour a week of varied instructor-led classes at Gimnàs Delfos for one term."
+          },
+          "enllac": {
+            "ca": "Pla de l’Esport",
+            "es": "Plan del Deporte",
+            "en": "Sports Plan"
+          },
+          "href": "projectes-pla-esport.html"
+        },
         "pdf": "/assets/docs/eso/optatives-3r-eso.pdf",
         "pdfText": {
           "ca": "Descripció de les optatives de 3r ESO",
@@ -898,6 +936,25 @@
             ]
           }
         ],
+        "destacat": {
+          "icona": "esport",
+          "titol": {
+            "ca": "Pla de l’Esport a 4t d’ESO",
+            "es": "Plan del Deporte en 4.º de ESO",
+            "en": "Sports Plan in 4th ESO"
+          },
+          "text": {
+            "ca": "1 hora setmanal de tennis i pàdel amb la Federació Catalana de Tennis durant un trimestre i 1 hora setmanal d’atletisme a les pistes municipals durant un altre trimestre.",
+            "es": "1 hora semanal de tenis y pádel con la Federació Catalana de Tennis durante un trimestre y 1 hora semanal de atletismo en las pistas municipales durante otro trimestre.",
+            "en": "1 hour a week of tennis and padel with the Catalan Tennis Federation for one term, and 1 hour a week of athletics at the municipal track for another term."
+          },
+          "enllac": {
+            "ca": "Pla de l’Esport",
+            "es": "Plan del Deporte",
+            "en": "Sports Plan"
+          },
+          "href": "projectes-pla-esport.html"
+        },
         "pdf": "/assets/docs/eso/materies-opcio-4t-eso.pdf",
         "pdfText": {
           "ca": "Descripció de les matèries d’opció de 4t ESO",
@@ -1036,6 +1093,11 @@
       "ca": "Criteris de qualificació (PDF)",
       "es": "Criterios de calificación (PDF)",
       "en": "Assessment criteria (PDF)"
+    },
+    "avisCanvis": {
+      "ca": "Els criteris de qualificació recullen la planificació inicial de cada matèria per al curs. Al llarg del curs es poden ajustar per raons pedagògiques, sempre amb el vistiplau del departament corresponent i, si escau, de la direcció del centre. Qualsevol canvi es comunicarà a l’alumnat i a les famílies.",
+      "es": "Los criterios de calificación recogen la planificación inicial de cada materia para el curso. A lo largo del curso pueden ajustarse por razones pedagógicas, siempre con el visto bueno del departamento correspondiente y, si procede, de la dirección del centro. Cualquier cambio se comunicará al alumnado y a las familias.",
+      "en": "The assessment criteria set out each subject’s initial plan for the school year. They may be adjusted during the year for educational reasons, always with the approval of the relevant department and, where appropriate, the school’s management team. Students and families will be informed of any changes."
     }
   },
   "proj": {

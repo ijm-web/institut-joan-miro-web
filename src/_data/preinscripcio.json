@@ -1,0 +1,1014 @@
+{
+  "_info": "Secretaria › Preinscripció i matrícula (ca/es/en). Pàgines: secretaria-preinscripcio-matricula (portada amb 4 caixes), secretaria-preinscripcio-eso i secretaria-preinscripcio-batxillerat. Plantilles: src/_includes/preinscripcio-index.njk i preinscripcio.njk · Estils: /assets/css/preinscripcio.css. Text amb <span class=\"tbd\"> = dada pendent de confirmar (fons groc). Les dates del calendari són les generals del Departament d'Educació per al curs indicat.",
+  "comuns": {
+    "heroTitol": {
+      "ca": "Secretaria",
+      "es": "Secretaría",
+      "en": "School Office"
+    },
+    "codiCentre": "08033900",
+    "codiTitol": {
+      "ca": "Codi del centre",
+      "es": "Código del centro",
+      "en": "School code"
+    },
+    "pendent": {
+      "ca": "<span class=\"tbd\">Fons groc</span> = dada pendent de confirmar",
+      "es": "<span class=\"tbd\">Fondo amarillo</span> = dato pendiente de confirmar",
+      "en": "<span class=\"tbd\">Yellow background</span> = information still to be confirmed"
+    },
+    "obreFinestra": {
+      "ca": "(s’obre en una pestanya nova)",
+      "es": "(se abre en una pestaña nueva)",
+      "en": "(opens in a new tab)"
+    },
+    "titols": {
+      "places": {
+        "ca": "Oferta de places",
+        "es": "Oferta de plazas",
+        "en": "Places available"
+      },
+      "calendari": {
+        "ca": "Calendari",
+        "es": "Calendario",
+        "en": "Timetable"
+      },
+      "com": {
+        "ca": "Com es fa la preinscripció",
+        "es": "Cómo se hace la preinscripción",
+        "en": "How to apply"
+      },
+      "ajuda": {
+        "ca": "Et podem ajudar",
+        "es": "Te podemos ayudar",
+        "en": "We can help"
+      }
+    },
+    "taula": {
+      "curs": {
+        "ca": "Curs",
+        "es": "Curso",
+        "en": "Year"
+      },
+      "oferta": {
+        "ca": "Oferta escolar",
+        "es": "Oferta escolar",
+        "en": "Total places"
+      },
+      "ordinaries": {
+        "ca": "Places ordinàries",
+        "es": "Plazas ordinarias",
+        "en": "Standard places"
+      },
+      "nee": {
+        "ca": "Places NEE",
+        "es": "Plazas NEE",
+        "en": "SEN places"
+      },
+      "preins": {
+        "ca": "Places per a la preinscripció",
+        "es": "Plazas para la preinscripción",
+        "en": "Places open to applications"
+      },
+      "neeNota": {
+        "ca": "NEE: places reservades per a alumnat amb necessitats educatives especials. L’oferta escolar és el total de places del curs; les places per a la preinscripció són les que queden lliures per a alumnat nou.",
+        "es": "NEE: plazas reservadas para alumnado con necesidades educativas especiales. La oferta escolar es el total de plazas del curso; las plazas para la preinscripción son las que quedan libres para alumnado nuevo.",
+        "en": "SEN: places reserved for students with special educational needs. Total places is the full capacity of each year; places open to applications are those still free for new students."
+      },
+      "pdf": {
+        "ca": "Document oficial de l’oferta (PDF)",
+        "es": "Documento oficial de la oferta (PDF)",
+        "en": "Official places document (PDF)"
+      }
+    },
+    "calendari": {
+      "tramit": {
+        "ca": "Tràmit",
+        "es": "Trámite",
+        "en": "Step"
+      },
+      "data": {
+        "ca": "Data",
+        "es": "Fecha",
+        "en": "Date"
+      },
+      "nota": {
+        "ca": "Calendari oficial del Departament d’Educació. Els tràmits telemàtics es fan a preinscripcio.gencat.cat.",
+        "es": "Calendario oficial del Departament d’Educació. Los trámites telemáticos se hacen en preinscripcio.gencat.cat.",
+        "en": "Official calendar of the Catalan Department of Education. Online steps are done at preinscripcio.gencat.cat."
+      },
+      "matricula": {
+        "ca": "Matrícula",
+        "es": "Matrícula",
+        "en": "Enrolment"
+      }
+    },
+    "ajuda": {
+      "text": {
+        "ca": "Si tens dificultats per fer la preinscripció al nostre centre, et podem ajudar. Truca’ns o escriu-nos en horari de secretaria.",
+        "es": "Si tienes dificultades para hacer la preinscripción en nuestro centro, te podemos ayudar. Llámanos o escríbenos en horario de secretaría.",
+        "en": "If you have any difficulty applying to our school, we can help. Call or email us during school office hours."
+      },
+      "telefon": "93 377 51 66",
+      "tel": "+34933775166",
+      "email": "secretaria@institutjoanmiro.cat",
+      "horari": {
+        "ca": "Horari de secretaria",
+        "es": "Horario de secretaría",
+        "en": "School office hours"
+      }
+    },
+    "criteris": {
+      "titol": {
+        "ca": "Criteris de prioritat",
+        "es": "Criterios de prioridad",
+        "en": "Priority criteria"
+      },
+      "intro": {
+        "ca": "Quan un centre rep més sol·licituds que places disponibles, les sol·licituds s’ordenen amb aquest sistema de puntuació.",
+        "es": "Cuando un centro recibe más solicitudes que plazas disponibles, las solicitudes se ordenan con este sistema de puntuación.",
+        "en": "When a school receives more applications than places, applications are ranked using this points system."
+      },
+      "criteri": {
+        "ca": "Criteri",
+        "es": "Criterio",
+        "en": "Criterion"
+      },
+      "punts": {
+        "ca": "Punts",
+        "es": "Puntos",
+        "en": "Points"
+      },
+      "generalsTitol": {
+        "ca": "Criteris generals",
+        "es": "Criterios generales",
+        "en": "General criteria"
+      },
+      "generals": [
+        {
+          "t": {
+            "ca": "Germans o germanes escolaritzats al centre",
+            "es": "Hermanos o hermanas escolarizados en el centro",
+            "en": "Brothers or sisters at the school"
+          },
+          "p": "50"
+        },
+        {
+          "t": {
+            "ca": "Proximitat del domicili familiar",
+            "es": "Proximidad del domicilio familiar",
+            "en": "Family home nearby"
+          },
+          "p": "30"
+        },
+        {
+          "t": {
+            "ca": "Proximitat del lloc de treball dels tutors legals",
+            "es": "Proximidad del lugar de trabajo de los tutores legales",
+            "en": "Legal guardians’ workplace nearby"
+          },
+          "p": "20"
+        },
+        {
+          "t": {
+            "ca": "Renda garantida de ciutadania",
+            "es": "Renta garantizada de ciudadanía",
+            "en": "Guaranteed citizenship income"
+          },
+          "p": "15"
+        }
+      ],
+      "complementarisTitol": {
+        "ca": "Criteris complementaris (per desempatar)",
+        "es": "Criterios complementarios (para desempatar)",
+        "en": "Additional criteria (tie-breakers)"
+      },
+      "complementarisIntro": {
+        "ca": "Si dues o més sol·licituds tenen la mateixa puntuació, es desempata amb aquests criteris.",
+        "es": "Si dos o más solicitudes tienen la misma puntuación, se desempata con estos criterios.",
+        "en": "If two or more applications have the same score, these criteria are used to break the tie."
+      },
+      "complementaris": [
+        {
+          "t": {
+            "ca": "Pare, mare o tutor/a que treballa al centre",
+            "es": "Padre, madre o tutor/a que trabaja en el centro",
+            "en": "Parent or guardian who works at the school"
+          },
+          "p": "10"
+        },
+        {
+          "t": {
+            "ca": "Família nombrosa",
+            "es": "Familia numerosa",
+            "en": "Large family"
+          },
+          "p": "10"
+        },
+        {
+          "t": {
+            "ca": "Família monoparental",
+            "es": "Familia monoparental",
+            "en": "Single-parent family"
+          },
+          "p": "10"
+        },
+        {
+          "t": {
+            "ca": "Part múltiple (bessons, trigèmins…)",
+            "es": "Parto múltiple (gemelos, trillizos…)",
+            "en": "Multiple birth (twins, triplets…)"
+          },
+          "p": "10"
+        },
+        {
+          "t": {
+            "ca": "Situació d’acolliment familiar",
+            "es": "Situación de acogimiento familiar",
+            "en": "Foster care"
+          },
+          "p": "10"
+        },
+        {
+          "t": {
+            "ca": "Discapacitat igual o superior al 33 % d’algun membre de la família",
+            "es": "Discapacidad igual o superior al 33 % de algún miembro de la familia",
+            "en": "A family member with a disability of 33% or more"
+          },
+          "p": "15"
+        },
+        {
+          "t": {
+            "ca": "Condició de víctima de violència de gènere o de terrorisme",
+            "es": "Condición de víctima de violencia de género o de terrorismo",
+            "en": "Victim of gender-based violence or terrorism"
+          },
+          "p": "10"
+        }
+      ],
+      "nota": {
+        "ca": "Resum. Els criteris complets i la documentació que cal per acreditar-los són a preinscripcio.gencat.cat.",
+        "es": "Resumen. Los criterios completos y la documentación necesaria para acreditarlos están en preinscripcio.gencat.cat.",
+        "en": "Summary. The full criteria and the documents needed to prove them are at preinscripcio.gencat.cat."
+      }
+    },
+    "idcat": {
+      "titol": {
+        "ca": "Com obtenir l’idCAT Mòbil",
+        "es": "Cómo obtener el idCAT Mòbil",
+        "en": "How to get idCAT Mòbil"
+      },
+      "intro": {
+        "ca": "L’idCAT Mòbil és la manera més senzilla d’identificar-se per fer la sol·licitud electrònica.",
+        "es": "El idCAT Mòbil es la manera más sencilla de identificarse para hacer la solicitud electrónica.",
+        "en": "idCAT Mòbil is the easiest way to identify yourself to submit the online application."
+      },
+      "necessitesTitol": {
+        "ca": "Què necessites",
+        "es": "Qué necesitas",
+        "en": "What you need"
+      },
+      "necessites": [
+        {
+          "ca": "El DNI o la TIE (targeta d’identitat d’estranger).",
+          "es": "El DNI o la TIE (tarjeta de identidad de extranjero).",
+          "en": "Your DNI or TIE (foreigner identity card)."
+        },
+        {
+          "ca": "El número de la targeta sanitària (TSI) o de MUFACE.",
+          "es": "El número de la tarjeta sanitaria (TSI) o de MUFACE.",
+          "en": "Your health card (TSI) or MUFACE number."
+        },
+        {
+          "ca": "Un telèfon mòbil i una adreça electrònica.",
+          "es": "Un teléfono móvil y una dirección de correo electrónico.",
+          "en": "A mobile phone and an email address."
+        },
+        {
+          "ca": "Tenir més de 16 anys.",
+          "es": "Tener más de 16 años.",
+          "en": "To be over 16."
+        }
+      ],
+      "passosTitol": {
+        "ca": "Passos",
+        "es": "Pasos",
+        "en": "Steps"
+      },
+      "passos": [
+        {
+          "ca": "Entra a idcatmobil.cat i clica «Obtenir el meu idCAT Mòbil».",
+          "es": "Entra en idcatmobil.cat y haz clic en «Obtenir el meu idCAT Mòbil».",
+          "en": "Go to idcatmobil.cat and click «Obtenir el meu idCAT Mòbil»."
+        },
+        {
+          "ca": "Tria l’opció segons el document que tinguis. Si no tens DNI ni TIE (per exemple, si només tens passaport), pots obtenir-lo amb una foto o videoidentificació.",
+          "es": "Elige la opción según el documento que tengas. Si no tienes DNI ni TIE (por ejemplo, si solo tienes pasaporte), puedes obtenerlo con una foto o videoidentificación.",
+          "en": "Choose the option for the document you have. If you have no DNI or TIE (for example, only a passport), you can get it with a photo or video identification."
+        },
+        {
+          "ca": "Introdueix el número del document, la data de naixement i la data de caducitat.",
+          "es": "Introduce el número del documento, la fecha de nacimiento y la fecha de caducidad.",
+          "en": "Enter the document number, date of birth and expiry date."
+        },
+        {
+          "ca": "Indica el número que hi ha sota el codi de barres de la targeta sanitària (o el codi de MUFACE) i la data d’alta.",
+          "es": "Indica el número que hay bajo el código de barras de la tarjeta sanitaria (o el código de MUFACE) y la fecha de alta.",
+          "en": "Enter the number under the barcode of your health card (or your MUFACE code) and the date of issue."
+        },
+        {
+          "ca": "Indica el mòbil, l’adreça electrònica i el codi postal del lloc on estàs empadronat.",
+          "es": "Indica el móvil, la dirección de correo electrónico y el código postal del lugar donde estás empadronado.",
+          "en": "Enter your mobile number, email address and the postcode where you are registered."
+        },
+        {
+          "ca": "Introdueix la contrasenya d’un sol ús que rebràs per SMS.",
+          "es": "Introduce la contraseña de un solo uso que recibirás por SMS.",
+          "en": "Enter the one-time password you receive by text message."
+        },
+        {
+          "ca": "Comprova les dades, accepta el tractament i clica «Dona’m d’alta». Rebràs un SMS de confirmació.",
+          "es": "Comprueba los datos, acepta el tratamiento y haz clic en «Dona’m d’alta». Recibirás un SMS de confirmación.",
+          "en": "Check your details, accept the data processing and click «Dona’m d’alta». You will receive a confirmation text message."
+        }
+      ],
+      "boto": {
+        "ca": "Web de l’idCAT Mòbil",
+        "es": "Web del idCAT Mòbil",
+        "en": "idCAT Mòbil website"
+      },
+      "href": "https://www.idcatmobil.cat/"
+    },
+    "tancamentBoto": {
+      "ca": "Ves a preinscripcio.gencat.cat",
+      "es": "Ve a preinscripcio.gencat.cat",
+      "en": "Go to preinscripcio.gencat.cat"
+    }
+  },
+  "hub": {
+    "subtitol": {
+      "ca": "Preinscripció i matrícula",
+      "es": "Preinscripción y matrícula",
+      "en": "Pre-registration and enrolment"
+    },
+    "kicker": {
+      "ca": "Curs 2026-2027",
+      "es": "Curso 2026-2027",
+      "en": "2026-2027 school year"
+    },
+    "lead": {
+      "ca": "Aquí trobareu tota la informació per sol·licitar plaça a l’Institut Joan Miró (preinscripció) i per formalitzar-hi la inscripció un cop obtinguda la plaça (matrícula), tant a l’ESO com al Batxillerat.",
+      "es": "Aquí encontraréis toda la información para solicitar plaza en el Institut Joan Miró (preinscripción) y para formalizar la inscripción una vez obtenida la plaza (matrícula), tanto en la ESO como en el Bachillerato.",
+      "en": "Here you will find all the information on applying for a place at Institut Joan Miró (pre-registration) and on completing enrolment once you have a place, for both ESO and Batxillerat."
+    },
+    "seccions": [
+      {
+        "titol": {
+          "ca": "ESO",
+          "es": "ESO",
+          "en": "ESO"
+        },
+        "caixes": [
+          {
+            "label": {
+              "ca": "Preinscripció",
+              "es": "Preinscripción",
+              "en": "Pre-registration"
+            },
+            "sub": {
+              "ca": "Educació Secundària Obligatòria",
+              "es": "Educación Secundaria Obligatoria",
+              "en": "Compulsory Secondary Education"
+            },
+            "href": "secretaria-preinscripcio-eso.html",
+            "icona": "preinscripcio"
+          },
+          {
+            "label": {
+              "ca": "Matrícula",
+              "es": "Matrícula",
+              "en": "Enrolment"
+            },
+            "sub": {
+              "ca": "Educació Secundària Obligatòria",
+              "es": "Educación Secundaria Obligatoria",
+              "en": "Compulsory Secondary Education"
+            },
+            "href": "",
+            "icona": "matricula"
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "Batxillerat",
+          "es": "Bachillerato",
+          "en": "Batxillerat"
+        },
+        "caixes": [
+          {
+            "label": {
+              "ca": "Preinscripció",
+              "es": "Preinscripción",
+              "en": "Pre-registration"
+            },
+            "sub": {
+              "ca": "Batxillerat",
+              "es": "Bachillerato",
+              "en": "Batxillerat (upper secondary)"
+            },
+            "href": "secretaria-preinscripcio-batxillerat.html",
+            "icona": "preinscripcio"
+          },
+          {
+            "label": {
+              "ca": "Matrícula",
+              "es": "Matrícula",
+              "en": "Enrolment"
+            },
+            "sub": {
+              "ca": "Batxillerat",
+              "es": "Bachillerato",
+              "en": "Batxillerat (upper secondary)"
+            },
+            "href": "",
+            "icona": "matricula"
+          }
+        ]
+      }
+    ],
+    "properament": {
+      "ca": "Properament",
+      "es": "Próximamente",
+      "en": "Coming soon"
+    }
+  },
+  "eso": {
+    "subtitol": {
+      "ca": "Preinscripció ESO",
+      "es": "Preinscripción ESO",
+      "en": "ESO pre-registration"
+    },
+    "kicker": {
+      "ca": "Curs 2026-2027",
+      "es": "Curso 2026-2027",
+      "en": "2026-2027 school year"
+    },
+    "lead": {
+      "ca": "La preinscripció és el procés per sol·licitar plaça en un centre públic. Per començar l’ESO a l’Institut Joan Miró, cal fer-la durant el termini oficial, <span class=\"kw\">sempre de manera telemàtica</span>.",
+      "es": "La preinscripción es el proceso para solicitar plaza en un centro público. Para empezar la ESO en el Institut Joan Miró, hay que hacerla durante el plazo oficial, <span class=\"kw\">siempre de forma telemática</span>.",
+      "en": "Pre-registration is the process for applying for a place at a state school. To start ESO at Institut Joan Miró, you must apply within the official period, <span class=\"kw\">always online</span>."
+    },
+    "gencat": "https://preinscripcio.gencat.cat/ca/estudis/eso/inici/",
+    "places": {
+      "intro": {
+        "ca": "Oferta inicial de places publicada el 3 de març de 2026. Cal consultar l’oferta final, que es publica el 10 de juny (vegeu el calendari).",
+        "es": "Oferta inicial de plazas publicada el 3 de marzo de 2026. Hay que consultar la oferta final, que se publica el 10 de junio (ver el calendario).",
+        "en": "Initial places offer published on 3 March 2026. Check the final offer, published on 10 June (see the timetable)."
+      },
+      "files": [
+        {
+          "curs": {
+            "ca": "1r d’ESO",
+            "es": "1.º de ESO",
+            "en": "1st ESO"
+          },
+          "oferta": 112,
+          "ord": 52,
+          "nee": 56
+        },
+        {
+          "curs": {
+            "ca": "2n d’ESO",
+            "es": "2.º de ESO",
+            "en": "2nd ESO"
+          },
+          "oferta": 120,
+          "ord": 0,
+          "nee": 0
+        },
+        {
+          "curs": {
+            "ca": "3r d’ESO",
+            "es": "3.º de ESO",
+            "en": "3rd ESO"
+          },
+          "oferta": 120,
+          "ord": 0,
+          "nee": 0
+        },
+        {
+          "curs": {
+            "ca": "4t d’ESO",
+            "es": "4.º de ESO",
+            "en": "4th ESO"
+          },
+          "oferta": 120,
+          "ord": 0,
+          "nee": 0
+        }
+      ],
+      "pdf": "/assets/docs/secretaria/oferta-places-eso-2026-2027.pdf"
+    },
+    "calendari": [
+      {
+        "t": {
+          "ca": "Presentació de sol·licituds (telemàtica)",
+          "es": "Presentación de solicitudes (telemática)",
+          "en": "Application period (online)"
+        },
+        "d": {
+          "ca": "Del 6 al 18 de març",
+          "es": "Del 6 al 18 de marzo",
+          "en": "6–18 March"
+        },
+        "clau": true
+      },
+      {
+        "t": {
+          "ca": "Presentació de la documentació que no s’ha pogut adjuntar",
+          "es": "Presentación de la documentación que no se ha podido adjuntar",
+          "en": "Submission of any documents not attached"
+        },
+        "d": {
+          "ca": "Fins al 19 de març",
+          "es": "Hasta el 19 de marzo",
+          "en": "By 19 March"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista amb la puntuació provisional",
+          "es": "Lista con la puntuación provisional",
+          "en": "Provisional scores list"
+        },
+        "d": {
+          "ca": "15 d’abril",
+          "es": "15 de abril",
+          "en": "15 April"
+        }
+      },
+      {
+        "t": {
+          "ca": "Presentació de reclamacions (telemàtica)",
+          "es": "Presentación de reclamaciones (telemática)",
+          "en": "Appeals (online)"
+        },
+        "d": {
+          "ca": "Del 15 al 20 d’abril",
+          "es": "Del 15 al 20 de abril",
+          "en": "15–20 April"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista amb la puntuació un cop resoltes les reclamacions",
+          "es": "Lista con la puntuación una vez resueltas las reclamaciones",
+          "en": "Scores list after appeals"
+        },
+        "d": {
+          "ca": "23 d’abril",
+          "es": "23 de abril",
+          "en": "23 April"
+        }
+      },
+      {
+        "t": {
+          "ca": "Sorteig per desempatar (número 42129)",
+          "es": "Sorteo para desempatar (número 42129)",
+          "en": "Tie-break draw (number 42129)"
+        },
+        "d": {
+          "ca": "28 d’abril",
+          "es": "28 de abril",
+          "en": "28 April"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista ordenada definitiva",
+          "es": "Lista ordenada definitiva",
+          "en": "Final ranked list"
+        },
+        "d": {
+          "ca": "29 d’abril",
+          "es": "29 de abril",
+          "en": "29 April"
+        }
+      },
+      {
+        "t": {
+          "ca": "Ampliació de la preinscripció per a l’alumnat NEE de tipus B sense plaça",
+          "es": "Ampliación de la preinscripción para el alumnado NEE de tipo B sin plaza",
+          "en": "Extended application for type B SEN students without a place"
+        },
+        "d": {
+          "ca": "13 i 14 de maig",
+          "es": "13 y 14 de mayo",
+          "en": "13–14 May"
+        }
+      },
+      {
+        "t": {
+          "ca": "Ampliació de la preinscripció per a l’alumnat ordinari sense plaça",
+          "es": "Ampliación de la preinscripción para el alumnado ordinario sin plaza",
+          "en": "Extended application for other students without a place"
+        },
+        "d": {
+          "ca": "De l’1 al 3 de juny",
+          "es": "Del 1 al 3 de junio",
+          "en": "1–3 June"
+        }
+      },
+      {
+        "t": {
+          "ca": "Oferta final de places",
+          "es": "Oferta final de plazas",
+          "en": "Final places offer"
+        },
+        "d": {
+          "ca": "10 de juny",
+          "es": "10 de junio",
+          "en": "10 June"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista d’alumnat admès i llista d’espera",
+          "es": "Lista de alumnado admitido y lista de espera",
+          "en": "Admitted students and waiting list"
+        },
+        "d": {
+          "ca": "10 de juny",
+          "es": "10 de junio",
+          "en": "10 June"
+        },
+        "clau": true
+      }
+    ],
+    "matricula": {
+      "ca": "Del 22 al 30 de juny",
+      "es": "Del 22 al 30 de junio",
+      "en": "22–30 June"
+    },
+    "matriculaText": {
+      "ca": "Les instruccions de matrícula es publicaran a l’apartat Matrícula.",
+      "es": "Las instrucciones de matrícula se publicarán en el apartado Matrícula.",
+      "en": "Enrolment instructions will be published in the Enrolment section."
+    },
+    "com": {
+      "intro": {
+        "ca": "La sol·licitud es fa a preinscripcio.gencat.cat. Hi ha dues opcions:",
+        "es": "La solicitud se hace en preinscripcio.gencat.cat. Hay dos opciones:",
+        "en": "Applications are made at preinscripcio.gencat.cat. There are two options:"
+      },
+      "opcions": [
+        {
+          "t": {
+            "ca": "Sol·licitud electrònica",
+            "es": "Solicitud electrónica",
+            "en": "Online application with digital ID"
+          },
+          "d": {
+            "ca": "Amb identificació digital (per exemple, l’idCAT Mòbil). És l’opció recomanada: cal aportar menys documentació i moltes dades s’omplen automàticament.",
+            "es": "Con identificación digital (por ejemplo, el idCAT Mòbil). Es la opción recomendada: hay que aportar menos documentación y muchos datos se rellenan automáticamente.",
+            "en": "With a digital ID (for example, idCAT Mòbil). This is the recommended option: fewer documents are needed and many details are filled in automatically."
+          },
+          "rec": true
+        },
+        {
+          "t": {
+            "ca": "Sol·licitud en suport informàtic",
+            "es": "Solicitud en soporte informático",
+            "en": "Online form without digital ID"
+          },
+          "d": {
+            "ca": "Sense identificació digital: cal omplir totes les dades i adjuntar tota la documentació que demana la sol·licitud.",
+            "es": "Sin identificación digital: hay que rellenar todos los datos y adjuntar toda la documentación que pide la solicitud.",
+            "en": "Without a digital ID: you must fill in all the details and attach all the documents the form asks for."
+          }
+        }
+      ],
+      "passos": [
+        {
+          "ca": "Tingues a mà l’identificador de l’alumne (RALC), que trobareu com a IDALU als butlletins de notes.",
+          "es": "Ten a mano el identificador del alumno (RALC), que encontraréis como IDALU en los boletines de notas.",
+          "en": "Have the student’s ID number (RALC) ready; it appears as IDALU on school reports."
+        },
+        {
+          "ca": "Indica els centres on vols obtenir plaça per ordre de preferència (fins a 10). Per triar l’Institut Joan Miró, el codi és 08033900.",
+          "es": "Indica los centros donde quieres obtener plaza por orden de preferencia (hasta 10). Para elegir el Institut Joan Miró, el código es 08033900.",
+          "en": "List the schools where you would like a place in order of preference (up to 10). To choose Institut Joan Miró, the code is 08033900."
+        },
+        {
+          "ca": "Si vols, pots demanar una plaça d’ofici, per si no obtens plaça en cap dels centres que has demanat.",
+          "es": "Si quieres, puedes pedir una plaza de oficio, por si no obtienes plaza en ninguno de los centros que has pedido.",
+          "en": "If you wish, you can ask to be assigned a place automatically in case you do not get one at any of the schools you chose."
+        },
+        {
+          "ca": "Marca els criteris de prioritat i complementaris que vulguis al·legar.",
+          "es": "Marca los criterios de prioridad y complementarios que quieras alegar.",
+          "en": "Tick the priority and additional criteria that apply to you."
+        },
+        {
+          "ca": "Adjunta la documentació que es demana, escanejada o fotografiada.",
+          "es": "Adjunta la documentación que se pide, escaneada o fotografiada.",
+          "en": "Attach the required documents, scanned or photographed."
+        },
+        {
+          "ca": "Envia la sol·licitud. Rebràs el resguard per correu electrònic.",
+          "es": "Envía la solicitud. Recibirás el resguardo por correo electrónico.",
+          "en": "Submit the application. You will receive a receipt by email."
+        }
+      ],
+      "ralc": {
+        "ca": "Què és l’identificador de l’alumne (RALC)?",
+        "es": "¿Qué es el identificador del alumno (RALC)?",
+        "en": "What is the student ID (RALC)?"
+      },
+      "ralcHref": "https://educacio.gencat.cat/ca/tramits/tramits-temes/identificador-alumne"
+    }
+  },
+  "batx": {
+    "subtitol": {
+      "ca": "Preinscripció Batxillerat",
+      "es": "Preinscripción Bachillerato",
+      "en": "Batxillerat pre-registration"
+    },
+    "kicker": {
+      "ca": "Curs 2026-2027",
+      "es": "Curso 2026-2027",
+      "en": "2026-2027 school year"
+    },
+    "lead": {
+      "ca": "Per cursar el Batxillerat a l’Institut Joan Miró, cal fer la preinscripció durant el termini oficial, <span class=\"kw\">sempre de manera telemàtica</span>. L’alumnat que ja fa 4t d’ESO al centre segueix un procediment intern.",
+      "es": "Para cursar el Bachillerato en el Institut Joan Miró, hay que hacer la preinscripción durante el plazo oficial, <span class=\"kw\">siempre de forma telemática</span>. El alumnado que ya cursa 4.º de ESO en el centro sigue un procedimiento interno.",
+      "en": "To study Batxillerat at Institut Joan Miró, you must apply within the official period, <span class=\"kw\">always online</span>. Students already in 4th ESO at the school follow an internal procedure."
+    },
+    "gencat": "https://preinscripcio.gencat.cat/ca/estudis/batxillerat/inici/",
+    "places": {
+      "intro": {
+        "ca": "Oferta final de places publicada el 17 de juny de 2026 (Batxillerat, modalitats que s’imparteixen al centre).",
+        "es": "Oferta final de plazas publicada el 17 de junio de 2026 (Bachillerato, modalidades que se imparten en el centro).",
+        "en": "Final places offer published on 17 June 2026 (Batxillerat, pathways offered at the school)."
+      },
+      "files": [
+        {
+          "curs": {
+            "ca": "1r de Batxillerat",
+            "es": "1.º de Bachillerato",
+            "en": "1st Batxillerat"
+          },
+          "oferta": 105,
+          "ord": 24,
+          "nee": 1
+        },
+        {
+          "curs": {
+            "ca": "2n de Batxillerat",
+            "es": "2.º de Bachillerato",
+            "en": "2nd Batxillerat"
+          },
+          "oferta": 105,
+          "ord": 12,
+          "nee": 0
+        }
+      ],
+      "pdf": "/assets/docs/secretaria/oferta-places-batxillerat-2026-2027.pdf"
+    },
+    "calendari": [
+      {
+        "t": {
+          "ca": "Presentació de sol·licituds (telemàtica) i tria de modalitat i matèries",
+          "es": "Presentación de solicitudes (telemática) y elección de modalidad y materias",
+          "en": "Application period (online) and choice of pathway and subjects"
+        },
+        "d": {
+          "ca": "Del 9 al 16 d’abril",
+          "es": "Del 9 al 16 de abril",
+          "en": "9–16 April"
+        },
+        "clau": true
+      },
+      {
+        "t": {
+          "ca": "Presentació de la documentació que no s’ha pogut adjuntar",
+          "es": "Presentación de la documentación que no se ha podido adjuntar",
+          "en": "Submission of any documents not attached"
+        },
+        "d": {
+          "ca": "Fins al 17 d’abril",
+          "es": "Hasta el 17 de abril",
+          "en": "By 17 April"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista amb la puntuació provisional",
+          "es": "Lista con la puntuación provisional",
+          "en": "Provisional scores list"
+        },
+        "d": {
+          "ca": "14 de maig",
+          "es": "14 de mayo",
+          "en": "14 May"
+        }
+      },
+      {
+        "t": {
+          "ca": "Presentació de reclamacions (telemàtica)",
+          "es": "Presentación de reclamaciones (telemática)",
+          "en": "Appeals (online)"
+        },
+        "d": {
+          "ca": "Del 16 al 22 de maig",
+          "es": "Del 16 al 22 de mayo",
+          "en": "16–22 May"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista amb la puntuació un cop resoltes les reclamacions",
+          "es": "Lista con la puntuación una vez resueltas las reclamaciones",
+          "en": "Scores list after appeals"
+        },
+        "d": {
+          "ca": "26 de maig",
+          "es": "26 de mayo",
+          "en": "26 May"
+        }
+      },
+      {
+        "t": {
+          "ca": "Sorteig per desempatar (número 4720)",
+          "es": "Sorteo para desempatar (número 4720)",
+          "en": "Tie-break draw (number 4720)"
+        },
+        "d": {
+          "ca": "26 de maig",
+          "es": "26 de mayo",
+          "en": "26 May"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista ordenada definitiva",
+          "es": "Lista ordenada definitiva",
+          "en": "Final ranked list"
+        },
+        "d": {
+          "ca": "29 de maig",
+          "es": "29 de mayo",
+          "en": "29 May"
+        }
+      },
+      {
+        "t": {
+          "ca": "Oferta final de places i llista d’alumnat preinscrit",
+          "es": "Oferta final de plazas y lista de alumnado preinscrito",
+          "en": "Final places offer and list of applicants"
+        },
+        "d": {
+          "ca": "17 de juny",
+          "es": "17 de junio",
+          "en": "17 June"
+        }
+      },
+      {
+        "t": {
+          "ca": "Llista d’alumnat assignat en primera petició i llista d’espera",
+          "es": "Lista de alumnado asignado en primera petición y lista de espera",
+          "en": "Students allocated to their first choice and waiting list"
+        },
+        "d": {
+          "ca": "17 de juny",
+          "es": "17 de junio",
+          "en": "17 June"
+        },
+        "clau": true
+      }
+    ],
+    "matricula": {
+      "ca": "Del 18 al 30 de juny",
+      "es": "Del 18 al 30 de junio",
+      "en": "18–30 June"
+    },
+    "matriculaText": {
+      "ca": "Les instruccions de matrícula es publicaran a l’apartat Matrícula.",
+      "es": "Las instrucciones de matrícula se publicarán en el apartado Matrícula.",
+      "en": "Enrolment instructions will be published in the Enrolment section."
+    },
+    "grups": [
+      {
+        "titol": {
+          "ca": "Alumnat que fa 4t d’ESO a l’Institut Joan Miró",
+          "es": "Alumnado que cursa 4.º de ESO en el Institut Joan Miró",
+          "en": "Students in 4th ESO at Institut Joan Miró"
+        },
+        "paras": [
+          {
+            "ca": "Si voleu continuar al centre, no cal fer la preinscripció general: cal fer la <span class=\"tbd\">preinscripció interna, omplint el formulari de tria de modalitat i matèries de 1r de Batxillerat (dates i enllaç pendents)</span>.",
+            "es": "Si queréis continuar en el centro, no hace falta hacer la preinscripción general: hay que hacer la <span class=\"tbd\">preinscripción interna, rellenando el formulario de elección de modalidad y materias de 1.º de Bachillerato (fechas y enlace pendientes)</span>.",
+            "en": "If you want to stay at the school, you do not need to complete the general application: you must complete the <span class=\"tbd\">internal application by filling in the 1st Batxillerat pathway and subject choice form (dates and link to be confirmed)</span>."
+          },
+          {
+            "ca": "<span class=\"tbd\">Si no es fa la preinscripció interna, es perd la preferència i cal fer la preinscripció general.</span>",
+            "es": "<span class=\"tbd\">Si no se hace la preinscripción interna, se pierde la preferencia y hay que hacer la preinscripción general.</span>",
+            "en": "<span class=\"tbd\">If the internal application is not completed, priority is lost and the general application must be made.</span>"
+          },
+          {
+            "ca": "Un cop aprovada l’ESO, cal formalitzar la matrícula del 18 al 30 de juny.",
+            "es": "Una vez aprobada la ESO, hay que formalizar la matrícula del 18 al 30 de junio.",
+            "en": "Once ESO has been passed, enrolment must be completed between 18 and 30 June."
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "Resta d’alumnat",
+          "es": "Resto del alumnado",
+          "en": "All other students"
+        },
+        "paras": [
+          {
+            "ca": "Han de fer la preinscripció l’alumnat que vol cursar el Batxillerat en un centre diferent d’on fa l’ESO, qui cursa o ha cursat un cicle formatiu, qui vol accedir a la modalitat d’arts i qui ve d’un institut que no imparteix Batxillerat.",
+            "es": "Deben hacer la preinscripción el alumnado que quiere cursar el Bachillerato en un centro diferente de donde cursa la ESO, quien cursa o ha cursado un ciclo formativo, quien quiere acceder a la modalidad de artes y quien viene de un instituto que no imparte Bachillerato.",
+            "en": "Pre-registration is required for students who want to study Batxillerat at a different school from where they did ESO, those who are studying or have studied a vocational course, those applying for the arts pathway and those coming from a school that does not offer Batxillerat."
+          }
+        ]
+      }
+    ],
+    "com": {
+      "intro": {
+        "ca": "La sol·licitud es fa a preinscripcio.gencat.cat. Hi ha dues opcions:",
+        "es": "La solicitud se hace en preinscripcio.gencat.cat. Hay dos opciones:",
+        "en": "Applications are made at preinscripcio.gencat.cat. There are two options:"
+      },
+      "opcions": [
+        {
+          "t": {
+            "ca": "Sol·licitud electrònica",
+            "es": "Solicitud electrónica",
+            "en": "Online application with digital ID"
+          },
+          "d": {
+            "ca": "Amb identificació digital: certificat digital, DNI electrònic, Cl@ve o idCAT Mòbil. És l’opció recomanada.",
+            "es": "Con identificación digital: certificado digital, DNI electrónico, Cl@ve o idCAT Mòbil. Es la opción recomendada.",
+            "en": "With a digital ID: digital certificate, electronic DNI, Cl@ve or idCAT Mòbil. This is the recommended option."
+          },
+          "rec": true
+        },
+        {
+          "t": {
+            "ca": "Sol·licitud en suport informàtic",
+            "es": "Solicitud en soporte informático",
+            "en": "Online form without digital ID"
+          },
+          "d": {
+            "ca": "Sense identificació digital: cal omplir totes les dades i adjuntar tota la documentació que demana la sol·licitud.",
+            "es": "Sin identificación digital: hay que rellenar todos los datos y adjuntar toda la documentación que pide la solicitud.",
+            "en": "Without a digital ID: you must fill in all the details and attach all the documents the form asks for."
+          }
+        }
+      ],
+      "passos": [
+        {
+          "ca": "Només es pot fer una sol·licitud, amb els instituts desitjats per ordre de preferència (fins a 10). Per triar l’Institut Joan Miró, el codi és 08033900.",
+          "es": "Solo se puede hacer una solicitud, con los institutos deseados por orden de preferencia (hasta 10). Para elegir el Institut Joan Miró, el código es 08033900.",
+          "en": "Only one application may be submitted, listing the schools you want in order of preference (up to 10). To choose Institut Joan Miró, the code is 08033900."
+        },
+        {
+          "ca": "Tingues a mà l’identificador de l’alumne (RALC), que trobareu com a IDALU als butlletins de notes.",
+          "es": "Ten a mano el identificador del alumno (RALC), que encontraréis como IDALU en los boletines de notas.",
+          "en": "Have the student’s ID number (RALC) ready; it appears as IDALU on school reports."
+        },
+        {
+          "ca": "Adjunta, escanejats o fotografiats, el llibre de família, el DNI, NIE o passaport de l’alumne i dels pares o tutors, i els documents que justifiquin la puntuació.",
+          "es": "Adjunta, escaneados o fotografiados, el libro de familia, el DNI, NIE o pasaporte del alumno y de los padres o tutores, y los documentos que justifiquen la puntuación.",
+          "en": "Attach, scanned or photographed, the family book, the student’s and parents’ or guardians’ DNI, NIE or passport, and any documents supporting your score."
+        },
+        {
+          "ca": "Envia la sol·licitud. Rebràs el resguard per correu electrònic.",
+          "es": "Envía la solicitud. Recibirás el resguardo por correo electrónico.",
+          "en": "Submit the application. You will receive a receipt by email."
+        },
+        {
+          "ca": "<span class=\"tbd\">Omple el formulari de tria de modalitat i matèries de 1r o 2n de Batxillerat. Aquesta tria és provisional i es pot canviar en fer la matrícula.</span>",
+          "es": "<span class=\"tbd\">Rellena el formulario de elección de modalidad y materias de 1.º o 2.º de Bachillerato. Esta elección es provisional y se puede cambiar al hacer la matrícula.</span>",
+          "en": "<span class=\"tbd\">Fill in the pathway and subject choice form for 1st or 2nd Batxillerat. This choice is provisional and can be changed at enrolment.</span>"
+        }
+      ],
+      "ralc": {
+        "ca": "Què és l’identificador de l’alumne (RALC)?",
+        "es": "¿Qué es el identificador del alumno (RALC)?",
+        "en": "What is the student ID (RALC)?"
+      },
+      "ralcHref": "https://educacio.gencat.cat/ca/tramits/tramits-temes/identificador-alumne"
+    },
+    "criterisExtra": {
+      "ca": "Al Batxillerat té preferència l’alumnat que prové d’un centre adscrit.",
+      "es": "En el Bachillerato tiene preferencia el alumnado que procede de un centro adscrito.",
+      "en": "In Batxillerat, students coming from an affiliated school have priority."
+    }
+  }
+}

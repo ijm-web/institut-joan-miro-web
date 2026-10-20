@@ -9,7 +9,7 @@
    CriterisPdf.genera(recursos, opcions) → document jsPDF
      opcions = {
        curs, lang ('ca'|'es'|'en'), capcalera (text de dalt a la dreta),
-       portada: { titol, subtitol, head:[[…]], body:[[…]], columnStyles, nota } | null,
+       portada: { titol, subtitol, head:[[…]], body:[[…]], columnStyles, nota, avis } | null,
        materies: [{ titol, subtitol, pagina, senseCD (sense competència digital: Batxillerat), criteris:[{trimestre, activitat, percentatge, competencies[], competencia_digital[]}],
                     competencies:[{codi, descripcio}], info:{criteri_aprovar, recuperacio, observacions} }],
        competenciesDigitals: [{codi, descripcio}],
@@ -141,6 +141,7 @@
       if (P.body && P.body.length) taula({ head: P.head, body: P.body, columnStyles: P.columnStyles || {} });
       else y += 4;
       if (P.nota) paragraf(P.nota, GRIS);
+      if (P.avis) paragraf(P.avis, GRIS);
     }
     if (!materies.length && o.buit) paragraf(o.buit);
 

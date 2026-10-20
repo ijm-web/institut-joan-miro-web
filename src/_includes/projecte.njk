@@ -42,6 +42,20 @@
       {%- for p in sec.paras %}
       <p>{{ p[L] | safe }}</p>
       {%- endfor %}
+      {%- if sec.nivells %}
+      <ol class="pj-nivells">
+        {%- for n in sec.nivells %}
+        <li>
+          <span class="pj-nivells__nivell">{{ n.nivell[L] }}</span>
+          <ul>
+            {%- for a in n.acts %}
+            <li><b>{{ a.esport[L] }}</b><span>{{ a.lloc[L] }}</span><span class="pj-nivells__quan">{{ a.quan[L] }}</span></li>
+            {%- endfor %}
+          </ul>
+        </li>
+        {%- endfor %}
+      </ol>
+      {%- endif %}
       {%- if sec.accions %}
       <ul class="le-actions">
         {%- for a in sec.accions %}

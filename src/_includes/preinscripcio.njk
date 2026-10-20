@@ -1,0 +1,197 @@
+{#- Secretaria › Preinscripció ESO / Batxillerat (ca/es/en).
+    Cada pàgina defineix `etapa` al front matter: "eso" o "batx".
+    Format de seccions numerades com a Projectes › Llengües estrangeres (estils de projecte.css)
+    + components propis (preinscripcio.css).
+    Dades: src/_data/preinscripcio.json (comuns + eso/batx) · horari de secretaria: src/_data/centre.json -#}
+{%- set L = lang | default('ca') -%}
+{%- set P = '' -%}
+{%- if L == 'es' -%}{%- set P = 'es/' -%}{%- elif L == 'en' -%}{%- set P = 'en/' -%}{%- endif -%}
+{%- set C = preinscripcio.comuns -%}
+{%- set S = preinscripcio[etapa] -%}
+{%- set nw = C.obreFinestra[L] -%}
+{%- set hs = centre.horariSecretaria -%}
+{%- set n = 0 -%}
+{%- macro ext() -%}<svg class="pi-ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg>{%- endmacro -%}
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-3-vestibul-2400.jpg" srcset="/assets/img/inici/inici-3-vestibul-1600.jpg 1600w, /assets/img/inici/inici-3-vestibul-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ C.heroTitol[L] }}</span><span class="qs-hero__subtitle">{{ S.subtitol[L] }}</span></h1>
+  </div>
+</div>
+
+{%- if etapa == 'batx' %}
+<p class="pi-pending-note">{{ C.pendent[L] | safe }}</p>
+{%- endif %}
+
+<div class="le-wrap">
+
+  <div class="le-intro le-intro--logo pi-intro le-reveal">
+    <div>
+      <h2 class="le-kicker">{{ S.kicker[L] }}</h2>
+      <p class="le-lead">{{ S.lead[L] | safe }}</p>
+    </div>
+    <aside class="pi-codi">
+      <span class="pi-codi__label">{{ C.codiTitol[L] }}</span>
+      <span class="pi-codi__num">{{ C.codiCentre }}</span>
+      <a class="pi-btn" href="{{ S.gencat }}" target="_blank" rel="noopener">preinscripcio.gencat.cat {{ ext() | safe }}<span class="visually-hidden"> {{ nw }}</span></a>
+    </aside>
+  </div>
+
+  <!-- ============ OFERTA DE PLACES ============ -->
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">01</span>
+      <h2>{{ C.titols.places[L] }}</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <p>{{ S.places.intro[L] }}</p>
+      <div class="pi-tablewrap">
+        <table class="pi-table">
+          <thead>
+            <tr><th scope="col" rowspan="2">{{ C.taula.curs[L] }}</th><th scope="col" rowspan="2">{{ C.taula.oferta[L] }}</th><th scope="colgroup" colspan="2" class="pi-table__group">{{ C.taula.preins[L] }}</th></tr>
+            <tr><th scope="col">{{ C.taula.ordinaries[L] }}</th><th scope="col">{{ C.taula.nee[L] }}</th></tr>
+          </thead>
+          <tbody>
+            {%- for f in S.places.files %}
+            <tr{% if f.ord or f.nee %} class="pi-table__on"{% endif %}><th scope="row">{{ f.curs[L] }}</th><td>{{ f.oferta }}</td><td class="pi-table__num">{{ f.ord }}</td><td class="pi-table__num">{{ f.nee }}</td></tr>
+            {%- endfor %}
+          </tbody>
+        </table>
+      </div>
+      <p class="pi-small">{{ C.taula.neeNota[L] }}</p>
+      <a class="pi-doc" href="{{ S.places.pdf }}" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+        <span>{{ C.taula.pdf[L] }}</span>{{ ext() | safe }}<span class="visually-hidden"> {{ nw }}</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ============ CALENDARI ============ -->
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">02</span>
+      <h2>{{ C.titols.calendari[L] }}</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <ol class="pi-cal">
+        {%- for r in S.calendari %}
+        <li{% if r.clau %} class="pi-cal__key"{% endif %}><span class="pi-cal__date">{{ r.d[L] }}</span><span class="pi-cal__what">{{ r.t[L] }}</span></li>
+        {%- endfor %}
+        <li class="pi-cal__mat"><span class="pi-cal__date">{{ S.matricula[L] }}</span><span class="pi-cal__what"><strong>{{ C.calendari.matricula[L] }}</strong> · {{ S.matriculaText[L] }}</span></li>
+      </ol>
+      <p class="pi-small">{{ C.calendari.nota[L] }}</p>
+    </div>
+  </section>
+
+  <!-- ============ COM ES FA ============ -->
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">03</span>
+      <h2>{{ C.titols.com[L] }}</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      {%- for g in S.grups %}
+      <div class="pi-box{% if loop.first %} pi-box--blue{% endif %}">
+        <h3>{{ g.titol[L] }}</h3>
+        {%- for p in g.paras %}<p>{{ p[L] | safe }}</p>{% endfor %}
+      </div>
+      {%- endfor %}
+      <p>{{ S.com.intro[L] }}</p>
+      <ul class="pi-options">
+        {%- for o in S.com.opcions %}
+        <li{% if o.rec %} class="pi-options__rec"{% endif %}><b>{{ o.t[L] }}</b><span>{{ o.d[L] }}</span></li>
+        {%- endfor %}
+      </ul>
+      <ol class="pi-steps">
+        {%- for p in S.com.passos %}<li>{{ p[L] | safe }}</li>{% endfor %}
+      </ol>
+      <p class="pi-small"><a href="{{ S.com.ralcHref }}" target="_blank" rel="noopener">{{ S.com.ralc[L] }}</a><span class="visually-hidden"> {{ nw }}</span></p>
+    </div>
+  </section>
+
+  <!-- ============ CRITERIS DE PRIORITAT ============ -->
+  {%- set K = C.criteris %}
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">04</span>
+      <h2>{{ K.titol[L] }}</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <p>{{ K.intro[L] }}{% if S.criterisExtra %} {{ S.criterisExtra[L] }}{% endif %}</p>
+      <h3 class="pi-h3">{{ K.generalsTitol[L] }}</h3>
+      <table class="pi-table pi-table--crit">
+        <thead><tr><th scope="col">{{ K.criteri[L] }}</th><th scope="col">{{ K.punts[L] }}</th></tr></thead>
+        <tbody>
+          {%- for c in K.generals %}<tr><td>{{ c.t[L] }}</td><td class="pi-table__num">{{ c.p }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+      <h3 class="pi-h3">{{ K.complementarisTitol[L] }}</h3>
+      <p>{{ K.complementarisIntro[L] }}</p>
+      <table class="pi-table pi-table--crit">
+        <thead><tr><th scope="col">{{ K.criteri[L] }}</th><th scope="col">{{ K.punts[L] }}</th></tr></thead>
+        <tbody>
+          {%- for c in K.complementaris %}<tr><td>{{ c.t[L] }}</td><td class="pi-table__num">{{ c.p }}</td></tr>{% endfor %}
+        </tbody>
+      </table>
+      <p class="pi-small">{{ K.nota[L] }}</p>
+    </div>
+  </section>
+
+  <!-- ============ AJUDA I IDCAT MÒBIL ============ -->
+  {%- set I = C.idcat %}
+  <section class="le-section">
+    <header class="le-section__head le-reveal">
+      <span class="le-section__num">05</span>
+      <h2>{{ C.titols.ajuda[L] }}</h2>
+    </header>
+    <div class="le-section__body le-reveal">
+      <div class="pi-box pi-box--blue pi-help">
+        <p>{{ C.ajuda.text[L] }}</p>
+        <ul class="pi-help__list">
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.7a2 2 0 0 1-.5 2.1L8 9.8a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.4c.9.3 1.8.6 2.7.7a2 2 0 0 1 1.7 2z"/></svg><a href="tel:{{ C.ajuda.tel }}">{{ C.ajuda.telefon }}</a></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 6l-10 7L2 6"/></svg><a href="mailto:{{ C.ajuda.email }}">{{ C.ajuda.email }}</a></li>
+          <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span>{{ C.ajuda.horari[L] }}: {{ hs.dies[L] }} · {{ hs.curs.hores[L] }} ({{ hs.curs.periode[L] }}) · {{ hs.estiu.hores[L] }} ({{ hs.estiu.periode[L] }})</span></li>
+        </ul>
+      </div>
+
+      <h3 class="pi-h3">{{ I.titol[L] }}</h3>
+      <p>{{ I.intro[L] }}</p>
+      <div class="pi-idcat">
+        <div>
+          <h4>{{ I.necessitesTitol[L] }}</h4>
+          <ul class="le-tags le-tags--plain pi-need">
+            {%- for x in I.necessites %}<li>{{ x[L] }}</li>{% endfor %}
+          </ul>
+        </div>
+        <div>
+          <h4>{{ I.passosTitol[L] }}</h4>
+          <ol class="pi-steps pi-steps--sm">
+            {%- for x in I.passos %}<li>{{ x[L] }}</li>{% endfor %}
+          </ol>
+        </div>
+      </div>
+      <a class="pi-btn pi-btn--ghost" href="{{ I.href }}" target="_blank" rel="noopener">{{ I.boto[L] }} {{ ext() | safe }}<span class="visually-hidden"> {{ nw }}</span></a>
+    </div>
+  </section>
+
+</div>
+
+<section class="le-closing">
+  <div class="le-closing__inner le-reveal">
+    <a class="pi-btn pi-btn--big" href="{{ S.gencat }}" target="_blank" rel="noopener">{{ C.tancamentBoto[L] }} {{ ext() | safe }}<span class="visually-hidden"> {{ nw }}</span></a>
+    <p class="pi-back"><a href="/{{ P }}secretaria-preinscripcio-matricula.html">← {{ preinscripcio.hub.subtitol[L] }}</a></p>
+  </div>
+</section>
+
+<script>
+  // Aparicions en fer scroll (com a Projectes)
+  (function(){
+    var els = document.querySelectorAll('.le-reveal');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)){ els.forEach(function(el){ el.classList.add('is-in'); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    els.forEach(function(el){ io.observe(el); });
+  })();
+</script>

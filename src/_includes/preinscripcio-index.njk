@@ -1,0 +1,50 @@
+{#- Secretaria › Preinscripció i matrícula: portada amb 4 caixes (ESO i Batxillerat × preinscripció i matrícula).
+    Aparença de les caixes com a El nostre centre › Documents. Les caixes sense href (matrícula) surten
+    desactivades amb «Properament».
+    Dades: src/_data/preinscripcio.json (comuns, hub) · Estils: /assets/css/preinscripcio.css -#}
+{%- set L = lang | default('ca') -%}
+{%- set P = '' -%}
+{%- if L == 'es' -%}{%- set P = 'es/' -%}{%- elif L == 'en' -%}{%- set P = 'en/' -%}{%- endif -%}
+{%- set C = preinscripcio.comuns -%}
+{%- set H = preinscripcio.hub -%}
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-3-vestibul-2400.jpg" srcset="/assets/img/inici/inici-3-vestibul-1600.jpg 1600w, /assets/img/inici/inici-3-vestibul-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ C.heroTitol[L] }}</span><span class="qs-hero__subtitle">{{ H.subtitol[L] }}</span></h1>
+  </div>
+</div>
+
+<div class="docs-wrap">
+  <div class="pi-hubintro">
+    <h2 class="le-kicker">{{ H.kicker[L] }}</h2>
+    <p class="le-lead">{{ H.lead[L] }}</p>
+  </div>
+
+  {%- for sec in H.seccions %}
+  <section class="docs-section">
+    <h2 class="docs-title">{{ sec.titol[L] }}</h2>
+    <div class="docs-grid docs-grid--2">
+      {%- for c in sec.caixes %}
+      {%- if c.href %}
+      <a class="doc-card" href="/{{ P }}{{ c.href }}">
+      {%- else %}
+      <div class="doc-card doc-card--off" aria-disabled="true">
+      {%- endif %}
+        {%- if c.icona == 'matricula' %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M16 11l2 2 4-4"/></svg>
+        {%- else %}
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h5"/></svg>
+        {%- endif %}
+        <p class="doc-card__label">{{ c.label[L] }}</p>
+        <p class="doc-card__sub">{{ c.sub[L] }}</p>
+        {%- if not c.href %}<span class="doc-card__badge">{{ H.properament[L] }}</span>{% endif %}
+      {%- if c.href %}
+      </a>
+      {%- else %}
+      </div>
+      {%- endif %}
+      {%- endfor %}
+    </div>
+  </section>
+  {%- endfor %}
+</div>

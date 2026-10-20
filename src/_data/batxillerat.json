@@ -856,6 +856,25 @@
           "es": "Cada itinerario tiene una materia obligatoria y dos de modalidad, de 4 horas semanales cada una, y las franjas de opción.",
           "en": "Each pathway has one compulsory subject and two strand subjects, 4 hours a week each, plus the option blocks."
         },
+        "destacat": {
+          "icona": "esport",
+          "titol": {
+            "ca": "Pla de l’Esport a 1r de Batxillerat",
+            "es": "Plan del Deporte en 1.º de Bachillerato",
+            "en": "Sports Plan in 1st Batxillerat"
+          },
+          "text": {
+            "ca": "1 hora setmanal d’atletisme a les pistes municipals durant un trimestre.",
+            "es": "1 hora semanal de atletismo en las pistas municipales durante un trimestre.",
+            "en": "1 hour a week of athletics at the municipal track for one term."
+          },
+          "enllac": {
+            "ca": "Pla de l’Esport",
+            "es": "Plan del Deporte",
+            "en": "Sports Plan"
+          },
+          "href": "projectes-pla-esport.html"
+        },
         "pdf": "/assets/docs/batxillerat/optatives-1r-batxillerat.pdf",
         "pdfText": {
           "ca": "Descripció d’optatives de 1r de Batxillerat",

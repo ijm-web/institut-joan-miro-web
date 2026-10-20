@@ -907,7 +907,10 @@
 {{ pageStyles | safe }}
 </style>
 {%- if extraCss %}
-<link rel="stylesheet" href="{{ extraCss }}">
+{#- extraCss: un camí o una llista de camins -#}
+{%- for css in ([extraCss] if extraCss is string else extraCss) %}
+<link rel="stylesheet" href="{{ css }}">
+{%- endfor %}
 {%- endif %}
 </head>
 <body>

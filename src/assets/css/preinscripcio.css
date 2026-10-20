@@ -1,0 +1,241 @@
+/* ============ SECRETARIA › PREINSCRIPCIÓ I MATRÍCULA ============
+   Portada (preinscripcio-index.njk) i pàgines de preinscripció ESO / Batxillerat (preinscripcio.njk).
+   Es carrega després de projecte.css (seccions numerades le-*). Dades: src/_data/preinscripcio.json */
+
+.visually-hidden{
+  position: absolute !important; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* ---------- Portada: caixes com a El nostre centre › Documents ---------- */
+.docs-wrap{
+  max-width: 1220px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 56px clamp(16px, 4vw, 48px) 80px;
+}
+.pi-hubintro{ max-width: 900px; margin: 0 auto; text-align: center; }
+.pi-hubintro .le-lead{ margin: 0 auto; }
+.docs-title{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin: 0 0 40px;
+  font-size: clamp(24px, 2.6vw, 30px);
+  font-weight: 300;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--color-blue);
+  text-align: center;
+}
+.docs-title::before,
+.docs-title::after{
+  content: "";
+  flex: 1 1 0;
+  height: 1px;
+  background: rgba(28, 12, 188, 0.35);
+  max-width: 140px;
+}
+.docs-section{ margin-top: clamp(48px, 6vw, 72px); }
+.docs-grid{
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 270px));
+  justify-content: center;
+  gap: clamp(16px, 2.4vw, 32px);
+}
+.doc-card{
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 10px;
+  min-height: 210px;
+  padding: 30px 18px 26px;
+  box-sizing: border-box;
+  border-radius: var(--radius-card);
+  background: #A8ACB3;
+  color: #fff;
+  text-align: center;
+  text-decoration: none;
+  box-shadow: 0 12px 24px rgba(20, 20, 40, 0.14);
+  transition: background-color 1s ease;
+}
+a.doc-card:hover,
+a.doc-card:focus-visible{ background: var(--color-orange); }
+.doc-card svg{ width: 64px; height: 64px; flex: none; margin-bottom: 4px; }
+.doc-card__label{ margin: 0; font-size: 19px; font-weight: 600; line-height: 1.3; }
+.doc-card__sub{ margin: 0; font-size: 13px; line-height: 1.4; opacity: .9; }
+.doc-card--off{ background: #C9CCD1; cursor: default; box-shadow: none; }
+.doc-card__badge{
+  margin-top: auto;
+  font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+  border: 1px solid rgba(255,255,255,.8); border-radius: 999px; padding: 4px 12px;
+}
+@media (max-width: 520px){
+  .docs-grid{ grid-template-columns: minmax(0, 1fr); }
+  .doc-card{ min-height: 170px; }
+}
+
+/* ---------- Pàgines de preinscripció ---------- */
+.pi-pending-note{
+  margin: 0;
+  background: #FFF8C7;
+  border-bottom: 1px solid #E8D44D;
+  font-size: 13px;
+  padding: 10px 16px;
+  text-align: center;
+  color: #1E1E2A;
+}
+.tbd{
+  background: #FFE95C;
+  color: #1E1E2A;
+  padding: 1px 5px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+}
+.pi-ext{ width: 16px; height: 16px; flex-shrink: 0; }
+
+/* Introducció: codi del centre i botó a la dreta */
+.pi-codi{
+  display: flex; flex-direction: column; align-items: flex-start; gap: 6px;
+  padding: 24px 26px;
+  min-width: 250px;
+  box-sizing: border-box;
+  border-radius: 14px;
+  background: var(--bg-band);
+}
+.pi-codi__label{ font-size: 12px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--color-text-muted); }
+.pi-codi__num{ font-size: 36px; font-weight: 300; color: var(--color-blue); line-height: 1.1; letter-spacing: .04em; margin-bottom: 10px; }
+
+.pi-btn{
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 11px 20px;
+  border-radius: 999px;
+  background: var(--color-blue);
+  color: #fff !important;
+  font-size: 14px; font-weight: 600;
+  text-decoration: none;
+  transition: background-color .3s ease;
+}
+.pi-btn:hover, .pi-btn:focus-visible{ background: var(--color-orange); }
+.pi-btn--ghost{ background: transparent; color: var(--color-blue) !important; border: 1px solid rgba(28, 12, 188, 0.35); margin-top: 22px; }
+.pi-btn--ghost:hover, .pi-btn--ghost:focus-visible{ background: var(--color-blue); color: #fff !important; }
+.pi-btn--big{ font-size: 16px; padding: 14px 28px; }
+.pi-back{ margin: 22px 0 0 !important; font-size: 14px !important; }
+.pi-back a{ color: var(--color-blue); font-weight: 600; text-decoration: none; }
+.pi-back a:hover{ color: var(--color-orange); }
+
+.le-section__body a:not(.pi-btn):not(.pi-doc){ color: var(--color-blue); font-weight: 600; }
+.le-section__body a:not(.pi-btn):not(.pi-doc):hover{ color: var(--color-orange); }
+.le-section__body .pi-small{ font-size: 13.5px; line-height: 1.6; color: var(--color-text-muted); }
+.pi-h3{ margin: clamp(26px, 3vw, 34px) 0 12px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--color-blue); }
+.le-section__body > .pi-h3:first-child{ margin-top: 0; }
+
+/* Taules */
+.pi-tablewrap{ overflow-x: auto; margin: 4px 0 14px; }
+.pi-table{ width: 100%; border-collapse: collapse; font-size: 15px; }
+.pi-table th, .pi-table td{ padding: 12px 14px; text-align: left; border-bottom: 1px solid var(--color-border); vertical-align: middle; }
+.pi-table thead th{ font-size: 11.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--color-text-muted); border-bottom: 2px solid var(--color-blue); }
+.pi-table thead tr:first-child th[rowspan]{ vertical-align: bottom; }
+.pi-table__group{ text-align: center !important; border-bottom: 1px solid var(--color-border) !important; color: var(--color-blue) !important; }
+.pi-table tbody th{ font-weight: 600; color: var(--color-text); }
+.pi-table td:not(:first-child), .pi-table thead th:not(:first-child){ text-align: center; }
+.pi-table__num{ font-weight: 700; color: var(--color-text-muted); }
+.pi-table__on{ background: rgba(28, 12, 188, 0.04); }
+.pi-table__on .pi-table__num{ color: var(--color-blue); font-size: 18px; }
+.pi-table--crit{ margin-bottom: 8px; }
+.pi-table--crit td:first-child{ font-size: 14.5px; }
+.pi-table--crit .pi-table__num{ color: var(--color-blue); width: 80px; }
+
+.pi-doc{
+  display: inline-flex; align-items: center; gap: 10px;
+  margin-top: 6px;
+  padding: 12px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-blue);
+  font-size: 14px; font-weight: 600;
+  text-decoration: none;
+  transition: border-color .3s ease, color .3s ease;
+}
+.pi-doc > svg:first-child{ width: 26px; height: 26px; color: var(--color-orange); }
+.pi-doc:hover, .pi-doc:focus-visible{ border-color: var(--color-orange); color: var(--color-orange); }
+
+/* Calendari */
+.pi-cal{ list-style: none; margin: 0 0 14px; padding: 0; border-left: 2px solid rgba(28, 12, 188, 0.18); }
+.pi-cal li{
+  position: relative;
+  display: grid;
+  grid-template-columns: 170px minmax(0, 1fr);
+  gap: 16px;
+  padding: 11px 0 11px 24px;
+}
+.pi-cal li::before{
+  content: "";
+  position: absolute; left: -7px; top: 16px;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: #fff; border: 2px solid rgba(28, 12, 188, 0.4); box-sizing: border-box;
+}
+.pi-cal__date{ font-size: 14px; font-weight: 700; color: var(--color-blue); }
+.pi-cal__what{ font-size: 15px; line-height: 1.55; color: var(--color-text); }
+.pi-cal__key::before{ background: var(--color-blue) !important; border-color: var(--color-blue) !important; }
+.pi-cal__key .pi-cal__what{ font-weight: 600; }
+.pi-cal__mat{ margin-top: 10px; background: rgba(232, 96, 12, 0.07); border-radius: 0 10px 10px 0; }
+.pi-cal__mat::before{ background: var(--color-orange) !important; border-color: var(--color-orange) !important; }
+.pi-cal__mat .pi-cal__date{ color: var(--color-orange); }
+
+/* Caixes de text */
+.pi-box{
+  margin: 0 0 18px;
+  padding: 20px 22px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: #fff;
+}
+.pi-box--blue{ border-color: transparent; background: var(--bg-band); }
+.pi-box h3{ margin: 0 0 10px; font-size: 16px; font-weight: 700; color: var(--color-blue); text-transform: none; letter-spacing: 0; }
+.le-section__body .pi-box p{ font-size: 15px; line-height: 1.65; margin-bottom: .7em; }
+.le-section__body .pi-box p:last-child{ margin-bottom: 0; }
+
+.pi-options{ list-style: none; margin: 0 0 22px; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.pi-options li{ position: relative; padding: 18px 20px; border: 1px solid var(--color-border); border-radius: 12px; }
+.pi-options b{ display: block; font-size: 15px; color: var(--color-blue); margin-bottom: 6px; }
+.pi-options span{ display: block; font-size: 14px; line-height: 1.6; color: var(--color-text); }
+.pi-options__rec{ border-color: var(--color-blue) !important; box-shadow: inset 0 3px 0 var(--color-blue); }
+
+.pi-steps{ list-style: none; counter-reset: pi; margin: 0 0 16px; padding: 0; display: grid; gap: 12px; }
+.pi-steps li{ counter-increment: pi; position: relative; padding-left: 46px; font-size: 15px; line-height: 1.6; min-height: 30px; }
+.pi-steps li::before{
+  content: counter(pi);
+  position: absolute; left: 0; top: -1px;
+  width: 30px; height: 30px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(232, 96, 12, 0.1); color: var(--color-orange);
+  font-size: 14px; font-weight: 700;
+}
+.pi-steps--sm li{ font-size: 14px; padding-left: 40px; }
+.pi-steps--sm li::before{ width: 26px; height: 26px; font-size: 12.5px; }
+
+/* Ajuda i idCAT Mòbil */
+.pi-help__list{ list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.pi-help__list li{ display: flex; align-items: flex-start; gap: 12px; font-size: 15px; line-height: 1.5; }
+.pi-help__list svg{ width: 20px; height: 20px; flex: none; color: var(--color-orange); margin-top: 1px; }
+.pi-idcat{ display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: clamp(20px, 3vw, 36px); margin-top: 8px; }
+.pi-idcat h4{ margin: 0 0 12px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-text-muted); }
+.pi-need{ flex-direction: column; align-items: flex-start; margin: 0; }
+.pi-need li{ border-radius: 12px; font-weight: 500; font-size: 14px; line-height: 1.45; align-items: flex-start; }
+.pi-need li::before{ margin-top: 6px; flex: none; }
+
+@media (max-width: 760px){
+  .pi-intro .pi-codi{ order: 0; width: 100%; }
+  .pi-options{ grid-template-columns: minmax(0, 1fr); }
+  .pi-idcat{ grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 560px){
+  .pi-cal li{ grid-template-columns: minmax(0, 1fr); gap: 2px; }
+  .pi-table{ font-size: 14px; }
+  .pi-table th, .pi-table td{ padding: 10px 8px; }
+  .pi-table thead th{ font-size: 10.5px; letter-spacing: .03em; }
+}

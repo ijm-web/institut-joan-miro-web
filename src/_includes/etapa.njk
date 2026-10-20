@@ -151,7 +151,11 @@
         </div>
         {%- if c.destacat %}
         <div class="eso-pool">
+          {%- if c.destacat.icona == 'esport' %}
+          <span class="eso-pool__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M6.5 6.5v11M17.5 6.5v11M3.5 9v6M20.5 9v6M6.5 12h11"/></svg></span>
+          {%- else %}
           <span class="eso-pool__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 16c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1 2.5-1 4-1"/><path d="M2 20c1.5 0 2.5-1 4-1s2.5 1 4 1 2.5-1 4-1 2.5 1 4 1 2.5-1 4-1"/><path d="M8 13V5a2 2 0 0 1 4 0M16 13V5a2 2 0 0 0-4 0M8 8h8M8 11h8"/></svg></span>
+          {%- endif %}
           <div class="eso-pool__body">
             <h3>{{ c.destacat.titol[L] }}</h3>
             <p>{{ c.destacat.text[L] }}</p>
@@ -236,7 +240,7 @@
 </section>
 
 <!-- ============ CRITERIS DE QUALIFICACIÓ ============ -->
-<section id="qualificacio">
+<section id="qualificacio" data-avis-criteris="{{ E.qual.avisCanvis[L] }}">
   <div class="eso-wrap">
     <h2 class="eso-ttl">{{ e.qual.titol[L] }}</h2>
     <div class="eso-row">
@@ -257,6 +261,7 @@
           </div>
           {%- endfor %}
         </div>
+        <p class="eso-qnote">{{ E.qual.avisCanvis[L] }}</p>
         {%- else %}
         <p>{{ e.qual.comText[L] }}</p>
         <div class="eso-docs">
@@ -269,6 +274,7 @@
           <li{% if b.paper %} class="eso-reports__item--paper"{% endif %}><span class="eso-reports__when">{{ b.quan[L] }}</span><span class="eso-reports__what">{{ b.que[L] }}</span><span class="eso-reports__fmt">{{ b.format[L] }}</span></li>
           {%- endfor %}
         </ol>
+        <p class="eso-qnote">{{ E.qual.avisCanvis[L] }}</p>
         {%- endif %}
       </div>
     </div>
@@ -399,7 +405,7 @@
         <span class="eso-doc__title">{{ E.prac.calendari[L] }}</span>
         <span class="eso-doc__meta">{{ calendari.textos.kicker[L] }}: {{ E.prac.calendariMeta[L] | safe }}</span>
       </a>
-      <a class="eso-doc" href="/{{ P }}secretaria-preinscripcio-matricula.html">
+      <a class="eso-doc" href="/{{ P }}{{ 'secretaria-preinscripcio-batxillerat.html' if e.qual.blocs else 'secretaria-preinscripcio-eso.html' }}">
         <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#E8600C" stroke-width="1.6"><path d="M14 3H6a1 1 0 0 0-1 1v16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V8z"/><path d="M14 3v5h5M9 13h6M9 17h6"/></svg>
         <span class="eso-doc__title">{{ E.prac.preins[L] }}</span>
         <span class="eso-doc__meta">{{ E.prac.preinsMeta[L] }}</span>
@@ -442,6 +448,8 @@
         nota: 'Only subjects that have already published their criteria are included. The rest will be added.', buit: 'The assessment criteria for this level have not been published yet.',
         error: 'The PDF could not be generated. Please try again later.', actualitzat: 'Updated on', fitxer: 'assessment-criteria' }
     }[lang] || {};
+    var seccio = document.getElementById('qualificacio');
+    var avisCriteris = seccio ? seccio.getAttribute('data-avis-criteris') || '' : '';
     var data = function(d){ var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[3]) + '/' + Number(m[2]) + '/' + m[1] : ''; };
     var esc = function(t){ return String(t).replace(/[&<>]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); };
     function avis(w, text){
@@ -465,7 +473,7 @@
             curs: d.curs, lang: lang, capcalera: TX.titol,
             portada: { titol: TX.titol, subtitol: nom + ' · ' + TX.curs + ' ' + d.curs,
               head: [[TX.mat, TX.act]], body: materies.map(function(m){ return [m.materia, data((m.info || {}).data) || '—']; }),
-              columnStyles: { 1: { cellWidth: 34 } }, nota: materies.length ? TX.nota : TX.buit },
+              columnStyles: { 1: { cellWidth: 34 } }, nota: materies.length ? TX.nota : TX.buit, avis: avisCriteris },
             competenciesDigitals: d.competencies_digitals,
             materies: materies.map(function(m){
               var dt = data((m.info || {}).data);

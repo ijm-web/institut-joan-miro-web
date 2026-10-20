@@ -586,3 +586,15 @@ a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px r
 .eso-guide[hidden]{ display: none !important; }
 .eso-guide-toggle .eso-guide__intro > .eso-guide__tag, .eso-guide-toggle .eso-guide__intro > h3{ display: none; }
 @media (max-width: 600px){ .eso-guide-toggle__accio{ display: none; } }
+
+/* --- Avís: els criteris de qualificació poden variar durant el curs (eso.json › qual.avisCanvis) --- */
+.eso-qnote{
+  margin: 20px 0 0 !important;
+  padding: 14px 18px;
+  border-left: 3px solid var(--color-orange);
+  background: rgba(232, 96, 12, 0.06);
+  border-radius: 0 8px 8px 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--color-text);
+}
