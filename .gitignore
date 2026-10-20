@@ -7,3 +7,7 @@ Thumbs.db
 *.bundle
 __pycache__/
 importacio_criteris_*.xlsx
+# Documents de treball de la carpeta local (no es publiquen amb el web)
+Manual de PROGRAMACIONS per als caps de departament.docx
+Manteniment_anual_web.docx
+~$*.docx

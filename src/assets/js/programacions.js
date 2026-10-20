@@ -421,6 +421,8 @@
     var codis = S.ed.competencies.map(function (c) { return String(c.codi || '').trim().toUpperCase(); }).filter(Boolean);
     return codis.filter(function (c, i) { return codis.indexOf(c) === i; });
   }
+  /** Al Batxillerat no es treballa la competència digital: no es mostra ni es desa */
+  function senseCD(m) { return /^BAT/.test(String((m && m.nivell) || '')); }
   function catalegCD() { return (S.dades.competencies_digitals || []).map(function (c) { return c.codi; }); }
   function descCE(codi) { var c = S.ed.competencies.filter(function (x) { return String(x.codi).toUpperCase() === codi; })[0]; return c ? c.descripcio : ''; }
   function descCD(codi) { var c = (S.dades.competencies_digitals || []).filter(function (x) { return x.codi === codi; })[0]; return c ? c.descripcio : ''; }
@@ -458,7 +460,7 @@
     // 2. Criteris per trimestre
     var cat = catalegCE(), cd = catalegCD();
     h += '<section class="prog-bloc"><div class="prog-bloc__cap"><h4><span class="prog-num">2</span> Criteris de qualificació</h4>' +
-      '<p>Activitats avaluatives de cada trimestre amb el seu percentatge (ha de sumar 100 %), les competències específiques i la competència digital que s’hi treballen.</p></div>' +
+      '<p>Activitats avaluatives de cada trimestre amb el seu percentatge (ha de sumar 100 %) i ' + (senseCD(ed.m) ? 'les competències específiques que s’hi treballen (al Batxillerat no es treballa la competència digital).' : 'les competències específiques i la competència digital que s’hi treballen.') + '</p></div>' +
       '<div class="prog-trims">';
     TRIMESTRES.forEach(function (t) {
       var files = ed.criteris.map(function (c, i) { return { c: c, i: i }; }).filter(function (x) { return x.c.trimestre === t; });
@@ -481,11 +483,11 @@
             var on = (c.competencies || []).indexOf(v) >= 0, fora = cat.indexOf(v) < 0;
             return '<button type="button" class="prog-chip' + (on ? ' is-on' : '') + (fora ? ' is-fora' : '') + '" data-llista="competencies" data-v="' + esc(v) + '" aria-pressed="' + on + '" title="' + esc(fora ? 'No és al catàleg de la matèria' : descCE(v)) + '"' + ro + '>' + esc(v) + '</button>';
           }).join('') : '<span class="prog-chips__buit">Afegiu primer les competències específiques (apartat 1)</span>') + '</div>' +
-          '<div class="prog-chips"><span class="prog-chips__lbl">Competència digital</span>' +
+          (senseCD(ed.m) ? '' : '<div class="prog-chips"><span class="prog-chips__lbl">Competència digital</span>' +
           cds.map(function (v) {
             var on = (c.competencia_digital || []).indexOf(v) >= 0, fora = cd.indexOf(v) < 0;
             return '<button type="button" class="prog-chip prog-chip--cd' + (on ? ' is-on' : '') + (fora ? ' is-fora' : '') + '" data-llista="competencia_digital" data-v="' + esc(v) + '" aria-pressed="' + on + '" title="' + esc(fora ? 'No és al catàleg de competències digitals' : descCD(v)) + '"' + ro + '>' + esc(v) + '</button>';
-          }).join('') + '</div></div>';
+          }).join('') + '</div>') + '</div>';
       });
       if (pot) {
         h += '<div class="prog-trim__peu"><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-accio="afegeix" data-t="' + t + '">+ Afegeix activitat</button>';
@@ -637,7 +639,7 @@
     return {
       criteris: ed.criteris.filter(function (c) { return String(c.activitat).trim(); }).map(function (c) {
         var p = num(c.percentatge);
-        return { trimestre: c.trimestre, activitat: String(c.activitat).trim(), percentatge: p === null ? '' : p, competencies: c.competencies, competencia_digital: c.competencia_digital };
+        return { trimestre: c.trimestre, activitat: String(c.activitat).trim(), percentatge: p === null ? '' : p, competencies: c.competencies, competencia_digital: senseCD(ed.m) ? [] : c.competencia_digital };
       }),
       competencies: ed.competencies.filter(function (c) { return String(c.codi).trim() || String(c.descripcio).trim(); })
         .map(function (c) { return { codi: String(c.codi).trim().toUpperCase(), descripcio: String(c.descripcio).trim() }; }),
@@ -809,7 +811,7 @@
         competenciesDigitals: d.competencies_digitals,
         materies: amb.map(function (id) {
           var x = dadesInforme(id, actual);
-          return { titol: x.m.materia, pagina: x.m.nivell + ' · ' + x.m.materia, criteris: x.criteris, competencies: x.competencies, info: x.info,
+          return { titol: x.m.materia, pagina: x.m.nivell + ' · ' + x.m.materia, criteris: x.criteris, competencies: x.competencies, info: x.info, senseCD: senseCD(x.m),
             subtitol: (NOM_NIVELL[x.m.nivell] || x.m.nivell) + ' · ' + nomDep(x.m.departament) + (x.data ? ' · Actualitzat el ' + dataCurta(x.data).split(' ')[0] : '') };
         })
       });
@@ -832,7 +834,7 @@
         ordre[c.trimestre] = (ordre[c.trimestre] || 0) + 1;
         var p = num(c.percentatge);
         files.push([S.dades.curs, x.m.nivell, x.m.materia, nomDep(x.m.departament), c.trimestre, ordre[c.trimestre], c.activitat,
-          p !== null && !isNaN(p) ? String(p).replace('.', ',') : '', (c.competencies || []).join(', '), (c.competencia_digital || []).join(', ')]);
+          p !== null && !isNaN(p) ? String(p).replace('.', ',') : '', (c.competencies || []).join(', '), senseCD(x.m) ? '' : (c.competencia_digital || []).join(', ')]);
       });
     });
     if (files.length === 1) return toast('No hi ha criteris per exportar.', true);

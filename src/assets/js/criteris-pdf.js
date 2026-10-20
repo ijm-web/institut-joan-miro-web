@@ -10,7 +10,7 @@
      opcions = {
        curs, lang ('ca'|'es'|'en'), capcalera (text de dalt a la dreta),
        portada: { titol, subtitol, head:[[…]], body:[[…]], columnStyles, nota } | null,
-       materies: [{ titol, subtitol, pagina, criteris:[{trimestre, activitat, percentatge, competencies[], competencia_digital[]}],
+       materies: [{ titol, subtitol, pagina, senseCD (sense competència digital: Batxillerat), criteris:[{trimestre, activitat, percentatge, competencies[], competencia_digital[]}],
                     competencies:[{codi, descripcio}], info:{criteri_aprovar, recuperacio, observacions} }],
        competenciesDigitals: [{codi, descripcio}],
        buit: text si no hi ha cap matèria
@@ -158,16 +158,18 @@
         if (!files.length) return;
         var tot = files.reduce(function (s, c) { var p = num(c.percentatge); return s + (p && !isNaN(p) ? p : 0); }, 0);
         titol3(L.trim[t]);
+        var ambCD = !x.senseCD;   // al Batxillerat no hi ha competència digital
         taula({
-          head: [[L.act, '%', L.ce, L.cd]],
+          head: [ambCD ? [L.act, '%', L.ce, L.cd] : [L.act, '%', L.ce]],
           body: files.map(function (c) {
             var p = num(c.percentatge);
-            return [c.activitat, p !== null && !isNaN(p) ? fmt(p, o.lang) : '', (c.competencies || []).join(', '), (c.competencia_digital || []).join(', ')];
+            var fila = [c.activitat, p !== null && !isNaN(p) ? fmt(p, o.lang) : '', (c.competencies || []).join(', ')];
+            return ambCD ? fila.concat((c.competencia_digital || []).join(', ')) : fila;
           }),
-          foot: [[L.total, fmt(tot, o.lang), '', '']],
+          foot: [ambCD ? [L.total, fmt(tot, o.lang), '', ''] : [L.total, fmt(tot, o.lang), '']],
           footStyles: { font: 'Montserrat', fontStyle: 'bold', fillColor: [246, 247, 250], textColor: Math.abs(tot - 100) < 0.01 ? TEXT : [163, 90, 0] },
           showFoot: 'lastPage',
-          columnStyles: { 1: { halign: 'right', cellWidth: 14 }, 2: { cellWidth: 40 }, 3: { cellWidth: 34 } }
+          columnStyles: ambCD ? { 1: { halign: 'right', cellWidth: 14 }, 2: { cellWidth: 40 }, 3: { cellWidth: 34 } } : { 1: { halign: 'right', cellWidth: 14 }, 2: { cellWidth: 52 } }
         });
       });
       if ((x.competencies || []).length) {
@@ -176,7 +178,7 @@
           columnStyles: { 0: { cellWidth: 16, fontStyle: 'bold', textColor: BLAU } } });
       }
       var usats = [];
-      (x.criteris || []).forEach(function (c) { (c.competencia_digital || []).forEach(function (v) { if (usats.indexOf(v) < 0) usats.push(v); }); });
+      if (!x.senseCD) (x.criteris || []).forEach(function (c) { (c.competencia_digital || []).forEach(function (v) { if (usats.indexOf(v) < 0) usats.push(v); }); });
       if (usats.length) {
         usats.sort(ordenaCodis);
         titol3(L.cdT);

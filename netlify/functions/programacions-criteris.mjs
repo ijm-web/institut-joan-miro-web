@@ -64,9 +64,12 @@ export default async (req) => {
 
     if (accio === 'desa' || accio === 'esborra') {
       if (!s.admin && curs !== gestio) return json({ ok: false, error: 'curs_nomes_lectura' }, 403);
+      // Al Batxillerat no es treballa la competència digital: no se'n desa cap
+      const criteris = /^BAT/.test(mat.nivell || id) && Array.isArray(cos.criteris)
+        ? cos.criteris.map((c) => ({ ...c, competencia_digital: [] })) : cos.criteris;
       const r = await cridaProg(accio, {
         curs, id_materia: id, departament: mat.departament, usuari: s.email, admin: s.admin,
-        criteris: cos.criteris, competencies: cos.competencies, info: cos.info,
+        criteris, competencies: cos.competencies, info: cos.info,
         data_anterior: cos.data_anterior || '', forca: !!cos.forca,
       });
       return json(r, r.ok ? 200 : (r.error === 'conflicte' ? 409 : 400));
