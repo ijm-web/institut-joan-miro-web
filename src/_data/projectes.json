@@ -935,9 +935,9 @@
       {
         "num": "26<small>€</small>",
         "label": {
-          "ca": "quota per família",
-          "es": "cuota por familia",
-          "en": "fee per family"
+          "ca": "quota anual per família",
+          "es": "cuota anual por familia",
+          "en": "annual fee per family"
         }
       },
       {
@@ -974,9 +974,9 @@
         },
         "paras": [
           {
-            "ca": "La quota és de <span class=\"kw\">26 € per família</span>, més <span class=\"kw\">6 € per cada germà o germana</span>. Amb aquests diners, l’AFA cobreix:",
-            "es": "La cuota es de <span class=\"kw\">26 € por familia</span>, más <span class=\"kw\">6 € por cada hermano o hermana</span>. Con este dinero, la AFA cubre:",
-            "en": "The fee is <span class=\"kw\">€26 per family</span>, plus <span class=\"kw\">€6 for each additional sibling</span>. With this money, the AFA covers:"
+            "ca": "La quota anual és de <span class=\"kw\">26 € per família</span>, més <span class=\"kw\">6 € per cada germà o germana</span>. Amb aquests diners, l’AFA cobreix:",
+            "es": "La cuota anual es de <span class=\"kw\">26 € por familia</span>, más <span class=\"kw\">6 € por cada hermano o hermana</span>. Con este dinero, la AFA cubre:",
+            "en": "The annual fee is <span class=\"kw\">€26 per family</span>, plus <span class=\"kw\">€6 for each additional sibling</span>. With this money, the AFA covers:"
           }
         ],
         "checks": [
