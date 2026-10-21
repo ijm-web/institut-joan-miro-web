@@ -1,0 +1,43 @@
+{#- Botons dels intercanvis Erasmus+ (Projectes › Llengües estrangeres › Internacionalització).
+    Dades: src/_data/erasmus.json › mobilitats. Una mobilitat sense href surt desactivada amb «Properament». -#}
+{%- set L = lang | default('ca') -%}
+{%- set P = '' -%}
+{%- if L == 'es' -%}{%- set P = 'es/' -%}{%- elif L == 'en' -%}{%- set P = 'en/' -%}{%- endif -%}
+<style>
+  .er-btns{ list-style: none; margin: 4px 0 clamp(26px, 3vw, 36px); padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .er-btn{
+    display: flex; align-items: center; gap: 14px;
+    padding: 16px 18px; box-sizing: border-box; height: 100%;
+    border: 1px solid rgba(28, 12, 188, 0.22); border-radius: 14px;
+    color: var(--color-blue); text-decoration: none; background: #fff;
+    transition: border-color .3s ease, background-color .3s ease, transform .3s ease;
+  }
+  a.er-btn:hover, a.er-btn:focus-visible{ border-color: var(--color-blue); background: var(--color-blue); color: #fff; transform: translateY(-2px); }
+  .er-btn__code{ flex: none; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; letter-spacing: .06em; background: rgba(28, 12, 188, 0.08); color: var(--color-blue); }
+  a.er-btn:hover .er-btn__code, a.er-btn:focus-visible .er-btn__code{ background: #fff; }
+  .er-btn__body{ display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .er-btn__body b{ font-size: 16px; }
+  .er-btn__body span{ font-size: 12.5px; opacity: .8; }
+  .er-btn__arrow{ margin-left: auto; font-size: 20px; }
+  .er-btn--off{ border-style: dashed; color: var(--color-text-muted); cursor: default; }
+  .er-btn--off .er-btn__code{ background: #EEF0F4; color: var(--color-text-muted); }
+  @media (max-width: 520px){ .er-btns{ grid-template-columns: minmax(0, 1fr); } }
+</style>
+<ul class="er-btns">
+  {%- for m in erasmus.mobilitats %}
+  <li>
+    {%- if m.href %}
+    <a class="er-btn" href="/{{ P }}{{ m.href }}">
+      <span class="er-btn__code" aria-hidden="true">{{ m.codi }}</span>
+      <span class="er-btn__body"><b>{{ m.pais[L] }}</b><span>{{ m.ciutat[L] if m.ciutat else erasmus.veure[L] }}</span></span>
+      <span class="er-btn__arrow" aria-hidden="true">→</span>
+    </a>
+    {%- else %}
+    <span class="er-btn er-btn--off" aria-disabled="true">
+      <span class="er-btn__code" aria-hidden="true">{{ m.codi }}</span>
+      <span class="er-btn__body"><b>{{ m.pais[L] }}</b><span>{{ erasmus.properament[L] }}</span></span>
+    </span>
+    {%- endif %}
+  </li>
+  {%- endfor %}
+</ul>

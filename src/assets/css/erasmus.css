@@ -1,0 +1,67 @@
+/* ============ ERASMUS+ · PÀGINES D'INTERCANVI ============
+   Es carrega després de projecte.css. Plantilla: src/_includes/erasmus.njk · dades: src/_data/erasmus.json */
+
+.er-back{ padding-top: 28px; }
+.er-back a{ font-size: 14px; font-weight: 600; color: var(--color-blue); text-decoration: none; }
+.er-back a:hover{ color: var(--color-orange); }
+.er-back + .le-intro{ padding-top: clamp(24px, 3vw, 40px); }
+
+/* --- Etapes --- */
+.er-stage{ padding: clamp(48px, 6vw, 80px) 0 0; }
+.er-stage__head{ display: flex; align-items: baseline; gap: 16px; margin-bottom: clamp(24px, 3vw, 36px); padding-bottom: 14px; border-bottom: 1px solid var(--color-border); }
+.er-stage__head .le-section__num{ margin: 0; }
+.er-stage__head h2{ margin: 0; font-size: clamp(26px, 3vw, 36px); font-weight: 300; color: var(--color-blue); text-transform: none; letter-spacing: 0; }
+
+/* --- Activitats: fotos + text, alternats --- */
+.er-act{
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: clamp(20px, 4vw, 56px);
+  align-items: center;
+  padding: clamp(18px, 2.5vw, 30px) 0;
+}
+.er-act--rev .er-act__fotos{ order: 2; }
+.er-act__text h3{ margin: 0 0 12px; font-size: clamp(20px, 2vw, 24px); font-weight: 600; color: var(--color-blue); text-transform: none; letter-spacing: 0; }
+.er-act__text h3::before{ content: ""; display: block; width: 36px; height: 3px; border-radius: 2px; background: var(--color-orange); margin-bottom: 14px; }
+.er-act__text p{ margin: 0; font-size: 16px; line-height: 1.75; color: var(--color-text); }
+
+.er-act__fotos{ display: grid; gap: 10px; }
+.er-act__fotos--2{ grid-template-columns: 1fr 1fr; }
+.er-act__fotos--3{ grid-template-columns: 2fr 1fr; grid-template-rows: 1fr 1fr; }
+.er-act__fotos--3 .er-foto:first-child{ grid-row: 1 / span 2; }
+.er-foto{ display: block; overflow: hidden; border-radius: 12px; background: var(--bg-band); aspect-ratio: 4 / 3; }
+.er-act__fotos--2 .er-foto{ aspect-ratio: 3 / 4; }
+.er-act__fotos--3 .er-foto{ aspect-ratio: auto; min-height: 150px; }
+.er-act__fotos--3 .er-foto:first-child{ aspect-ratio: 4 / 5; }
+.er-foto img{ display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.er-foto:hover img, .er-foto:focus-visible img{ transform: scale(1.04); }
+
+/* Transició (viatge) */
+.er-stage--transit .er-act{
+  background: var(--bg-band);
+  border-radius: 18px;
+  padding: clamp(20px, 3vw, 36px);
+}
+
+/* --- Visor de fotos --- */
+.er-lightbox{ border: none; padding: 0; background: transparent; max-width: min(1100px, 94vw); max-height: 92vh; overflow: visible; }
+.er-lightbox::backdrop{ background: rgba(10, 8, 40, 0.86); }
+.er-lightbox img{ display: block; max-width: 100%; max-height: 82vh; margin: 0 auto; border-radius: 10px; }
+.er-lightbox__cap{ margin: 10px 0 0; text-align: center; color: #fff; font-size: 14px; }
+.er-lightbox__close{
+  position: absolute; top: -14px; right: -14px;
+  width: 40px; height: 40px; border-radius: 50%; border: none;
+  background: #fff; color: var(--color-blue); font-size: 26px; line-height: 1; cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0,0,0,.25);
+}
+
+@media (max-width: 860px){
+  .er-act{ grid-template-columns: minmax(0, 1fr); }
+  .er-act--rev .er-act__fotos{ order: 0; }
+}
+@media (max-width: 520px){
+  .er-act__fotos--3{ grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+  .er-act__fotos--3 .er-foto:first-child{ grid-row: auto; grid-column: 1 / span 2; aspect-ratio: 4 / 3; }
+  .er-act__fotos--3 .er-foto{ aspect-ratio: 1 / 1; }
+  .er-lightbox__close{ top: 6px; right: 6px; }
+}

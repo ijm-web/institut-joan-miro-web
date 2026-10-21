@@ -1,0 +1,97 @@
+{#- Pàgina d'un intercanvi Erasmus+ (Projectes › Llengües estrangeres).
+    Cada pàgina defineix al front matter: lang, heroTitle i mobilitat (clau de src/_data/erasmus.json, p. ex. "italia").
+    Estils: /assets/css/projecte.css + /assets/css/erasmus.css -#}
+{%- set L = lang | default('ca') -%}
+{%- set P = '' -%}
+{%- if L == 'es' -%}{%- set P = 'es/' -%}{%- elif L == 'en' -%}{%- set P = 'en/' -%}{%- endif -%}
+{%- set M = erasmus[mobilitat] -%}
+{%- set dir = '/assets/img/erasmus/' ~ mobilitat ~ '/' -%}
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-1-facana-2400.jpg" srcset="/assets/img/inici/inici-1-facana-1600.jpg 1600w, /assets/img/inici/inici-1-facana-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">{{ heroTitle }}</span><span class="qs-hero__subtitle">{{ M.subtitol[L] }}</span></h1>
+  </div>
+</div>
+
+<div class="le-wrap">
+
+  <nav class="er-back" aria-label="breadcrumb"><a href="/{{ P }}projectes-llengues-estrangeres.html">← {{ M.tornar[L] }}</a></nav>
+
+  <div class="le-intro le-reveal">
+    <div>
+      <h2 class="le-kicker">{{ M.kicker[L] }}</h2>
+      <p class="le-lead">{{ M.lead[L] | safe }}</p>
+    </div>
+  </div>
+
+  <ul class="le-stats le-reveal">
+    {%- for s in M.stats %}
+    <li><span class="le-stats__num">{{ s.num | safe }}</span><span class="le-stats__label">{{ s.label[L] }}</span></li>
+    {%- endfor %}
+  </ul>
+
+  {%- for et in M.etapes %}
+  <section class="er-stage{% if et.transicio %} er-stage--transit{% endif %}">
+    <header class="er-stage__head le-reveal">
+      <span class="le-section__num">{{ '0' if loop.index < 10 }}{{ loop.index }}</span>
+      <h2>{{ et.titol[L] }}</h2>
+    </header>
+    {%- for a in et.activitats %}
+    <article class="er-act{% if loop.index is even %} er-act--rev{% endif %} le-reveal">
+      <div class="er-act__fotos er-act__fotos--{{ a.fotos | length }}">
+        {%- for f in a.fotos %}
+        <a class="er-foto" href="{{ dir }}{{ f.img }}-1600.jpg" data-lightbox="{{ f.alt[L] }}">
+          <img src="{{ dir }}{{ f.img }}-800.jpg" alt="{{ f.alt[L] }}" loading="lazy" decoding="async">
+        </a>
+        {%- endfor %}
+      </div>
+      <div class="er-act__text">
+        <h3>{{ a.titol[L] }}</h3>
+        <p>{{ a.text[L] }}</p>
+      </div>
+    </article>
+    {%- endfor %}
+  </section>
+  {%- endfor %}
+
+</div>
+
+<section class="le-closing">
+  <div class="le-closing__inner le-reveal">
+    <p>{{ M.tancament[L] | safe }}</p>
+  </div>
+</section>
+
+<dialog class="er-lightbox" id="erLightbox" aria-label="{{ M.subtitol[L] }}">
+  <button type="button" class="er-lightbox__close" aria-label="{{ 'Cerrar' if L == 'es' else ('Close' if L == 'en' else 'Tanca') }}">×</button>
+  <img alt="">
+  <p class="er-lightbox__cap"></p>
+</dialog>
+
+<script>
+  (function(){
+    // Aparicions en fer scroll
+    var els = document.querySelectorAll('.le-reveal');
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || !('IntersectionObserver' in window)){ els.forEach(function(el){ el.classList.add('is-in'); }); }
+    else {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } });
+      }, { threshold: 0.12 });
+      els.forEach(function(el){ io.observe(el); });
+    }
+    // Fotos a mida gran (si el navegador no té <dialog>, l'enllaç obre la imatge)
+    var dlg = document.getElementById('erLightbox');
+    if (!dlg || typeof dlg.showModal !== 'function') return;
+    var img = dlg.querySelector('img'), cap = dlg.querySelector('.er-lightbox__cap');
+    document.querySelectorAll('[data-lightbox]').forEach(function(a){
+      a.addEventListener('click', function(ev){
+        ev.preventDefault();
+        img.src = a.getAttribute('href'); img.alt = a.getAttribute('data-lightbox'); cap.textContent = a.getAttribute('data-lightbox');
+        dlg.showModal();
+      });
+    });
+    dlg.querySelector('.er-lightbox__close').addEventListener('click', function(){ dlg.close(); });
+    dlg.addEventListener('click', function(ev){ if (ev.target === dlg) dlg.close(); });
+  })();
+</script>
