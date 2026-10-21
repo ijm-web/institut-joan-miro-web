@@ -171,6 +171,20 @@
 .pj-nivells ul li > span:not(.pj-nivells__quan){ grid-column: 1; font-size: 14px; color: var(--color-text); }
 .pj-nivells__quan{ grid-column: 2; grid-row: 1 / span 2; align-self: center; font-size: 12px; font-weight: 600; color: var(--color-blue); background: rgba(28, 12, 188, 0.07); border-radius: 999px; padding: 5px 12px; white-space: nowrap; }
 
+/* --- Llista amb marques (AFA: per a què serveix la quota) --- */
+.pj-check{ list-style: none; margin: clamp(20px, 2.6vw, 28px) 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 28px; }
+.pj-check li{ position: relative; padding-left: 34px; }
+.pj-check li::before{
+  content: "";
+  position: absolute; left: 0; top: 1px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--color-blue) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 12.5l4 4 8-9'/%3E%3C/svg%3E") center / 14px no-repeat;
+}
+.pj-check b{ display: block; font-size: 15px; color: var(--color-blue); margin-bottom: 3px; }
+.pj-check span{ display: block; font-size: 14px; line-height: 1.6; color: var(--color-text); }
+.le-closing .pj-mail{ display: inline-block; margin-top: 18px; font-size: 16px; font-weight: 600; color: var(--color-blue); text-decoration: none; border-bottom: 2px solid var(--color-orange); }
+.le-closing .pj-mail:hover{ color: var(--color-orange); }
+
 /* --- Accions numerades --- */
 .le-actions{
   list-style: none;
@@ -246,6 +260,7 @@
 }
 @media (max-width: 640px){
   .le-actions{ grid-template-columns: minmax(0, 1fr); }
+  .pj-check{ grid-template-columns: minmax(0, 1fr); }
   .pj-nivells > li{ grid-template-columns: minmax(0, 1fr); gap: 10px; }
   .pj-nivells ul li{ grid-template-columns: minmax(0, 1fr); row-gap: 3px; }
   .pj-nivells__quan{ grid-column: 1; grid-row: auto; justify-self: start; margin-top: 4px; }

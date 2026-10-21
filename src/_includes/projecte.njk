@@ -3,8 +3,9 @@
     Estils: src/assets/css/projecte.css (extraCss) -#}
 {%- set L = lang | default('ca') -%}
 {%- set pj = projectes[projecte] -%}
+{%- set himg = pj.heroImg or 'inici-1-facana' -%}
 <div class="qs-hero" id="qsHero">
-  <img src="/assets/img/inici/inici-1-facana-2400.jpg" srcset="/assets/img/inici/inici-1-facana-1600.jpg 1600w, /assets/img/inici/inici-1-facana-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <img src="/assets/img/inici/{{ himg }}-2400.jpg" srcset="/assets/img/inici/{{ himg }}-1600.jpg 1600w, /assets/img/inici/{{ himg }}-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
   <div class="qs-hero__box">
     <h1><span class="qs-hero__title">{{ heroTitle }}</span><span class="qs-hero__subtitle">{{ pj.subtitol[L] }}</span></h1>
   </div>
@@ -42,6 +43,13 @@
       {%- for p in sec.paras %}
       <p>{{ p[L] | safe }}</p>
       {%- endfor %}
+      {%- if sec.checks %}
+      <ul class="pj-check">
+        {%- for c in sec.checks %}
+        <li><b>{{ c.t[L] }}</b><span>{{ c.d[L] }}</span></li>
+        {%- endfor %}
+      </ul>
+      {%- endif %}
       {%- if sec.nivells %}
       <ol class="pj-nivells">
         {%- for n in sec.nivells %}

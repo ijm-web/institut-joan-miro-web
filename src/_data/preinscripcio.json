@@ -912,11 +912,6 @@
             "en": "If you want to stay at the school, you do not need to complete the general application: you must complete the <span class=\"tbd\">internal application by filling in the 1st Batxillerat pathway and subject choice form (dates and link to be confirmed)</span>."
           },
           {
-            "ca": "<span class=\"tbd\">Si no es fa la preinscripció interna, es perd la preferència i cal fer la preinscripció general.</span>",
-            "es": "<span class=\"tbd\">Si no se hace la preinscripción interna, se pierde la preferencia y hay que hacer la preinscripción general.</span>",
-            "en": "<span class=\"tbd\">If the internal application is not completed, priority is lost and the general application must be made.</span>"
-          },
-          {
             "ca": "Un cop aprovada l’ESO, cal formalitzar la matrícula del 18 al 30 de juny.",
             "es": "Una vez aprobada la ESO, hay que formalizar la matrícula del 18 al 30 de junio.",
             "en": "Once ESO has been passed, enrolment must be completed between 18 and 30 June."
@@ -993,9 +988,9 @@
           "en": "Submit the application. You will receive a receipt by email."
         },
         {
-          "ca": "<span class=\"tbd\">Omple el formulari de tria de modalitat i matèries de 1r o 2n de Batxillerat. Aquesta tria és provisional i es pot canviar en fer la matrícula.</span>",
-          "es": "<span class=\"tbd\">Rellena el formulario de elección de modalidad y materias de 1.º o 2.º de Bachillerato. Esta elección es provisional y se puede cambiar al hacer la matrícula.</span>",
-          "en": "<span class=\"tbd\">Fill in the pathway and subject choice form for 1st or 2nd Batxillerat. This choice is provisional and can be changed at enrolment.</span>"
+          "ca": "<span class=\"tbd\">Omple el formulari de tria de modalitat i matèries de 1r o 2n de Batxillerat.</span>",
+          "es": "<span class=\"tbd\">Rellena el formulario de elección de modalidad y materias de 1.º o 2.º de Bachillerato.</span>",
+          "en": "<span class=\"tbd\">Fill in the pathway and subject choice form for 1st or 2nd Batxillerat.</span>"
         }
       ],
       "ralc": {

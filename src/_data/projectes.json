@@ -552,9 +552,9 @@
       "en": "Physical activity around the school"
     },
     "lead": {
-      "ca": "El Pla de l’Esport és un conjunt d’activitats que <span class=\"kw\">aprofiten les instal·lacions esportives que es troben al voltant del centre</span>. Al llarg de l’ESO i a 1r de Batxillerat, l’alumnat surt de l’aula per practicar esports diversos en espais especialitzats.",
-      "es": "El Plan del Deporte es un conjunto de actividades que <span class=\"kw\">aprovechan las instalaciones deportivas que se encuentran alrededor del centro</span>. A lo largo de la ESO y en 1.º de Bachillerato, el alumnado sale del aula para practicar deportes diversos en espacios especializados.",
-      "en": "The Sports Plan is a set of activities that <span class=\"kw\">make use of the sports facilities around the school</span>. Throughout ESO and in the 1st year of Batxillerat, students leave the classroom to practise a range of sports in specialised venues."
+      "ca": "El Pla de l’Esport és un conjunt d’activitats que <span class=\"kw\">aprofiten les instal·lacions esportives que es troben al voltant del centre</span>. Al llarg de l’ESO i a 1r de Batxillerat, l’alumnat surt del centre per practicar esports diversos en espais especialitzats.",
+      "es": "El Plan del Deporte es un conjunto de actividades que <span class=\"kw\">aprovechan las instalaciones deportivas que se encuentran alrededor del centro</span>. A lo largo de la ESO y en 1.º de Bachillerato, el alumnado sale del centro para practicar deportes diversos en espacios especializados.",
+      "en": "The Sports Plan is a set of activities that <span class=\"kw\">make use of the sports facilities around the school</span>. Throughout ESO and in the 1st year of Batxillerat, students leave the school to practise a range of sports in specialised venues."
     },
     "stats": [
       {
@@ -909,9 +909,431 @@
       }
     ],
     "tancament": {
-      "ca": "Amb el Pla de l’Esport, l’activitat física surt de l’aula i es converteix en una <span class=\"kw\">experiència variada, saludable i connectada amb l’entorn</span> del centre.",
-      "es": "Con el Plan del Deporte, la actividad física sale del aula y se convierte en una <span class=\"kw\">experiencia variada, saludable y conectada con el entorno</span> del centro.",
-      "en": "With the Sports Plan, physical activity moves beyond the classroom and becomes a <span class=\"kw\">varied, healthy experience connected with the school’s surroundings</span>."
+      "ca": "Amb el Pla de l’Esport, l’activitat física surt del centre i es converteix en una <span class=\"kw\">experiència variada, saludable i connectada amb l’entorn</span> del centre.",
+      "es": "Con el Plan del Deporte, la actividad física sale del centro y se convierte en una <span class=\"kw\">experiencia variada, saludable y conectada con el entorno</span> del centro.",
+      "en": "With the Sports Plan, physical activity moves beyond the school walls and becomes a <span class=\"kw\">varied, healthy experience connected with the school’s surroundings</span>."
+    }
+  },
+  "afa": {
+    "subtitol": {
+      "ca": "AFA",
+      "es": "AFA",
+      "en": "Parents’ Association (AFA)"
+    },
+    "heroImg": "inici-3-vestibul",
+    "kicker": {
+      "ca": "Associació de Famílies d’Alumnes",
+      "es": "Asociación de Familias de Alumnos",
+      "en": "Parents’ Association"
+    },
+    "lead": {
+      "ca": "L’AFA de l’Institut Joan Miró és l’associació de les famílies de l’alumnat del centre. Amb les quotes de les famílies sòcies, <span class=\"kw\">finança materials, activitats i millores per a tot l’alumnat</span> i col·labora amb l’institut en projectes que fan créixer la comunitat educativa.",
+      "es": "La AFA del Institut Joan Miró es la asociación de las familias del alumnado del centro. Con las cuotas de las familias socias, <span class=\"kw\">financia materiales, actividades y mejoras para todo el alumnado</span> y colabora con el instituto en proyectos que hacen crecer la comunidad educativa.",
+      "en": "The AFA is the association of the families of Institut Joan Miró students. With the fees paid by member families, it <span class=\"kw\">funds materials, activities and improvements for all students</span> and works with the school on projects that strengthen the school community."
+    },
+    "stats": [
+      {
+        "num": "26<small>€</small>",
+        "label": {
+          "ca": "quota per família",
+          "es": "cuota por familia",
+          "en": "fee per family"
+        }
+      },
+      {
+        "num": "+6<small>€</small>",
+        "label": {
+          "ca": "per cada germà o germana",
+          "es": "por cada hermano o hermana",
+          "en": "for each additional sibling"
+        }
+      },
+      {
+        "num": "4",
+        "label": {
+          "ca": "grups de reforç de matemàtiques el curs 2026-2027",
+          "es": "grupos de refuerzo de matemáticas en el curso 2026-2027",
+          "en": "maths support groups in 2026-2027"
+        }
+      },
+      {
+        "num": "15",
+        "label": {
+          "ca": "dies de suport al reciclatge de llibres a l’estiu",
+          "es": "días de apoyo al reciclaje de libros en verano",
+          "en": "days of book-recycling support in summer"
+        }
+      }
+    ],
+    "seccions": [
+      {
+        "titol": {
+          "ca": "Per a què serveix la quota",
+          "es": "Para qué sirve la cuota",
+          "en": "What the fee pays for"
+        },
+        "paras": [
+          {
+            "ca": "La quota és de <span class=\"kw\">26 € per família</span>, més <span class=\"kw\">6 € per cada germà o germana</span>. Amb aquests diners, l’AFA cobreix:",
+            "es": "La cuota es de <span class=\"kw\">26 € por familia</span>, más <span class=\"kw\">6 € por cada hermano o hermana</span>. Con este dinero, la AFA cubre:",
+            "en": "The fee is <span class=\"kw\">€26 per family</span>, plus <span class=\"kw\">€6 for each additional sibling</span>. With this money, the AFA covers:"
+          }
+        ],
+        "checks": [
+          {
+            "t": {
+              "ca": "Carpeta escolar gratuïta",
+              "es": "Carpeta escolar gratuita",
+              "en": "Free school folder"
+            },
+            "d": {
+              "ca": "A l’inici de curs, per a tot l’alumnat.",
+              "es": "Al inicio de curso, para todo el alumnado.",
+              "en": "At the start of the year, for every student."
+            }
+          },
+          {
+            "t": {
+              "ca": "Boc’n Roll gratuït",
+              "es": "Boc’n Roll gratuito",
+              "en": "Free Boc’n Roll"
+            },
+            "d": {
+              "ca": "Per a l’alumnat nou de 1r d’ESO.",
+              "es": "Para el alumnado nuevo de 1.º de ESO.",
+              "en": "For new 1st ESO students."
+            }
+          },
+          {
+            "t": {
+              "ca": "Festes tradicionals",
+              "es": "Fiestas tradicionales",
+              "en": "Traditional celebrations"
+            },
+            "d": {
+              "ca": "Part de les despeses de la Castanyada i el Carnestoltes en horari escolar.",
+              "es": "Parte de los gastos de la Castanyada y el Carnaval en horario escolar.",
+              "en": "Part of the cost of the Castanyada and Carnival celebrations during school hours."
+            }
+          },
+          {
+            "t": {
+              "ca": "Biblioteca a les tardes",
+              "es": "Biblioteca por las tardes",
+              "en": "Library in the afternoons"
+            },
+            "d": {
+              "ca": "Contractació d’un bibliotecari o bibliotecària 2 tardes a la setmana, 2 hores cada dia.",
+              "es": "Contratación de un bibliotecario o bibliotecaria 2 tardes a la semana, 2 horas cada día.",
+              "en": "A librarian is hired for 2 afternoons a week, 2 hours each day."
+            }
+          },
+          {
+            "t": {
+              "ca": "Orles de graduació",
+              "es": "Orlas de graduación",
+              "en": "Graduation photos"
+            },
+            "d": {
+              "ca": "De 4t d’ESO i 2n de Batxillerat.",
+              "es": "De 4.º de ESO y 2.º de Bachillerato.",
+              "en": "For 4th ESO and 2nd Batxillerat."
+            }
+          },
+          {
+            "t": {
+              "ca": "Comiats",
+              "es": "Despedidas",
+              "en": "Farewells"
+            },
+            "d": {
+              "ca": "Aperitiu de comiat de l’alumnat de 4t d’ESO i sopar de graduació de l’alumnat de 2n de Batxillerat.",
+              "es": "Aperitivo de despedida del alumnado de 4.º de ESO y cena de graduación del alumnado de 2.º de Bachillerato.",
+              "en": "A farewell reception for 4th ESO students and a graduation dinner for 2nd Batxillerat students."
+            }
+          },
+          {
+            "t": {
+              "ca": "Reciclatge de llibres",
+              "es": "Reciclaje de libros",
+              "en": "Book recycling"
+            },
+            "d": {
+              "ca": "Suport per a tots els nivells durant 15 dies a l’estiu, de 8 a 13 h, amb la col·laboració puntual de famílies de l’AFA i d’exalumnes.",
+              "es": "Apoyo para todos los niveles durante 15 días en verano, de 8 a 13 h, con la colaboración puntual de familias de la AFA y de exalumnos.",
+              "en": "Support for all year groups for 15 days in summer, 8 am to 1 pm, with occasional help from AFA families and former students."
+            }
+          },
+          {
+            "t": {
+              "ca": "Quota de la FaPaC",
+              "es": "Cuota de la FaPaC",
+              "en": "FaPaC membership"
+            },
+            "d": {
+              "ca": "Inclou l’assegurança per fer activitats fora de l’horari lectiu, assessorament i formació.",
+              "es": "Incluye el seguro para hacer actividades fuera del horario lectivo, asesoramiento y formación.",
+              "en": "It includes insurance for activities outside school hours, advice and training."
+            }
+          }
+        ],
+        "parasFinal": [
+          {
+            "ca": "Els diners sobrants s’inverteixen en <span class=\"kw\">millores per al centre i l’alumnat que no cobreix l’administració</span>: ventiladors, tendals per al pati, tauletes… També poden subvencionar tallers i xerrades per a l’alumnat, o bé allò que s’acordi a l’assemblea de famílies o que demani l’institut segons les necessitats.",
+            "es": "El dinero sobrante se invierte en <span class=\"kw\">mejoras para el centro y el alumnado que no cubre la administración</span>: ventiladores, toldos para el patio, tabletas… También puede subvencionar talleres y charlas para el alumnado, o bien lo que se acuerde en la asamblea de familias o pida el instituto según las necesidades.",
+            "en": "Any money left over is spent on <span class=\"kw\">improvements for the school and its students that the administration does not cover</span>: fans, awnings for the playground, tablets… It can also fund workshops and talks for students, or whatever the families’ assembly agrees or the school requests as needs arise."
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "Projectes realitzats (2024-2026)",
+          "es": "Proyectos realizados (2024-2026)",
+          "en": "Completed projects (2024-2026)"
+        },
+        "accions": [
+          {
+            "t": {
+              "ca": "Nou logo i nova carpeta",
+              "es": "Nuevo logo y nueva carpeta",
+              "en": "New logo and folder"
+            },
+            "d": {
+              "ca": "Concurs per triar el nou logo de l’AFA i la nova carpeta, amb obsequis per a l’alumnat guanyador i una gran participació.",
+              "es": "Concurso para elegir el nuevo logo de la AFA y la nueva carpeta, con obsequios para el alumnado ganador y una gran participación.",
+              "en": "A competition to choose the AFA’s new logo and folder, with prizes for the winners and a high turnout."
+            }
+          },
+          {
+            "t": {
+              "ca": "Xerrades",
+              "es": "Charlas",
+              "en": "Talks"
+            },
+            "d": {
+              "ca": "Per a alumnat, professorat i famílies: sexualitat, coeducació i orientació després de l’ESO.",
+              "es": "Para alumnado, profesorado y familias: sexualidad, coeducación y orientación después de la ESO.",
+              "en": "For students, teachers and families: sexuality, co-education and guidance after ESO."
+            }
+          },
+          {
+            "t": {
+              "ca": "Boc’n Roll renovat",
+              "es": "Boc’n Roll renovado",
+              "en": "A new Boc’n Roll"
+            },
+            "d": {
+              "ca": "L’obsequi per a l’alumnat nou de 1r d’ESO, com a cloenda de tallers i activitats sostenibles, amb un color nou i el nou logo.",
+              "es": "El obsequio para el alumnado nuevo de 1.º de ESO, como cierre de talleres y actividades sostenibles, con un color nuevo y el nuevo logo.",
+              "en": "The gift for new 1st ESO students, marking the end of sustainability workshops and activities, with a new colour and the new logo."
+            }
+          },
+          {
+            "t": {
+              "ca": "Patis dinamitzats",
+              "es": "Patios dinamizados",
+              "en": "Livelier break times"
+            },
+            "d": {
+              "ca": "Espais de lleure i compra de material: taula de ping-pong, jocs de taula i material esportiu.",
+              "es": "Espacios de ocio y compra de material: mesa de ping-pong, juegos de mesa y material deportivo.",
+              "en": "Leisure spaces and new equipment: a ping-pong table, board games and sports equipment."
+            }
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "Projectes en marxa",
+          "es": "Proyectos en marcha",
+          "en": "Current projects"
+        },
+        "paras": [
+          {
+            "ca": "<span class=\"kw\">Mural cooperatiu.</span> Proposta de l’AFA iniciada el curs 2025-2026 i liderada per les professores d’Educació visual i plàstica, amb tallers de l’artista Elena González (ele.zissou) amb l’alumnat de 4t de l’optativa d’EVIP. El projecte, subvencionat pel Projecte Patis, es completarà un cop s’acordi el calendari d’execució durant el primer trimestre del curs 2026-2027.",
+            "es": "<span class=\"kw\">Mural cooperativo.</span> Propuesta de la AFA iniciada en el curso 2025-2026 y liderada por las profesoras de Educación visual y plástica, con talleres de la artista Elena González (ele.zissou) con el alumnado de 4.º de la optativa de EVIP. El proyecto, subvencionado por el Proyecto Patios, se completará una vez se acuerde el calendario de ejecución durante el primer trimestre del curso 2026-2027.",
+            "en": "<span class=\"kw\">Cooperative mural.</span> An AFA proposal begun in 2025-2026 and led by the Visual Arts teachers, with workshops by the artist Elena González (ele.zissou) for 4th-year students taking the Visual Arts elective. Funded by the Playgrounds Project grant, it will be completed once the schedule is agreed during the first term of 2026-2027."
+          },
+          {
+            "ca": "<span class=\"kw\">Reforç de matemàtiques.</span> El curs 2025-2026 es va fer un primer grup a 2n d’ESO amb molt bons resultats. El curs 2026-2027 n’hi haurà quatre, a partir del 2 de novembre, de 15.30 a 16.30 h. Cada grup té entre 4 i 7 alumnes i el cost és de 28 € al mes (4 hores mensuals).",
+            "es": "<span class=\"kw\">Refuerzo de matemáticas.</span> En el curso 2025-2026 se hizo un primer grupo en 2.º de ESO con muy buenos resultados. En el curso 2026-2027 habrá cuatro, a partir del 2 de noviembre, de 15.30 a 16.30 h. Cada grupo tiene entre 4 y 7 alumnos y el coste es de 28 € al mes (4 horas mensuales).",
+            "en": "<span class=\"kw\">Maths support.</span> In 2025-2026 a first group ran in 2nd ESO with very good results. In 2026-2027 there will be four groups, starting on 2 November, from 3.30 to 4.30 pm. Each group has 4 to 7 students and costs €28 a month (4 hours a month)."
+          }
+        ],
+        "nivells": [
+          {
+            "nivell": {
+              "ca": "Dilluns",
+              "es": "Lunes",
+              "en": "Monday"
+            },
+            "acts": [
+              {
+                "esport": {
+                  "ca": "1r d’ESO",
+                  "es": "1.º de ESO",
+                  "en": "1st ESO"
+                },
+                "lloc": {
+                  "ca": "Reforç de matemàtiques",
+                  "es": "Refuerzo de matemáticas",
+                  "en": "Maths support"
+                },
+                "quan": {
+                  "ca": "15.30–16.30 h",
+                  "es": "15.30–16.30 h",
+                  "en": "3.30–4.30 pm"
+                }
+              },
+              {
+                "esport": {
+                  "ca": "4t d’ESO",
+                  "es": "4.º de ESO",
+                  "en": "4th ESO"
+                },
+                "lloc": {
+                  "ca": "Reforç de matemàtiques",
+                  "es": "Refuerzo de matemáticas",
+                  "en": "Maths support"
+                },
+                "quan": {
+                  "ca": "15.30–16.30 h",
+                  "es": "15.30–16.30 h",
+                  "en": "3.30–4.30 pm"
+                }
+              }
+            ]
+          },
+          {
+            "nivell": {
+              "ca": "Dimecres",
+              "es": "Miércoles",
+              "en": "Wednesday"
+            },
+            "acts": [
+              {
+                "esport": {
+                  "ca": "3r d’ESO (2 grups)",
+                  "es": "3.º de ESO (2 grupos)",
+                  "en": "3rd ESO (2 groups)"
+                },
+                "lloc": {
+                  "ca": "Reforç de matemàtiques",
+                  "es": "Refuerzo de matemáticas",
+                  "en": "Maths support"
+                },
+                "quan": {
+                  "ca": "15.30–16.30 h",
+                  "es": "15.30–16.30 h",
+                  "en": "3.30–4.30 pm"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "Llibres i biblioteca",
+          "es": "Libros y biblioteca",
+          "en": "Books and library"
+        },
+        "accions": [
+          {
+            "t": {
+              "ca": "Socialització de llibres",
+              "es": "Socialización de libros",
+              "en": "Shared textbooks"
+            },
+            "d": {
+              "ca": "L’AFA vol repensar el model amb més col·laboració de les famílies, amb una comissió i opcions com el Projecte Sorell del Prat, per evitar haver-ho d’encarregar a una empresa externa amb un cost molt més alt.",
+              "es": "La AFA quiere repensar el modelo con más colaboración de las familias, con una comisión y opciones como el Proyecto Sorell de El Prat, para evitar tener que encargarlo a una empresa externa con un coste mucho más alto.",
+              "en": "The AFA wants to rethink the scheme with more family involvement, through a committee and options such as El Prat’s Sorell Project, to avoid outsourcing it at a much higher cost."
+            }
+          },
+          {
+            "t": {
+              "ca": "Llibres de lectura",
+              "es": "Libros de lectura",
+              "en": "Reading books"
+            },
+            "d": {
+              "ca": "Nova proposta: aquest curs s’han comprat exemplars de més, a la llibreria Pati Blau, per facilitar el préstec dels llibres de lectura.",
+              "es": "Nueva propuesta: este curso se han comprado ejemplares adicionales, en la librería Pati Blau, para facilitar el préstamo de los libros de lectura.",
+              "en": "New this year: extra copies have been bought from the Pati Blau bookshop to make it easier to lend reading books."
+            }
+          },
+          {
+            "t": {
+              "ca": "Biblioteca a les tardes",
+              "es": "Biblioteca por las tardes",
+              "en": "Library in the afternoons"
+            },
+            "d": {
+              "ca": "Un exalumne contractat per l’AFA obre la biblioteca a les tardes perquè l’alumnat hi pugui estudiar. L’institut valora molt aquest suport; la continuïtat està pendent de valorar.",
+              "es": "Un exalumno contratado por la AFA abre la biblioteca por las tardes para que el alumnado pueda estudiar. El instituto valora mucho este apoyo; la continuidad está pendiente de valorar.",
+              "en": "A former student hired by the AFA opens the library in the afternoons so students can study there. The school values this support highly; whether it continues is still being assessed."
+            }
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "Obres i infraestructures",
+          "es": "Obras e infraestructuras",
+          "en": "Building works"
+        },
+        "paras": [
+          {
+            "ca": "L’AFA fa seguiment, juntament amb la direcció del centre, de les obres i millores pendents de l’edifici.",
+            "es": "La AFA hace seguimiento, junto con la dirección del centro, de las obras y mejoras pendientes del edificio.",
+            "en": "Together with the school’s management team, the AFA follows up on pending building works and improvements."
+          }
+        ],
+        "accions": [
+          {
+            "t": {
+              "ca": "Finestres i lames exteriors",
+              "es": "Ventanas y lamas exteriores",
+              "en": "Windows and external louvres"
+            },
+            "d": {
+              "ca": "Canvi de finestres i instal·lació de lames exteriors: la licitació és en fase final i la direcció n’està fent el seguiment amb el Departament d’Educació.",
+              "es": "Cambio de ventanas e instalación de lamas exteriores: la licitación está en fase final y la dirección hace el seguimiento con el Departament d’Educació.",
+              "en": "Window replacement and external louvres: the tender is in its final stage and the management team is following it up with the Department of Education."
+            }
+          },
+          {
+            "t": {
+              "ca": "Ampliació i millora",
+              "es": "Ampliación y mejora",
+              "en": "Extension and upgrade"
+            },
+            "d": {
+              "ca": "Superat el bloqueig inicial de la cessió de terrenys, hi ha una comissió de seguiment impulsada per l’AFA, i la direcció és en contacte amb el Departament d’Educació.",
+              "es": "Superado el bloqueo inicial de la cesión de terrenos, hay una comisión de seguimiento impulsada por la AFA, y la dirección está en contacto con el Departament d’Educació.",
+              "en": "The initial hold-up over the land transfer has been resolved; a monitoring committee promoted by the AFA is in place, and the management team is in contact with the Department of Education."
+            }
+          },
+          {
+            "t": {
+              "ca": "Pla Actualitza Clima",
+              "es": "Plan Actualitza Clima",
+              "en": "Actualitza Clima Plan"
+            },
+            "d": {
+              "ca": "L’institut és un dels centres prioritaris del nou pla de climatització, que té com a termini màxim el curs 2027-2028.",
+              "es": "El instituto es uno de los centros prioritarios del nuevo plan de climatización, que tiene como plazo máximo el curso 2027-2028.",
+              "en": "The school is one of the priority schools in the new climate-control plan, which runs until 2027-2028 at the latest."
+            }
+          }
+        ]
+      }
+    ],
+    "tancament": {
+      "ca": "Recordem sempre que <span class=\"kw\">cada pas fa comunitat</span> i que l’AFA existeix per i per a les seves famílies sòcies.<br><a class=\"pj-mail\" href=\"mailto:afa@institutjoanmiro.cat\">afa@institutjoanmiro.cat</a>",
+      "es": "Recordemos siempre que <span class=\"kw\">cada paso hace comunidad</span> y que la AFA existe por y para sus familias socias.<br><a class=\"pj-mail\" href=\"mailto:afa@institutjoanmiro.cat\">afa@institutjoanmiro.cat</a>",
+      "en": "Let’s always remember that <span class=\"kw\">every step builds community</span>, and that the AFA exists through and for its member families.<br><a class=\"pj-mail\" href=\"mailto:afa@institutjoanmiro.cat\">afa@institutjoanmiro.cat</a>"
     }
   }
 }
