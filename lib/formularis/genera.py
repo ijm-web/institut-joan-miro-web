@@ -5,7 +5,6 @@
 Crea:
   src/assets/docs/eso/optatives-{1r,2n,3r}-eso.pdf i materies-opcio-4t-eso.pdf
   src/assets/docs/batxillerat/materies-optatives-batxillerat.pdf
-  src/assets/docs/batxillerat/materies-2n-batxillerat.pdf
 
 Requereix: pip install reportlab
 """
@@ -208,7 +207,7 @@ MATERIES_BAT = [
 
 def materies_batxillerat():
     os.makedirs(OUT_BAT, exist_ok=True)
-    titol = "Matèries de Batxillerat"
+    titol = "Descripció de matèries de Batxillerat"
     d = Doc(os.path.join(OUT_BAT, "materies-optatives-batxillerat.pdf"), f"{titol} · Institut Joan Miró")
     nota = "Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de batxillerat."
     FW = W - 2 * MX
@@ -217,7 +216,8 @@ def materies_batxillerat():
     y = d.header("Estudis · Batxillerat", titol)
     y = d.para(MX, y + 6, FW, "Descripció de les matèries optatives i de modalitat que ofereix el centre. A 1r, a la franja 1 "
                "es pot triar una matèria de 4 hores o dues de 2 hores (una del grup A i una del grup B); a la franja 2, "
-               "una matèria de 2 hores. Tecnologia i Enginyeria és matèria de modalitat de l'itinerari tecnològic a 1r i a 2n.",
+               "una matèria de 2 hores. Tecnologia i Enginyeria és matèria de modalitat de l'itinerari tecnològic a 1r i a 2n. "
+               "Al final hi ha dues matèries de 2n: Empresa i Disseny de Models de Negoci i Història de l'Art.",
                size=9.5, leading=14.5) - 16
 
     def nova_pagina():
@@ -227,13 +227,14 @@ def materies_batxillerat():
         d.c.drawString(MX, 800, ("Estudis · Batxillerat · " + titol).upper())
         return 780
 
-    for seccio, items in MATERIES_BAT:
+    for seccio, items in MATERIES_BAT + [("2n de Batxillerat", MATERIES_BAT2)]:
         if y < 200:
             y = nova_pagina()
         d.c.setFillColor(BLUE); d.c.setFont("M-S", 12); d.c.drawString(MX, y, seccio)
         y -= 14
-        for r in range(0, len(items), 2):
-            pair = items[r:r + 2]
+        for r in range(0, len(items), 1 if seccio.startswith("2n") else 2):
+            # Les matèries de 2n tenen descripcions llargues: una per fila
+            pair = items[r:r + 1] if seccio.startswith("2n") else items[r:r + 2]
             cw = colw if len(pair) == 2 else FW
             h = max(card_height(d, cw, t) for _, _, t in pair)
             if y - h < 80:
@@ -287,5 +288,4 @@ def materies_batxillerat_2n():
 if __name__ == "__main__":
     materies_eso()
     materies_batxillerat()
-    materies_batxillerat_2n()
     print("PDF generats.")

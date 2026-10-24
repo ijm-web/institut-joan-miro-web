@@ -15,7 +15,8 @@
  *   criteris              : curs | id_materia | departament | trimestre | ordre | activitat | percentatge |
  *                           competencies | competencia_digital | data | desat_per
  *   competencies          : curs | id_materia | departament | codi | descripcio | data | desat_per
- *   materies_info         : curs | id_materia | departament | criteri_aprovar | recuperacio | observacions | data | desat_per
+ *   materies_info         : curs | id_materia | departament | criteri_aprovar | recuperacio | observacions |
+ *                           pendents | millora | blocs (JSON: pes dels instruments per blocs) | data | desat_per
  *   competencies_digitals : codi | descripcio        (catàleg comú; s'edita directament al full)
  *   historial             : data_canvi | canvi_per | accio | curs | id_materia | contingut (JSON de l'estat anterior)
  *   programacions         : curs | id_materia | departament | identificacio | presentacio | objectius | criteris_avaluacio |
@@ -46,7 +47,7 @@ const MAX_APARTAT = 45000;   // una cel·la de Sheets admet 50.000 caràcters
 const CAP = {
   criteris: ['curs', 'id_materia', 'departament', 'trimestre', 'ordre', 'activitat', 'percentatge', 'competencies', 'competencia_digital', 'data', 'desat_per'],
   competencies: ['curs', 'id_materia', 'departament', 'codi', 'descripcio', 'data', 'desat_per'],
-  materies_info: ['curs', 'id_materia', 'departament', 'criteri_aprovar', 'recuperacio', 'observacions', 'data', 'desat_per'],
+  materies_info: ['curs', 'id_materia', 'departament', 'criteri_aprovar', 'recuperacio', 'observacions', 'pendents', 'millora', 'blocs', 'data', 'desat_per'],
   competencies_digitals: ['codi', 'descripcio'],
   historial: ['data_canvi', 'canvi_per', 'accio', 'curs', 'id_materia', 'contingut'],
   programacions: ['curs', 'id_materia', 'departament'].concat(APARTATS_PROG, ['data', 'desat_per']),
@@ -59,6 +60,7 @@ const TEXTOS_PER_DEFECTE = [
   ['intro_competencies', 'Es recullen les competències específiques de la matèria treballades a {curs} i els criteris d\'avaluació corresponents (annex 3 del Decret 175/2022).', 'E. Introducció de les competències específiques'],
   ['transversal_cc', 'Es defineixen segons el desplegament de la competència ciutadana.', 'E. Competència ciutadana (si la matèria no hi posa res)'],
   ['transversal_ce', 'Es defineixen segons el desplegament de la competència emprenedora.', 'E. Competència emprenedora (si la matèria no hi posa res)'],
+  ['transversal_cpsaa', 'Es defineixen segons el desplegament de la competència personal, social i d\'aprendre a aprendre.', 'E. Competència personal, social i d\'aprendre a aprendre (si la matèria no hi posa res)'],
   ['intro_sequencia', 'A la taula següent es mostra la distribució orientativa dels continguts per trimestres. Es poden donar canvis en la distribució al llarg del curs, en funció del calendari escolar i del ritme del grup.', 'F. Introducció de la seqüenciació'],
   ['avaluacio', 'L\'avaluació és global, contínua i formativa. El referent són els criteris d\'avaluació de cada competència específica (art. 24 del Decret 175/2022). Els instruments d\'avaluació (qüestionaris, pràctiques individuals i grupals, exàmens, exercicis d\'aula, deures, etc.) segueixen les pautes establertes a la programació de cada unitat.', 'H. Avaluació'],
   ['marc_trimestres', 'Com a marc de referència, el pes dels instruments avaluatius a cada trimestre és:', 'H. Introducció de la taula de pesos per blocs'],
@@ -66,6 +68,7 @@ const TEXTOS_PER_DEFECTE = [
   ['intro_diversitat', 'Mesures universals i addicionals previstes a la matèria.', 'I. Introducció'],
   ['intensives', 'Les mesures es descriuen en el PI de l\'alumne/a.', 'I. Mesures intensives / PI'],
   ['lectures', 'No s\'escau (requisit propi de les matèries lingüístiques).', 'J. Lectures (si la matèria no hi posa res)'],
+  ['sortides', 'No es programa cap sortida i activitat complementària.', 'J. Sortides i activitats complementàries (si la matèria no hi posa res)'],
   ['intro_revisio', 'Registre de versions i d\'aprovació de la programació pel departament.', 'K. Introducció'],
 ];
 
@@ -161,7 +164,9 @@ function publics_(curs, nivell) {
   });
   llegeix_(FULL.comp).filter(f).forEach((r) => assegura(r.id_materia).competencies.push({ codi: r.codi, descripcio: r.descripcio }));
   llegeix_(FULL.info).filter(f).forEach((r) => {
-    assegura(r.id_materia).info = { criteri_aprovar: r.criteri_aprovar, recuperacio: r.recuperacio, observacions: r.observacions, data: r.data };
+    const n = netInfo_(r);
+    assegura(r.id_materia).info = { criteri_aprovar: n.criteri_aprovar, recuperacio: n.recuperacio, observacions: n.observacions,
+      pendents: n.pendents, millora: n.millora, blocs: n.blocs, data: n.data };
   });
   const materies = Object.keys(perId).map((k) => perId[k]).sort((a, b) => a.materia.localeCompare(b.materia, 'ca'));
   materies.forEach((m) => m.criteris.sort((a, b) => TRIMESTRES.indexOf(a.trimestre) - TRIMESTRES.indexOf(b.trimestre) || a.ordre - b.ordre));
@@ -223,7 +228,8 @@ function desa_(req) {
     })));
     afegeix_(FULL.info, [{
       curs: curs, id_materia: id, departament: dep, criteri_aprovar: v.info.criteri_aprovar, recuperacio: v.info.recuperacio,
-      observacions: v.info.observacions, data: ara, desat_per: usuari,
+      observacions: v.info.observacions, pendents: v.info.pendents, millora: v.info.millora,
+      blocs: v.info.blocs.length ? JSON.stringify(v.info.blocs) : '', data: ara, desat_per: usuari,
     }]);
     return { ok: true, data: ara, desat_per: usuari };
   } finally {
@@ -281,9 +287,17 @@ function valida_(req) {
     vistos[c.codi] = true;
   }
   const i = req.info || {};
+  const blocs = (Array.isArray(i.blocs) ? i.blocs : []).slice(0, 12).map((b) => {
+    const p = String(b.pct == null ? '' : b.pct).replace(',', '.').trim();
+    return { bloc: text(b.bloc, 120), instruments: text(b.instruments, 500), pct: p === '' ? '' : Number(p) };
+  }).filter((b) => b.bloc || b.instruments);
+  for (const b of blocs) {
+    if (b.pct !== '' && (!isFinite(b.pct) || b.pct < 0 || b.pct > 100)) return { ok: false, error: 'percentatge_invalid', activitat: b.bloc };
+  }
   return {
     ok: true, criteris: criteris, competencies: competencies,
-    info: { criteri_aprovar: text(i.criteri_aprovar), recuperacio: text(i.recuperacio), observacions: text(i.observacions) },
+    info: { criteri_aprovar: text(i.criteri_aprovar), recuperacio: text(i.recuperacio), observacions: text(i.observacions),
+      pendents: text(i.pendents), millora: text(i.millora), blocs: blocs },
   };
 }
 
@@ -470,6 +484,11 @@ function assegura_(nom) {
       full.getRange(1, 1, 1, CAP[nom].length).setValues([CAP[nom]]).setFontWeight('bold');
       full.setFrozenRows(1);
     }
+  } else if (CAP[nom] && full.getLastColumn() > 0) {
+    // Pestanya d'una versió anterior: s'hi afegeixen al final les columnes noves (p. ex. pendents, millora, blocs)
+    const cap = full.getRange(1, 1, 1, full.getLastColumn()).getDisplayValues()[0].map(normalitza_);
+    const falten = CAP[nom].filter((k) => cap.indexOf(k) < 0);
+    if (falten.length) full.getRange(1, cap.length + 1, 1, falten.length).setValues([falten]).setFontWeight('bold');
   }
   return full;
 }
@@ -481,8 +500,11 @@ function netCriteri_(r) {
 }
 function netComp_(r) { return { id_materia: r.id_materia, codi: r.codi, descripcio: r.descripcio }; }
 function netInfo_(r) {
+  let blocs = [];
+  try { blocs = r.blocs ? JSON.parse(r.blocs) : []; } catch (err) { blocs = []; }
   return { id_materia: r.id_materia, criteri_aprovar: r.criteri_aprovar, recuperacio: r.recuperacio,
-    observacions: r.observacions, data: r.data, desat_per: r.desat_per };
+    observacions: r.observacions, pendents: r.pendents || '', millora: r.millora || '', blocs: Array.isArray(blocs) ? blocs : [],
+    data: r.data, desat_per: r.desat_per };
 }
 
 function pct_(s) { return String(s || '').replace('%', '').replace(',', '.').trim(); }

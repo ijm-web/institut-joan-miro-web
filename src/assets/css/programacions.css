@@ -377,3 +377,17 @@ span.buit{ border-radius: 6px; }
   .pm-progres__barra{ flex-basis: 100%; }
   .pm-vistes{ margin-left: 0; }
 }
+
+/* --- Pes dels instruments per blocs (criteris de qualificació) --- */
+.prog-blocs{ display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; padding: 14px 16px; border: 1px solid #E6EBF2; border-radius: 10px; background: #FCFCFE; }
+.prog-blocs__cap{ display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.prog-blocs__cap small{ font-weight: 400; color: var(--color-text-muted); }
+.prog-bloc-fila{ display: grid; grid-template-columns: 200px 1fr auto 32px; gap: 8px; align-items: center; }
+.prog-oblig{ color: #B42318; font-weight: 700; }
+@media (max-width: 600px){
+  .prog-bloc-fila{ grid-template-columns: 1fr auto 32px; }
+  .prog-bloc-fila input[data-bloc="instruments"]{ grid-column: 1 / -1; grid-row: 2; }
+}
+.trim--opc{ background: #F6F6F8; color: #8A8FA0; border: 1px dashed #D5D8E2; }
+.trim small{ font-size: 10.5px; }
+.pm-critresum p{ flex-basis: 100%; margin: 0; color: var(--color-text-muted); font-size: 12.5px; line-height: 1.5; }

@@ -65,3 +65,5 @@
   .er-act__fotos--3 .er-foto{ aspect-ratio: 1 / 1; }
   .er-lightbox__close{ top: 6px; right: 6px; }
 }
+.le-lead a{ color: var(--color-blue); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.le-lead a:hover{ color: var(--color-orange); }

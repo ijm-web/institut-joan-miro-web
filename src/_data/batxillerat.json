@@ -877,9 +877,9 @@
         },
         "pdf": "/assets/docs/batxillerat/materies-optatives-batxillerat.pdf",
         "pdfText": {
-          "ca": "Descripció d’optatives de Batxillerat",
-          "es": "Descripción de optativas de Bachillerato",
-          "en": "Elective descriptions, Batxillerat"
+          "ca": "Descripció de matèries de batxillerat",
+          "es": "Descripción de materias de bachillerato",
+          "en": "Subject descriptions, Batxillerat"
         }
       },
       {
@@ -1221,15 +1221,9 @@
         },
         "pdf": "/assets/docs/batxillerat/materies-optatives-batxillerat.pdf",
         "pdfText": {
-          "ca": "Descripció d’optatives de Batxillerat",
-          "es": "Descripción de optativas de Bachillerato",
-          "en": "Elective descriptions, Batxillerat"
-        },
-        "pdf2": "/assets/docs/batxillerat/materies-2n-batxillerat.pdf",
-        "pdf2Text": {
-          "ca": "Descripció d’Empresa i Disseny de Models de Negoci i d’Història de l’Art",
-          "es": "Descripción de Empresa y Diseño de Modelos de Negocio y de Historia del Arte",
-          "en": "Description of Business and Business Model Design and of History of Art"
+          "ca": "Descripció de matèries de batxillerat",
+          "es": "Descripción de materias de bachillerato",
+          "en": "Subject descriptions, Batxillerat"
         }
       }
     ],

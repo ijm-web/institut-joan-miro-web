@@ -214,7 +214,7 @@
       camp('identificacio.tipus', 'Tipus de matèria', id.tipus, { select: TIPUS }) +
       camp('identificacio.hores_totals', 'Hores totals', id.hores_totals, { ph: '105', mode: 'numeric' }) +
       camp('identificacio.hores_setmana', 'Hores setmanals', id.hores_setmana, { ph: '3', mode: 'decimal' }) +
-      camp('identificacio.responsable', 'Responsable del departament', id.responsable) +
+      camp('identificacio.responsable', 'Responsable de departament/àmbit', id.responsable) +
       camp('identificacio.docents', 'Docents', id.docents, { ph: 'Noms separats per « · »' }) +
       camp('identificacio.aprovada', 'Aprovada pel departament (data)', id.aprovada, { ph: 'p. ex. Juliol 2026' }) +
       camp('identificacio.revisio', 'Darrera revisió (data)', id.revisio) + '</div>',
@@ -273,7 +273,7 @@
     p.sequencia.forEach(function (s, i) {
       fh += '<div class="pm-trim"><h5>' + s.trimestre + ' trimestre</h5>' +
         camp('sequencia.' + i + '.continguts', 'Continguts (un per línia)', s.continguts, { area: true, files: 4, ph: 'Unitat 1. …\nUnitat 2. …' }) +
-        '<div class="pm-graella">' + camp('sequencia.' + i + '.repte', 'Repte o projecte', s.repte) + camp('sequencia.' + i + '.sessions', 'Sessions (aprox.)', s.sessions, { mode: 'numeric', ph: '30' }) + '</div>' +
+        '<div class="pm-graella">' + camp('sequencia.' + i + '.sessions', 'Sessions (aprox.)', s.sessions, { mode: 'numeric', ph: '30' }) + '</div>' +
         '<div class="prog-chips pm-chips"><span class="prog-chips__lbl">Criteris d’avaluació</span>' +
         (codisCrit.length ? codisCrit.map(function (k) {
           var on = (s.criteris || []).indexOf(k) >= 0;
@@ -288,25 +288,18 @@
       camp('metodologia.materials', 'Materials i recursos', mt.materials, { area: true, files: 3, ample: true }) +
       camp('metodologia.espais', 'Espais i sortides', mt.espais, { area: true, files: 2, ample: true }));
     // H
-    var av = p.avaluacio, s = D.sumes(crit.criteris);
+    var s = D.sumes(crit.criteris);
+    var blocsC = (info.blocs || []).filter(function (b) { return b.bloc || b.instruments; });
+    var ok = function (v, nom, opcional) { return '<span class="trim' + (v ? ' trim--ok' : (opcional ? ' trim--opc' : '')) + '">' + nom + (opcional && !v ? ' <small>(opcional)</small>' : '') + '</span>'; };
     var hh = '<div class="pm-comu"><p>' + esc(T.avaluacio) + '</p><p>' + esc(D.ASSOL.text) + '</p></div>' +
-      '<div class="pm-critresum"><b>Criteris de qualificació (de la Gestió Criteris de Qualificació)</b><span>' + D.TRIMESTRES.map(function (t) {
+      '<div class="pm-critresum"><b>Tot aquest apartat ve de la Gestió Criteris de Qualificació</b><span>' + D.TRIMESTRES.map(function (t) {
         var x = s[t], cl = !x.n ? '' : (Math.abs(x.total - 100) < 0.01 ? ' trim--ok' : ' trim--ko');
         return '<span class="trim' + cl + '">' + t + ' <b>' + (x.n ? P().fmtNum(x.total) + '%' : '—') + '</b></span>';
-      }).join('') + '<span class="trim' + (info.criteri_aprovar ? ' trim--ok' : '') + '">Aprovar</span><span class="trim' + (info.recuperacio ? ' trim--ok' : '') + '">Recuperació</span></span>' +
-      '<a href="#criteris/' + encodeURIComponent(ed.id) + '">Edita els criteris de qualificació →</a></div>' +
-      '<h5 class="pm-sub">Pes dels instruments per blocs (opcional)</h5><div class="pm-files">';
-    (av.blocs || []).forEach(function (b, i) {
-      hh += '<div class="pm-bloc"><input class="prog-in" data-cami="avaluacio.blocs.' + i + '.bloc" value="' + esc(b.bloc) + '" placeholder="Bloc (p. ex. Coneixements)"' + ro + '>' +
-        '<input class="prog-in" data-cami="avaluacio.blocs.' + i + '.instruments" value="' + esc(b.instruments) + '" placeholder="Instruments"' + ro + '>' +
-        '<label class="prog-act__pct"><input class="prog-in" data-cami="avaluacio.blocs.' + i + '.pct" value="' + esc(b.pct) + '" inputmode="decimal" aria-label="Percentatge"' + ro + '><span>%</span></label>' +
-        ico('treu', 'Elimina', '✕', ' data-llista="avaluacio.blocs" data-i="' + i + '"') + '</div>';
-    });
-    hh += '</div>' + boto('afegeix', '+ Afegeix bloc', ' data-llista="avaluacio.blocs"') +
-      camp('avaluacio.condicions', 'Condicions per aprovar cada trimestre', av.condicions, { area: true, files: 2, ample: true, ph: 'p. ex. Cal una nota mínima de 4 en cada bloc…' }) +
-      camp('avaluacio.pendents', 'Recuperació de matèries pendents de cursos anteriors', av.pendents, { area: true, files: 2, ample: true }) +
-      camp('avaluacio.millora', 'Millora de nota', av.millora, { area: true, files: 2, ample: true });
-    h += seccio('H', hh, 'Les activitats avaluatives, el criteri per aprovar i la recuperació es prenen de la Gestió Criteris de Qualificació.');
+      }).join('') + ok(blocsC.length, 'Pes per blocs', true) + ok(info.criteri_aprovar, 'Criteris per aprovar') + ok(info.recuperacio, 'Recuperació trimestral i final') +
+      ok(info.pendents, 'Pendents de cursos anteriors') + ok(info.millora, 'Millora de nota', true) + '</span>' +
+      '<p>Aquí no es defineix res: el pes dels instruments per blocs, els criteris per aprovar, la recuperació, les pendents i la millora de nota es desen amb els criteris de la matèria i surten automàticament al document.</p>' +
+      '<a href="#criteris/' + encodeURIComponent(ed.id) + '">Edita els criteris de qualificació →</a></div>';
+    h += seccio('H', hh, 'Les activitats avaluatives, el pes per blocs, els criteris per aprovar, la recuperació i la millora de nota es prenen de la Gestió Criteris de Qualificació.');
     // I
     var dv = p.diversitat;
     h += seccio('I', camp('diversitat.universals', 'Mesures universals (una per línia)', dv.universals, { area: true, files: 4, ample: true, ajuda: 'Personalització, DUA, avaluació formativa, acció tutorial…' }) +
@@ -314,7 +307,7 @@
       '<div class="pm-comu"><b>Intensives / PI:</b> ' + esc(T.intensives) + '</div>');
     // J
     h += seccio('J', camp('especifics.lectures', 'Lectures', p.especifics.lectures, { area: true, files: 2, ample: true, ph: 'Si ho deixeu en blanc: «' + T.lectures + '»' }) +
-      camp('especifics.sortides', 'Sortides i activitats complementàries', p.especifics.sortides, { area: true, files: 2, ample: true, ph: 'Si ho deixeu en blanc: «No es programa cap sortida específica.»' }));
+      camp('especifics.sortides', 'Sortides i activitats complementàries', p.especifics.sortides, { area: true, files: 2, ample: true, ph: 'Si ho deixeu en blanc: «' + T.sortides + '»' }));
     // K
     var kh = '<div class="pm-files">';
     p.revisio.forEach(function (r, i) {
@@ -437,7 +430,6 @@
       case 'afegeix': {
         var l = b.dataset.llista, arr = llegeix(l) || [];
         if (l === 'objectius') arr.push({ titol: '', text: '' });
-        if (l === 'avaluacio.blocs') arr.push({ bloc: '', instruments: '', pct: '' });
         if (l === 'revisio') {
           var ult = arr[arr.length - 1], v = ult && /^(\d+)\.(\d+)$/.test(ult.versio) ? ult.versio.replace(/\.(\d+)$/, function (x, n) { return '.' + (Number(n) + 1); }) : '1.' + arr.length;
           arr.push({ versio: v, data: '', canvis: '', aprovacio: '' });
@@ -485,7 +477,6 @@
       o.criteris_avaluacio[k] = o.criteris_avaluacio[k].filter(function (x) { return String(x.text).trim() || String(x.codi).trim(); });
       if (!o.criteris_avaluacio[k].length) delete o.criteris_avaluacio[k];
     });
-    o.avaluacio.blocs = o.avaluacio.blocs.filter(function (x) { return String(x.bloc).trim() || String(x.instruments).trim(); });
     o.revisio = o.revisio.filter(function (x) { return String(x.versio).trim() || String(x.data).trim() || String(x.canvis).trim(); });
     return o;
   }
@@ -497,11 +488,6 @@
     var ces = M.idx[ed.id].crit.competencies.map(function (c) { return String(c.codi).toUpperCase(); });
     var fora = Object.keys(prog.criteris_avaluacio).filter(function (k) { return ces.indexOf(k) < 0; });
     if (fora.length) avisos.push('Hi ha criteris d’avaluació de competències que ja no són al catàleg (' + fora.join(', ') + '); es desen però no surten al document.');
-    var blocs = prog.avaluacio.blocs;
-    if (blocs.length) {
-      var tot = blocs.reduce(function (s, b) { var n = P().num(b.pct); return s + (n && !isNaN(n) ? n : 0); }, 0);
-      if (Math.abs(tot - 100) > 0.01) avisos.push('Els pesos per blocs sumen ' + P().fmtNum(tot) + ' %.');
-    }
     var continua = (avisos.length && !forca) ? P().pregunta('Abans de desar', '<ul>' + avisos.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul><p>Podeu desar igualment i acabar-ho més endavant.</p>', [
       { t: 'Torna a l’editor', valor: 0, tipus: 'ghost' }, { t: 'Desa igualment', valor: 1, tipus: 'primary' }
     ]) : Promise.resolve(1);

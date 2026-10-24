@@ -24,6 +24,7 @@
     intro_competencies: 'Es recullen les competències específiques de la matèria treballades a {curs} i els criteris d’avaluació corresponents (annex 3 del Decret 175/2022).',
     transversal_cc: 'Es defineixen segons el desplegament de la competència ciutadana.',
     transversal_ce: 'Es defineixen segons el desplegament de la competència emprenedora.',
+    transversal_cpsaa: 'Es defineixen segons el desplegament de la competència personal, social i d’aprendre a aprendre.',
     intro_sequencia: 'A la taula següent es mostra la distribució orientativa dels continguts per trimestres. Es poden donar canvis en la distribució al llarg del curs, en funció del calendari escolar i del ritme del grup.',
     avaluacio: 'L’avaluació és global, contínua i formativa. El referent són els criteris d’avaluació de cada competència específica (art. 24 del Decret 175/2022). Els instruments d’avaluació (qüestionaris, pràctiques individuals i grupals, exàmens, exercicis d’aula, deures, etc.) segueixen les pautes establertes a la programació de cada unitat.',
     marc_trimestres: 'Com a marc de referència, el pes dels instruments avaluatius a cada trimestre és:',
@@ -31,6 +32,7 @@
     intro_diversitat: 'Mesures universals i addicionals previstes a la matèria.',
     intensives: 'Les mesures es descriuen en el PI de l’alumne/a.',
     lectures: 'No s’escau (requisit propi de les matèries lingüístiques).',
+    sortides: 'No es programa cap sortida i activitat complementària.',
     intro_revisio: 'Registre de versions i d’aprovació de la programació pel departament.'
   };
   var ASSOL = {
@@ -41,7 +43,7 @@
   var TRANSVERSALS = [
     { id: 'CC', nom: 'Ciutadana (CC)', comu: 'transversal_cc' },
     { id: 'CE', nom: 'Emprenedora (CE)', comu: 'transversal_ce' },
-    { id: 'CPSAA', nom: 'Personal, social i d’aprendre a aprendre (CPSAA)' },
+    { id: 'CPSAA', nom: 'Personal, social i d’aprendre a aprendre (CPSAA)', comu: 'transversal_cpsaa' },
     { id: 'CD', nom: 'Digital (CD)' }
   ];
   var APARTATS = [
@@ -78,9 +80,8 @@
       objectius: [],
       criteris_avaluacio: {},
       transversals: TRANSVERSALS.map(function (t) { return { id: t.id, descripcio: '', evidencies: '', indicadors: [] }; }),
-      sequencia: TRIMESTRES.map(function (t) { return { trimestre: t, continguts: '', repte: '', criteris: [], sessions: '' }; }),
+      sequencia: TRIMESTRES.map(function (t) { return { trimestre: t, continguts: '', criteris: [], sessions: '' }; }),
       metodologia: { orientacions: '', agrupaments: '', materials: '', espais: '' },
-      avaluacio: { blocs: [], condicions: '', pendents: '', millora: '' },
       diversitat: { universals: '', addicionals: '' },
       especifics: { lectures: '', sortides: '' },
       revisio: [{ versio: '1.0', data: '', canvis: 'Elaboració inicial.', aprovacio: '' }]
@@ -105,7 +106,7 @@
     });
     o.sequencia = TRIMESTRES.map(function (t) {
       var x = (o.sequencia || []).filter(function (y) { return y && y.trimestre === t; })[0] || {};
-      return { trimestre: t, continguts: txt(x.continguts), repte: txt(x.repte), criteris: Array.isArray(x.criteris) ? x.criteris : [], sessions: txt(x.sessions) };
+      return { trimestre: t, continguts: txt(x.continguts), criteris: Array.isArray(x.criteris) ? x.criteris : [], sessions: txt(x.sessions) };
     });
     if (!o.criteris_avaluacio || typeof o.criteris_avaluacio !== 'object' || Array.isArray(o.criteris_avaluacio)) o.criteris_avaluacio = {};
     return o;
@@ -130,7 +131,7 @@
       E: ces.length > 0 && ces.every(function (c) { return (p.criteris_avaluacio[c] || []).some(function (x) { return txt(x.text); }); }),
       F: p.sequencia.every(function (x) { return txt(x.continguts); }),
       G: !!txt(p.metodologia.orientacions),
-      H: TRIMESTRES.every(function (t) { return s[t].n && Math.abs(s[t].total - 100) < 0.01; }) && !!txt(info.criteri_aprovar) && !!txt(info.recuperacio),
+      H: TRIMESTRES.every(function (t) { return s[t].n && Math.abs(s[t].total - 100) < 0.01; }) && !!txt(info.criteri_aprovar) && !!txt(info.recuperacio) && !!txt(info.pendents),
       I: linies(p.diversitat.universals).length > 0,
       K: p.revisio.some(function (r) { return txt(r.data); })
     };
@@ -211,7 +212,6 @@
     pq(T.intro_sequencia, 'comu');
     B.push({ t: 'taula', head: ['Trimestre', 'Continguts', 'CE i criteris', 'Sessions'], w: [20, 0, 42, 20], body: p.sequencia.map(function (x) {
       var cont = linies(x.continguts);
-      if (txt(x.repte)) cont.push('Repte: ' + txt(x.repte));
       var perCE = {};
       (x.criteris || []).forEach(function (c) { var k = String(c).split('.')[0]; (perCE[k] = perCE[k] || []).push(c); });
       var ceTxt = Object.keys(perCE).sort(function (a, b) { return Number(a) - Number(b); }).map(function (k) { return 'CE' + k + ': ' + perCE[k].sort(ordenaCriteris).join(', '); }).join('\n');
@@ -231,16 +231,15 @@
     pq(T.avaluacio, 'comu');
     pq(ASSOL.text, 'comu');
     B.push({ t: 'taula', f: 'comu', head: ASSOL.head, w: [52, 0, 22], body: ASSOL.files.map(function (f) { return [f[0], f[1], { text: f[2], b: true }]; }) });
-    var av = p.avaluacio;
-    var blocsAv = (av.blocs || []).filter(function (b) { return txt(b.bloc) || txt(b.instruments); });
+    // Tot el que segueix ve de la Gestió Criteris de Qualificació (aquí no es defineix res)
+    var blocsAv = (info.blocs || []).filter(function (b) { return txt(b.bloc) || txt(b.instruments); });
     h2('Criteris de qualificació per trimestres');
     if (blocsAv.length) {
       pq(T.marc_trimestres, 'comu');
       var totB = blocsAv.reduce(function (s, b) { var n = num(b.pct); return s + (n && !isNaN(n) ? n : 0); }, 0);
-      B.push({ t: 'taula', head: ['Bloc', 'Instruments', '%'], w: [36, 0, 16], body: blocsAv.map(function (b) { return [txt(b.bloc), txt(b.instruments), txt(b.pct)]; }),
+      B.push({ t: 'taula', f: 'crit', head: ['Bloc', 'Instruments', '%'], w: [36, 0, 16], body: blocsAv.map(function (b) { var n = num(b.pct); return [txt(b.bloc), txt(b.instruments), n !== null && !isNaN(n) ? fmt(n) : '']; }),
         foot: ['Total', '', fmt(totB)] });
     }
-    if (txt(av.condicions)) paragrafs(av.condicions).forEach(function (x) { pq(x); });
     pq(T.modificacio, 'comu');
     h2('Activitats avaluatives per trimestre');
     var hiHa = false;
@@ -256,13 +255,15 @@
       }), foot: ['Total', fmt(tot), '', ''] });
     });
     if (!hiHa) pq('[Pendent: activitats avaluatives a la Gestió Criteris de Qualificació]', 'falta');
-    h2('Criteris de qualificació final');
-    if (txt(info.criteri_aprovar)) paragrafs(info.criteri_aprovar).forEach(function (x) { pq(x, 'crit'); }); else pq('[Pendent: criteri per aprovar a la Gestió Criteris de Qualificació]', 'falta');
-    h2('Recuperació');
-    if (txt(info.recuperacio)) paragrafs(info.recuperacio).forEach(function (x) { pq(x, 'crit'); }); else pq('[Pendent: mecanismes de recuperació a la Gestió Criteris de Qualificació]', 'falta');
-    if (txt(av.pendents)) B.push({ t: 'llista', items: [{ b: 'Recuperació de matèries pendents de cursos anteriors:', text: txt(av.pendents) }] });
-    if (txt(av.millora)) { h2('Millora de nota'); paragrafs(av.millora).forEach(function (x) { pq(x); }); }
-    if (txt(info.observacions)) { h2('Observacions'); paragrafs(info.observacions).forEach(function (x) { pq(x, 'crit'); }); }
+    var deCrit = function (titol, camp, pendent, opcional) {
+      if (txt(info[camp])) { h2(titol); paragrafs(info[camp]).forEach(function (x) { pq(x, 'crit'); }); }
+      else if (!opcional) { h2(titol); pq('[Pendent: ' + pendent + ' a la Gestió Criteris de Qualificació]', 'falta'); }
+    };
+    deCrit('Criteris per aprovar la matèria', 'criteri_aprovar', 'criteris per aprovar la matèria');
+    deCrit('Recuperació trimestral i final', 'recuperacio', 'recuperació trimestral i final');
+    deCrit('Recuperació de matèries pendents de cursos anteriors', 'pendents', 'recuperació de matèries pendents');
+    deCrit('Millora de nota', 'millora', '', true);
+    deCrit('Observacions', 'observacions', '', true);
 
     // I. Atenció a la diversitat
     h1('I');
@@ -278,7 +279,7 @@
     h1('J');
     B.push({ t: 'llista', items: [
       txt(p.especifics.lectures) ? { b: 'Lectures:', text: txt(p.especifics.lectures) } : { b: 'Lectures:', text: T.lectures, f: 'comu' },
-      { b: 'Sortides i activitats complementàries:', text: txt(p.especifics.sortides) || 'No es programa cap sortida específica.' }
+      txt(p.especifics.sortides) ? { b: 'Sortides i activitats complementàries:', text: txt(p.especifics.sortides) } : { b: 'Sortides i activitats complementàries:', text: T.sortides, f: 'comu' }
     ] });
 
     // K. Revisió i aprovació

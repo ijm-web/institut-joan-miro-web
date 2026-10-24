@@ -338,9 +338,9 @@
     var s = sumes(e.criteris);
     var trimOk = TRIMESTRES.every(function (t) { return s[t].n && Math.abs(s[t].total - 100) < 0.01; });
     var info = e.info || {};
-    var res = !!(e.criteris.length || e.competencies.length || info.criteri_aprovar || info.recuperacio || info.observacions);
+    var res = !!(e.criteris.length || e.competencies.length || info.criteri_aprovar || info.recuperacio || info.observacions || info.pendents);
     if (!res) return { codi: 'pendent', nom: 'Pendent', s: s };
-    var complet = trimOk && e.competencies.length && info.criteri_aprovar && info.recuperacio;
+    var complet = trimOk && e.competencies.length && info.criteri_aprovar && info.recuperacio && info.pendents;
     return { codi: complet ? 'completa' : 'curs', nom: complet ? 'Completa' : 'En curs', s: s };
   }
 
@@ -367,7 +367,7 @@
       '<div class="prog-resum__accions">' +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="informe">Informe en PDF</button>' +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="csv">Descarrega CSV</button></div></div>' +
-      '<p class="prog-ajuda">Una matèria és <strong>completa</strong> quan cada trimestre suma 100 %, té competències específiques i té el criteri per aprovar i els mecanismes de recuperació.</p>';
+      '<p class="prog-ajuda">Una matèria és <strong>completa</strong> quan cada trimestre suma 100 %, té competències específiques, criteris per aprovar, recuperació trimestral i final i recuperació de pendents.</p>';
     NIVELLS.concat(['']).forEach(function (niv) {
       var grup = mats.filter(function (m) { return niv ? m.nivell === niv : NIVELLS.indexOf(m.nivell) < 0; });
       if (!grup.length) return;
@@ -382,7 +382,7 @@
             return '<span class="trim trim--' + cl + '" title="' + t + ' trimestre: ' + x.n + ' activitats">' + t + ' <b>' + (x.n ? fmtNum(x.total) + '%' : '—') + '</b></span>';
           }).join('') + '</span>' +
           '<span role="cell">' + (e.competencies.length ? e.competencies.length + ' CE' : '<span class="buit">—</span>') + '</span>' +
-          '<span class="prog-fila__txt" role="cell"><span class="' + (info.criteri_aprovar ? 'ok' : 'buit') + '" title="Criteri per aprovar">Aprovar</span><span class="' + (info.recuperacio ? 'ok' : 'buit') + '" title="Mecanismes de recuperació">Recuperació</span></span>' +
+          '<span class="prog-fila__txt" role="cell"><span class="' + (info.criteri_aprovar ? 'ok' : 'buit') + '" title="Criteris per aprovar la matèria">Aprovar</span><span class="' + (info.recuperacio ? 'ok' : 'buit') + '" title="Recuperació trimestral i final">Recuperació</span><span class="' + (info.pendents ? 'ok' : 'buit') + '" title="Recuperació de matèries pendents">Pendents</span></span>' +
           '<span role="cell"><span class="est est--' + st.codi + '">' + st.nom + '</span>' + (info.data ? '<small class="prog-fila__data">' + esc(dataCurta(info.data)) + '</small>' : '') + '</span>' +
           '</a>';
       });
@@ -407,7 +407,9 @@
           competencies: (c.competencies || []).slice(), competencia_digital: (c.competencia_digital || []).slice() };
       }),
       competencies: e.competencies.map(function (c) { return { codi: c.codi, descripcio: c.descripcio }; }),
-      info: { criteri_aprovar: (e.info || {}).criteri_aprovar || '', recuperacio: (e.info || {}).recuperacio || '', observacions: (e.info || {}).observacions || '' }
+      info: { criteri_aprovar: (e.info || {}).criteri_aprovar || '', recuperacio: (e.info || {}).recuperacio || '', observacions: (e.info || {}).observacions || '',
+        pendents: (e.info || {}).pendents || '', millora: (e.info || {}).millora || '',
+        blocs: ((e.info || {}).blocs || []).map(function (b) { return { bloc: b.bloc || '', instruments: b.instruments || '', pct: b.pct === null || b.pct === undefined ? '' : String(b.pct) }; }) }
     };
   }
 
@@ -519,15 +521,30 @@
     }
     h += '</section>';
 
-    // 3. Textos
+    // 3. Aprovar, recuperar i millorar la nota
     var camps = [
-      ['criteri_aprovar', 'Criteri per aprovar la matèria', 'Com s’obté la qualificació final i què cal per superar la matèria (pes dels trimestres, notes mínimes…).'],
-      ['recuperacio', 'Mecanismes de recuperació', 'Com es recupera un trimestre no superat, la matèria a final de curs i la matèria pendent de cursos anteriors.'],
-      ['observacions', 'Observacions', 'Qualsevol altra informació (ortografia, lliurament de treballs…).']
+      ['criteri_aprovar', 'Criteris per aprovar la matèria', 'Obligatori. Com s’obté la qualificació de cada trimestre i la final i què cal per aprovar (pes dels trimestres, notes mínimes…).', true],
+      ['recuperacio', 'Recuperació trimestral i final', 'Obligatori. Com es recupera un trimestre no superat i la matèria a final de curs.', true],
+      ['pendents', 'Recuperació de matèries pendents de cursos anteriors', 'Obligatori. Com recupera l’alumnat la matèria pendent del curs anterior.', true],
+      ['millora', 'Criteris per millorar la nota', 'Opcional. Si es pot, procediment per millorar la nota a final de curs.', false],
+      ['observacions', 'Observacions', 'Opcional. Qualsevol altra informació (ortografia, lliurament de treballs…).', false]
     ];
-    h += '<section class="prog-bloc"><div class="prog-bloc__cap"><h4><span class="prog-num">3</span> Aprovar, recuperar i observacions</h4></div><div class="prog-textos">';
+    h += '<section class="prog-bloc"><div class="prog-bloc__cap"><h4><span class="prog-num">3</span> Aprovar, recuperar i millorar la nota</h4>' +
+      '<p>Els tres primers apartats són obligatoris. Tot això surt al PDF de criteris i a la programació de la matèria.</p></div>';
+    // Pes dels instruments per blocs (opcional)
+    var tb = ed.info.blocs.reduce(function (s, b) { var n = num(b.pct); return s + (n && !isNaN(n) ? n : 0); }, 0);
+    h += '<div class="prog-blocs"><div class="prog-blocs__cap"><span class="prog-text__lbl">Pes dels instruments per blocs <small>(opcional)</small></span>' +
+      (ed.info.blocs.length ? '<span class="prog-total prog-total--' + (Math.abs(tb - 100) < 0.01 ? 'ok' : 'ko') + '" id="edTotalBlocs">Total ' + fmtNum(tb) + ' %</span>' : '') + '</div>' +
+      '<span class="prog-text__ajuda">Marc de referència del pes de cada bloc d’instruments a cada trimestre (p. ex. Coneixements 40 %, Pràctiques 60 %).</span>';
+    ed.info.blocs.forEach(function (b, i) {
+      h += '<div class="prog-bloc-fila" data-b="' + i + '"><input class="prog-in" data-bloc="bloc" value="' + esc(b.bloc) + '" placeholder="Bloc (p. ex. Coneixements)" aria-label="Bloc"' + ro + '>' +
+        '<input class="prog-in" data-bloc="instruments" value="' + esc(b.instruments) + '" placeholder="Instruments" aria-label="Instruments"' + ro + '>' +
+        '<label class="prog-act__pct"><input class="prog-in" data-bloc="pct" inputmode="decimal" value="' + esc(b.pct) + '" aria-label="Percentatge"' + ro + '><span>%</span></label>' +
+        (pot ? '<button type="button" class="prog-ico" data-accio="treu-bloc" title="Elimina el bloc" aria-label="Elimina el bloc">✕</button>' : '') + '</div>';
+    });
+    h += (pot ? '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-accio="afegeix-bloc">+ Afegeix bloc</button>' : '') + '</div><div class="prog-textos">';
     camps.forEach(function (c) {
-      h += '<label class="prog-text"><span class="prog-text__lbl">' + c[1] + '</span><span class="prog-text__ajuda">' + c[2] + '</span>' +
+      h += '<label class="prog-text"><span class="prog-text__lbl">' + c[1] + (c[3] ? ' <span class="prog-oblig" title="Obligatori">*</span>' : '') + '</span><span class="prog-text__ajuda">' + c[2] + '</span>' +
         '<textarea class="prog-in" data-info="' + c[0] + '" rows="5"' + ro + '>' + esc(ed.info[c[0]]) + '</textarea></label>';
     });
     h += '</div></section>';
@@ -569,6 +586,15 @@
     if (!ed) return;
     if (t.tagName === 'TEXTAREA') autoalt(t);
     if (t.dataset.info) ed.info[t.dataset.info] = t.value;
+    var fb = t.closest('.prog-bloc-fila');
+    if (fb && t.dataset.bloc) {
+      ed.info.blocs[Number(fb.dataset.b)][t.dataset.bloc] = t.value;
+      if (t.dataset.bloc === 'pct') {
+        t.classList.toggle('is-error', isNaN(num(t.value)) || num(t.value) < 0 || num(t.value) > 100);
+        var tb = ed.info.blocs.reduce(function (s, b) { var n = num(b.pct); return s + (n && !isNaN(n) ? n : 0); }, 0), el = $('edTotalBlocs');
+        if (el) { el.textContent = 'Total ' + fmtNum(tb) + ' %'; el.className = 'prog-total prog-total--' + (Math.abs(tb - 100) < 0.01 ? 'ok' : 'ko'); }
+      }
+    }
     var act = t.closest('.prog-act'), ce = t.closest('.prog-ce');
     if (act && t.dataset.camp) {
       ed.criteris[Number(act.dataset.i)][t.dataset.camp] = t.value;
@@ -609,6 +635,8 @@
         break;
       }
       case 'treu-ce': ed.competencies.splice(i, 1); marcaBrut(true); pintaEditorMantenintScroll(); break;
+      case 'afegeix-bloc': ed.info.blocs.push({ bloc: '', instruments: '', pct: '' }); marcaBrut(true); pintaEditorMantenintScroll(); break;
+      case 'treu-bloc': ed.info.blocs.splice(Number(b.closest('.prog-bloc-fila').dataset.b), 1); marcaBrut(true); pintaEditorMantenintScroll(); break;
       case 'afegeix': {
         var t = b.dataset.t, pos = -1;
         ed.criteris.forEach(function (c, k) { if (TRIMESTRES.indexOf(c.trimestre) <= TRIMESTRES.indexOf(t)) pos = k; });
@@ -661,7 +689,12 @@
       }),
       competencies: ed.competencies.filter(function (c) { return String(c.codi).trim() || String(c.descripcio).trim(); })
         .map(function (c) { return { codi: String(c.codi).trim().toUpperCase(), descripcio: String(c.descripcio).trim() }; }),
-      info: ed.info
+      info: Object.assign({}, ed.info, {
+        blocs: ed.info.blocs.filter(function (b) { return String(b.bloc).trim() || String(b.instruments).trim(); }).map(function (b) {
+          var n = num(b.pct);
+          return { bloc: String(b.bloc).trim(), instruments: String(b.instruments).trim(), pct: n === null ? '' : n };
+        })
+      })
     };
   }
 
@@ -689,8 +722,15 @@
     });
     if (foraCE.length) avisos.push('Competències marcades que no són al catàleg de la matèria: ' + foraCE.join(', ') + '.');
     if (foraCD.length) avisos.push('Competències digitals que no són al catàleg: ' + foraCD.join(', ') + '.');
-    if (!ed.info.criteri_aprovar.trim()) avisos.push('Falta el criteri per aprovar la matèria.');
-    if (!ed.info.recuperacio.trim()) avisos.push('Falten els mecanismes de recuperació.');
+    if (!ed.info.criteri_aprovar.trim()) avisos.push('Falten els criteris per aprovar la matèria.');
+    if (!ed.info.recuperacio.trim()) avisos.push('Falta la recuperació trimestral i final.');
+    if (!ed.info.pendents.trim()) avisos.push('Falta la recuperació de matèries pendents de cursos anteriors.');
+    var bd = dades.info.blocs.filter(function (b) { return b.pct !== '' && (isNaN(b.pct) || b.pct < 0 || b.pct > 100); });
+    if (bd.length) return toast('Percentatge no vàlid al bloc «' + bd[0].bloc + '»: ha de ser un número entre 0 i 100.', true);
+    if (dades.info.blocs.length) {
+      var totB = dades.info.blocs.reduce(function (s2, b) { return s2 + (b.pct === '' ? 0 : b.pct); }, 0);
+      if (Math.abs(totB - 100) > 0.01) avisos.push('Els pesos per blocs sumen ' + fmtNum(totB) + ' %.');
+    }
     var continua = (avisos.length && !forca) ? pregunta('Abans de desar', '<ul>' + avisos.map(function (a) { return '<li>' + esc(a) + '</li>'; }).join('') + '</ul><p>Podeu desar igualment i acabar-ho més endavant.</p>', [
       { t: 'Torna a l’editor', valor: 0, tipus: 'ghost' }, { t: 'Desa igualment', valor: 1, tipus: 'primary' }
     ]) : Promise.resolve(1);
@@ -776,7 +816,7 @@
         : api('criteris', { cos: { accio: 'materia', curs: d.curs, curs_origen: anterior, id_materia: ed.id }, progres: 'Carregant el curs ' + anterior + '…' });
       crida.then(function (r) {
         if (!r.ok) return toast(text(r.error), true);
-        if (!r.criteris.length && !r.competencies.length && !(r.info && (r.info.criteri_aprovar || r.info.recuperacio || r.info.observacions))) {
+        if (!r.criteris.length && !r.competencies.length && !(r.info && (r.info.criteri_aprovar || r.info.recuperacio || r.info.pendents || r.info.observacions))) {
           return toast(font === 'imp' ? 'Aquest full no té dades.' : 'Aquesta matèria no té dades al curs ' + anterior + '.', true);
         }
         var nou = copiaDades({ criteris: r.criteris, competencies: r.competencies, info: r.info || {} });
@@ -803,7 +843,7 @@
   // El document el construeix /assets/js/criteris-pdf.js (també el fan servir les pàgines d'ESO i Batxillerat).
   function pdf(ids, titolGrup, actual) {
     var d = S.dades;
-    var amb = ids.filter(function (id) { var x = dadesInforme(id, actual); return x.criteris.length || x.competencies.length || (x.info && (x.info.criteri_aprovar || x.info.recuperacio || x.info.observacions)); });
+    var amb = ids.filter(function (id) { var x = dadesInforme(id, actual); return x.criteris.length || x.competencies.length || (x.info && (x.info.criteri_aprovar || x.info.recuperacio || x.info.observacions || x.info.pendents)); });
     if (!amb.length && !titolGrup) return toast('Aquesta matèria encara no té dades.', true);
     Progres.inici('Generant el PDF…');
     CriterisPdf.prepara(function (f) { Progres.posa(f, f > 0.4 ? 'Carregant la tipografia…' : 'Preparant el PDF…'); }).then(function (R) {
@@ -814,13 +854,13 @@
         ids.forEach(function (id) { compta[estat(S.idx[id]).codi]++; });
         portada = {
           titol: 'Criteris de qualificació', subtitol: titolGrup + ' · Curs ' + d.curs,
-          head: [['Nivell', 'Matèria', '1r', '2n', '3r', 'CE', 'Aprovar', 'Recup.', 'Estat']],
+          head: [['Nivell', 'Matèria', '1r', '2n', '3r', 'CE', 'Aprovar', 'Recup.', 'Pend.', 'Estat']],
           body: ids.map(function (id) {
             var e = S.idx[id], st = estat(e), info = e.info || {};
             return [e.m.nivell, e.m.materia].concat(TRIMESTRES.map(function (t) { return st.s[t].n ? fmtNum(st.s[t].total) + ' %' : '—'; }),
-              [String(e.competencies.length), info.criteri_aprovar ? 'Sí' : '—', info.recuperacio ? 'Sí' : '—', st.nom]);
+              [String(e.competencies.length), info.criteri_aprovar ? 'Sí' : '—', info.recuperacio ? 'Sí' : '—', info.pendents ? 'Sí' : '—', st.nom]);
           }),
-          columnStyles: { 0: { cellWidth: 17 }, 2: { halign: 'right', cellWidth: 15 }, 3: { halign: 'right', cellWidth: 15 }, 4: { halign: 'right', cellWidth: 15 }, 5: { halign: 'right', cellWidth: 10 }, 6: { cellWidth: 15 }, 7: { cellWidth: 15 }, 8: { cellWidth: 19 } },
+          columnStyles: { 0: { cellWidth: 16 }, 2: { halign: 'right', cellWidth: 14 }, 3: { halign: 'right', cellWidth: 14 }, 4: { halign: 'right', cellWidth: 14 }, 5: { halign: 'right', cellWidth: 9 }, 6: { cellWidth: 14 }, 7: { cellWidth: 13 }, 8: { cellWidth: 12 }, 9: { cellWidth: 18 } },
           nota: ids.length + ' matèries · ' + compta.completa + ' completes · ' + compta.curs + ' en curs · ' + compta.pendent + ' pendents.'
         };
       }

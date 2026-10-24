@@ -474,7 +474,7 @@
         (window.Progres ? Progres.amb(feina.then(function(x){ return x; }), TX.gen) : feina).then(function(x){
           var d = x[0], R = x[1];
           if (!d || !d.ok) throw new Error((d && d.error) || 'error');
-          var materies = d.materies.filter(function(m){ var i = m.info || {}; return m.criteris.length || m.competencies.length || i.criteri_aprovar || i.recuperacio || i.observacions; });
+          var materies = d.materies.filter(function(m){ var i = m.info || {}; return m.criteris.length || m.competencies.length || i.criteri_aprovar || i.recuperacio || i.pendents || i.millora || i.observacions || (i.blocs && i.blocs.length); });
           var doc = CriterisPdf.genera(R, {
             curs: d.curs, lang: lang, capcalera: TX.titol,
             portada: { titol: TX.titol, subtitol: nom + ' · ' + TX.curs + ' ' + d.curs,

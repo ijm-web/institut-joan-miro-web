@@ -74,9 +74,9 @@
       "en": "Barcelona – Rome exchange 2026"
     },
     "lead": {
-      "ca": "Alumnes de l’Institut Joan Miró i d’un centre de Roma han compartit un intercanvi Erasmus+ amb un fil conductor: <span class=\"kw\">la igualtat de gènere</span>. A Barcelona i a Roma han investigat, entrevistat la gent del carrer, descobert patrimoni i, sobretot, han treballat en equip i fet amics.",
-      "es": "Alumnos del Institut Joan Miró y de un centro de Roma han compartido un intercambio Erasmus+ con un hilo conductor: <span class=\"kw\">la igualdad de género</span>. En Barcelona y en Roma han investigado, entrevistado a la gente de la calle, descubierto patrimonio y, sobre todo, han trabajado en equipo y hecho amigos.",
-      "en": "Students from Institut Joan Miró and a school in Rome took part in an Erasmus+ exchange built around one theme: <span class=\"kw\">gender equality</span>. In Barcelona and Rome they did research, interviewed people in the street, discovered cultural heritage and, above all, worked as a team and made friends."
+      "ca": "Els alumnes de 2n d’ESO de l’Institut Joan Miró i del centre <a href=\"https://www.icsinopoliferrini.edu.it/\" target=\"_blank\" rel=\"noopener\">Sinopoli Ferrini</a> de Roma han participat en un enriquidor intercanvi del programa Erasmus+ amb <span class=\"kw\">la igualtat de gènere com a eix conductor</span>, un dels pilars de l’Agenda 2030. Durant l’experiència, els joves han treballat de manera pràctica en italià i anglès, millorant la seva fluïdesa i competència comunicativa en situacions reals de convivència i treball cooperatiu. Tant a Barcelona com a Roma, l’alumnat ha desenvolupat un complet programa d’activitats col·laboratives i tallers de reflexió per debatre sobre la paritat en la societat actual. Aquest treball acadèmic s’ha complementat amb itineraris culturals pels espais i monuments més emblemàtics d’ambdues ciutats, afavorint una immersió lingüística, social i cultural inoblidable per als estudiants.",
+      "es": "Los alumnos de 2.º de ESO del Institut Joan Miró y del centro <a href=\"https://www.icsinopoliferrini.edu.it/\" target=\"_blank\" rel=\"noopener\">Sinopoli Ferrini</a> de Roma han participado en un enriquecedor intercambio del programa Erasmus+ con <span class=\"kw\">la igualdad de género como eje conductor</span>, uno de los pilares de la Agenda 2030. Durante la experiencia, los jóvenes han trabajado de manera práctica en italiano e inglés, mejorando su fluidez y competencia comunicativa en situaciones reales de convivencia y trabajo cooperativo. Tanto en Barcelona como en Roma, el alumnado ha desarrollado un completo programa de actividades colaborativas y talleres de reflexión para debatir sobre la paridad en la sociedad actual. Este trabajo académico se ha complementado con itinerarios culturales por los espacios y monumentos más emblemáticos de ambas ciudades, favoreciendo una inmersión lingüística, social y cultural inolvidable para los estudiantes.",
+      "en": "2nd-year ESO students from Institut Joan Miró and from the <a href=\"https://www.icsinopoliferrini.edu.it/\" target=\"_blank\" rel=\"noopener\">Sinopoli Ferrini</a> school in Rome took part in an enriching Erasmus+ exchange with <span class=\"kw\">gender equality as its central theme</span>, one of the pillars of the 2030 Agenda. During the experience, the young people worked hands-on in Italian and English, improving their fluency and communication skills in real situations of living and working together. In both Barcelona and Rome, students took part in a full programme of collaborative activities and reflection workshops to discuss gender parity in today’s society. This academic work was complemented by cultural routes around the most iconic places and monuments of both cities, offering students an unforgettable linguistic, social and cultural immersion."
     },
     "stats": [
       {
@@ -88,11 +88,11 @@
         }
       },
       {
-        "num": "9",
+        "num": "IT<small>+</small>EN",
         "label": {
-          "ca": "activitats entre les dues estades",
-          "es": "actividades entre las dos estancias",
-          "en": "activities across both stays"
+          "ca": "Llengües: italià i anglès",
+          "es": "Lenguas: italiano e inglés",
+          "en": "Languages: Italian and English"
         }
       },
       {
@@ -115,111 +115,6 @@
     "etapes": [
       {
         "titol": {
-          "ca": "A Barcelona",
-          "es": "En Barcelona",
-          "en": "In Barcelona"
-        },
-        "activitats": [
-          {
-            "titol": {
-              "ca": "La ciutat i el gènere",
-              "es": "La ciudad y el género",
-              "en": "The city and gender"
-            },
-            "text": {
-              "ca": "Els alumnes de Barcelona i Roma fan un recorregut per la ciutat amb parades en diferents llocs emblemàtics per la igualtat de gènere, com ara el Palau de la Generalitat, la Rambla i la Plaça Reial, on entrevisten la gent per recollir opinions sobre la relació entre la ciutat i el gènere.",
-              "es": "Los alumnos de Barcelona y Roma hacen un recorrido por la ciudad con paradas en diferentes lugares emblemáticos para la igualdad de género, como el Palau de la Generalitat, la Rambla y la Plaça Reial, donde entrevistan a la gente para recoger opiniones sobre la relación entre la ciudad y el género.",
-              "en": "Students from Barcelona and Rome tour the city, stopping at landmarks linked to gender equality such as the Palau de la Generalitat, La Rambla and Plaça Reial, where they interview people about the relationship between the city and gender."
-            },
-            "fotos": [
-              {
-                "img": "roma-01",
-                "alt": {
-                  "ca": "El grup de l’intercanvi a la plaça de Catalunya",
-                  "es": "El grupo del intercambio en la plaza de Cataluña",
-                  "en": "The exchange group in Plaça de Catalunya"
-                }
-              },
-              {
-                "img": "roma-02",
-                "alt": {
-                  "ca": "Alumnes davant d’un edifici històric del centre de Barcelona",
-                  "es": "Alumnos ante un edificio histórico del centro de Barcelona",
-                  "en": "Students in front of a historic building in central Barcelona"
-                }
-              }
-            ]
-          },
-          {
-            "titol": {
-              "ca": "Pinya amb els Castellers de Cornellà",
-              "es": "Piña con los Castellers de Cornellà",
-              "en": "Building a pinya with the Castellers de Cornellà"
-            },
-            "text": {
-              "ca": "Els alumnes fan pinya amb els Castellers de Cornellà per la igualtat de gènere. Tracten aquesta tradició amb perspectiva de gènere per entendre el rol de la dona en el món casteller, com ha canviat amb el temps i quin pes tindrà en el futur, i entrevisten el cap de colla per conèixer-ne la visió.",
-              "es": "Los alumnos hacen piña con los Castellers de Cornellà por la igualdad de género. Tratan esta tradición con perspectiva de género para entender el papel de la mujer en el mundo casteller, cómo ha cambiado con el tiempo y qué peso tendrá en el futuro, y entrevistan al jefe de la colla para conocer su visión.",
-              "en": "Students join the Castellers de Cornellà to build a pinya for gender equality. They look at this tradition from a gender perspective to understand women’s role in the castell world, how it has changed and what it will be in the future, and interview the team leader to hear his view."
-            },
-            "fotos": [
-              {
-                "img": "roma-03",
-                "alt": {
-                  "ca": "Alumnes durant l’activitat amb els Castellers de Cornellà",
-                  "es": "Alumnos durante la actividad con los Castellers de Cornellà",
-                  "en": "Students during the activity with the Castellers de Cornellà"
-                }
-              }
-            ]
-          },
-          {
-            "titol": {
-              "ca": "Gaudí Code al Parc Güell",
-              "es": "Gaudí Code en el Park Güell",
-              "en": "Gaudí Code at Park Güell"
-            },
-            "text": {
-              "ca": "Visita al Parc Güell, on els alumnes juguen en equips a una gimcana per trobar les solucions al Gaudí Code.",
-              "es": "Visita al Park Güell, donde los alumnos juegan por equipos a una gincana para encontrar las soluciones al Gaudí Code.",
-              "en": "A visit to Park Güell, where students play a team treasure hunt to crack the Gaudí Code."
-            },
-            "fotos": [
-              {
-                "img": "roma-04",
-                "alt": {
-                  "ca": "El grup a l’escalinata del Parc Güell",
-                  "es": "El grupo en la escalinata del Park Güell",
-                  "en": "The group on the steps of Park Güell"
-                }
-              }
-            ]
-          },
-          {
-            "titol": {
-              "ca": "La Sagrada Família",
-              "es": "La Sagrada Família",
-              "en": "The Sagrada Família"
-            },
-            "text": {
-              "ca": "Visita guiada a la Sagrada Família, acompanyada d’un taller participatiu. Els alumnes descobreixen els detalls arquitectònics de l’obra de Gaudí i reflexionen sobre el seu significat, combinant la teoria amb una experiència pràctica i creativa.",
-              "es": "Visita guiada a la Sagrada Família, acompañada de un taller participativo. Los alumnos descubren los detalles arquitectónicos de la obra de Gaudí y reflexionan sobre su significado, combinando la teoría con una experiencia práctica y creativa.",
-              "en": "A guided tour of the Sagrada Família with a hands-on workshop. Students discover the architectural details of Gaudí’s work and reflect on its meaning, combining theory with a practical, creative experience."
-            },
-            "fotos": [
-              {
-                "img": "roma-05",
-                "alt": {
-                  "ca": "El grup a l’interior de la Sagrada Família",
-                  "es": "El grupo en el interior de la Sagrada Família",
-                  "en": "The group inside the Sagrada Família"
-                }
-              }
-            ]
-          }
-        ]
-      },
-      {
-        "titol": {
           "ca": "Cap a Roma",
           "es": "Rumbo a Roma",
           "en": "Off to Rome"
@@ -228,14 +123,14 @@
         "activitats": [
           {
             "titol": {
-              "ca": "Pròxima parada: la Ciutat Eterna",
-              "es": "Próxima parada: la Ciudad Eterna",
-              "en": "Next stop: the Eternal City"
+              "ca": "Rumb a la Ciutat Eterna",
+              "es": "Rumbo a la Ciudad Eterna",
+              "en": "Off to the Eternal City"
             },
             "text": {
-              "ca": "Després d’uns dies intensos d’aprenentatge, descobriments i intercanvi a Barcelona, el grup agafa l’avió cap a Roma. Comença una nova etapa del projecte, plena d’il·lusió, ganes de continuar aprenent i molts moments per compartir.",
-              "es": "Después de unos días intensos de aprendizaje, descubrimientos e intercambio en Barcelona, el grupo coge el avión hacia Roma. Empieza una nueva etapa del proyecto, llena de ilusión, ganas de seguir aprendiendo y muchos momentos para compartir.",
-              "en": "After intense days of learning, discovery and exchange in Barcelona, the group flies to Rome. A new stage of the project begins, full of excitement, eagerness to keep learning and many moments to share."
+              "ca": "L’intercanvi comença amb el viatge a Roma. El grup agafa l’avió amb il·lusió, ganes d’aprendre i molts moments per compartir per davant.",
+              "es": "El intercambio empieza con el viaje a Roma. El grupo coge el avión con ilusión, ganas de aprender y muchos momentos por compartir por delante.",
+              "en": "The exchange begins with the trip to Rome. The group boards the plane full of excitement, eager to learn and with many moments to share ahead."
             },
             "fotos": [
               {
@@ -381,6 +276,111 @@
                   "ca": "El grup a la Fontana di Trevi",
                   "es": "El grupo en la Fontana di Trevi",
                   "en": "The group at the Trevi Fountain"
+                }
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "titol": {
+          "ca": "A Barcelona",
+          "es": "En Barcelona",
+          "en": "In Barcelona"
+        },
+        "activitats": [
+          {
+            "titol": {
+              "ca": "La ciutat i el gènere",
+              "es": "La ciudad y el género",
+              "en": "The city and gender"
+            },
+            "text": {
+              "ca": "Els alumnes de Barcelona i Roma fan un recorregut per la ciutat amb parades en diferents llocs emblemàtics per la igualtat de gènere, com ara el Palau de la Generalitat, la Rambla i la Plaça Reial, on entrevisten la gent per recollir opinions sobre la relació entre la ciutat i el gènere.",
+              "es": "Los alumnos de Barcelona y Roma hacen un recorrido por la ciudad con paradas en diferentes lugares emblemáticos para la igualdad de género, como el Palau de la Generalitat, la Rambla y la Plaça Reial, donde entrevistan a la gente para recoger opiniones sobre la relación entre la ciudad y el género.",
+              "en": "Students from Barcelona and Rome tour the city, stopping at landmarks linked to gender equality such as the Palau de la Generalitat, La Rambla and Plaça Reial, where they interview people about the relationship between the city and gender."
+            },
+            "fotos": [
+              {
+                "img": "roma-01",
+                "alt": {
+                  "ca": "El grup de l’intercanvi a la plaça de Catalunya",
+                  "es": "El grupo del intercambio en la plaza de Cataluña",
+                  "en": "The exchange group in Plaça de Catalunya"
+                }
+              },
+              {
+                "img": "roma-02",
+                "alt": {
+                  "ca": "Alumnes davant d’un edifici històric del centre de Barcelona",
+                  "es": "Alumnos ante un edificio histórico del centro de Barcelona",
+                  "en": "Students in front of a historic building in central Barcelona"
+                }
+              }
+            ]
+          },
+          {
+            "titol": {
+              "ca": "Pinya amb els Castellers de Cornellà",
+              "es": "Piña con los Castellers de Cornellà",
+              "en": "Building a pinya with the Castellers de Cornellà"
+            },
+            "text": {
+              "ca": "Els alumnes fan pinya amb els Castellers de Cornellà per la igualtat de gènere. Tracten aquesta tradició amb perspectiva de gènere per entendre el rol de la dona en el món casteller, com ha canviat amb el temps i quin pes tindrà en el futur, i entrevisten el cap de colla per conèixer-ne la visió.",
+              "es": "Los alumnos hacen piña con los Castellers de Cornellà por la igualdad de género. Tratan esta tradición con perspectiva de género para entender el papel de la mujer en el mundo casteller, cómo ha cambiado con el tiempo y qué peso tendrá en el futuro, y entrevistan al jefe de la colla para conocer su visión.",
+              "en": "Students join the Castellers de Cornellà to build a pinya for gender equality. They look at this tradition from a gender perspective to understand women’s role in the castell world, how it has changed and what it will be in the future, and interview the team leader to hear his view."
+            },
+            "fotos": [
+              {
+                "img": "roma-03",
+                "alt": {
+                  "ca": "Alumnes durant l’activitat amb els Castellers de Cornellà",
+                  "es": "Alumnos durante la actividad con los Castellers de Cornellà",
+                  "en": "Students during the activity with the Castellers de Cornellà"
+                }
+              }
+            ]
+          },
+          {
+            "titol": {
+              "ca": "Gaudí Code al Parc Güell",
+              "es": "Gaudí Code en el Park Güell",
+              "en": "Gaudí Code at Park Güell"
+            },
+            "text": {
+              "ca": "Visita al Parc Güell, on els alumnes juguen en equips a una gimcana per trobar les solucions al Gaudí Code.",
+              "es": "Visita al Park Güell, donde los alumnos juegan por equipos a una gincana para encontrar las soluciones al Gaudí Code.",
+              "en": "A visit to Park Güell, where students play a team treasure hunt to crack the Gaudí Code."
+            },
+            "fotos": [
+              {
+                "img": "roma-04",
+                "alt": {
+                  "ca": "El grup a l’escalinata del Parc Güell",
+                  "es": "El grupo en la escalinata del Park Güell",
+                  "en": "The group on the steps of Park Güell"
+                }
+              }
+            ]
+          },
+          {
+            "titol": {
+              "ca": "La Sagrada Família",
+              "es": "La Sagrada Família",
+              "en": "The Sagrada Família"
+            },
+            "text": {
+              "ca": "Visita guiada a la Sagrada Família, acompanyada d’un taller participatiu. Els alumnes descobreixen els detalls arquitectònics de l’obra de Gaudí i reflexionen sobre el seu significat, combinant la teoria amb una experiència pràctica i creativa.",
+              "es": "Visita guiada a la Sagrada Família, acompañada de un taller participativo. Los alumnos descubren los detalles arquitectónicos de la obra de Gaudí y reflexionan sobre su significado, combinando la teoría con una experiencia práctica y creativa.",
+              "en": "A guided tour of the Sagrada Família with a hands-on workshop. Students discover the architectural details of Gaudí’s work and reflect on its meaning, combining theory with a practical, creative experience."
+            },
+            "fotos": [
+              {
+                "img": "roma-05",
+                "alt": {
+                  "ca": "El grup a l’interior de la Sagrada Família",
+                  "es": "El grupo en el interior de la Sagrada Família",
+                  "en": "The group inside the Sagrada Família"
                 }
               }
             ]

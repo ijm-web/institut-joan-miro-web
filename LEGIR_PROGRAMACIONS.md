@@ -9,11 +9,12 @@ Adreça: **https://institutjoanmiro.netlify.app/programacions**
 3. **Gestió Criteris de Qualificació**: per a cada matèria dels departaments de l'usuari i per a cada curs escolar:
    - **Competències específiques** de la matèria: codi + descripció.
    - **Criteris de qualificació** de cada trimestre: activitat avaluativa, percentatge, competències específiques i competència digital (es marquen amb botons a partir dels catàlegs). Es mostra el total per trimestre (ha de sumar 100 %).
-   - **Criteri per aprovar**, **mecanismes de recuperació** i **observacions** (text lliure).
+   - **Aprovar, recuperar i millorar la nota** (text lliure): **Criteris per aprovar la matèria**, **Recuperació trimestral i final** i **Recuperació de matèries pendents de cursos anteriors** (obligatoris), **Criteris per millorar la nota** i **Observacions** (opcionals).
+   - **Pes dels instruments per blocs** (opcional): bloc · instruments · % (marc de referència de cada trimestre; s'avisa si no suma 100 %).
    - Alta / baixa / modificació / consulta: botons Afegeix, ✕, ↑↓, Desa, Descarta, «Dona de baixa» (esborra la matèria sencera; queda a l'historial).
    - **Informes**: PDF que es descarrega directament (jsPDF des de cdnjs, amb Montserrat i el logo de `src/assets/programacions/`), de la matèria o del departament (amb portada-resum de l'estat de totes les matèries), i CSV (Excel) de la matèria o del departament.
    - **Barra de progrés** (`src/assets/js/progres.js`) en totes les càrregues i desades. L'Apps Script no informa de l'avanç real: la barra avança sola fins al 90 % i acaba quan arriba la resposta. El mateix fitxer és al web de llibres.
-   - Llista de matèries amb l'estat: **Completa** (els tres trimestres sumen 100 %, té competències, criteri per aprovar i recuperació), **En curs** o **Pendent**.
+   - Llista de matèries amb l'estat: **Completa** (els tres trimestres sumen 100 %, té competències, criteris per aprovar, recuperació trimestral i final i recuperació de pendents), **En curs** o **Pendent**.
    - **Carrega dades…**: omple l'editor amb la mateixa matèria del curs anterior o amb un dels fulls de criteris 2025-2026 importats. No es desa fins que es prem Desa.
    - Si dues persones editen la mateixa matèria alhora, la segona que desa rep un avís i tria si torna a carregar o si desa la seva versió.
 
@@ -32,9 +33,9 @@ Els enllaços «Criteris de qualificació (PDF)» de **Estudis › ESO** (un per
 Ruta `#materies` de /programacions. Per a cada matèria d'ESO dels departaments de l'usuari i per a cada curs:
 
 - **Formulari per apartats (A–K)** a l'esquerra i **vista prèvia del document final** a la dreta (en mòbil, botons «Formulari / Vista prèvia»). La vista prèvia s'actualitza mentre s'escriu i marca en groc les dades pendents.
-- **Què s'hi escriu:** identificació (àmbit, tipus, hores, responsable, docents, dates), presentació, objectius, criteris d'avaluació de cada competència específica, competències transversals (amb els indicadors de competència digital), seqüenciació per trimestres (continguts, repte, criteris i sessions), metodologia, pes per blocs i condicions, recuperació de pendents, millora de nota, mesures d'atenció a la diversitat, lectures i sortides, i el registre de versions.
-- **Què NO s'hi escriu (ve de la Gestió Criteris de Qualificació):** les competències específiques, les activitats avaluatives de cada trimestre, el criteri per aprovar, la recuperació i les observacions. Així no hi ha dades duplicades.
-- **Textos comuns** (iguals a totes les programacions: marc normatiu, avaluació, nivells d'assoliment, modificació dels criteris, PI…): pestanya `textos_comuns` de programacions_db (clau · valor · descripcio). Si una clau és buida, es fa servir el text per defecte (`TEXTOS_PER_DEFECTE` a Code.gs i `TEXTOS` a `src/assets/js/programacio-doc.js`). `{curs}` es canvia pel nivell («1r d'ESO»).
+- **Què s'hi escriu:** identificació (àmbit, tipus, hores, responsable, docents, dates), presentació, objectius, criteris d'avaluació de cada competència específica, competències transversals (amb els indicadors de competència digital), seqüenciació per trimestres (continguts, criteris i sessions), metodologia, mesures d'atenció a la diversitat, lectures i sortides, i el registre de versions.
+- **Què NO s'hi escriu (ve de la Gestió Criteris de Qualificació):** les competències específiques, les activitats avaluatives de cada trimestre i **tot l'apartat H**: pes dels instruments per blocs, criteris per aprovar la matèria, recuperació trimestral i final, recuperació de pendents, millora de nota i observacions. Així no hi ha dades duplicades.
+- **Textos comuns** (iguals a totes les programacions: marc normatiu, avaluació, nivells d'assoliment, modificació dels criteris, PI, descripció de la CC/CE/CPSAA si es deixa en blanc, sortides per defecte…): pestanya `textos_comuns` de programacions_db (clau · valor · descripcio). Si una clau és buida, es fa servir el text per defecte (`TEXTOS_PER_DEFECTE` a Code.gs i `TEXTOS` a `src/assets/js/programacio-doc.js`). `{curs}` es canvia pel nivell («1r d'ESO»).
 - **Estat:** completa quan té els 9 apartats bàsics (identificació, presentació, objectius, criteris d'avaluació de totes les CE, continguts dels 3 trimestres, metodologia, criteris de qualificació complets, mesures universals i data d'aprovació).
 - **Alta / baixa / modificació / consulta:** Desa, Descarta, «Dona de baixa» (queda a l'historial), «Carrega dades…» (la mateixa matèria del curs anterior o una altra programació del curs: d'una altra matèria no es copien la identificació, els criteris d'avaluació ni la seqüenciació). Control de conflictes com als criteris.
 - **Informes:** PDF (jsPDF) i Excel (SheetJS de cdnjs) d'una matèria o del departament (amb un resum de l'estat de totes les matèries).
@@ -42,7 +43,7 @@ Ruta `#materies` de /programacions. Per a cada matèria d'ESO dels departaments 
 
 Dades: pestanya `programacions` de programacions_db (curs · id_materia · departament · un JSON per apartat · data · desat_per). Funció `GET/POST /api/programacions/materies` (`programacions-materies.mjs`) → accions `prog_inici`, `prog_materia`, `prog_desa`, `prog_esborra` de l'Apps Script.
 
-**Activació:** enganxar el `Code.gs` nou a l'Apps Script de programacions_db, executar **configura** (crea `programacions` i `textos_comuns`) i desplegar una versió nova. No cal cap variable nova a Netlify.
+**Activació (i a cada canvi del Code.gs, p. ex. PAS 13):** enganxar el `Code.gs` nou a l'Apps Script de programacions_db, executar **configura** (crea `programacions` i `textos_comuns`) i desplegar una versió nova. No cal cap variable nova a Netlify.
 
 ### Nivells d'assoliment de l'ESO
 
@@ -73,12 +74,12 @@ Full **programacions_db** (`1qQ7tiVMl9MsHkEssmUdXxyJnp_PdNeElp_oFxFH2_Ag`). Pest
 |---|---|
 | `criteris` | curs · id_materia · departament · trimestre · ordre · activitat · percentatge · competencies · competencia_digital · data · desat_per |
 | `competencies` | curs · id_materia · departament · codi · descripcio · data · desat_per |
-| `materies_info` | curs · id_materia · departament · criteri_aprovar · recuperacio · observacions · data · desat_per |
+| `materies_info` | curs · id_materia · departament · criteri_aprovar · recuperacio · observacions · pendents · millora · blocs (JSON) · data · desat_per (`configura` afegeix les columnes que falten als fulls antics) |
 | `competencies_digitals` | codi · descripcio (catàleg comú CD1-CD11; s'edita directament al full) |
 | `historial` | data_canvi · canvi_per · accio · curs · id_materia · contingut (estat anterior en JSON) |
 | `config` | estat (obert/tancat) · missatge · curs_publicat · curs_gestio |
 | `imp_criteris`, `imp_competencies`, `imp_info` | dades 2025-2026 per importar (opcional) |
-| `programacions` | curs · id_materia · departament · identificacio · presentacio · objectius · criteris_avaluacio · transversals · sequencia · metodologia · avaluacio · diversitat · especifics · revisio · data · desat_per (un JSON per apartat) |
+| `programacions` | curs · id_materia · departament · identificacio · presentacio · objectius · criteris_avaluacio · transversals · sequencia · metodologia · avaluacio (en desús des del PAS 13: ara és a `materies_info`) · diversitat · especifics · revisio · data · desat_per (un JSON per apartat) |
 | `textos_comuns` | clau · valor · descripcio (textos comuns de les programacions) |
 
 `id_materia` = «nivell - matèria», igual que a joanmiro_db (p. ex. `ESO 1r - Matemàtiques`). Les competències d'una activitat es desen com a codis separats per comes (`CE1, CE3`).

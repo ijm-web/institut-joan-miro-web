@@ -11,7 +11,7 @@
        curs, lang ('ca'|'es'|'en'), capcalera (text de dalt a la dreta),
        portada: { titol, subtitol, head:[[…]], body:[[…]], columnStyles, nota, avis } | null,
        materies: [{ titol, subtitol, pagina, senseCD (sense competència digital: Batxillerat), criteris:[{trimestre, activitat, percentatge, competencies[], competencia_digital[]}],
-                    competencies:[{codi, descripcio}], info:{criteri_aprovar, recuperacio, observacions} }],
+                    competencies:[{codi, descripcio}], info:{criteri_aprovar, recuperacio, pendents, millora, observacions, blocs:[{bloc, instruments, pct}]} }],
        competenciesDigitals: [{codi, descripcio}],
        buit: text si no hi ha cap matèria,
        assoliment: true → taula de nivells d'assoliment de l'ESO (a la portada si n'hi ha; si no, al final de cada matèria d'ESO)
@@ -32,15 +32,15 @@
   var T = {
     ca: { trim: { '1r': '1r trimestre', '2n': '2n trimestre', '3r': '3r trimestre' }, act: 'Activitat avaluativa', ce: 'Competència específica',
       cd: 'Competència digital', total: 'Total', ces: 'Competències específiques', cdT: 'Competència digital',
-      aprovar: 'Criteri per aprovar la matèria', recup: 'Mecanismes de recuperació', obs: 'Observacions', curs: 'Curs',
+      aprovar: 'Criteris per aprovar la matèria', recup: 'Recuperació trimestral i final', pend: 'Recuperació de matèries pendents de cursos anteriors', millora: 'Criteris per millorar la nota', obs: 'Observacions', blocs: 'Pes dels instruments per blocs', bloc: 'Bloc', instr: 'Instruments', curs: 'Curs',
       generat: 'Generat el', pagina: 'Pàgina', de: 'de', centre: 'Institut Joan Miró · Cornellà de Llobregat', locale: 'ca-ES' },
     es: { trim: { '1r': '1.er trimestre', '2n': '2.º trimestre', '3r': '3.er trimestre' }, act: 'Actividad evaluativa', ce: 'Competencia específica',
       cd: 'Competencia digital', total: 'Total', ces: 'Competencias específicas', cdT: 'Competencia digital',
-      aprovar: 'Criterio para aprobar la materia', recup: 'Mecanismos de recuperación', obs: 'Observaciones', curs: 'Curso',
+      aprovar: 'Criterios para aprobar la materia', recup: 'Recuperación trimestral y final', pend: 'Recuperación de materias pendientes de cursos anteriores', millora: 'Criterios para mejorar la nota', obs: 'Observaciones', blocs: 'Peso de los instrumentos por bloques', bloc: 'Bloque', instr: 'Instrumentos', curs: 'Curso',
       generat: 'Generado el', pagina: 'Página', de: 'de', centre: 'Institut Joan Miró · Cornellà de Llobregat', locale: 'es-ES' },
     en: { trim: { '1r': 'Term 1', '2n': 'Term 2', '3r': 'Term 3' }, act: 'Assessment activity', ce: 'Specific competence',
       cd: 'Digital competence', total: 'Total', ces: 'Specific competences', cdT: 'Digital competence',
-      aprovar: 'Pass criteria', recup: 'Make-up arrangements', obs: 'Notes', curs: 'School year',
+      aprovar: 'Pass criteria', recup: 'Term and final make-up', pend: 'Make-up for failed subjects from previous years', millora: 'Grade improvement', obs: 'Notes', blocs: 'Weight of assessment tools by block', bloc: 'Block', instr: 'Tools', curs: 'School year',
       generat: 'Generated on', pagina: 'Page', de: 'of', centre: 'Institut Joan Miró · Cornellà de Llobregat', locale: 'en-GB' }
   };
 
@@ -211,7 +211,17 @@
         taula({ body: usats.map(function (v) { return [v, cdDesc[v] || '']; }),
           columnStyles: { 0: { cellWidth: 16, fontStyle: 'bold', textColor: VERD } } });
       }
-      [['criteri_aprovar', L.aprovar], ['recuperacio', L.recup], ['observacions', L.obs]].forEach(function (c) {
+      var blocs = (info.blocs || []).filter(function (b) { return b.bloc || b.instruments; });
+      if (blocs.length) {
+        var totB = blocs.reduce(function (s, b) { var p = num(b.pct); return s + (p && !isNaN(p) ? p : 0); }, 0);
+        titol3(L.blocs);
+        taula({ head: [[L.bloc, L.instr, '%']],
+          body: blocs.map(function (b) { var p = num(b.pct); return [b.bloc, b.instruments, p !== null && !isNaN(p) ? fmt(p, o.lang) : '']; }),
+          foot: [[L.total, '', fmt(totB, o.lang)]],
+          footStyles: { font: 'Montserrat', fontStyle: 'bold', fillColor: [246, 247, 250], textColor: Math.abs(totB - 100) < 0.01 ? TEXT : [163, 90, 0] },
+          showFoot: 'lastPage', columnStyles: { 0: { cellWidth: 50 }, 2: { halign: 'right', cellWidth: 16 } } });
+      }
+      [['criteri_aprovar', L.aprovar], ['recuperacio', L.recup], ['pendents', L.pend], ['millora', L.millora], ['observacions', L.obs]].forEach(function (c) {
         if (info[c[0]]) { titol3(c[1]); y += 1; paragraf(info[c[0]]); }
       });
       if (o.assoliment && !o.portada && !x.senseCD) assoliment();
