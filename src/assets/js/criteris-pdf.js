@@ -13,7 +13,8 @@
        materies: [{ titol, subtitol, pagina, senseCD (sense competència digital: Batxillerat), criteris:[{trimestre, activitat, percentatge, competencies[], competencia_digital[]}],
                     competencies:[{codi, descripcio}], info:{criteri_aprovar, recuperacio, observacions} }],
        competenciesDigitals: [{codi, descripcio}],
-       buit: text si no hi ha cap matèria
+       buit: text si no hi ha cap matèria,
+       assoliment: true → taula de nivells d'assoliment de l'ESO (a la portada si n'hi ha; si no, al final de cada matèria d'ESO)
      }
    CriterisPdf.TRIMESTRES, CriterisPdf.num(valor), CriterisPdf.fmt(n, lang)
    ===================================================================== */
@@ -41,6 +42,22 @@
       cd: 'Digital competence', total: 'Total', ces: 'Specific competences', cdT: 'Digital competence',
       aprovar: 'Pass criteria', recup: 'Make-up arrangements', obs: 'Notes', curs: 'School year',
       generat: 'Generated on', pagina: 'Page', de: 'of', centre: 'Institut Joan Miró · Cornellà de Llobregat', locale: 'en-GB' }
+  };
+
+  // Nivells d'assoliment de l'ESO (també es mostren a l'editor de Programacions)
+  var ASSOLIMENT = {
+    ca: { titol: 'Nivells d’assoliment de l’ESO',
+      text: 'Els nivells d’assoliment de l’ESO són: 1. No assoliment (NA), 2. Assoliment suficient (AS), 3. Assoliment notable (AN) i 4. Assoliment excel·lent (AE). La qualificació trimestral s’expressa amb un decimal sobre 10, arrodonit amb criteri matemàtic; al final de curs la nota global es tradueix en un dels quatre nivells:',
+      head: ['Mitjana numèrica del curs', 'Qualificació competencial', 'Sigles'],
+      files: [['D’1 a 4,9', 'No assoliment', 'NA'], ['De 5 a 6,9', 'Assoliment suficient', 'AS'], ['De 7 a 8,6', 'Assoliment notable', 'AN'], ['De 8,7 a 10', 'Assoliment excel·lent', 'AE']] },
+    es: { titol: 'Niveles de logro de la ESO',
+      text: 'Los niveles de logro de la ESO son: 1. No logro (NA), 2. Logro suficiente (AS), 3. Logro notable (AN) y 4. Logro excelente (AE). La calificación trimestral se expresa con un decimal sobre 10, redondeado con criterio matemático; al final de curso la nota global se traduce en uno de los cuatro niveles:',
+      head: ['Media numérica del curso', 'Calificación competencial', 'Siglas'],
+      files: [['De 1 a 4,9', 'No logro', 'NA'], ['De 5 a 6,9', 'Logro suficiente', 'AS'], ['De 7 a 8,6', 'Logro notable', 'AN'], ['De 8,7 a 10', 'Logro excelente', 'AE']] },
+    en: { titol: 'ESO achievement levels',
+      text: 'The ESO achievement levels are: 1. Not achieved (NA), 2. Satisfactory achievement (AS), 3. Good achievement (AN) and 4. Excellent achievement (AE). Term marks are given out of 10 with one decimal place, rounded mathematically; at the end of the year the overall mark is converted into one of the four levels:',
+      head: ['Year average (out of 10)', 'Competence grade', 'Abbreviation'],
+      files: [['1 to 4.9', 'Not achieved', 'NA'], ['5 to 6.9', 'Satisfactory achievement', 'AS'], ['7 to 8.6', 'Good achievement', 'AN'], ['8.7 to 10', 'Excellent achievement', 'AE']] }
   };
 
   function num(v) {
@@ -130,6 +147,13 @@
       y = doc.lastAutoTable.finalY + 7;
     }
 
+    function assoliment() {
+      var A = ASSOLIMENT[o.lang] || ASSOLIMENT.ca;
+      titol3(A.titol); y += 1; paragraf(A.text);
+      taula({ head: [A.head], body: A.files,
+        columnStyles: { 0: { cellWidth: 48 }, 2: { cellWidth: 20, fontStyle: 'bold', textColor: BLAU, halign: 'center' } } });
+    }
+
     capcalera();
     var materies = o.materies || [];
     if (o.portada) {
@@ -142,6 +166,7 @@
       else y += 4;
       if (P.nota) paragraf(P.nota, GRIS);
       if (P.avis) paragraf(P.avis, GRIS);
+      if (o.assoliment) { y += 4; assoliment(); }
     }
     if (!materies.length && o.buit) paragraf(o.buit);
 
@@ -189,6 +214,7 @@
       [['criteri_aprovar', L.aprovar], ['recuperacio', L.recup], ['observacions', L.obs]].forEach(function (c) {
         if (info[c[0]]) { titol3(c[1]); y += 1; paragraf(info[c[0]]); }
       });
+      if (o.assoliment && !o.portada && !x.senseCD) assoliment();
     });
 
     // Peu amb la data i la paginació
@@ -203,5 +229,5 @@
     return doc;
   }
 
-  global.CriterisPdf = { prepara: prepara, genera: genera, TRIMESTRES: TRIMESTRES, num: num, fmt: fmt };
+  global.CriterisPdf = { prepara: prepara, genera: genera, TRIMESTRES: TRIMESTRES, num: num, fmt: fmt, ASSOLIMENT: ASSOLIMENT };
 })(window);

@@ -18,9 +18,14 @@
  *   materies_info         : curs | id_materia | departament | criteri_aprovar | recuperacio | observacions | data | desat_per
  *   competencies_digitals : codi | descripcio        (catàleg comú; s'edita directament al full)
  *   historial             : data_canvi | canvi_per | accio | curs | id_materia | contingut (JSON de l'estat anterior)
+ *   programacions         : curs | id_materia | departament | identificacio | presentacio | objectius | criteris_avaluacio |
+ *                           transversals | sequencia | metodologia | avaluacio | diversitat | especifics | revisio | data | desat_per
+ *                           (programacions de matèries d'ESO; cada apartat és un JSON)
+ *   textos_comuns         : clau | valor | descripcio  (textos que surten a totes les programacions; s'editen al full)
  *   imp_criteris, imp_competencies, imp_info : dades del curs 2025-2026 per importar (opcional; vegeu LEGIR_PROGRAMACIONS.md)
  *
  * Accions: ping, inici, materia, desa, esborra, importacio (àrea privada) i publics (PDF públic per nivell de les pàgines d'ESO i Batxillerat).
+ * Programacions de matèries: prog_inici, prog_materia, prog_desa, prog_esborra.
  *
  * id_materia = «nivell - materia», el mateix identificador que la pestanya materies de joanmiro_db (p. ex. «ESO 1r - Matemàtiques»).
  * Competències i competència digital: codis separats per comes («CE1, CE3», «CD2, CD8»).
@@ -30,7 +35,13 @@
  */
 
 const FULL = { conf: 'config', crit: 'criteris', comp: 'competencies', info: 'materies_info', cd: 'competencies_digitals',
-  hist: 'historial', impCrit: 'imp_criteris', impComp: 'imp_competencies', impInfo: 'imp_info' };
+  hist: 'historial', impCrit: 'imp_criteris', impComp: 'imp_competencies', impInfo: 'imp_info',
+  prog: 'programacions', textos: 'textos_comuns' };
+
+// Apartats de la programació d'una matèria (una columna JSON per apartat a la pestanya programacions)
+const APARTATS_PROG = ['identificacio', 'presentacio', 'objectius', 'criteris_avaluacio', 'transversals', 'sequencia',
+  'metodologia', 'avaluacio', 'diversitat', 'especifics', 'revisio'];
+const MAX_APARTAT = 45000;   // una cel·la de Sheets admet 50.000 caràcters
 
 const CAP = {
   criteris: ['curs', 'id_materia', 'departament', 'trimestre', 'ordre', 'activitat', 'percentatge', 'competencies', 'competencia_digital', 'data', 'desat_per'],
@@ -38,7 +49,25 @@ const CAP = {
   materies_info: ['curs', 'id_materia', 'departament', 'criteri_aprovar', 'recuperacio', 'observacions', 'data', 'desat_per'],
   competencies_digitals: ['codi', 'descripcio'],
   historial: ['data_canvi', 'canvi_per', 'accio', 'curs', 'id_materia', 'contingut'],
+  programacions: ['curs', 'id_materia', 'departament'].concat(APARTATS_PROG, ['data', 'desat_per']),
+  textos_comuns: ['clau', 'valor', 'descripcio'],
 };
+
+// Textos comuns de les programacions (la pestanya textos_comuns els pot substituir; {curs} = «1r d'ESO»…)
+const TEXTOS_PER_DEFECTE = [
+  ['normativa', 'Decret 175/2022, de 27 de setembre, d\'ordenació dels ensenyaments de l\'educació bàsica, modificat pel Decret 480/2024; DOIGC Concreció i desenvolupament del currículum: ESO (curs vigent).', 'B. Marc normatiu'],
+  ['intro_competencies', 'Es recullen les competències específiques de la matèria treballades a {curs} i els criteris d\'avaluació corresponents (annex 3 del Decret 175/2022).', 'E. Introducció de les competències específiques'],
+  ['transversal_cc', 'Es defineixen segons el desplegament de la competència ciutadana.', 'E. Competència ciutadana (si la matèria no hi posa res)'],
+  ['transversal_ce', 'Es defineixen segons el desplegament de la competència emprenedora.', 'E. Competència emprenedora (si la matèria no hi posa res)'],
+  ['intro_sequencia', 'A la taula següent es mostra la distribució orientativa dels continguts per trimestres. Es poden donar canvis en la distribució al llarg del curs, en funció del calendari escolar i del ritme del grup.', 'F. Introducció de la seqüenciació'],
+  ['avaluacio', 'L\'avaluació és global, contínua i formativa. El referent són els criteris d\'avaluació de cada competència específica (art. 24 del Decret 175/2022). Els instruments d\'avaluació (qüestionaris, pràctiques individuals i grupals, exàmens, exercicis d\'aula, deures, etc.) segueixen les pautes establertes a la programació de cada unitat.', 'H. Avaluació'],
+  ['marc_trimestres', 'Com a marc de referència, el pes dels instruments avaluatius a cada trimestre és:', 'H. Introducció de la taula de pesos per blocs'],
+  ['modificacio', 'Els criteris de qualificació recullen la planificació inicial de cada matèria per al curs. Al llarg del curs es poden ajustar per raons pedagògiques, sempre amb el vistiplau del departament corresponent i, si escau, de la direcció del centre. Qualsevol canvi es comunicarà a l\'alumnat i a les famílies.', 'H. Modificació dels criteris de qualificació'],
+  ['intro_diversitat', 'Mesures universals i addicionals previstes a la matèria.', 'I. Introducció'],
+  ['intensives', 'Les mesures es descriuen en el PI de l\'alumne/a.', 'I. Mesures intensives / PI'],
+  ['lectures', 'No s\'escau (requisit propi de les matèries lingüístiques).', 'J. Lectures (si la matèria no hi posa res)'],
+  ['intro_revisio', 'Registre de versions i d\'aprovació de la programació pel departament.', 'K. Introducció'],
+];
 
 const CONFIG_PER_DEFECTE = [
   ['estat', 'obert', 'obert o tancat. Si és tancat, els departaments poden consultar però no desar (els admins sí).'],
@@ -81,6 +110,10 @@ function doPost(e) {
       case 'esborra':    return json_(esborra_(req));
       case 'importacio': return json_(importacio_(req.origen));
       case 'publics':    return json_(publics_(req.curs, req.nivell));
+      case 'prog_inici':   return json_(progInici_(req.curs, req.materies));
+      case 'prog_materia': return json_(progMateria_(req.curs, req.id_materia));
+      case 'prog_desa':    return json_(progDesa_(req));
+      case 'prog_esborra': return json_(progEsborra_(req));
       default:           return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -255,6 +288,106 @@ function valida_(req) {
 }
 
 // ---------------------------------------------------------------------------------------------
+// Programacions de matèries (de moment, ESO). Les competències específiques, les activitats avaluatives,
+// el criteri per aprovar i la recuperació NO es desen aquí: surten de la Gestió Criteris de Qualificació.
+function textosComuns_() {
+  const t = {};
+  TEXTOS_PER_DEFECTE.forEach((x) => { t[x[0]] = x[1]; });
+  llegeix_(FULL.textos).forEach((r) => { if (r.clau && r.valor) t[r.clau] = r.valor; });
+  return t;
+}
+
+function netProg_(r) {
+  const o = { id_materia: r.id_materia, departament: r.departament, data: r.data, desat_per: r.desat_per };
+  APARTATS_PROG.forEach((k) => {
+    try { o[k] = r[k] ? JSON.parse(r[k]) : null; } catch (err) { o[k] = null; }
+  });
+  return o;
+}
+
+function progInici_(curs, materies) {
+  const base = inici_(curs, materies);
+  if (!base.ok) return base;
+  const ids = (materies || []).map(String);
+  const cursos = {};
+  base.cursos.forEach((c) => { cursos[c] = true; });
+  const progs = llegeix_(FULL.prog);
+  progs.forEach((r) => { if (cursValid_(r.curs)) cursos[r.curs] = true; });
+  base.programacions = progs.filter((r) => r.curs === curs && ids.indexOf(r.id_materia) >= 0).map(netProg_);
+  base.textos = textosComuns_();
+  base.cursos = Object.keys(cursos).sort().reverse();
+  delete base.origens;
+  return base;
+}
+
+// Programació i criteris d'una matèria d'un curs (per copiar-los a un altre curs o a una altra matèria)
+function progMateria_(curs, id) {
+  if (!cursValid_(curs) || !id) return { ok: false, error: 'peticio_invalida' };
+  const r = llegeix_(FULL.prog).filter((x) => x.curs === curs && x.id_materia === id)[0];
+  return { ok: true, curs: curs, id_materia: id, programacio: r ? netProg_(r) : null };
+}
+
+function progDesa_(req) {
+  const curs = String(req.curs || ''), id = String(req.id_materia || ''), dep = String(req.departament || '');
+  const usuari = String(req.usuari || '');
+  if (!cursValid_(curs) || !id || !usuari) return { ok: false, error: 'peticio_invalida' };
+  const cfg = llegeixConfig_();
+  if (String(cfg.estat).toLowerCase() !== 'obert' && !req.admin) return { ok: false, error: 'tancat' };
+  const gestio = configPublica_(cfg).curs_gestio;
+  if (!req.admin && gestio && curs !== gestio) return { ok: false, error: 'curs_nomes_lectura' };
+  const p = req.programacio || {};
+  const fila = { curs: curs, id_materia: id, departament: dep };
+  for (const k of APARTATS_PROG) {
+    const txt = JSON.stringify(p[k] == null ? null : p[k]);
+    if (txt.length > MAX_APARTAT) return { ok: false, error: 'apartat_massa_llarg', apartat: k };
+    fila[k] = txt;
+  }
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const abans = progMateria_(curs, id).programacio;
+    const dataAbans = abans ? abans.data : '';
+    if (!req.forca && String(req.data_anterior || '') !== String(dataAbans || '')) {
+      return { ok: false, error: 'conflicte', desat_per: abans ? abans.desat_per : '', data: dataAbans };
+    }
+    const ara = Utilities.formatDate(new Date(), 'Europe/Madrid', 'yyyy-MM-dd HH:mm:ss');
+    if (abans) registraProg_(usuari, 'prog_desa', curs, id, abans);
+    esborraFiles_(FULL.prog, curs, id);
+    fila.data = ara; fila.desat_per = usuari;
+    afegeix_(FULL.prog, [fila]);
+    return { ok: true, data: ara, desat_per: usuari };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function progEsborra_(req) {
+  const curs = String(req.curs || ''), id = String(req.id_materia || ''), usuari = String(req.usuari || '');
+  if (!cursValid_(curs) || !id || !usuari) return { ok: false, error: 'peticio_invalida' };
+  const cfg = llegeixConfig_();
+  if (String(cfg.estat).toLowerCase() !== 'obert' && !req.admin) return { ok: false, error: 'tancat' };
+  const gestio = configPublica_(cfg).curs_gestio;
+  if (!req.admin && gestio && curs !== gestio) return { ok: false, error: 'curs_nomes_lectura' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const abans = progMateria_(curs, id).programacio;
+    if (!abans) return { ok: true };
+    registraProg_(usuari, 'prog_esborra', curs, id, abans);
+    esborraFiles_(FULL.prog, curs, id);
+    return { ok: true };
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function registraProg_(usuari, accio, curs, id, abans) {
+  const ara = Utilities.formatDate(new Date(), 'Europe/Madrid', 'yyyy-MM-dd HH:mm:ss');
+  afegeix_(FULL.hist, [{ data_canvi: ara, canvi_per: usuari, accio: accio, curs: curs, id_materia: id,
+    contingut: JSON.stringify(abans).slice(0, 49000) }]);
+}
+
+// ---------------------------------------------------------------------------------------------
 // Importació (dades 2025-2026 convertides amb lib/programacions/importa_criteris.py)
 function origensImportacio_() {
   const ss = SpreadsheetApp.getActive();
@@ -400,6 +533,10 @@ function configura() {
   CONFIG_PER_DEFECTE.forEach((c) => { if (claus.indexOf(c[0]) < 0) conf.appendRow(c); });
   const cd = ss.getSheetByName(FULL.cd);
   if (cd.getLastRow() < 2) cd.getRange(2, 1, CD_PER_DEFECTE.length, 2).setValues(CD_PER_DEFECTE);
+  // Textos comuns de les programacions: s'afegeixen els que falten (els que ja hi són no es toquen)
+  const tx = ss.getSheetByName(FULL.textos);
+  const clausTx = tx.getLastRow() > 1 ? tx.getRange(2, 1, tx.getLastRow() - 1, 1).getValues().map((r) => String(r[0]).trim()) : [];
+  TEXTOS_PER_DEFECTE.forEach((t) => { if (clausTx.indexOf(t[0]) < 0) tx.appendRow(t); });
   // La pestanya buida per defecte («Full 1» / «Sheet1») sobra si no té res
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => {
     const f = ss.getSheetByName(n);

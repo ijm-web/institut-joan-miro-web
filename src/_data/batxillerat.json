@@ -875,11 +875,11 @@
           },
           "href": "projectes-pla-esport.html"
         },
-        "pdf": "/assets/docs/batxillerat/optatives-1r-batxillerat.pdf",
+        "pdf": "/assets/docs/batxillerat/materies-optatives-batxillerat.pdf",
         "pdfText": {
-          "ca": "Descripció d’optatives de 1r de Batxillerat",
-          "es": "Descripción de optativas de 1º de Bachillerato",
-          "en": "Elective descriptions, 1st Batxillerat"
+          "ca": "Descripció d’optatives de Batxillerat",
+          "es": "Descripción de optativas de Bachillerato",
+          "en": "Elective descriptions, Batxillerat"
         }
       },
       {
@@ -1219,8 +1219,14 @@
           "es": "El alumnado continúa el itinerario de 1º: una materia obligatoria, dos de modalidad y una materia de la franja 1.",
           "en": "Students continue their 1st-year pathway: one compulsory subject, two strand subjects and one subject from block 1."
         },
-        "pdf": "/assets/docs/batxillerat/materies-2n-batxillerat.pdf",
+        "pdf": "/assets/docs/batxillerat/materies-optatives-batxillerat.pdf",
         "pdfText": {
+          "ca": "Descripció d’optatives de Batxillerat",
+          "es": "Descripción de optativas de Bachillerato",
+          "en": "Elective descriptions, Batxillerat"
+        },
+        "pdf2": "/assets/docs/batxillerat/materies-2n-batxillerat.pdf",
+        "pdf2Text": {
           "ca": "Descripció d’Empresa i Disseny de Models de Negoci i d’Història de l’Art",
           "es": "Descripción de Empresa y Diseño de Modelos de Negocio y de Historia del Arte",
           "en": "Description of Business and Business Model Design and of History of Art"

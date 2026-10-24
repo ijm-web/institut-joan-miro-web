@@ -11,7 +11,7 @@ extraCss: /assets/css/programacions.css
 {#- Àrea privada del professorat. Aquesta pàgina no conté cap dada: tot ho serveixen les funcions
     /api/programacions/* i només si la sessió és vàlida.
     Accés: compte @institutjoanmiro.cat que consti a la pestanya «departaments» de joanmiro_db.
-    Apartats: Gestió Criteris de Qualificació (dades a programacions_db).
+    Apartats: Gestió Criteris de Qualificació i Programacions de matèries (ESO) (dades a programacions_db).
     Funcions: netlify/functions/programacions-*.mjs · Script: /assets/js/programacions.js · Vegeu LEGIR_PROGRAMACIONS.md -#}
 <div class="qs-hero" id="qsHero">
   <img src="/assets/img/inici/inici-3-vestibul-2400.jpg" srcset="/assets/img/inici/inici-3-vestibul-1600.jpg 1600w, /assets/img/inici/inici-3-vestibul-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
@@ -40,6 +40,7 @@ extraCss: /assets/css/programacions.css
       <nav class="prog-crumbs" aria-label="Ruta">
         <a href="#" id="progCrumbInici">Programacions</a>
         <span id="progCrumbCrit" hidden><span aria-hidden="true">›</span> <a href="#criteris">Gestió Criteris de Qualificació</a></span>
+        <span id="progCrumbProg" hidden><span aria-hidden="true">›</span> <a href="#materies">Programacions de matèries</a></span>
         <span id="progCrumbMat" hidden><span aria-hidden="true">›</span> <span id="progCrumbMatNom"></span></span>
       </nav>
       <div class="prog-user">
@@ -53,7 +54,7 @@ extraCss: /assets/css/programacions.css
       <header class="prog-head">
         <h2 class="prog-title">PROGRAMACIONS</h2>
         <p class="prog-subtitol">INSTITUT JOAN MIRÓ</p>
-        <p class="prog-lead">Eines per gestionar les programacions de centre. De moment hi ha disponible la gestió dels criteris de qualificació de les matèries.</p>
+        <p class="prog-lead">Eines per gestionar les programacions de centre: els criteris de qualificació de les matèries i, per a l’ESO, la programació completa de cada matèria.</p>
       </header>
       <div class="prog-apartats">
         <a class="prog-apartat" href="#criteris">
@@ -63,12 +64,13 @@ extraCss: /assets/css/programacions.css
           <span class="prog-apartat__txt">Activitats avaluatives, percentatges i competències de cada trimestre, competències específiques, criteri per aprovar, recuperació i observacions de les matèries del vostre departament. Consulta i informes.</span>
           <span class="prog-apartat__cta">Obre <span aria-hidden="true">→</span></span>
         </a>
-        <div class="prog-apartat prog-apartat--aviat" aria-disabled="true">
-          <svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h20l8 8v24a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/><path d="M30 8v8h8"/><path d="M16 26h16M16 33h10"/></svg>
-          <span class="prog-apartat__tag">Properament</span>
-          <span class="prog-apartat__nom">Altres apartats de les programacions</span>
-          <span class="prog-apartat__txt">Més endavant s’hi afegiran els apartats per gestionar completament les programacions de centre.</span>
-        </div>
+        <a class="prog-apartat" href="#materies">
+          <svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h20l8 8v24a2 2 0 0 1-2 2H10a2 2 0 0 1-2-2V10a2 2 0 0 1 2-2z"/><path d="M30 8v8h8"/><path d="M15 23h18M15 29h18M15 35h11"/><path class="prog-apartat__acc" d="M30 36l3 3 6-7"/></svg>
+          <span class="prog-apartat__tag">Disponible · ESO</span>
+          <span class="prog-apartat__nom">Programacions de matèries</span>
+          <span class="prog-apartat__txt">La programació de cada matèria d’ESO (identificació, presentació, objectius, criteris d’avaluació, seqüenciació, metodologia, avaluació, atenció a la diversitat…) amb vista prèvia del document final. Consulta i informes en PDF i Excel.</span>
+          <span class="prog-apartat__cta">Obre <span aria-hidden="true">→</span></span>
+        </a>
       </div>
     </div>
 
@@ -90,6 +92,24 @@ extraCss: /assets/css/programacions.css
       <div id="critEditor" hidden></div>
     </div>
 
+    {#- ===== Programacions de matèries (ESO) ===== #}
+    <div id="vistaMateries" class="prog-vista" hidden>
+      <header class="prog-head prog-head--row">
+        <div>
+          <p class="prog-kicker">Programacions · ESO</p>
+          <h2 class="prog-title prog-title--sm">Programacions de matèries</h2>
+        </div>
+        <div class="prog-filtres">
+          <label>Curs <select id="selCursM"></select></label>
+          <label id="lblDepM">Departament <select id="selDepM"></select></label>
+        </div>
+      </header>
+      <p class="prog-avis" id="matMissatge" hidden></p>
+      <p class="prog-avis prog-avis--info" id="matLectura" hidden></p>
+      <div id="matLlista"></div>
+      <div id="matEditor" hidden></div>
+    </div>
+
     <p class="prog-carregant" id="appCarregant" hidden>Carregant…</p>
   </div>
 </section>
@@ -105,4 +125,6 @@ extraCss: /assets/css/programacions.css
 
 <script src="/assets/js/progres.js" defer></script>
 <script src="/assets/js/criteris-pdf.js" defer></script>
+<script src="/assets/js/programacio-doc.js" defer></script>
+<script src="/assets/js/programacions-materies.js" defer></script>
 <script src="/assets/js/programacions.js" defer></script>

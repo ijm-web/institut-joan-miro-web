@@ -169,6 +169,12 @@
           <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
         </a>
         {%- endif %}
+        {%- if c.pdf2 %}
+        <a class="eso-doc eso-doc--row" href="{{ c.pdf2 }}" target="_blank" rel="noopener">
+          <span>{{ c.pdf2Text[L] }} (PDF)</span>
+          <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg>
+        </a>
+        {%- endif %}
       </div>
       {%- if c.itineraris %}
       <div class="eso-paths">
@@ -474,7 +480,7 @@
             portada: { titol: TX.titol, subtitol: nom + ' · ' + TX.curs + ' ' + d.curs,
               head: [[TX.mat, TX.act]], body: materies.map(function(m){ return [m.materia, data((m.info || {}).data) || '—']; }),
               columnStyles: { 1: { cellWidth: 34 } }, nota: materies.length ? TX.nota : TX.buit, avis: avisCriteris },
-            competenciesDigitals: d.competencies_digitals,
+            competenciesDigitals: d.competencies_digitals, assoliment: !/^BAT/.test(nivell),
             materies: materies.map(function(m){
               var dt = data((m.info || {}).data);
               return { titol: m.materia, pagina: nom + ' · ' + m.materia, subtitol: nom + (dt ? ' · ' + TX.actualitzat + ' ' + dt : ''), senseCD: /^BAT/.test(nivell),

@@ -5,7 +5,7 @@ Adreça: **https://institutjoanmiro.netlify.app/programacions**
 ## Què hi ha
 
 1. **Accés** amb el compte de Google de l'escola (botó «Inicia la sessió amb Google").
-2. **Portada PROGRAMACIONS** amb els apartats. De moment: **Gestió Criteris de Qualificació** (la resta, «properament»).
+2. **Portada PROGRAMACIONS** amb els apartats: **Gestió Criteris de Qualificació** i **Programacions de matèries** (ESO).
 3. **Gestió Criteris de Qualificació**: per a cada matèria dels departaments de l'usuari i per a cada curs escolar:
    - **Competències específiques** de la matèria: codi + descripció.
    - **Criteris de qualificació** de cada trimestre: activitat avaluativa, percentatge, competències específiques i competència digital (es marquen amb botons a partir dels catàlegs). Es mostra el total per trimestre (ha de sumar 100 %).
@@ -26,6 +26,27 @@ Els enllaços «Criteris de qualificació (PDF)» de **Estudis › ESO** (un per
 - Portada amb la llista de matèries publicades i la data d'actualització; si encara no n'hi ha cap, ho diu.
 - Codis de nivell a `eso.json › curr.cursos[].nivell` i `batxillerat.json › qual.blocs[].nivell`.
 - **Cal actualitzar l'Apps Script** de programacions_db amb el `Code.gs` d'aquest repositori (accions `publics` i `config`), executar `configura` (afegeix `curs_publicat` i `curs_gestio` a config) i desplegar una versió nova.
+
+## Programacions de matèries (ESO)
+
+Ruta `#materies` de /programacions. Per a cada matèria d'ESO dels departaments de l'usuari i per a cada curs:
+
+- **Formulari per apartats (A–K)** a l'esquerra i **vista prèvia del document final** a la dreta (en mòbil, botons «Formulari / Vista prèvia»). La vista prèvia s'actualitza mentre s'escriu i marca en groc les dades pendents.
+- **Què s'hi escriu:** identificació (àmbit, tipus, hores, responsable, docents, dates), presentació, objectius, criteris d'avaluació de cada competència específica, competències transversals (amb els indicadors de competència digital), seqüenciació per trimestres (continguts, repte, criteris i sessions), metodologia, pes per blocs i condicions, recuperació de pendents, millora de nota, mesures d'atenció a la diversitat, lectures i sortides, i el registre de versions.
+- **Què NO s'hi escriu (ve de la Gestió Criteris de Qualificació):** les competències específiques, les activitats avaluatives de cada trimestre, el criteri per aprovar, la recuperació i les observacions. Així no hi ha dades duplicades.
+- **Textos comuns** (iguals a totes les programacions: marc normatiu, avaluació, nivells d'assoliment, modificació dels criteris, PI…): pestanya `textos_comuns` de programacions_db (clau · valor · descripcio). Si una clau és buida, es fa servir el text per defecte (`TEXTOS_PER_DEFECTE` a Code.gs i `TEXTOS` a `src/assets/js/programacio-doc.js`). `{curs}` es canvia pel nivell («1r d'ESO»).
+- **Estat:** completa quan té els 9 apartats bàsics (identificació, presentació, objectius, criteris d'avaluació de totes les CE, continguts dels 3 trimestres, metodologia, criteris de qualificació complets, mesures universals i data d'aprovació).
+- **Alta / baixa / modificació / consulta:** Desa, Descarta, «Dona de baixa» (queda a l'historial), «Carrega dades…» (la mateixa matèria del curs anterior o una altra programació del curs: d'una altra matèria no es copien la identificació, els criteris d'avaluació ni la seqüenciació). Control de conflictes com als criteris.
+- **Informes:** PDF (jsPDF) i Excel (SheetJS de cdnjs) d'una matèria o del departament (amb un resum de l'estat de totes les matèries).
+- Permisos, curs de gestió i `config › estat`: els mateixos que la Gestió Criteris de Qualificació.
+
+Dades: pestanya `programacions` de programacions_db (curs · id_materia · departament · un JSON per apartat · data · desat_per). Funció `GET/POST /api/programacions/materies` (`programacions-materies.mjs`) → accions `prog_inici`, `prog_materia`, `prog_desa`, `prog_esborra` de l'Apps Script.
+
+**Activació:** enganxar el `Code.gs` nou a l'Apps Script de programacions_db, executar **configura** (crea `programacions` i `textos_comuns`) i desplegar una versió nova. No cal cap variable nova a Netlify.
+
+### Nivells d'assoliment de l'ESO
+
+Els PDF de criteris de qualificació d'ESO (Programacions i pàgina d'ESO) i l'editor de criteris de les matèries d'ESO mostren el text i la taula dels nivells NA/AS/AN/AE (`CriterisPdf.ASSOLIMENT` a `criteris-pdf.js`).
 
 ## Dos cursos: publicat i de gestió (`programacions_db › config`)
 
@@ -57,6 +78,8 @@ Full **programacions_db** (`1qQ7tiVMl9MsHkEssmUdXxyJnp_PdNeElp_oFxFH2_Ag`). Pest
 | `historial` | data_canvi · canvi_per · accio · curs · id_materia · contingut (estat anterior en JSON) |
 | `config` | estat (obert/tancat) · missatge · curs_publicat · curs_gestio |
 | `imp_criteris`, `imp_competencies`, `imp_info` | dades 2025-2026 per importar (opcional) |
+| `programacions` | curs · id_materia · departament · identificacio · presentacio · objectius · criteris_avaluacio · transversals · sequencia · metodologia · avaluacio · diversitat · especifics · revisio · data · desat_per (un JSON per apartat) |
+| `textos_comuns` | clau · valor · descripcio (textos comuns de les programacions) |
 
 `id_materia` = «nivell - matèria», igual que a joanmiro_db (p. ex. `ESO 1r - Matemàtiques`). Les competències d'una activitat es desen com a codis separats per comes (`CE1, CE3`).
 
@@ -100,6 +123,6 @@ Regles de la conversió: percentatges 0-1 → 0-100; un percentatge compartit pe
 
 ## Fitxers
 
-`src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/js/progres.js` · `src/assets/js/criteris-pdf.js` · `netlify/functions/criteris-publics.mjs` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
+`src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/js/programacions-materies.js` · `src/assets/js/programacio-doc.js` · `src/assets/js/progres.js` · `src/assets/js/criteris-pdf.js` · `netlify/functions/criteris-publics.mjs` · `netlify/functions/programacions-materies.mjs` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
 
 Funcions: `GET /api/programacions/criteris?curs=` (dades) · `POST /api/programacions/criteris` amb `accio` = `desa` | `esborra` | `materia` | `importacio`.

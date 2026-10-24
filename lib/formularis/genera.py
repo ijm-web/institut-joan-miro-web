@@ -3,9 +3,8 @@
     python3 lib/formularis/genera.py
 
 Crea:
-  src/assets/docs/secretaria/sollicitud-certificat-c1-catala.pdf  (formulari emplenable)
   src/assets/docs/eso/optatives-{1r,2n,3r}-eso.pdf i materies-opcio-4t-eso.pdf
-  src/assets/docs/batxillerat/optatives-1r-batxillerat.pdf
+  src/assets/docs/batxillerat/materies-optatives-batxillerat.pdf
   src/assets/docs/batxillerat/materies-2n-batxillerat.pdf
 
 Requereix: pip install reportlab
@@ -150,43 +149,100 @@ def draw_card(d, x, y, w, h, nom, tag, txt):
     c.roundRect(x, y - h, w, h, 8, fill=1, stroke=1)
     c.setFillColor(BLUE); c.rect(x, y - 3, w, 3, fill=1, stroke=0)
     c.setFillColor(ORANGE); c.setFont("M-S", 6.5); c.drawString(x + 14, y - 18, tag.upper())
-    c.setFillColor(BLUE); c.setFont("M-S", 11); c.drawString(x + 14, y - 34, nom)
+    mida = 11
+    while mida > 8 and c.stringWidth(nom, "M-S", mida) > w - 28:
+        mida -= 0.5
+    c.setFillColor(BLUE); c.setFont("M-S", mida); c.drawString(x + 14, y - 34, nom)
     d.para(x + 14, y - 42, w - 28, txt, size=8.5, leading=12.5)
 
 
 
 # =====================================================================
-# Optatives de 1r de Batxillerat (descripció)
+# Matèries optatives i de modalitat de Batxillerat (descripció)
+# Enllaçat a Estudis › Batxillerat › Currículum per nivell (1r i 2n)
 # =====================================================================
 OUT_BAT = os.path.join(ROOT, "src", "assets", "docs", "batxillerat")
-OPTATIVES_BAT = [
-    ("Programació", "Franja 1 · 2 h", "Fonaments de la programació: algorismes, estructures de control, funcions i dades, amb un llenguatge actual (Python). L'alumnat resol problemes i desenvolupa petits projectes, com aplicacions senzilles o programes per a dispositius físics."),
-    ("Psicologia", "Franja 2 · 2 h", "Introducció a l'estudi científic de la conducta i dels processos mentals: el cervell, la percepció, la memòria, l'aprenentatge, la motivació, les emocions, la personalitat i les relacions socials. Ajuda a conèixer-se millor i a entendre els altres."),
-    ("Problemàtiques socials", "Franja 1 · 2 h", "Anàlisi dels grans reptes de la societat actual (desigualtats, pobresa, migracions, gènere, medi ambient, conflictes) a partir de dades i fonts diverses, per formar una mirada crítica i plantejar propostes de millora."),
-    ("Funcionament de l'empresa", "Franja 1 · 2 h", "Què és una empresa i com s'organitza: àrees funcionals, producció, màrqueting, recursos humans, comptabilitat bàsica i finançament. Es treballa a partir de casos reals i de la creació d'un petit projecte empresarial."),
-    ("Ciutadania, política i dret", "Franja 1 · 2 h", "Els fonaments de la vida democràtica: l'Estat i les institucions, la Constitució i l'Estatut, els drets i deures, el sistema judicial i la participació ciutadana. Es treballa amb casos d'actualitat i debats."),
-    ("Formació i orientació personal i professional", "Franja 1 · 2 h", "Autoconeixement, presa de decisions i planificació de l'itinerari formatiu i professional: estudis universitaris i de formació professional, món laboral, cerca de feina i competències per a l'ocupació."),
-    ("Món clàssic", "Franja 2 · 2 h", "Aproximació a la cultura de Grècia i Roma: història, mitologia, art, literatura, pensament i vida quotidiana, i el seu llegat en la llengua, les institucions i la cultura actuals."),
+MATERIES_BAT = [
+    ("Itineraris tecnològic i científic", [
+        ("Tecnologia i Enginyeria", "Modalitat · itinerari tecnològic · 4 h (I a 1r i II a 2n)",
+         "Disseny i fabricació de solucions tecnològiques amb un enfocament de projecte: materials i fabricació, sistemes mecànics, "
+         "circuits elèctrics i electrònics, sistemes automàtics i de control, programació de sistemes i energia i sostenibilitat. "
+         "Combina el càlcul i l'anàlisi tècnica amb el treball al taller i amb eines digitals de disseny i simulació. "
+         "És matèria de les PAU i dona una bona base per a les enginyeries i l'arquitectura."),
+        ("Programació", "Franja 1 · grup A · 2 h",
+         "Fonaments de la programació: algorismes, estructures de control, funcions i dades, amb un llenguatge actual (Python). "
+         "L'alumnat resol problemes i desenvolupa petits projectes, com aplicacions senzilles o programes per a dispositius físics."),
+        ("Robòtica", "Franja 1 · grup B · 2 h",
+         "Disseny, muntatge i programació de robots i sistemes automàtics: sensors, actuadors, motors i plaques de control "
+         "(com Arduino o micro:bit). Es treballa per reptes, en equip, i s'integren la mecànica, l'electrònica i la programació."),
+        ("Biomedicina", "Franja 2 · 2 h",
+         "Introducció a les ciències de la salut: el funcionament del cos humà, les malalties i el seu diagnòstic i tractament, "
+         "la recerca biomèdica, la biotecnologia i la bioètica. Es treballa amb casos, notícies científiques i pràctiques de laboratori."),
+    ]),
+    ("Itineraris social i humanístic", [
+        ("Literatura Universal", "Franja 1 · 4 h",
+         "Lectura i comentari d'obres i autors clau de la literatura occidental i universal, des de l'antiguitat fins a l'actualitat, "
+         "i la seva relació amb el context històric i amb altres arts com el cinema, la música o la pintura. "
+         "Fomenta l'hàbit lector, l'esperit crític i l'expressió oral i escrita."),
+        ("Funcionament de l'Empresa", "Franja 1 · grup A · 2 h",
+         "Què és una empresa i com s'organitza: àrees funcionals, producció, màrqueting, recursos humans, comptabilitat bàsica i "
+         "finançament. Es treballa a partir de casos reals i de la creació d'un petit projecte empresarial."),
+        ("Problemàtiques Socials", "Franja 1 · grup A · 2 h",
+         "Anàlisi dels grans reptes de la societat actual (desigualtats, pobresa, migracions, gènere, medi ambient, conflictes) "
+         "a partir de dades i fonts diverses, per formar una mirada crítica i plantejar propostes de millora."),
+        ("Ciutadania, Política i Dret", "Franja 1 · grup B · 2 h",
+         "Els fonaments de la vida democràtica: l'Estat i les institucions, la Constitució i l'Estatut, els drets i deures, "
+         "el sistema judicial i la participació ciutadana. Es treballa amb casos d'actualitat i debats."),
+        ("Formació i Orientació Personal i Professional", "Franja 1 · grup B · 2 h",
+         "Autoconeixement, presa de decisions i planificació de l'itinerari formatiu i professional: estudis universitaris i de "
+         "formació professional, món laboral, cerca de feina i competències per a l'ocupació."),
+        ("Creació Literària", "Franja 2 · 2 h",
+         "Taller d'escriptura creativa: narrativa, poesia, teatre i altres formats, a partir de la lectura de models i del joc "
+         "amb el llenguatge. L'alumnat escriu, revisa i comparteix els seus textos i en fa la difusió."),
+        ("Món Clàssic", "Franja 2 · 2 h",
+         "Aproximació a la cultura de Grècia i Roma: història, mitologia, art, literatura, pensament i vida quotidiana, "
+         "i el seu llegat en la llengua, les institucions i la cultura actuals."),
+    ]),
 ]
 
 
-def optatives_batxillerat():
+def materies_batxillerat():
     os.makedirs(OUT_BAT, exist_ok=True)
-    d = Doc(os.path.join(OUT_BAT, "optatives-1r-batxillerat.pdf"), "Optatives de 1r de Batxillerat · Institut Joan Miró")
+    titol = "Matèries de Batxillerat"
+    d = Doc(os.path.join(OUT_BAT, "materies-optatives-batxillerat.pdf"), f"{titol} · Institut Joan Miró")
+    nota = "Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de batxillerat."
     FW = W - 2 * MX
     gap = 10
     colw = (FW - gap) / 2
-    y = d.header("Estudis · Batxillerat", "Optatives de 1r de Batxillerat")
-    y = d.para(MX, y + 6, FW, "Descripció d'algunes de les matèries optatives de 1r de batxillerat. A la franja 1 es pot triar una matèria de 4 hores o dues de 2 hores (una del grup A i una del grup B); a la franja 2, una matèria de 2 hores.", size=9.5, leading=14.5) - 16
-    items = OPTATIVES_BAT
-    for r in range(0, len(items), 2):
-        pair = items[r:r + 2]
-        cw = colw if len(pair) == 2 else FW
-        h = max(card_height(d, cw, t) for _, _, t in pair)
-        for k, (nom, tag, txt) in enumerate(pair):
-            draw_card(d, MX + k * (colw + gap), y, cw, h, nom, tag, txt)
-        y -= h + gap
-    d.footer("Per a qualsevol dubte, adreceu-vos a la tutoria o a la coordinació de batxillerat.")
+    y = d.header("Estudis · Batxillerat", titol)
+    y = d.para(MX, y + 6, FW, "Descripció de les matèries optatives i de modalitat que ofereix el centre. A 1r, a la franja 1 "
+               "es pot triar una matèria de 4 hores o dues de 2 hores (una del grup A i una del grup B); a la franja 2, "
+               "una matèria de 2 hores. Tecnologia i Enginyeria és matèria de modalitat de l'itinerari tecnològic a 1r i a 2n.",
+               size=9.5, leading=14.5) - 16
+
+    def nova_pagina():
+        d.footer(nota)
+        d.c.showPage()
+        d.c.setFillColor(ORANGE); d.c.setFont("M-S", 8)
+        d.c.drawString(MX, 800, ("Estudis · Batxillerat · " + titol).upper())
+        return 780
+
+    for seccio, items in MATERIES_BAT:
+        if y < 200:
+            y = nova_pagina()
+        d.c.setFillColor(BLUE); d.c.setFont("M-S", 12); d.c.drawString(MX, y, seccio)
+        y -= 14
+        for r in range(0, len(items), 2):
+            pair = items[r:r + 2]
+            cw = colw if len(pair) == 2 else FW
+            h = max(card_height(d, cw, t) for _, _, t in pair)
+            if y - h < 80:
+                y = nova_pagina()
+            for k, (nom, tag, txt) in enumerate(pair):
+                draw_card(d, MX + k * (colw + gap), y, cw, h, nom, tag, txt)
+            y -= h + gap
+        y -= 12
+    d.footer(nota)
     d.save()
 
 # =====================================================================
@@ -229,8 +285,7 @@ def materies_batxillerat_2n():
 
 
 if __name__ == "__main__":
-    certificat_c1()
     materies_eso()
-    optatives_batxillerat()
+    materies_batxillerat()
     materies_batxillerat_2n()
     print("PDF generats.")

@@ -3,7 +3,8 @@
    - Accés amb Google (funcions /api/programacions/login|contingut|sortir).
    - Portada «PROGRAMACIONS» i apartat «Gestió Criteris de Qualificació»
      (/api/programacions/criteris; dades a programacions_db).
-   Rutes internes: #  ·  #criteris  ·  #criteris/<id_materia>
+   Rutes internes: #  ·  #criteris  ·  #criteris/<id_materia>  ·  #materies  ·  #materies/<id_materia>
+   (les programacions de matèries són a /assets/js/programacions-materies.js, que fa servir window.Prog)
    ===================================================================== */
 (function () {
   'use strict';
@@ -30,6 +31,8 @@
     codi_repetit: 'Hi ha dues competències amb el mateix codi.',
     trimestre_invalid: 'Hi ha una activitat sense trimestre.',
     peticio_invalida: 'La petició no és vàlida.',
+    nomes_eso: 'De moment, les programacions de matèries només es poden gestionar per a l’ESO.',
+    apartat_massa_llarg: 'Un dels apartats és massa llarg per desar-lo (màxim 45.000 caràcters). Escurceu-lo.',
     // Errors de configuració (els veu qui administra el web)
     prog_no_configurat: 'Falten les variables PROG_SCRIPT_URL i PROG_SCRIPT_SECRET a Netlify, o no s’ha tornat a publicar el web després d’afegir-les.',
     prog_url_invalida: 'No es pot connectar amb l’adreça de PROG_SCRIPT_URL. Reviseu-la (ha d’acabar en /exec).',
@@ -208,9 +211,9 @@
   var hashAnterior = location.hash;
   window.addEventListener('hashchange', function () {
     if (!S.sessio) return;
-    if (S.brut && S.ed && location.hash !== '#criteris/' + encodeURIComponent(S.ed.id)) {
+    if (S.brut && S.hashEditor && location.hash !== S.hashEditor) {
       var desti = location.hash;
-      history.replaceState(null, '', hashAnterior || '#criteris');
+      history.replaceState(null, '', hashAnterior || S.hashEditor);
       pregunta('Hi ha canvis sense desar', '<p>Voleu sortir de la matèria sense desar els canvis?</p>', [
         { t: 'Continua editant', valor: 0, tipus: 'ghost' }, { t: 'Surt sense desar', valor: 1, tipus: 'danger' }
       ]).then(function (v) { if (v) { S.brut = false; location.hash = desti; } });
@@ -223,10 +226,15 @@
   function encamina() {
     var h = decodeURIComponent(location.hash.replace(/^#/, ''));
     hashAnterior = location.hash;
-    ['vistaInici', 'vistaCriteris'].forEach(function (v) { $(v).hidden = true; });
+    ['vistaInici', 'vistaCriteris', 'vistaMateries'].forEach(function (v) { $(v).hidden = true; });
     $('progCrumbCrit').hidden = true;
+    $('progCrumbProg').hidden = true;
     $('progCrumbMat').hidden = true;
-    if (h.indexOf('criteris') === 0) {
+    if (h.indexOf('materies') === 0 && window.ProgMat) {
+      $('vistaMateries').hidden = false;
+      $('progCrumbProg').hidden = false;
+      window.ProgMat.mostra(h);
+    } else if (h.indexOf('criteris') === 0) {
       $('vistaCriteris').hidden = false;
       $('progCrumbCrit').hidden = false;
       var id = h.slice('criteris/'.length);
@@ -339,6 +347,7 @@
   // ------------------------------------------------------------------ llista de matèries
   function mostraLlista() {
     S.ed = null;
+    S.hashEditor = '';
     $('critEditor').hidden = true;
     $('critLlista').hidden = false;
     if (!S.dades) return;
@@ -408,6 +417,7 @@
     var dades = copiaDades(e);
     S.ed = { id: id, m: e.m, criteris: dades.criteris, competencies: dades.competencies, info: dades.info, data_anterior: e.info ? e.info.data : '', avisos: '' };
     S.brut = false;
+    S.hashEditor = '#criteris/' + encodeURIComponent(id);
     $('critLlista').hidden = true;
     $('critEditor').hidden = false;
     $('progCrumbMat').hidden = false;
@@ -499,7 +509,15 @@
       }
       h += '</div>';
     });
-    h += '</div></section>';
+    h += '</div>';
+    if (!senseCD(ed.m) && window.CriterisPdf) {
+      var A = CriterisPdf.ASSOLIMENT.ca;
+      h += '<div class="prog-assol"><h5>' + esc(A.titol) + '</h5><p>' + esc(A.text) + '</p><table><thead><tr>' +
+        A.head.map(function (x) { return '<th>' + esc(x) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        A.files.map(function (f) { return '<tr><td>' + esc(f[0]) + '</td><td>' + esc(f[1]) + '</td><td><b>' + esc(f[2]) + '</b></td></tr>'; }).join('') +
+        '</tbody></table><p class="prog-assol__nota">Text comú per a totes les matèries d’ESO. Surt també als PDF de criteris.</p></div>';
+    }
+    h += '</section>';
 
     // 3. Textos
     var camps = [
@@ -808,6 +826,7 @@
       }
       var doc = CriterisPdf.genera(R, {
         curs: d.curs, lang: 'ca', capcalera: 'Programacions · Criteris de qualificació', portada: portada,
+        assoliment: amb.some(function (id) { return !senseCD(dadesInforme(id, actual).m); }),
         competenciesDigitals: d.competencies_digitals,
         materies: amb.map(function (id) {
           var x = dadesInforme(id, actual);
@@ -847,6 +866,14 @@
     document.body.appendChild(a); a.click(); a.remove();
     setTimeout(function () { URL.revokeObjectURL(a.href); }, 2000);
   }
+
+  // ------------------------------------------------------------------ utilitats per a altres apartats (programacions-materies.js)
+  window.Prog = {
+    S: S, $: $, api: api, toast: toast, pregunta: pregunta, esc: esc, num: num, fmtNum: fmtNum, dataCurta: dataCurta,
+    normalitza: normalitza, ordenaCodis: ordenaCodis, text: text, textError: textError, MISSATGES: MISSATGES,
+    NIVELLS: NIVELLS, NOM_NIVELL: NOM_NIVELL, TRIMESTRES: TRIMESTRES, ORDRE_TIPUS: ORDRE_TIPUS, nomCurs: nomCurs,
+    autoalt: autoalt, encamina: function () { encamina(); }
+  };
 
   // ------------------------------------------------------------------ inici
   comprova();
