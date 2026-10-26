@@ -73,8 +73,10 @@ const TEXTOS_PER_DEFECTE = [
 ];
 
 const CONFIG_PER_DEFECTE = [
-  ['estat', 'obert', 'obert o tancat. Si és tancat, els departaments poden consultar però no desar (els admins sí).'],
+  ['estat', 'obert', 'Gestió Criteris de Qualificació: obert o tancat. Si és tancat, els departaments poden consultar però no desar (els admins sí).'],
   ['missatge', '', 'Text opcional que es mostra a dalt de la Gestió de criteris (p. ex. el termini de lliurament).'],
+  ['estat_programacions', 'ocult', 'Programacions de matèries: obert (consultar i desar), consulta (només consultar) o ocult (els departaments no hi poden entrar). Els admins sempre hi poden entrar i desar.'],
+  ['missatge_programacions', '', 'Text opcional que es mostra a dalt de les Programacions de matèries (p. ex. el termini de lliurament).'],
   ['curs_publicat', '2026-2027', 'Curs dels criteris que surten als PDF de les pàgines d\'ESO i Batxillerat del web.'],
   ['curs_gestio', '2026-2027', 'Curs que gestionen els departaments (s\'obre per defecte). Els altres cursos són de consulta, excepte per als admins.'],
 ];
@@ -346,7 +348,7 @@ function progDesa_(req) {
   const usuari = String(req.usuari || '');
   if (!cursValid_(curs) || !id || !usuari) return { ok: false, error: 'peticio_invalida' };
   const cfg = llegeixConfig_();
-  if (String(cfg.estat).toLowerCase() !== 'obert' && !req.admin) return { ok: false, error: 'tancat' };
+  if (configPublica_(cfg).estat_programacions !== 'obert' && !req.admin) return { ok: false, error: 'programacions_tancades' };
   const gestio = configPublica_(cfg).curs_gestio;
   if (!req.admin && gestio && curs !== gestio) return { ok: false, error: 'curs_nomes_lectura' };
   const p = req.programacio || {};
@@ -379,7 +381,7 @@ function progEsborra_(req) {
   const curs = String(req.curs || ''), id = String(req.id_materia || ''), usuari = String(req.usuari || '');
   if (!cursValid_(curs) || !id || !usuari) return { ok: false, error: 'peticio_invalida' };
   const cfg = llegeixConfig_();
-  if (String(cfg.estat).toLowerCase() !== 'obert' && !req.admin) return { ok: false, error: 'tancat' };
+  if (configPublica_(cfg).estat_programacions !== 'obert' && !req.admin) return { ok: false, error: 'programacions_tancades' };
   const gestio = configPublica_(cfg).curs_gestio;
   if (!req.admin && gestio && curs !== gestio) return { ok: false, error: 'curs_nomes_lectura' };
   const lock = LockService.getScriptLock();
@@ -524,12 +526,14 @@ function normalitza_(s) {
     .normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, '_').trim();
 }
 
-/** Config que es pot ensenyar a Netlify: estat, missatge, curs publicat i curs de gestió */
+/** Config que es pot ensenyar a Netlify: estats, missatges, curs publicat i curs de gestió */
 function configPublica_(cfg) {
   cfg = cfg || llegeixConfig_();
   const gestio = cursValid_(cfg.curs_gestio) ? String(cfg.curs_gestio).trim() : '';
   const publicat = cursValid_(cfg.curs_publicat) ? String(cfg.curs_publicat).trim() : gestio;
-  return { estat: cfg.estat, missatge: cfg.missatge || '', curs_gestio: gestio, curs_publicat: publicat };
+  const ep = String(cfg.estat_programacions || '').trim().toLowerCase();
+  return { estat: cfg.estat, missatge: cfg.missatge || '', curs_gestio: gestio, curs_publicat: publicat,
+    estat_programacions: ['obert', 'consulta', 'ocult'].indexOf(ep) >= 0 ? ep : 'ocult', missatge_programacions: cfg.missatge_programacions || '' };
 }
 
 function llegeixConfig_() {

@@ -39,7 +39,7 @@ Ruta `#materies` de /programacions. Per a cada matèria d'ESO dels departaments 
 - **Estat:** completa quan té els 9 apartats bàsics (identificació, presentació, objectius, criteris d'avaluació de totes les CE, continguts dels 3 trimestres, metodologia, criteris de qualificació complets, mesures universals i data d'aprovació).
 - **Alta / baixa / modificació / consulta:** Desa, Descarta, «Dona de baixa» (queda a l'historial), «Carrega dades…» (la mateixa matèria del curs anterior o una altra programació del curs: d'una altra matèria no es copien la identificació, els criteris d'avaluació ni la seqüenciació). Control de conflictes com als criteris.
 - **Informes:** PDF (jsPDF) i Excel (SheetJS de cdnjs) d'una matèria o del departament (amb un resum de l'estat de totes les matèries).
-- Permisos, curs de gestió i `config › estat`: els mateixos que la Gestió Criteris de Qualificació.
+- Permisos i curs de gestió: els mateixos que la Gestió Criteris de Qualificació. **Estat propi:** `config › estat_programacions` (vegeu «Obrir i tancar cada apartat»).
 
 Dades: pestanya `programacions` de programacions_db (curs · id_materia · departament · un JSON per apartat · data · desat_per). Funció `GET/POST /api/programacions/materies` (`programacions-materies.mjs`) → accions `prog_inici`, `prog_materia`, `prog_desa`, `prog_esborra` de l'Apps Script.
 
@@ -63,8 +63,20 @@ Canvi de curs habitual: al juny/juliol es posa `curs_gestio` = curs vinent perqu
 - Entra qui té el correu a la pestanya **departaments** de **joanmiro_db** (fila del curs de gestió) o a `config › admins`. És la mateixa llista que dona accés al web de llibres (acció `loginEmail` del pont).
 - Cada persona només veu i modifica les matèries dels seus departaments (pestanya **materies** de joanmiro_db del curs seleccionat). Els admins les veuen totes.
 - Només es pot modificar el curs de gestió (`config › curs_gestio`); la resta són de consulta (excepte per als admins).
-- `config › estat = tancat` (a programacions_db) bloqueja les desades de tothom menys dels admins. `config › missatge` mostra un avís a dalt de la gestió (p. ex. el termini).
+- Cada apartat s'obre i es tanca per separat (vegeu la secció següent).
+- Si algú sense permís hi intenta entrar, veu: «Aquest compte no té accés a les programacions. Si creieu que és un error, parleu amb la direcció.»
 - Si `config › curs_gestio` és buit, el curs de gestió és el curs escolar actual (de l'1 d'agost al 31 de juliol) o el de la variable `PROG_CURS`.
+
+## Obrir i tancar cada apartat (`programacions_db › config`)
+
+| Clau | Valors | Efecte (els admins sempre poden entrar i desar) |
+|---|---|---|
+| `estat` | `obert` · `tancat` | **Gestió Criteris de Qualificació.** Tancat: els departaments poden consultar però no desar. |
+| `missatge` | text | Avís a dalt de la Gestió de criteris (p. ex. el termini). |
+| `estat_programacions` | `obert` · `consulta` · `ocult` | **Programacions de matèries.** Ocult: la targeta de la portada surt com a «Properament» i no s'hi pot entrar. Consulta: s'hi pot entrar però no desar. Obert: es pot desar. |
+| `missatge_programacions` | text | Avís a dalt de les Programacions de matèries. |
+
+Ordre previst: primer `estat = obert` i `estat_programacions = ocult` (els caps de departament fan els criteris); quan s'acabin, `estat_programacions = obert`. Els canvis de config triguen fins a 1 minut a aplicar-se i els caps de departament han de tornar a carregar la pàgina. `configura` afegeix les claus noves amb el valor `ocult`; si l'Apps Script encara és antic (sense la clau), el web també ho tracta com a `ocult`.
 
 ## Dades: programacions_db
 
@@ -77,7 +89,7 @@ Full **programacions_db** (`1qQ7tiVMl9MsHkEssmUdXxyJnp_PdNeElp_oFxFH2_Ag`). Pest
 | `materies_info` | curs · id_materia · departament · criteri_aprovar · recuperacio · observacions · pendents · millora · blocs (JSON) · data · desat_per (`configura` afegeix les columnes que falten als fulls antics) |
 | `competencies_digitals` | codi · descripcio (catàleg comú CD1-CD11; s'edita directament al full) |
 | `historial` | data_canvi · canvi_per · accio · curs · id_materia · contingut (estat anterior en JSON) |
-| `config` | estat (obert/tancat) · missatge · curs_publicat · curs_gestio |
+| `config` | estat (obert/tancat) · missatge · estat_programacions (obert/consulta/ocult) · missatge_programacions · curs_publicat · curs_gestio |
 | `imp_criteris`, `imp_competencies`, `imp_info` | dades 2025-2026 per importar (opcional) |
 | `programacions` | curs · id_materia · departament · identificacio · presentacio · objectius · criteris_avaluacio · transversals · sequencia · metodologia · avaluacio (en desús des del PAS 13: ara és a `materies_info`) · diversitat · especifics · revisio · data · desat_per (un JSON per apartat) |
 | `textos_comuns` | clau · valor · descripcio (textos comuns de les programacions) |

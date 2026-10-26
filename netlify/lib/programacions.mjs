@@ -69,7 +69,10 @@ export async function configProg() {
   }
   const valid = (x) => /^\d{4}-\d{4}$/.test(String(x || ''));
   const gestio = valid(c.curs_gestio) ? c.curs_gestio : cursActual();
-  const dades = { estat: c.estat || 'obert', missatge: c.missatge || '', curs_gestio: gestio, curs_publicat: valid(c.curs_publicat) ? c.curs_publicat : gestio };
+  // Programacions de matèries: obert | consulta | ocult. Sense la clau (Apps Script antic) → ocult.
+  const ep = String(c.estat_programacions || '').toLowerCase();
+  const dades = { estat: c.estat || 'obert', missatge: c.missatge || '', curs_gestio: gestio, curs_publicat: valid(c.curs_publicat) ? c.curs_publicat : gestio,
+    estat_programacions: ['obert', 'consulta', 'ocult'].includes(ep) ? ep : 'ocult', missatge_programacions: c.missatge_programacions || '' };
   cauConfig = { fins: ara + 60 * 1000, dades };
   return dades;
 }

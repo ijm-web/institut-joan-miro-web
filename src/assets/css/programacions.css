@@ -391,3 +391,8 @@ span.buit{ border-radius: 6px; }
 .trim--opc{ background: #F6F6F8; color: #8A8FA0; border: 1px dashed #D5D8E2; }
 .trim small{ font-size: 10.5px; }
 .pm-critresum p{ flex-basis: 100%; margin: 0; color: var(--color-text-muted); font-size: 12.5px; line-height: 1.5; }
+
+/* Apartat de la portada encara no obert (config › estat_programacions = ocult) */
+.prog-apartat.is-off{ opacity: .62; cursor: default; filter: grayscale(.4); }
+.prog-apartat.is-off .prog-apartat__tag{ color: var(--color-text-muted); }
+.prog-apartat.is-off .prog-apartat__cta{ color: var(--color-text-muted); font-weight: 500; }

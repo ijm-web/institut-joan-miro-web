@@ -8,8 +8,10 @@
 //              esborra  { curs, id_materia }
 //              materia  { curs, id_materia, curs_origen, id_origen? }   (programació d'un altre curs o d'una altra matèria, per copiar-la)
 //
-// Permisos: els mateixos que la Gestió Criteris de Qualificació (departaments de l'usuari, curs de gestió,
-// config › estat). Les competències i els criteris de qualificació es gestionen a /api/programacions/criteris.
+// Permisos: departaments de l'usuari i curs de gestió (com la Gestió Criteris de Qualificació), però amb un
+// estat propi, config › estat_programacions: obert (consultar i desar) · consulta · ocult (els departaments no
+// hi poden entrar). Els admins sempre hi poden entrar i desar.
+// Les competències i els criteris de qualificació es gestionen a /api/programacions/criteris.
 import { sessio, json, cridaProg, configProg, materiesPermeses } from '../lib/programacions.mjs';
 
 const cursValid = (c) => /^\d{4}-\d{4}$/.test(String(c || ''));
@@ -22,6 +24,8 @@ export default async (req) => {
   try {
     const cfg = await configProg();
     const gestio = cfg.curs_gestio;
+    const estatP = cfg.estat_programacions;
+    if (estatP === 'ocult' && !s.admin) return json({ ok: false, error: 'programacions_ocultes' }, 403);
     if (req.method === 'GET') {
       const url = new URL(req.url);
       const curs = cursValid(url.searchParams.get('curs')) ? url.searchParams.get('curs') : gestio;
@@ -30,10 +34,10 @@ export default async (req) => {
       const r = await cridaProg('prog_inici', { curs, materies: materies.map((m) => m.id_materia) });
       if (!r.ok) return json({ ok: false, error: 'prog_' + (r.error || 'error'), detall: r.detall || '' }, 502);
       const cursos = [...new Set([gestio, cfg.curs_publicat, curs, ...perm.cursos, ...(r.cursos || [])])].filter(cursValid).sort().reverse();
-      const editable = (s.admin || curs === gestio) && (String(r.config.estat).toLowerCase() === 'obert' || s.admin);
+      const editable = (s.admin || curs === gestio) && (estatP === 'obert' || s.admin);
       return json({
         ok: true, curs, curs_gestio: gestio, curs_publicat: cfg.curs_publicat, cursos, editable, admin: s.admin, email: s.email,
-        estat: r.config.estat, missatge: r.config.missatge,
+        estat_programacions: estatP, missatge: cfg.missatge_programacions,
         departaments: perm.departaments, materies,
         programacions: r.programacions || [], textos: r.textos || {},
         criteris: r.criteris, competencies: r.competencies, info: r.info, competencies_digitals: r.competencies_digitals,
@@ -65,6 +69,7 @@ export default async (req) => {
     }
 
     if (accio === 'desa' || accio === 'esborra') {
+      if (!s.admin && estatP !== 'obert') return json({ ok: false, error: 'programacions_tancades' }, 403);
       if (!s.admin && curs !== gestio) return json({ ok: false, error: 'curs_nomes_lectura' }, 403);
       const r = await cridaProg(accio === 'desa' ? 'prog_desa' : 'prog_esborra', {
         curs, id_materia: id, departament: mat.departament, usuari: s.email, admin: s.admin,

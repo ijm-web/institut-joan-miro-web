@@ -17,8 +17,8 @@
 
   var MISSATGES = {
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
-    email_sense_departament: 'Aquest compte no té accés a les programacions. Si creieu que és un error, parleu amb la coordinació pedagògica.',
-    sense_acces: 'Aquest compte no té accés a les programacions.',
+    email_sense_departament: 'Aquest compte no té accés a les programacions. Si creieu que és un error, parleu amb la direcció.',
+    sense_acces: 'Aquest compte no té accés a les programacions. Si creieu que és un error, parleu amb la direcció.',
     acces_google_desactivat: 'L’accés amb Google està desactivat temporalment.',
     google_token_invalid: 'No s’ha pogut validar l’inici de sessió amb Google. Torneu-ho a provar.',
     google_no_configurat: 'L’accés encara no està configurat.',
@@ -31,6 +31,8 @@
     codi_repetit: 'Hi ha dues competències amb el mateix codi.',
     trimestre_invalid: 'Hi ha una activitat sense trimestre.',
     peticio_invalida: 'La petició no és vàlida.',
+    programacions_ocultes: 'Les programacions de matèries encara no estan obertes. Ara toca completar la Gestió Criteris de Qualificació.',
+    programacions_tancades: 'Les programacions de matèries estan tancades: podeu consultar, però no desar.',
     nomes_eso: 'De moment, les programacions de matèries només es poden gestionar per a l’ESO.',
     apartat_massa_llarg: 'Un dels apartats és massa llarg per desar-lo (màxim 45.000 caràcters). Escurceu-lo.',
     // Errors de configuració (els veu qui administra el web)
@@ -187,7 +189,23 @@
     $('progAcces').hidden = true;
     $('progApp').hidden = false;
     $('progEmail').textContent = sessio.email + (sessio.admin ? ' · administració' : '');
+    pintaPortada();
     encamina();
+  }
+
+  /** Programacions de matèries: estat propi (config › estat_programacions = obert | consulta | ocult) */
+  function estatProg() { return (S.sessio && S.sessio.estat_programacions) || 'ocult'; }
+  function progBloquejades() { return estatProg() === 'ocult' && !(S.sessio && S.sessio.admin); }
+  function pintaPortada() {
+    var a = $('progApartatMat');
+    if (!a) return;
+    var e = estatProg(), adm = S.sessio.admin, tag = a.querySelector('.prog-apartat__tag'), cta = a.querySelector('.prog-apartat__cta');
+    var bloc = progBloquejades();
+    a.classList.toggle('is-off', bloc);
+    if (bloc) { a.removeAttribute('href'); a.setAttribute('aria-disabled', 'true'); }
+    else { a.setAttribute('href', '#materies'); a.removeAttribute('aria-disabled'); }
+    tag.textContent = bloc ? 'Properament' : e === 'consulta' ? 'Només consulta · ESO' : (adm && e === 'ocult') ? 'Oculta per als departaments · ESO' : 'Disponible · ESO';
+    cta.innerHTML = bloc ? 'S’obrirà quan acabeu els criteris de qualificació' : 'Obre <span aria-hidden="true">→</span>';
   }
 
   $('progSortir').addEventListener('click', function () {
@@ -230,7 +248,12 @@
     $('progCrumbCrit').hidden = true;
     $('progCrumbProg').hidden = true;
     $('progCrumbMat').hidden = true;
-    if (h.indexOf('materies') === 0 && window.ProgMat) {
+    if (h.indexOf('materies') === 0 && progBloquejades()) {
+      history.replaceState(null, '', location.pathname + location.search);
+      hashAnterior = '';
+      $('vistaInici').hidden = false;
+      toast(text('programacions_ocultes'), true);
+    } else if (h.indexOf('materies') === 0 && window.ProgMat) {
       $('vistaMateries').hidden = false;
       $('progCrumbProg').hidden = false;
       window.ProgMat.mostra(h);

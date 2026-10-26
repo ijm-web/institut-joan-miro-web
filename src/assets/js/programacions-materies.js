@@ -66,7 +66,12 @@
     $('matMissatge').hidden = !d.missatge; $('matMissatge').textContent = d.missatge || '';
     var lec = $('matLectura');
     lec.hidden = !!d.editable;
-    if (!d.editable) lec.textContent = String(d.estat).toLowerCase() !== 'obert' ? P().text('tancat') : 'El curs ' + d.curs + ' és només de consulta. Ara es gestiona el curs ' + d.curs_gestio + '.';
+    if (!d.editable) lec.textContent = d.estat_programacions !== 'obert' ? P().text('programacions_tancades') : 'El curs ' + d.curs + ' és només de consulta. Ara es gestiona el curs ' + d.curs_gestio + '.';
+    if (d.admin && d.estat_programacions !== 'obert') {
+      $('matMissatge').hidden = false;
+      $('matMissatge').textContent = 'Administració: per als departaments, les programacions de matèries estan en estat «' + d.estat_programacions + '» (' +
+        (d.estat_programacions === 'ocult' ? 'no hi poden entrar' : 'només poden consultar') + '). Es canvia a programacions_db › config › estat_programacions.' + (d.missatge ? ' · ' + d.missatge : '');
+    }
   }
 
   $('selCursM').addEventListener('change', function () {
