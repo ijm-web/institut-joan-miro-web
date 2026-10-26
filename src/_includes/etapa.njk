@@ -483,7 +483,7 @@
             competenciesDigitals: d.competencies_digitals, assoliment: !/^BAT/.test(nivell),
             materies: materies.map(function(m){
               var dt = data((m.info || {}).data);
-              return { titol: m.materia, pagina: nom + ' · ' + m.materia, subtitol: nom + (dt ? ' · ' + TX.actualitzat + ' ' + dt : ''), senseCD: /^BAT/.test(nivell),
+              return { titol: m.materia, pagina: nom + ' · ' + m.materia, subtitol: nom + (dt ? ' · ' + TX.actualitzat + ' ' + dt : ''), senseCD: /^BAT/.test(nivell), sensePendents: /^(ESO 4t|BAT 2n)$/.test(nivell),
                 criteris: m.criteris, competencies: m.competencies, info: m.info || {} };
             })
           });

@@ -22,14 +22,42 @@
     if (!M.dades || (M.curs && M.dades.curs !== M.curs)) carrega().then(fes); else fes();
   }
 
-  function carrega() {
-    $('matLlista').innerHTML = '';
+  function aplica(d) {
     var S = P().S;
+    M.dades = d; M.curs = d.curs;
+    if (!M.dep && S.dep) M.dep = S.dep;
+    indexa(); pintaFiltres();
+  }
+  /** Torna a posar a M.dades el que hi ha a l'índex (després de desar) i n'actualitza la còpia de la sessió */
+  function desaCau() {
+    var d = M.dades, ll = Object.keys(M.idx).map(function (k) { return M.idx[k]; });
+    d.programacions = ll.map(function (e) { return e.prog; }).filter(Boolean);
+    d.criteris = [].concat.apply([], ll.map(function (e) { return e.crit.criteris; }));
+    d.competencies = [].concat.apply([], ll.map(function (e) { return e.crit.competencies; }));
+    d.info = ll.map(function (e) { return e.crit.info; }).filter(Boolean);
+    P().cau.desa('materies', d);
+  }
+  /** La Gestió Criteris de Qualificació ha desat una matèria: s'actualitza aquí sense tornar a carregar res */
+  function criterisCanviats(curs, id, crit) {
+    var nou = { criteris: (crit.criteris || []).slice(), competencies: (crit.competencies || []).slice(), info: crit.info || null };
+    if (M.dades && M.dades.curs === curs) { if (M.idx[id]) { M.idx[id].crit = nou; desaCau(); } return; }
+    var d = P().cau.llegeix('materies', curs);
+    if (!d || !d.materies.some(function (m) { return m.id_materia === id; })) return;
+    d.criteris = d.criteris.filter(function (x) { return x.id_materia !== id; }).concat(nou.criteris);
+    d.competencies = d.competencies.filter(function (x) { return x.id_materia !== id; }).concat(nou.competencies);
+    d.info = d.info.filter(function (x) { return x.id_materia !== id; }).concat(nou.info ? [nou.info] : []);
+    P().cau.desa('materies', d);
+  }
+
+  function carrega(forca) {
+    var demanat = M.curs;
+    var c = !forca && P().cau.llegeix('materies', demanat);
+    if (c) { aplica(c); return Promise.resolve(); }
+    $('matLlista').innerHTML = '';
     return P().api('materies' + (M.curs ? '?curs=' + encodeURIComponent(M.curs) : ''), { progres: 'Carregant les programacions…' }).then(function (d) {
       if (!d.ok) { $('matLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + P().textError(d) + '</p>'; return; }
-      M.dades = d; M.curs = d.curs;
-      if (!M.dep && S.dep) M.dep = S.dep;
-      indexa(); pintaFiltres();
+      aplica(d);
+      P().cau.desa('materies', d, !demanat);
     }).catch(function (err) {
       $('matLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + P().textError({ error: 'error_servidor', detall: err && err.message }) + '</p>';
     });
@@ -115,7 +143,8 @@
       '<span class="est est--curs"><strong>' + compta.curs + '</strong> en curs</span>' +
       '<span class="est est--pendent"><strong>' + compta.pendent + '</strong> pendents</span></div>' +
       '<div class="prog-resum__accions"><button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">Informe en PDF</button>' +
-      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Descarrega Excel</button></div></div>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Descarrega Excel</button>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="actualitza" title="Torna a carregar les dades del full (les dades es guarden 10 minuts mentre la pestanya és oberta)">↻ Actualitza les dades</button></div></div>' +
       '<p class="prog-ajuda">Una programació és <strong>completa</strong> quan té els nou apartats bàsics: identificació, presentació, objectius, criteris d’avaluació de cada competència, seqüenciació dels tres trimestres, metodologia, criteris de qualificació complets, mesures universals d’atenció a la diversitat i data d’aprovació. De moment, només ESO.</p>';
     P().NIVELLS.filter(function (n) { return /^ESO/.test(n); }).forEach(function (niv) {
       var grup = mats.filter(function (m) { return m.nivell === niv; });
@@ -145,6 +174,7 @@
     var titol = M.dep ? nomDep(M.dep) : 'Tots els departaments';
     if (b.dataset.accio === 'pdf') informePdf(ids, titol);
     if (b.dataset.accio === 'xlsx') informeXlsx(ids, titol);
+    if (b.dataset.accio === 'actualitza') carrega(true).then(mostraLlista);
   });
 
   // ------------------------------------------------------------------ editor
@@ -301,7 +331,7 @@
         var x = s[t], cl = !x.n ? '' : (Math.abs(x.total - 100) < 0.01 ? ' trim--ok' : ' trim--ko');
         return '<span class="trim' + cl + '">' + t + ' <b>' + (x.n ? P().fmtNum(x.total) + '%' : '—') + '</b></span>';
       }).join('') + ok(blocsC.length, 'Pes per blocs', true) + ok(info.criteri_aprovar, 'Criteris per aprovar') + ok(info.recuperacio, 'Recuperació trimestral i final') +
-      ok(info.pendents, 'Pendents de cursos anteriors') + ok(info.millora, 'Millora de nota', true) + '</span>' +
+      (D.ambPendents(ed.m.nivell) ? ok(info.pendents, 'Pendents de cursos anteriors') : '') + ok(info.millora, 'Millora de nota', true) + '</span>' +
       '<p>Aquí no es defineix res: el pes dels instruments per blocs, els criteris per aprovar, la recuperació, les pendents i la millora de nota es desen amb els criteris de la matèria i surten automàticament al document.</p>' +
       '<a href="#criteris/' + encodeURIComponent(ed.id) + '">Edita els criteris de qualificació →</a></div>';
     h += seccio('H', hh, 'Les activitats avaluatives, el pes per blocs, els criteris per aprovar, la recuperació i la millora de nota es prenen de la Gestió Criteris de Qualificació.');
@@ -505,6 +535,7 @@
         if (r.ok) {
           M.idx[ed.id].prog = Object.assign({ id_materia: ed.id, data: r.data, desat_per: r.desat_per }, prog);
           P().S.brut = false; ed.avisos = '';
+          desaCau();
           obreEditor(ed.id);
           P().toast('Programació desada.');
           return;
@@ -515,7 +546,7 @@
             { t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Torna a carregar', valor: 'recarrega' }, { t: 'Desa la meva versió', valor: 'forca', tipus: 'danger' }
           ]).then(function (v2) {
             if (v2 === 'forca') desa(true);
-            if (v2 === 'recarrega') { P().S.brut = false; M.dades = null; carrega().then(function () { obreEditor(ed.id); }); }
+            if (v2 === 'recarrega') { P().S.brut = false; M.dades = null; carrega(true).then(function () { obreEditor(ed.id); }); }
           });
           return;
         }
@@ -533,6 +564,7 @@
       P().api('materies', { cos: { accio: 'esborra', curs: M.dades.curs, id_materia: ed.id }, progres: 'Donant de baixa…' }).then(function (r) {
         if (!r.ok) return P().toast(P().text(r.error), true);
         M.idx[ed.id].prog = null; P().S.brut = false;
+        desaCau();
         P().toast('S’ha donat de baixa la programació.');
         obreEditor(ed.id);
       });
@@ -621,5 +653,5 @@
     });
   }
 
-  window.ProgMat = { mostra: mostra };
+  window.ProgMat = { mostra: mostra, criterisCanviats: criterisCanviats };
 })();

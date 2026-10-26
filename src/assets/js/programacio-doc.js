@@ -70,6 +70,8 @@
   function falta(t) { return { text: '[Pendent: ' + t + ']', f: 'falta' }; }
   function dataCurta(d) { var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[3]) + '/' + Number(m[2]) + '/' + m[1] : ''; }
   /** Número de la CE («CE3» → «3») per numerar-ne els criteris d'avaluació */
+  /** A 4t d'ESO (i 2n de Batxillerat) no hi ha recuperació de matèries pendents de cursos anteriors */
+  function ambPendents(nivell) { return !/^(ESO 4t|BAT 2n)$/.test(String(nivell || '').trim()); }
   function numCE(codi) { var m = String(codi).match(/(\d+)\s*$/); return m ? m[1] : ''; }
 
   // ------------------------------------------------------------------ estructura de dades
@@ -131,7 +133,7 @@
       E: ces.length > 0 && ces.every(function (c) { return (p.criteris_avaluacio[c] || []).some(function (x) { return txt(x.text); }); }),
       F: p.sequencia.every(function (x) { return txt(x.continguts); }),
       G: !!txt(p.metodologia.orientacions),
-      H: TRIMESTRES.every(function (t) { return s[t].n && Math.abs(s[t].total - 100) < 0.01; }) && !!txt(info.criteri_aprovar) && !!txt(info.recuperacio) && !!txt(info.pendents),
+      H: TRIMESTRES.every(function (t) { return s[t].n && Math.abs(s[t].total - 100) < 0.01; }) && !!txt(info.criteri_aprovar) && !!txt(info.recuperacio) && (!!txt(info.pendents) || !ambPendents(ctx.m && ctx.m.nivell)),
       I: linies(p.diversitat.universals).length > 0,
       K: p.revisio.some(function (r) { return txt(r.data); })
     };
@@ -261,7 +263,7 @@
     };
     deCrit('Criteris per aprovar la matèria', 'criteri_aprovar', 'criteris per aprovar la matèria');
     deCrit('Recuperació trimestral i final', 'recuperacio', 'recuperació trimestral i final');
-    deCrit('Recuperació de matèries pendents de cursos anteriors', 'pendents', 'recuperació de matèries pendents');
+    if (ambPendents(m.nivell)) deCrit('Recuperació de matèries pendents de cursos anteriors', 'pendents', 'recuperació de matèries pendents');
     deCrit('Millora de nota', 'millora', '', true);
     deCrit('Observacions', 'observacions', '', true);
 
@@ -492,7 +494,7 @@
 
   global.ProgDoc = {
     NOM_NIVELL: NOM_NIVELL, TRIMESTRES: TRIMESTRES, TEXTOS: TEXTOS, ASSOL: ASSOL, TRANSVERSALS: TRANSVERSALS, APARTATS: APARTATS,
-    buida: buida, normalitza: normalitza, estat: estat, blocs: blocs, html: html, pdf: pdf, xlsx: xlsx,
+    ambPendents: ambPendents, buida: buida, normalitza: normalitza, estat: estat, blocs: blocs, html: html, pdf: pdf, xlsx: xlsx,
     linies: linies, numCE: numCE, ordenaCodis: ordenaCodis, ordenaCriteris: ordenaCriteris, sumes: sumes
   };
 })(window);

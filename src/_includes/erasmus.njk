@@ -6,27 +6,36 @@
 {%- if L == 'es' -%}{%- set P = 'es/' -%}{%- elif L == 'en' -%}{%- set P = 'en/' -%}{%- endif -%}
 {%- set M = erasmus[mobilitat] -%}
 {%- set dir = '/assets/img/erasmus/' ~ mobilitat ~ '/' -%}
+{#- Traducció a l'italià (només si la mobilitat té «traduccio» i els textos tenen «it»): data-it porta el text italià -#}
+{%- set TR = M.traduccio -%}
 <div class="qs-hero" id="qsHero">
   <img src="/assets/img/inici/inici-1-facana-2400.jpg" srcset="/assets/img/inici/inici-1-facana-1600.jpg 1600w, /assets/img/inici/inici-1-facana-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
   <div class="qs-hero__box">
-    <h1><span class="qs-hero__title">{{ heroTitle }}</span><span class="qs-hero__subtitle">{{ M.subtitol[L] }}</span></h1>
+    <h1><span class="qs-hero__title"{% if TR %} data-it="{{ TR.heroTitle }}"{% endif %}>{{ heroTitle }}</span><span class="qs-hero__subtitle"{% if TR %} data-it="{{ M.subtitol.it }}"{% endif %}>{{ M.subtitol[L] }}</span></h1>
   </div>
 </div>
 
 <div class="le-wrap">
 
-  <nav class="er-back" aria-label="breadcrumb"><a href="/{{ P }}projectes-llengues-estrangeres.html">← {{ M.tornar[L] }}</a></nav>
+  <div class="er-top">
+    <nav class="er-back" aria-label="breadcrumb"><a href="/{{ P }}projectes-llengues-estrangeres.html">← <span{% if TR %} data-it="{{ M.tornar.it }}"{% endif %}>{{ M.tornar[L] }}</span></a></nav>
+    {%- if TR %}
+    <button type="button" class="er-tr" id="erTr" aria-pressed="false" title="{{ TR.nota[L] }}" data-txt-it="{{ TR[L] }}" data-txt-orig="{{ TR['tornar_' ~ L] }}">
+      <span class="er-tr__flag" aria-hidden="true"><i></i><i></i><i></i></span><span class="er-tr__txt">{{ TR[L] }}</span>
+    </button>
+    {%- endif %}
+  </div>
 
   <div class="le-intro le-reveal">
     <div>
-      <h2 class="le-kicker">{{ M.kicker[L] }}</h2>
-      <p class="le-lead">{{ M.lead[L] | safe }}</p>
+      <h2 class="le-kicker"{% if TR %} data-it="{{ M.kicker.it }}"{% endif %}>{{ M.kicker[L] }}</h2>
+      <p class="le-lead"{% if TR %} data-it="{{ M.lead.it }}"{% endif %}>{{ M.lead[L] | safe }}</p>
     </div>
   </div>
 
   <ul class="le-stats le-reveal">
     {%- for s in M.stats %}
-    <li><span class="le-stats__num">{{ s.num | safe }}</span><span class="le-stats__label">{{ s.label[L] }}</span></li>
+    <li><span class="le-stats__num">{{ s.num | safe }}</span><span class="le-stats__label"{% if TR %} data-it="{{ s.label.it }}"{% endif %}>{{ s.label[L] }}</span></li>
     {%- endfor %}
   </ul>
 
@@ -34,20 +43,20 @@
   <section class="er-stage{% if et.transicio %} er-stage--transit{% endif %}">
     <header class="er-stage__head le-reveal">
       <span class="le-section__num">{{ '0' if loop.index < 10 }}{{ loop.index }}</span>
-      <h2>{{ et.titol[L] }}</h2>
+      <h2{% if TR %} data-it="{{ et.titol.it }}"{% endif %}>{{ et.titol[L] }}</h2>
     </header>
     {%- for a in et.activitats %}
     <article class="er-act{% if loop.index is even %} er-act--rev{% endif %} le-reveal">
       <div class="er-act__fotos er-act__fotos--{{ a.fotos | length }}">
         {%- for f in a.fotos %}
-        <a class="er-foto" href="{{ dir }}{{ f.img }}-1600.jpg" data-lightbox="{{ f.alt[L] }}">
+        <a class="er-foto" href="{{ dir }}{{ f.img }}-1600.jpg" data-lightbox="{{ f.alt[L] }}"{% if TR %} data-it-alt="{{ f.alt.it }}"{% endif %}>
           <img src="{{ dir }}{{ f.img }}-800.jpg" alt="{{ f.alt[L] }}" loading="lazy" decoding="async">
         </a>
         {%- endfor %}
       </div>
       <div class="er-act__text">
-        <h3>{{ a.titol[L] }}</h3>
-        <p>{{ a.text[L] }}</p>
+        <h3{% if TR %} data-it="{{ a.titol.it }}"{% endif %}>{{ a.titol[L] }}</h3>
+        <p{% if TR %} data-it="{{ a.text.it }}"{% endif %}>{{ a.text[L] }}</p>
       </div>
     </article>
     {%- endfor %}
@@ -58,7 +67,7 @@
 
 <section class="le-closing">
   <div class="le-closing__inner le-reveal">
-    <p>{{ M.tancament[L] | safe }}</p>
+    <p{% if TR %} data-it="{{ M.tancament.it }}"{% endif %}>{{ M.tancament[L] | safe }}</p>
   </div>
 </section>
 
@@ -79,6 +88,30 @@
         entries.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } });
       }, { threshold: 0.12 });
       els.forEach(function(el){ io.observe(el); });
+    }
+    // Traducció a l'italià: intercanvia els textos marcats amb data-it (i els textos alternatius de les fotos)
+    var tr = document.getElementById('erTr');
+    if (tr) {
+      var marcats = document.querySelectorAll('[data-it]'), fotos = document.querySelectorAll('[data-it-alt]'), llengua = document.documentElement.lang;
+      var posa = function (it) {
+        marcats.forEach(function (el) {
+          if (el._orig === undefined) el._orig = el.innerHTML;
+          el.innerHTML = it ? el.getAttribute('data-it') : el._orig;
+          if (it) el.setAttribute('lang', 'it'); else el.removeAttribute('lang');
+        });
+        fotos.forEach(function (a) {
+          var im = a.querySelector('img');
+          if (a._orig === undefined) a._orig = a.getAttribute('data-lightbox');
+          var t = it ? a.getAttribute('data-it-alt') : a._orig;
+          a.setAttribute('data-lightbox', t); if (im) im.alt = t;
+        });
+        tr.setAttribute('aria-pressed', it ? 'true' : 'false');
+        tr.querySelector('.er-tr__txt').textContent = it ? tr.getAttribute('data-txt-orig') : tr.getAttribute('data-txt-it');
+        tr.classList.toggle('is-on', it);
+        try { sessionStorage.setItem('erasmus-it', it ? '1' : ''); } catch (e) {}
+      };
+      tr.addEventListener('click', function () { posa(tr.getAttribute('aria-pressed') !== 'true'); });
+      try { if (sessionStorage.getItem('erasmus-it') === '1') posa(true); } catch (e) {}
     }
     // Fotos a mida gran (si el navegador no té <dialog>, l'enllaç obre la imatge)
     var dlg = document.getElementById('erLightbox');

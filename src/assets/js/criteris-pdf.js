@@ -10,7 +10,7 @@
      opcions = {
        curs, lang ('ca'|'es'|'en'), capcalera (text de dalt a la dreta),
        portada: { titol, subtitol, head:[[…]], body:[[…]], columnStyles, nota, avis } | null,
-       materies: [{ titol, subtitol, pagina, senseCD (sense competència digital: Batxillerat), criteris:[{trimestre, activitat, percentatge, competencies[], competencia_digital[]}],
+       materies: [{ titol, subtitol, pagina, senseCD (sense competència digital: Batxillerat), sensePendents (4t d'ESO i 2n de Batxillerat), criteris:[{trimestre, activitat, percentatge, competencies[], competencia_digital[]}],
                     competencies:[{codi, descripcio}], info:{criteri_aprovar, recuperacio, pendents, millora, observacions, blocs:[{bloc, instruments, pct}]} }],
        competenciesDigitals: [{codi, descripcio}],
        buit: text si no hi ha cap matèria,
@@ -222,6 +222,7 @@
           showFoot: 'lastPage', columnStyles: { 0: { cellWidth: 50 }, 2: { halign: 'right', cellWidth: 16 } } });
       }
       [['criteri_aprovar', L.aprovar], ['recuperacio', L.recup], ['pendents', L.pend], ['millora', L.millora], ['observacions', L.obs]].forEach(function (c) {
+        if (c[0] === 'pendents' && x.sensePendents) return;
         if (info[c[0]]) { titol3(c[1]); y += 1; paragraf(info[c[0]]); }
       });
       if (o.assoliment && !o.portada && !x.senseCD) assoliment();

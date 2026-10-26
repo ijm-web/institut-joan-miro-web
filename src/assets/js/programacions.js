@@ -210,6 +210,7 @@
 
   $('progSortir').addEventListener('click', function () {
     var surt = function () {
+      cau.buida();
       fetch(API + 'sortir', { method: 'POST', credentials: 'same-origin' }).then(function () {
         if (window.google && google.accounts) google.accounts.id.disableAutoSelect();
         S.brut = false;
@@ -271,17 +272,66 @@
 
   $('progCrumbInici').addEventListener('click', function (e) { e.preventDefault(); location.hash = ''; });
 
+  // ------------------------------------------------------------------ memòria cau de la sessió
+  // Les dades carregades es guarden a sessionStorage (només en aquesta pestanya, 10 minuts) perquè no s'hagin de
+  // tornar a demanar en canviar d'apartat, en anar a una altra pàgina del web i tornar, o en recarregar.
+  // Cada desada actualitza la còpia (i les desades simultànies les continua detectant el servidor).
+  // El botó «Actualitza les dades» de les llistes la descarta i torna a carregar.
+  var CAU_MIN = 10;
+  var cau = {
+    clau: function (tipus, curs) { return 'ijm-prog|' + (S.sessio ? S.sessio.email : '') + '|' + tipus + '|' + (curs || ''); },
+    llegeix: function (tipus, curs) {
+      try {
+        var c = curs || sessionStorage.getItem(cau.clau(tipus, '')) || '';   // sense curs: el curs per defecte
+        if (!c) return null;
+        var x = JSON.parse(sessionStorage.getItem(cau.clau(tipus, c)) || 'null');
+        return x && Date.now() - x.t < CAU_MIN * 60000 ? x.d : null;
+      } catch (e) { return null; }
+    },
+    desa: function (tipus, d, perDefecte) {
+      try {
+        sessionStorage.setItem(cau.clau(tipus, d.curs), JSON.stringify({ t: Date.now(), d: d }));
+        if (perDefecte) sessionStorage.setItem(cau.clau(tipus, ''), d.curs);
+      } catch (e) { /* sense espai o sense sessionStorage: es treballa sense memòria cau */ }
+    },
+    esborra: function (tipus, curs) { try { sessionStorage.removeItem(cau.clau(tipus, curs)); } catch (e) {} },
+    buida: function () {
+      try { Object.keys(sessionStorage).forEach(function (k) { if (k.indexOf('ijm-prog|') === 0) sessionStorage.removeItem(k); }); } catch (e) {}
+    }
+  };
+
   // ------------------------------------------------------------------ dades
-  function carregaCriteris() {
+  function aplicaCriteris(d) {
+    S.dades = d;
+    S.curs = d.curs;
+    indexa();
+    pintaFiltres();
+  }
+  /** Torna a posar a S.dades el que hi ha a l'índex (després de desar) i n'actualitza la còpia de la sessió */
+  function desaCauCriteris() {
+    var d = S.dades, ll = Object.keys(S.idx).map(function (k) { return S.idx[k]; });
+    d.criteris = [].concat.apply([], ll.map(function (e) { return e.criteris; }));
+    d.competencies = [].concat.apply([], ll.map(function (e) { return e.competencies; }));
+    d.info = ll.map(function (e) { return e.info; }).filter(Boolean);
+    cau.desa('criteris', d);
+  }
+  /** Avisa les Programacions de matèries que han canviat els criteris d'una matèria (no cal tornar-les a carregar) */
+  function criterisCanviats(id) {
+    var e = S.idx[id];
+    if (window.ProgMat && window.ProgMat.criterisCanviats) window.ProgMat.criterisCanviats(S.dades.curs, id, { criteris: e.criteris, competencies: e.competencies, info: e.info });
+  }
+
+  function carregaCriteris(forca) {
+    var demanat = S.curs;
+    var c = !forca && cau.llegeix('criteris', demanat);
+    if (c) { aplicaCriteris(c); return Promise.resolve(); }
     $('appCarregant').hidden = !window.Progres ? false : true;
     $('critLlista').innerHTML = '';
     return api('criteris' + (S.curs ? '?curs=' + encodeURIComponent(S.curs) : ''), { progres: S.curs ? 'Carregant les dades del curs ' + S.curs + '…' : 'Carregant les dades…' }).then(function (d) {
       $('appCarregant').hidden = true;
       if (!d.ok) { $('critLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + textError(d) + '</p>'; return; }
-      S.dades = d;
-      S.curs = d.curs;
-      indexa();
-      pintaFiltres();
+      aplicaCriteris(d);
+      cau.desa('criteris', d, !demanat);
     }).catch(function (err) {
       $('appCarregant').hidden = true;
       $('critLlista').innerHTML = '<p class="prog-avis prog-avis--error">' + textError({ error: 'error_servidor', detall: err && err.message }) + '</p>';
@@ -357,13 +407,17 @@
     });
     return s;
   }
+  /** A 4t d'ESO i a 2n de Batxillerat no hi ha matèries pendents de cursos anteriors d'aquell mateix nivell que es recuperin després:
+   *  el camp «Recuperació de matèries pendents» no hi surt ni és obligatori. */
+  function ambPendents(nivell) { return !/^(ESO 4t|BAT 2n)$/.test(String(nivell || '').trim()); }
+
   function estat(e) {
     var s = sumes(e.criteris);
     var trimOk = TRIMESTRES.every(function (t) { return s[t].n && Math.abs(s[t].total - 100) < 0.01; });
     var info = e.info || {};
     var res = !!(e.criteris.length || e.competencies.length || info.criteri_aprovar || info.recuperacio || info.observacions || info.pendents);
     if (!res) return { codi: 'pendent', nom: 'Pendent', s: s };
-    var complet = trimOk && e.competencies.length && info.criteri_aprovar && info.recuperacio && info.pendents;
+    var complet = trimOk && e.competencies.length && info.criteri_aprovar && info.recuperacio && (info.pendents || !ambPendents(e.m && e.m.nivell));
     return { codi: complet ? 'completa' : 'curs', nom: complet ? 'Completa' : 'En curs', s: s };
   }
 
@@ -389,7 +443,8 @@
       '<span class="est est--pendent"><strong>' + compta.pendent + '</strong> pendents</span></div>' +
       '<div class="prog-resum__accions">' +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="informe">Informe en PDF</button>' +
-      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="csv">Descarrega CSV</button></div></div>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="csv">Descarrega CSV</button>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="actualitza" title="Torna a carregar les dades del full (les dades es guarden 10 minuts mentre la pestanya és oberta)">↻ Actualitza les dades</button></div></div>' +
       '<p class="prog-ajuda">Una matèria és <strong>completa</strong> quan cada trimestre suma 100 %, té competències específiques, criteris per aprovar, recuperació trimestral i final i recuperació de pendents.</p>';
     NIVELLS.concat(['']).forEach(function (niv) {
       var grup = mats.filter(function (m) { return niv ? m.nivell === niv : NIVELLS.indexOf(m.nivell) < 0; });
@@ -405,7 +460,7 @@
             return '<span class="trim trim--' + cl + '" title="' + t + ' trimestre: ' + x.n + ' activitats">' + t + ' <b>' + (x.n ? fmtNum(x.total) + '%' : '—') + '</b></span>';
           }).join('') + '</span>' +
           '<span role="cell">' + (e.competencies.length ? e.competencies.length + ' CE' : '<span class="buit">—</span>') + '</span>' +
-          '<span class="prog-fila__txt" role="cell"><span class="' + (info.criteri_aprovar ? 'ok' : 'buit') + '" title="Criteris per aprovar la matèria">Aprovar</span><span class="' + (info.recuperacio ? 'ok' : 'buit') + '" title="Recuperació trimestral i final">Recuperació</span><span class="' + (info.pendents ? 'ok' : 'buit') + '" title="Recuperació de matèries pendents">Pendents</span></span>' +
+          '<span class="prog-fila__txt" role="cell"><span class="' + (info.criteri_aprovar ? 'ok' : 'buit') + '" title="Criteris per aprovar la matèria">Aprovar</span><span class="' + (info.recuperacio ? 'ok' : 'buit') + '" title="Recuperació trimestral i final">Recuperació</span>' + (ambPendents(m.nivell) ? '<span class="' + (info.pendents ? 'ok' : 'buit') + '" title="Recuperació de matèries pendents">Pendents</span>' : '') + '</span>' +
           '<span role="cell"><span class="est est--' + st.codi + '">' + st.nom + '</span>' + (info.data ? '<small class="prog-fila__data">' + esc(dataCurta(info.data)) + '</small>' : '') + '</span>' +
           '</a>';
       });
@@ -420,6 +475,7 @@
     var ids = materiesVisibles().map(function (m) { return m.id_materia; });
     if (b.dataset.accio === 'informe') pdf(ids, S.dep ? nomDep(S.dep) : 'Tots els departaments');
     if (b.dataset.accio === 'csv') csv(ids, 'criteris-' + (S.dep || 'tots') + '-' + S.dades.curs);
+    if (b.dataset.accio === 'actualitza') carregaCriteris(true).then(mostraLlista);
   });
 
   // ------------------------------------------------------------------ editor
@@ -552,8 +608,11 @@
       ['millora', 'Criteris per millorar la nota', 'Opcional. Si es pot, procediment per millorar la nota a final de curs.', false],
       ['observacions', 'Observacions', 'Opcional. Qualsevol altra informació (ortografia, lliurament de treballs…).', false]
     ];
+    var pend = ambPendents(ed.m.nivell);
+    if (!pend) camps = camps.filter(function (c) { return c[0] !== 'pendents'; });
     h += '<section class="prog-bloc"><div class="prog-bloc__cap"><h4><span class="prog-num">3</span> Aprovar, recuperar i millorar la nota</h4>' +
-      '<p>Els tres primers apartats són obligatoris. Tot això surt al PDF de criteris i a la programació de la matèria.</p></div>';
+      '<p>' + (pend ? 'Els tres primers apartats són obligatoris.' : 'Els dos primers apartats són obligatoris. A ' + esc(NOM_NIVELL[ed.m.nivell] || ed.m.nivell) + ' no hi ha recuperació de matèries pendents de cursos anteriors.') +
+      ' Tot això surt al PDF de criteris i, a l’ESO, a la programació de la matèria.</p></div>';
     // Pes dels instruments per blocs (opcional)
     var tb = ed.info.blocs.reduce(function (s, b) { var n = num(b.pct); return s + (n && !isNaN(n) ? n : 0); }, 0);
     h += '<div class="prog-blocs"><div class="prog-blocs__cap"><span class="prog-text__lbl">Pes dels instruments per blocs <small>(opcional)</small></span>' +
@@ -713,6 +772,7 @@
       competencies: ed.competencies.filter(function (c) { return String(c.codi).trim() || String(c.descripcio).trim(); })
         .map(function (c) { return { codi: String(c.codi).trim().toUpperCase(), descripcio: String(c.descripcio).trim() }; }),
       info: Object.assign({}, ed.info, {
+        pendents: ambPendents(ed.m.nivell) ? ed.info.pendents : '',
         blocs: ed.info.blocs.filter(function (b) { return String(b.bloc).trim() || String(b.instruments).trim(); }).map(function (b) {
           var n = num(b.pct);
           return { bloc: String(b.bloc).trim(), instruments: String(b.instruments).trim(), pct: n === null ? '' : n };
@@ -747,7 +807,7 @@
     if (foraCD.length) avisos.push('Competències digitals que no són al catàleg: ' + foraCD.join(', ') + '.');
     if (!ed.info.criteri_aprovar.trim()) avisos.push('Falten els criteris per aprovar la matèria.');
     if (!ed.info.recuperacio.trim()) avisos.push('Falta la recuperació trimestral i final.');
-    if (!ed.info.pendents.trim()) avisos.push('Falta la recuperació de matèries pendents de cursos anteriors.');
+    if (ambPendents(ed.m.nivell) && !ed.info.pendents.trim()) avisos.push('Falta la recuperació de matèries pendents de cursos anteriors.');
     var bd = dades.info.blocs.filter(function (b) { return b.pct !== '' && (isNaN(b.pct) || b.pct < 0 || b.pct > 100); });
     if (bd.length) return toast('Percentatge no vàlid al bloc «' + bd[0].bloc + '»: ha de ser un número entre 0 i 100.', true);
     if (dades.info.blocs.length) {
@@ -771,6 +831,7 @@
             e.info = Object.assign({ id_materia: ed.id, data: r.data, desat_per: r.desat_per }, dades.info);
             S.brut = false;
             ed.avisos = '';
+            desaCauCriteris(); criterisCanviats(ed.id);
             obreEditor(ed.id);
             toast('Desat correctament.');
             return;
@@ -781,7 +842,7 @@
               { t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Torna a carregar', valor: 'recarrega' }, { t: 'Desa la meva versió', valor: 'forca', tipus: 'danger' }
             ]).then(function (v2) {
               if (v2 === 'forca') desa(true);
-              if (v2 === 'recarrega') { S.brut = false; S.dades = null; carregaCriteris().then(function () { obreEditor(ed.id); }); }
+              if (v2 === 'recarrega') { S.brut = false; S.dades = null; carregaCriteris(true).then(function () { obreEditor(ed.id); }); }
             });
             return;
           }
@@ -801,6 +862,7 @@
         var e = S.idx[ed.id];
         e.criteris = []; e.competencies = []; e.info = null;
         S.brut = false;
+        desaCauCriteris(); criterisCanviats(ed.id);
         toast('S’han donat de baixa els criteris de la matèria.');
         obreEditor(ed.id);
       });
@@ -881,7 +943,7 @@
           body: ids.map(function (id) {
             var e = S.idx[id], st = estat(e), info = e.info || {};
             return [e.m.nivell, e.m.materia].concat(TRIMESTRES.map(function (t) { return st.s[t].n ? fmtNum(st.s[t].total) + ' %' : '—'; }),
-              [String(e.competencies.length), info.criteri_aprovar ? 'Sí' : '—', info.recuperacio ? 'Sí' : '—', info.pendents ? 'Sí' : '—', st.nom]);
+              [String(e.competencies.length), info.criteri_aprovar ? 'Sí' : '—', info.recuperacio ? 'Sí' : '—', !ambPendents(e.m.nivell) ? 'n/a' : info.pendents ? 'Sí' : '—', st.nom]);
           }),
           columnStyles: { 0: { cellWidth: 16 }, 2: { halign: 'right', cellWidth: 14 }, 3: { halign: 'right', cellWidth: 14 }, 4: { halign: 'right', cellWidth: 14 }, 5: { halign: 'right', cellWidth: 9 }, 6: { cellWidth: 14 }, 7: { cellWidth: 13 }, 8: { cellWidth: 12 }, 9: { cellWidth: 18 } },
           nota: ids.length + ' matèries · ' + compta.completa + ' completes · ' + compta.curs + ' en curs · ' + compta.pendent + ' pendents.'
@@ -893,7 +955,7 @@
         competenciesDigitals: d.competencies_digitals,
         materies: amb.map(function (id) {
           var x = dadesInforme(id, actual);
-          return { titol: x.m.materia, pagina: x.m.nivell + ' · ' + x.m.materia, criteris: x.criteris, competencies: x.competencies, info: x.info, senseCD: senseCD(x.m),
+          return { titol: x.m.materia, pagina: x.m.nivell + ' · ' + x.m.materia, criteris: x.criteris, competencies: x.competencies, info: x.info, senseCD: senseCD(x.m), sensePendents: !ambPendents(x.m.nivell),
             subtitol: (NOM_NIVELL[x.m.nivell] || x.m.nivell) + ' · ' + nomDep(x.m.departament) + (x.data ? ' · Actualitzat el ' + dataCurta(x.data).split(' ')[0] : '') };
         })
       });
@@ -935,7 +997,7 @@
     S: S, $: $, api: api, toast: toast, pregunta: pregunta, esc: esc, num: num, fmtNum: fmtNum, dataCurta: dataCurta,
     normalitza: normalitza, ordenaCodis: ordenaCodis, text: text, textError: textError, MISSATGES: MISSATGES,
     NIVELLS: NIVELLS, NOM_NIVELL: NOM_NIVELL, TRIMESTRES: TRIMESTRES, ORDRE_TIPUS: ORDRE_TIPUS, nomCurs: nomCurs,
-    autoalt: autoalt, encamina: function () { encamina(); }
+    autoalt: autoalt, ambPendents: ambPendents, cau: cau, encamina: function () { encamina(); }
   };
 
   // ------------------------------------------------------------------ inici
