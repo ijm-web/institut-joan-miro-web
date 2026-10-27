@@ -164,9 +164,9 @@ OUT_BAT = os.path.join(ROOT, "src", "assets", "docs", "batxillerat")
 MATERIES_BAT = [
     ("Itineraris tecnològic i científic", [
         ("Tecnologia i Enginyeria", "Modalitat · itinerari tecnològic · 4 h (I a 1r i II a 2n)",
-         "Disseny i fabricació de solucions tecnològiques amb un enfocament de projecte: materials i fabricació, sistemes mecànics, "
-         "circuits elèctrics i electrònics, sistemes automàtics i de control, programació de sistemes i energia i sostenibilitat. "
-         "Combina el càlcul i l'anàlisi tècnica amb el treball al taller i amb eines digitals de disseny i simulació. "
+         "Estudi de com es dissenyen i com funcionen els sistemes tecnològics, amb un enfocament analític. Continguts: materials i fabricació, "
+         "sistemes mecànics, circuits elèctrics i electrònics, sistemes automàtics i de control, programació de sistemes i energia i sostenibilitat. "
+         "Combina el càlcul i l'anàlisi tècnica amb la simulació per ordinador de mecanismes, circuits i sistemes de control. "
          "És matèria de les PAU i dona una bona base per a les enginyeries i l'arquitectura."),
         ("Programació", "Franja 1 · grup A · 2 h",
          "Fonaments de la programació: algorismes, estructures de control, funcions i dades, amb un llenguatge actual (Python). "
