@@ -570,3 +570,54 @@ function configura() {
   });
   Logger.log('Fet. Pestanyes: ' + ss.getSheets().map((s) => s.getName()).join(', '));
 }
+
+// ---------------------------------------------------------------------------------------------
+// Canvi de nom de matèries (execució manual des de l'editor, una sola vegada).
+// Canvia l'id_materia («nivell - matèria») a totes les pestanyes que tenen la columna id_materia
+// (criteris, competencies, materies_info, programacions, historial), només per als cursos indicats.
+// Cal fer el mateix canvi a joanmiro_db (vegeu apps-script/joanmiro_db/reanomena_materies.gs).
+// 1) Executa reanomenaMateriesProva: només diu quantes files canviaria (Registre d'execució).
+// 2) Executa reanomenaMateries: fa el canvi. Si el nom nou ja té dades, s'atura sense tocar res.
+const REANOMENA = {
+  cursos: ['2026-2027'],
+  canvis: [
+    ['ESO 1r - Tecnologia', 'ESO 1r - Tecnologia i Digitalització'],
+    ['ESO 2n - Tecnologia', 'ESO 2n - Tecnologia i Digitalització'],
+    ['ESO 3r - Tecnologia', 'ESO 3r - Tecnologia i Digitalització'],
+  ],
+};
+function reanomenaMateriesProva() { return reanomena_(true); }
+function reanomenaMateries() { return reanomena_(false); }
+function reanomena_(prova) {
+  const ss = SpreadsheetApp.getActive();
+  const mapa = {}; REANOMENA.canvis.forEach((c) => { mapa[c[0]] = c[1]; });
+  const nous = REANOMENA.canvis.map((c) => c[1]);
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    const plans = [];
+    let conflictes = [];
+    ss.getSheets().forEach((full) => {
+      if (full.getLastRow() < 2 || full.getLastColumn() < 1) return;
+      const vals = full.getDataRange().getValues();
+      const cap = vals[0].map(normalitza_);
+      const cId = cap.indexOf('id_materia'), cCurs = cap.indexOf('curs');
+      if (cId < 0) return;
+      const canvis = [];
+      for (let i = 1; i < vals.length; i++) {
+        const curs = cCurs >= 0 ? String(vals[i][cCurs]).trim() : '';
+        if (cCurs >= 0 && REANOMENA.cursos.indexOf(curs) < 0) continue;
+        const id = String(vals[i][cId]).trim();
+        if (mapa[id]) canvis.push([i + 1, mapa[id]]);
+        else if (nous.indexOf(id) >= 0 && full.getName() !== FULL.hist) conflictes.push(full.getName() + ' fila ' + (i + 1) + ': ' + id);
+      }
+      if (canvis.length) plans.push({ full: full, col: cId + 1, canvis: canvis });
+    });
+    plans.forEach((p) => Logger.log(p.full.getName() + ': ' + p.canvis.length + ' files'));
+    if (!plans.length) { Logger.log('No hi ha res a canviar (potser ja està fet).'); return { ok: true, res: true }; }
+    if (conflictes.length) { Logger.log('ATURAT: el nom nou ja té dades. ' + conflictes.slice(0, 10).join(' · ')); return { ok: false, conflictes: conflictes }; }
+    if (prova) { Logger.log('Prova: no s\'ha canviat res.'); return { ok: true, prova: true }; }
+    plans.forEach((p) => p.canvis.forEach((c) => p.full.getRange(c[0], p.col).setValues([[c[1]]])));
+    Logger.log('Fet: ' + plans.reduce((s, p) => s + p.canvis.length, 0) + ' files canviades.');
+    return { ok: true };
+  } finally { lock.releaseLock(); }
+}

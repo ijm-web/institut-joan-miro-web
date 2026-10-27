@@ -140,3 +140,15 @@ Regles de la conversió: percentatges 0-1 → 0-100; un percentatge compartit pe
 `src/programacions.njk` · `src/assets/js/programacions.js` · `src/assets/js/programacions-materies.js` · `src/assets/js/programacio-doc.js` · `src/assets/js/progres.js` · `src/assets/js/criteris-pdf.js` · `netlify/functions/criteris-publics.mjs` · `netlify/functions/programacions-materies.mjs` · `src/assets/css/programacions.css` · `netlify/functions/programacions-{config,login,contingut,criteris,sortir}.mjs` · `netlify/lib/programacions.mjs` · `apps-script/programacions_db/Code.gs` · `lib/programacions/importa_criteris.py`.
 
 Funcions: `GET /api/programacions/criteris?curs=` (dades) · `POST /api/programacions/criteris` amb `accio` = `desa` | `esborra` | `materia` | `importacio`.
+
+## Canviar el nom d'una matèria
+
+Els criteris i les programacions es desen amb `id_materia` = «nivell - matèria». Si es canvia el nom a joanmiro_db sense més, la matèria apareix buida (les dades queden penjades del nom antic). Per canviar-lo:
+
+1. Edita la llista `REANOMENA` (cursos i parells nom antic → nom nou) al final de `apps-script/programacions_db/Code.gs` i la llista `REANOMENA_JM` de `apps-script/joanmiro_db/reanomena_materies.gs`.
+2. **programacions_db** › Apps Script: enganxa el `Code.gs`, executa `reanomenaMateriesProva` (només compta) i després `reanomenaMateries`.
+3. **joanmiro_db** › Apps Script: crea un fitxer nou amb `reanomena_materies.gs`, executa `reanomenaMateriesJoanmiroProva` i després `reanomenaMateriesJoanmiro` (canvia la columna `materia` de «materies» i l'`id_materia` de «llibres»).
+4. Si el nom surt a la web (`src/_data/eso.json`, `batxillerat.json`) o als PDF de descripcions (`lib/formularis`), canvia'l també.
+5. Espera 5 minuts; qui tingui Programacions obert ha de prémer «↻ Actualitza les dades».
+
+Les dues funcions s'aturen si el nom nou ja té dades i no fan res si ja s'han executat.
