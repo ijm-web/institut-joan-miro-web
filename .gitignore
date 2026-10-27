@@ -12,3 +12,6 @@ Manual de PROGRAMACIONS per als caps de departament.docx
 Manteniment_anual_web.docx
 ~$*.docx
 Guia pas a pas - *.pdf
+
+# Carpeta local de Netlify (la crea «netlify link»)
+.netlify
