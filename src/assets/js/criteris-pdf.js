@@ -128,7 +128,8 @@
     function novaPagina() { doc.addPage(); capcalera(); y = DALT; }
     function espai(h) { if (y + h > H - BAIX) novaPagina(); }
     function titol3(t) {
-      espai(14);
+      espai(18);
+      if (y > DALT + 1) y += 4;   // aire sobre el títol (abans quedava enganxat al paràgraf anterior)
       doc.setFont('Montserrat', 'bold'); doc.setFontSize(10.5); doc.setTextColor.apply(doc, BLAU);
       doc.text(t, MX, y); y += 3;
     }
