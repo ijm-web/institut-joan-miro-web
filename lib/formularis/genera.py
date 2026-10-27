@@ -256,8 +256,8 @@ MATERIES_BAT2 = [
      "<b>dissenyar i validar models de negoci</b> amb eines actuals (llenç de model de negoci, proposta de valor, "
      "prototipatge i validació amb clients) i a gestionar les àrees funcionals: producció i costos, màrqueting, "
      "recursos humans i finançament i inversió. Inclou l'anàlisi del patrimoni, dels comptes anuals i de ràtios "
-     "econòmiques i financeres per prendre decisions. Es treballa amb casos reals i amb un projecte de model de "
-     "negoci propi. És matèria de les PAU i dona una bona base per a estudis d'economia, empresa, dret, turisme o màrqueting."),
+     "econòmiques i financeres per prendre decisions. Es treballa amb casos reals. "
+     "És matèria de les PAU i dona una bona base per a estudis d'economia, empresa, dret, turisme o màrqueting."),
     ("Història de l'Art", "Franja 1 · itinerari social i humanístic · 4 h",
      "Recorregut per l'evolució de les arts visuals (arquitectura, escultura, pintura i, a l'època contemporània, "
      "fotografia, cinema i noves formes d'expressió) des de l'antiguitat clàssica fins a l'actualitat. L'alumnat aprèn "
