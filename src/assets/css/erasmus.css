@@ -24,6 +24,12 @@
 .er-tr__flag i:nth-child(1){ background: #009246; }
 .er-tr__flag i:nth-child(2){ background: #fff; }
 .er-tr__flag i:nth-child(3){ background: #CE2B37; }
+/* En italià, el botó mostra la bandera de l'idioma al qual es torna: la senyera (català) o la d'Espanya (castellà) */
+.er-tr__flag--ca{ background: repeating-linear-gradient(to bottom, #FCDD09 0 11.111%, #DA121A 11.111% 22.222%); }
+.er-tr__flag--es{ background: linear-gradient(to bottom, #AA151B 0 25%, #F1BF00 25% 75%, #AA151B 75%); }
+.er-tr__flag--ca, .er-tr__flag--es{ display: none; }
+.er-tr.is-on .er-tr__flag--ca, .er-tr.is-on .er-tr__flag--es{ display: inline-flex; }
+.er-tr.is-on:has(.er-tr__flag--ca, .er-tr__flag--es) .er-tr__flag--it{ display: none; }
 
 /* --- Etapes --- */
 .er-stage{ padding: clamp(48px, 6vw, 80px) 0 0; }

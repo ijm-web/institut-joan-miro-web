@@ -21,7 +21,9 @@
     <nav class="er-back" aria-label="breadcrumb"><a href="/{{ P }}projectes-llengues-estrangeres.html">← <span{% if TR %} data-it="{{ M.tornar.it }}"{% endif %}>{{ M.tornar[L] }}</span></a></nav>
     {%- if TR %}
     <button type="button" class="er-tr" id="erTr" aria-pressed="false" title="{{ TR.nota[L] }}" data-txt-it="{{ TR[L] }}" data-txt-orig="{{ TR['tornar_' ~ L] }}">
-      <span class="er-tr__flag" aria-hidden="true"><i></i><i></i><i></i></span><span class="er-tr__txt">{{ TR[L] }}</span>
+      <span class="er-tr__flag er-tr__flag--it" aria-hidden="true"><i></i><i></i><i></i></span>
+      {%- if L == 'ca' %}<span class="er-tr__flag er-tr__flag--ca" aria-hidden="true"></span>{% elif L == 'es' %}<span class="er-tr__flag er-tr__flag--es" aria-hidden="true"></span>{% endif %}
+      <span class="er-tr__txt">{{ TR[L] }}</span>
     </button>
     {%- endif %}
   </div>
