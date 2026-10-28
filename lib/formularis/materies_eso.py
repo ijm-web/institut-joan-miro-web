@@ -13,9 +13,19 @@ OPT_ALE = ("Primer contacte amb la llengua alemanya: comunicació oral i escrita
 OPT_FRA = ("Iniciació al francès des de la comunicació: presentar-se, parlar de l'entorn proper, entendre textos "
            "senzills i conèixer la cultura francòfona. És una matèria de continuïtat fins a 4t i obre la porta "
            "als exàmens oficials de llengua francesa.")
-OPT_ITA = ("Aprenentatge de l'italià a partir de situacions comunicatives reals, aprofitant la proximitat amb el "
-           "català i el castellà. Inclou aspectes de la cultura italiana. És una matèria de continuïtat fins a "
-           "4t i prepara per als exàmens oficials de l'Istituto Italiano di Cultura.")
+OPT_ITA = ("Aprenentatge de l'italià a partir de situacions comunicatives reals, aprofitant la proximitat amb el català i el "
+           "castellà. Es treballa el nivell A1 del Marc Europeu de Referència per a les Llengües (MERC) i inclou aspectes de la "
+           "cultura italiana. És una matèria de continuïtat fins a 4t i prepara per als exàmens.")
+ITA_2N = ("Continuïtat de la segona llengua estrangera iniciada a 1r d'ESO: ampliació de vocabulari, estructures gramaticals i "
+          "comunicació tant oral com escrita, adaptades al nivell de 2n d'ESO. En aquest curs es treballa el nivell A2 del Marc "
+          "Europeu de Referència per a les Llengües (MERC) i es prepara l'alumnat per als exàmens oficials.")
+ITA_3R = ("Continuïtat de la segona llengua estrangera iniciada a 1r d'ESO: ampliació de vocabulari, estructures gramaticals i "
+          "comunicació tant oral com escrita, adaptades al nivell de 3r d'ESO. En aquest curs es comença a treballar el nivell B1 "
+          "del Marc Europeu de Referència per a les Llengües (MERC) i es prepara l'alumnat per a les proves i exàmens oficials.")
+ITA_4T = ("Continuïtat de la segona llengua estrangera iniciada a 1r d'ESO: ampliació de vocabulari, estructures gramaticals i "
+          "comunicació tant oral com escrita, adaptades al nivell de 4t d'ESO. En aquest curs es finalitza la preparació del nivell "
+          "B1 del Marc Europeu de Referència per a les Llengües (MERC) i es presenta l'alumnat a la prova oficial de B1 del CELI, "
+          "preparant-lo per als exàmens oficials.")
 
 
 def lle(nivell):
@@ -36,7 +46,7 @@ NIVELLS = {
                 ("Anglès (reforç)", 3, "Reforç", "Consolidació de les bases de l'anglès (vocabulari, estructures gramaticals, comprensió i expressió) perquè l'alumnat pugui seguir amb seguretat la matèria comuna d'anglès."),
                 ("Tècniques d'estudi", 3, "Reforç", "Eines per aprendre a aprendre: organitzar el temps i el material, planificar les tasques, fer resums, esquemes i mapes conceptuals, millorar la comprensió lectora i preparar els exàmens."),
                 ("Iniciació als esports de raqueta", 3, "Esport i salut", "Introducció a diversos esports de raqueta: tècnica bàsica, regles del joc, joc en parella i en equip, joc net i hàbits de vida saludables."),
-                ("Construïm coneixement científic", 3, "Matemàtiques", "Matèria de matemàtiques on es consoliden els conceptes bàsics mitjançant metodologies molt actives: manipulació, reptes, jocs i resolució de problemes en grup."),
+                ("Taller de matemàtiques", 3, "Matemàtiques", "Matèria de matemàtiques on es consoliden els conceptes bàsics mitjançant metodologies molt actives: manipulació, reptes, jocs i resolució de problemes en grup."),
             ]),
         ],
     },
@@ -48,7 +58,7 @@ NIVELLS = {
             ("Optatives (se'n tria una)", [
                 ("Alemany", 3, "Llengua estrangera", lle("2n d'ESO")),
                 ("Francès", 3, "Llengua estrangera", lle("2n d'ESO")),
-                ("Italià", 3, "Llengua estrangera", lle("2n d'ESO")),
+                ("Italià", 3, "Llengua estrangera", ITA_2N),
                 ("Anglès", 3, "Llengua estrangera", "Hores addicionals d'anglès per reforçar les habilitats comunicatives, sobretot l'expressió oral i escrita, amb activitats pràctiques i projectes."),
                 ("Taller d'expressió", 3, "Llengua", "Escriptura creativa, expressió oral i dramatització: l'alumnat experimenta amb la paraula, la veu i el cos per comunicar-se amb més confiança."),
                 ("Expressió artística", 3, "Arts", "Projectes plàstics amb tècniques diverses (dibuix, pintura, volum, collage, imatge digital) per desenvolupar la creativitat i la mirada crítica."),
@@ -64,7 +74,7 @@ NIVELLS = {
             ("Optatives (se'n tria una)", [
                 ("Alemany", 3, "Llengua estrangera", lle("3r d'ESO")),
                 ("Francès", 3, "Llengua estrangera", lle("3r d'ESO")),
-                ("Italià", 3, "Llengua estrangera", lle("3r d'ESO")),
+                ("Italià", 3, "Llengua estrangera", ITA_3R),
                 ("Anglès", 3, "Llengua estrangera", "Hores addicionals d'anglès centrades en la comunicació oral i escrita, amb projectes i activitats a partir de temes d'actualitat."),
                 ("Esports de raqueta", 3, "Esport i salut", "Pràctica d'esports de raqueta amb més exigència tècnica i tàctica, organització d'activitats i arbitratge."),
                 ("Teatre", 3, "Arts", "Tècniques d'interpretació, improvisació, veu i moviment, i preparació d'una obra o d'escenes per representar-les davant d'un públic."),
@@ -87,7 +97,7 @@ NIVELLS = {
                 ("Música", 3, "Franja 2", "Història de la música des de l'edat mitjana fins al segle XX, avantguardes, rock, música per al cinema i els videojocs, músiques del món i interpretació d'obres amb teclat o flauta."),
                 ("Alemany", 3, "Franja 3", lle("4t d'ESO")),
                 ("Francès", 3, "Franja 3", lle("4t d'ESO") + " Es treballa el nivell DELF B1."),
-                ("Italià", 3, "Franja 3", lle("4t d'ESO")),
+                ("Italià", 3, "Franja 3", ITA_4T),
                 ("Emprenedoria", 3, "Franja 3", "Autoconeixement i itinerari formatiu, la cerca de feina i els drets i deures laborals, el sistema econòmic i el mercat, i la creativitat per desenvolupar idees i projectes."),
                 ("Tecnologia", 3, "Franja 3", "L'habitatge i les seves instal·lacions (aigua, gas, electricitat, climatització, comunicació i domòtica), electrònica analògica i digital, pneumàtica i hidràulica, i control i robòtica."),
             ]),
