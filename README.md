@@ -70,6 +70,8 @@ VS Code) per veure els canvis a l'instant.
 
 Guia completa (també Programacions amb `netlify dev`, i què cal comprovar a cada pas): **[LEGIR_PROVES_LOCALS.md](LEGIR_PROVES_LOCALS.md)**.
 
+Àrea privada de gestió (**/gestio**, mòdul Professorat): com activar-la i com funciona a **[LEGIR_GESTIO.md](LEGIR_GESTIO.md)**.
+
 ## Com generar la versió final (per desplegar)
 
 ```

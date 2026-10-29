@@ -1,0 +1,95 @@
+---
+layout: base.njk
+title: "Gestió — Institut Joan Miró"
+permalink: "gestio/index.html"
+lang: ca
+slug: gestio/
+noindex: true
+eleventyExcludeFromCollections: true
+extraCss:
+  - /assets/css/programacions.css
+  - https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.3.1/css/tabulator.min.css
+  - /assets/css/gestio.css
+---
+{#- GESTIO: àrea privada de gestió (direcció, coordinacions, secretaria). Aquesta pàgina no conté cap dada:
+    tot ho serveixen les funcions /api/gestio/* i només si la sessió és vàlida i el correu té permisos.
+    Dades: full ijm_nucli_db (Apps Script apps-script/gestio_db/Code.gs). Script: /assets/js/gestio.js.
+    Vegeu LEGIR_GESTIO.md i el document «GESTIO · Proposta de disseny». -#}
+<div class="qs-hero" id="qsHero">
+  <img src="/assets/img/inici/inici-3-vestibul-2400.jpg" srcset="/assets/img/inici/inici-3-vestibul-1600.jpg 1600w, /assets/img/inici/inici-3-vestibul-2400.jpg 2400w" sizes="100vw" width="2400" height="900" fetchpriority="high" alt="" role="presentation">
+  <div class="qs-hero__box">
+    <h1><span class="qs-hero__title">Gestió</span><span class="qs-hero__subtitle">Institut Joan Miró</span></h1>
+  </div>
+</div>
+
+<section class="uc prog" id="gsAcces">
+  <div class="uc__inner">
+    <div class="prog-card" id="gsLogin" hidden>
+      <svg class="prog-card__icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/><circle cx="12" cy="15.5" r="1.5"/></svg>
+      <p class="uc__kicker">Àrea privada</p>
+      <h2 class="uc__title">Accés a GESTIO</h2>
+      <p class="uc__text">Entreu amb el vostre compte <strong>@institutjoanmiro.cat</strong>. Cada persona veu només els mòduls que té assignats el seu equip.</p>
+      <div id="gsGoogle" class="prog-card__btn"></div>
+      <p class="prog-msg" id="gsMsg" role="alert" hidden></p>
+    </div>
+    <p class="uc__text" id="gsCarregant">Comprovant l’accés…</p>
+  </div>
+</section>
+
+<section class="prog prog-app gs-app" id="gsApp" hidden>
+  <div class="prog-app__inner gs-app__inner">
+    <div class="prog-bar">
+      <nav class="prog-crumbs" aria-label="Ruta">
+        <a href="#" id="gsCrumbInici">Gestió</a>
+        <span id="gsCrumbModul" hidden><span aria-hidden="true">›</span> <span id="gsCrumbModulNom"></span></span>
+      </nav>
+      <div class="prog-user">
+        <span id="gsUsuari"></span>
+        <button type="button" class="prog-btn prog-btn--ghost" id="gsSortir">Surt</button>
+      </div>
+    </div>
+
+    <div id="gsInici" class="prog-vista" hidden>
+      <header class="prog-head">
+        <h2 class="prog-title">GESTIÓ</h2>
+        <p class="prog-subtitol">INSTITUT JOAN MIRÓ</p>
+        <p class="prog-lead">Gestió de les dades del centre per mòduls. Veieu els mòduls als quals té accés algun dels vostres equips, amb el vostre nivell: consulta, edició o administració.</p>
+      </header>
+      <div class="prog-apartats" id="gsModuls"></div>
+    </div>
+
+    <div id="gsModul" class="prog-vista" hidden>
+      <header class="prog-head prog-head--row gs-head">
+        <div>
+          <p class="prog-kicker" id="gsModulKicker"></p>
+          <h2 class="prog-title prog-title--sm" id="gsModulTitol"></h2>
+        </div>
+        <p class="gs-nivell" id="gsNivell"></p>
+      </header>
+      <p class="prog-avis" id="gsAvis" hidden></p>
+      <div class="gs-eines" id="gsEines"></div>
+      <div id="gsTaula" class="gs-taula"></div>
+      <div id="gsMobil" class="gs-mobil" hidden></div>
+      <div class="prog-desa gs-desa" id="gsBarra" hidden>
+        <span class="prog-desa__estat" id="gsEstat"></span>
+        <div class="prog-desa__btns">
+          <button type="button" class="prog-btn prog-btn--ghost" data-accio="descarta">Descarta els canvis</button>
+          <button type="button" class="prog-btn" data-accio="desa">Desa els canvis</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="prog-modal" id="gsModal" hidden role="dialog" aria-modal="true" aria-labelledby="gsModalTitol">
+  <div class="prog-modal__box gs-modal__box">
+    <h3 id="gsModalTitol"></h3>
+    <div id="gsModalText"></div>
+    <div class="prog-modal__btns" id="gsModalBtns"></div>
+  </div>
+</div>
+<div class="prog-toast" id="gsToast" role="status" aria-live="polite" hidden></div>
+
+<script src="/assets/js/progres.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.3.1/js/tabulator.min.js" defer></script>
+<script src="/assets/js/gestio.js" defer></script>
