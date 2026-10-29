@@ -55,15 +55,12 @@ const CAMPS_PROFESSORAT = [
   ['nom', 'Nom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom1', '1r cognom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom2', '2n cognom', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['nom_cognom', 'Nom + 1r cognom', 'calculat', 'nom cognom1', 'no', 'no', 'consulta', 'gestio'],
-  ['nom_complet', 'Nom complet', 'calculat', 'nom cognom1 cognom2', 'no', 'no', 'consulta', 'gestio'],
-  ['nom_cognoms', 'Nom complet (cognoms, nom)', 'calculat', 'cognom1 cognom2, nom', 'no', 'no', 'consulta', 'gestio'],
   ['estat', 'Estat', 'llista', 'actiu|baixa laboral|substitut|baixa', 'si', 'no', 'consulta', 'gestio'],
-  ['nif', 'NIF', 'text', '', 'no', 'si', 'edicio', 'gestio'],
+  ['nif', 'NIF', 'nif', '', 'no', 'si', 'edicio', 'gestio'],
   ['especialitat', 'Especialitat', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['email_xtec', 'Correu XTEC', 'correu', '', 'no', 'si', 'consulta', 'gestio'],
+  ['email_xtec', 'Correu XTEC', 'correu', '@xtec.cat', 'no', 'si', 'consulta', 'gestio'],
   ['email', 'Correu institutjoanmiro', 'correu', '@institutjoanmiro.cat', 'si', 'si', 'consulta', 'gestio'],
-  ['jornada', 'Jornada', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['jornada', 'Jornada', 'llista', 'Sencera|1/2|⅔', 'no', 'no', 'consulta', 'gestio'],
   ['situacio', 'Situació laboral', 'llista', 'Definitiu|Comissió de serveis|Provisional|Interí', 'no', 'no', 'consulta', 'gestio'],
   ['anys', 'Anys', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
   ['catala', 'Català', 'text', '', 'no', 'no', 'consulta', 'gestio'],
@@ -86,7 +83,19 @@ const CLAUS_SITUACIO_ANTIGUES = ['definitiu', 'comissio_serveis', 'provisional',
 //   baixa         : ja no forma part del claustre (no pot entrar a GESTIO; es pot reactivar)
 const ESTATS = ['actiu', 'baixa laboral', 'substitut', 'baixa'];
 const deBaixa_ = (r) => norm_(r.estat) === 'baixa' || norm_(r.actiu) === 'no';
-const TIPUS = ['text', 'numero', 'data', 'llista', 'si_no', 'correu', 'calculat'];
+const TIPUS = ['text', 'numero', 'data', 'llista', 'si_no', 'correu', 'nif', 'calculat'];
+// PAS 23: aquests camps calculats ja no formen part del mòdul (el nom complet es compon on cal)
+const CALCULATS_RETIRATS = ['nom_cognom', 'nom_complet', 'nom_cognoms'];
+// Valors antics de jornada → valors de la llista
+const JORNADA_ALIES = { 'completa': 'Sencera', 'sencera': 'Sencera', 'complet': 'Sencera', '1': 'Sencera', '1/1': 'Sencera',
+  '1/2': '1/2', 'mitja': '1/2', 'mitja jornada': '1/2', '0,5': '1/2', '0.5': '1/2', '2/3': '⅔', '⅔': '⅔' };
+// DNI (8 xifres + lletra) o NIE (X/Y/Z + 7 xifres + lletra), amb la lletra de control
+function nifValid_(x) {
+  const m = /^([XYZ]?)(\d{7,8})([A-Z])$/.exec(x);
+  if (!m || (m[1] && m[2].length !== 7) || (!m[1] && m[2].length !== 8)) return false;
+  const n = Number(({ X: '0', Y: '1', Z: '2' }[m[1]] || '') + m[2]);
+  return 'TRWAGMYFPDXBNJZSQVHLCKE'.charAt(n % 23) === m[3];
+}
 const NIVELLS = ['consulta', 'edicio', 'admin'];
 const MAX_TEXT = 2000;
 const MODUL_DADES = { professorat: FULL.pers };   // mòduls amb graella de dades → pestanya
@@ -190,12 +199,16 @@ function calcula_(c, v) {
   return String(c.valors || '').replace(/[a-z_0-9]+/g, (k) => String(v[k] == null ? '' : v[k]).trim())
     .replace(/\s+,/g, ',').replace(/\s{2,}/g, ' ').replace(/^[\s,]+|[\s,]+$/g, '').trim();
 }
-function valida_(camps, v) {
+// canviats: si es passa, el format només es comprova als camps que han canviat (les dades antigues que no
+// compleixen el format no impedeixen desar una altra columna de la mateixa fila); l'obligatori, sempre.
+function valida_(camps, v, canviats) {
   for (const c of camps) {
     const x = String(v[c.clau] == null ? '' : v[c.clau]).trim();
     if (c.tipus === 'calculat') continue;
     if (c.obligatori && !x) return { error: 'obligatori', camp: c.nom };
     if (!x) continue;
+    if (canviats && canviats.indexOf(c.clau) < 0) continue;
+    if (c.tipus === 'nif' && !nifValid_(x)) return { error: 'nif_invalid', camp: c.nom };
     if (x.length > MAX_TEXT) return { error: 'massa_llarg', camp: c.nom };
     if (c.tipus === 'numero' && isNaN(Number(x.replace(',', '.')))) return { error: 'numero_invalid', camp: c.nom };
     if (c.tipus === 'data' && !/^\d{4}-\d{2}-\d{2}$/.test(x)) return { error: 'data_invalida', camp: c.nom };
@@ -246,7 +259,7 @@ function desa_(ctx, req) {
       const nou = Object.assign({}, actual);
       const v = c.valors || {};
       editables.forEach((cm) => { if (Object.prototype.hasOwnProperty.call(v, cm.clau)) nou[cm.clau] = net_(v[cm.clau], cm); });
-      const err = valida_(editables, nou);
+      const err = valida_(editables, nou, Object.keys(v));
       if (err) errors.push(Object.assign({ id: c.id }, err));
       plans.push({ f: f, abans: actual, nou: nou, equips: Array.isArray(v.equips) ? v.equips : null });
     });
@@ -317,6 +330,12 @@ function net_(x, c) {
   if (c.tipus === 'si_no') s = ['si', 'sí', 'x', 'true', '1'].indexOf(s.toLowerCase()) >= 0 ? 'sí' : (s.toLowerCase() === 'no' || !s ? '' : s);
   if (c.tipus === 'correu') s = s.toLowerCase();
   if (c.tipus === 'numero') s = s.replace(',', '.');
+  if (c.tipus === 'nif') s = s.toUpperCase().replace(/[\s.\-]/g, '');
+  if (c.clau === 'jornada' && JORNADA_ALIES[s.toLowerCase()]) s = JORNADA_ALIES[s.toLowerCase()];
+  if (c.tipus === 'llista' && s && c.valors) {   // majúscules/minúscules com a la llista
+    const op = c.valors.split('|').map((o) => o.trim()).filter((o) => o.toLowerCase() === s.toLowerCase())[0];
+    if (op) s = op;
+  }
   return s;
 }
 function difer_(a, b) {
@@ -616,12 +635,25 @@ function importaProfessorat() {
   Logger.log('Importades: ' + noves.length + ' persones. Saltades (correu repetit): ' + saltades + '.');
 }
 
+function normalitzaJornada_(sh, cap) {
+  const j = cap.indexOf('jornada');
+  if (j < 0 || sh.getLastRow() < 2) return;
+  const rg = sh.getRange(2, j + 1, sh.getLastRow() - 1, 1), vals = rg.getDisplayValues();
+  let canvis = 0; const estranys = {};
+  const nous = vals.map((r) => { const v = String(r[0]).trim(), n = JORNADA_ALIES[v.toLowerCase()];
+    if (n && n !== v) { canvis++; return [n]; }
+    if (v && !n) estranys[v] = 1;
+    return [v]; });
+  if (canvis) { rg.setValues(nous); historial_('configura', 'actualitzacio', FULL.pers, '', 'jornada: ' + canvis + ' valors adaptats'); }
+  if (Object.keys(estranys).length) Logger.log('Jornada amb valors que no són a la llista (cal revisar-los a mà): ' + Object.keys(estranys).join(', '));
+}
 const marcat_ = (x) => ['x', 'si', 'sí', 'true', '1', 'verdadero', 'cert'].indexOf(norm_(x)) >= 0;
 
 // ---------------------------------------------------------------------------------------------
 // PAS 22 · s'executa sol amb «configura» (i es pot repetir sense perill):
 //  1. Camps: treu Definitiu, Comissió de serveis, Provisional i Interí i hi posa «Situació laboral» (un sol camp);
-//     afegeix «Estat» (obligatori) si no hi és.
+//     afegeix «Estat» (obligatori) si no hi és. PAS 23: treu els tres calculats de nom, Jornada passa a llista
+//     (Sencera | 1/2 | ⅔), NIF a tipus nif i Correu XTEC amb el domini @xtec.cat.
 //  2. persones: omple «situacio» a partir de les quatre columnes antigues i «estat» a partir de l'antiga «actiu»
 //     (no → baixa; si → actiu); després treu les columnes antigues i les dels camps calculats, que ara es
 //     generen en llegir. Les altres columnes es conserven.
@@ -642,12 +674,21 @@ function actualitzaProfessorat_() {
   let nous = [];
   propis.sort((a, b) => (Number(a[iC('ordre')]) || 0) - (Number(b[iC('ordre')]) || 0)).forEach((r) => {
     const k = String(r[iC('clau')]);
+    // PAS 23: fora els calculats de nom; jornada → llista; NIF → tipus nif; correu XTEC → domini @xtec.cat
+    if (CALCULATS_RETIRATS.indexOf(k) >= 0) {
+      canviCamps = true;
+      if (k === 'nom_cognoms' && clausC.indexOf('estat') < 0) nous.push(def('estat'));
+      return;
+    }
+    const posa = (col, val) => { if (iC(col) >= 0 && String(r[iC(col)]) !== val) { r[iC(col)] = val; canviCamps = true; } };
+    if (k === 'jornada' && norm_(r[iC('tipus')]) === 'text') { posa('tipus', 'llista'); posa('valors', 'Sencera|1/2|⅔'); }
+    if (k === 'nif' && norm_(r[iC('tipus')]) === 'text') posa('tipus', 'nif');
+    if (k === 'email_xtec' && !String(r[iC('valors')]).trim()) posa('valors', '@xtec.cat');
     if (CLAUS_SITUACIO_ANTIGUES.indexOf(k) >= 0) {
       if (clausC.indexOf('situacio') < 0 && !nous.some((x) => String(x[iC('clau')]) === 'situacio')) nous.push(def('situacio'));
       canviCamps = true; return;
     }
     nous.push(r);
-    if (k === 'nom_cognoms' && clausC.indexOf('estat') < 0) { nous.push(def('estat')); canviCamps = true; }
   });
   if (propis.length && !nous.some((x) => String(x[iC('clau')]) === 'estat')) { nous.splice(Math.min(3, nous.length), 0, def('estat')); canviCamps = true; }
   if (canviCamps) {
@@ -661,10 +702,10 @@ function actualitzaProfessorat_() {
   if (!shP || shP.getLastColumn() < 1) return;
   const vals = shP.getDataRange().getDisplayValues(), cap = vals[0].map(norm_);
   const camps = campsDe_('professorat', true);
-  const calcs = camps.filter((c) => c.tipus === 'calculat').map((c) => c.clau);
+  const calcs = camps.filter((c) => c.tipus === 'calculat').map((c) => c.clau).concat(CALCULATS_RETIRATS);
   const treure = CLAUS_SITUACIO_ANTIGUES.concat(calcs, ['actiu']).filter((k) => cap.indexOf(k) >= 0);
   const falten = ['estat', 'situacio'].filter((k) => cap.indexOf(k) < 0 && camps.some((c) => c.clau === k));
-  if (!treure.length && !falten.length) return;
+  if (!treure.length && !falten.length) { normalitzaJornada_(shP, cap); return; }
   const desats = desats_(camps);
   const extres = cap.filter((k) => k && treure.indexOf(k) < 0 && desats.indexOf(k) < 0 && ['id_persona', 'data', 'desat_per'].indexOf(k) < 0);
   const nouCap = ['id_persona'].concat(desats, extres, ['data', 'desat_per']);
@@ -682,6 +723,7 @@ function actualitzaProfessorat_() {
   shP.getRange(1, 1, 1, nouCap.length).setValues([nouCap]).setFontWeight('bold');
   if (files.length) shP.getRange(2, 1, files.length, nouCap.length).setValues(files);
   if (shP.getMaxColumns() > nouCap.length) shP.deleteColumns(nouCap.length + 1, shP.getMaxColumns() - nouCap.length);
-  historial_('configura', 'actualitzacio', FULL.pers, '', 'PAS 22: treu ' + treure.join(', ') + (falten.length ? ' · afegeix ' + falten.join(', ') : ''));
+  normalitzaJornada_(shP, nouCap);
+  historial_('configura', 'actualitzacio', FULL.pers, '', 'treu ' + treure.join(', ') + (falten.length ? ' · afegeix ' + falten.join(', ') : ''));
   Logger.log('persones actualitzada: treu ' + treure.join(', ') + '; columnes: ' + nouCap.join(', '));
 }

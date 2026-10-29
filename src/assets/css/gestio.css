@@ -60,8 +60,10 @@
 .gs-estat--substitut{ background: #E7F1FB; color: #1D4F91; }
 .gs-estat--baixa{ background: #EEF0F6; color: #6B7280; }
 
-/* Barra de desar: només quan hi ha canvis */
-.gs-desa{ margin-top: 14px; }
+/* Barra de desar: només quan hi ha canvis. Va damunt de la graella (no tapa la barra de desplaçament horitzontal) */
+.gs-app .gs-desa{ position: static; margin: 0 0 12px; padding: 10px 14px; box-shadow: none; background: #FFF8EE; border-color: #F3D9B5; }
+/* Exportacions, a la dreta del tot */
+.gs-exporta{ display: inline-flex; gap: 8px; margin-left: 6px; padding-left: 12px; border-left: 1px solid #E1E5EE; }
 
 /* Finestres (camps, permisos, columnes, errors) */
 .gs-modal__box{ max-width: 1180px; max-height: calc(100vh - 32px); overflow: auto; }
