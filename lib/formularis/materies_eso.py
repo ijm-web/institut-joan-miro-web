@@ -94,7 +94,7 @@ NIVELLS = {
                 ("Educació visual i plàstica", 3, "Franja 1", "Expressió plàstica (tècniques, materials i lectura d'imatges de diferents períodes), dibuix tècnic (sistema cònic) i fonaments del disseny (forma i funció, branques del disseny, projectes). Recomanada per a qui vulgui fer el batxillerat artístic."),
                 ("Filosofia", 3, "Franja 1", "Pensar, comprendre i argumentar: la reflexió filosòfica i l'anàlisi d'arguments; la dimensió personal de l'ésser humà (autoconeixement, dignitat, felicitat) i la dimensió social (pluralisme, amistat, comunitat política i responsabilitat ecològica)."),
                 ("Llatí", 3, "Franja 2", "Llengües indoeuropees i romàniques, l'abecedari, la declinació i la sintaxi llatines i l'evolució al català i al castellà; història i vida quotidiana de Roma, i mitologia clàssica."),
-                ("Música", 3, "Franja 2", "Història de la música des de l'edat mitjana fins al segle XX, avantguardes, rock, música per al cinema i els videojocs, músiques del món i interpretació d'obres amb teclat o flauta."),
+                ("Música", 3, "Franja 2", "Interpretació de diferents peces musicals de diferents èpoques històriques amb el teclat i amb la flauta. Els grans compositors de la història de la música. La música folklòrica espanyola i d'arreu del món, la música de cinema i de videojocs. La música i les noves tecnologies."),
                 ("Alemany", 3, "Franja 3", lle("4t d'ESO")),
                 ("Francès", 3, "Franja 3", lle("4t d'ESO") + " Es treballa el nivell DELF B1."),
                 ("Italià", 3, "Franja 3", ITA_4T),
