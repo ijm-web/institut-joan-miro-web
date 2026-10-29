@@ -12,7 +12,7 @@
  *
  * Pestanyes (es creen soles amb «configura»; les columnes es llegeixen pel nom de la capçalera):
  *   config    : clau | valor | descripcio          (admins d'emergència, estat, curs, font de la importació)
- *   persones  : id_persona | actiu | <un camp per columna, definits a «camps»> | data | desat_per
+ *   persones  : id_persona | <un camp per columna, definits a «camps»; els calculats no es desen> | data | desat_per
  *   equips    : id_equip | nom | tipus (gestio/docent) | descripcio | actiu
  *   membres   : id_equip | id_persona | carrec
  *   moduls    : id_modul | nom | descripcio | ordre | actiu
@@ -30,7 +30,7 @@
 const FULL = { conf: 'config', pers: 'persones', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
   camps: 'camps', hist: 'historial' };
 const CAP = {
-  persones: ['id_persona', 'actiu'],   // + els camps de «camps» + data + desat_per
+  persones: ['id_persona'],   // + els camps de «camps» (excepte els calculats) + data + desat_per
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu'],
   membres: ['id_equip', 'id_persona', 'carrec'],
   moduls: ['id_modul', 'nom', 'descripcio', 'ordre', 'actiu'],
@@ -58,15 +58,13 @@ const CAMPS_PROFESSORAT = [
   ['nom_cognom', 'Nom + 1r cognom', 'calculat', 'nom cognom1', 'no', 'no', 'consulta', 'gestio'],
   ['nom_complet', 'Nom complet', 'calculat', 'nom cognom1 cognom2', 'no', 'no', 'consulta', 'gestio'],
   ['nom_cognoms', 'Nom complet (cognoms, nom)', 'calculat', 'cognom1 cognom2, nom', 'no', 'no', 'consulta', 'gestio'],
+  ['estat', 'Estat', 'llista', 'actiu|baixa laboral|substitut|baixa', 'si', 'no', 'consulta', 'gestio'],
   ['nif', 'NIF', 'text', '', 'no', 'si', 'edicio', 'gestio'],
   ['especialitat', 'Especialitat', 'text', '', 'no', 'no', 'consulta', 'gestio'],
   ['email_xtec', 'Correu XTEC', 'correu', '', 'no', 'si', 'consulta', 'gestio'],
   ['email', 'Correu institutjoanmiro', 'correu', '@institutjoanmiro.cat', 'si', 'si', 'consulta', 'gestio'],
   ['jornada', 'Jornada', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['definitiu', 'Definitiu', 'si_no', '', 'no', 'no', 'consulta', 'gestio'],
-  ['comissio_serveis', 'Comissió de serveis', 'si_no', '', 'no', 'no', 'consulta', 'gestio'],
-  ['provisional', 'Provisional', 'si_no', '', 'no', 'no', 'consulta', 'gestio'],
-  ['interi', 'Interí', 'si_no', '', 'no', 'no', 'consulta', 'gestio'],
+  ['situacio', 'Situació laboral', 'llista', 'Definitiu|Comissió de serveis|Provisional|Interí', 'no', 'no', 'consulta', 'gestio'],
   ['anys', 'Anys', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
   ['catala', 'Català', 'text', '', 'no', 'no', 'consulta', 'gestio'],
   ['carrec', 'Càrrec', 'text', '', 'no', 'no', 'consulta', 'gestio'],
@@ -74,10 +72,20 @@ const CAMPS_PROFESSORAT = [
 // Capçaleres del full actual de professorat → clau del camp (per a importaProfessorat)
 const IMPORTACIO_PROFESSORAT = {
   'nom': 'nom', '1r cognom': 'cognom1', '2n cognom': 'cognom2', 'nif': 'nif', 'especialitat': 'especialitat',
-  'email xtec': 'email_xtec', 'email institutjoanmiro': 'email', 'jornada': 'jornada', 'definitiu': 'definitiu',
-  'comissió serveis': 'comissio_serveis', 'comissio serveis': 'comissio_serveis', 'provisional': 'provisional',
-  'interí': 'interi', 'interi': 'interi', 'anys': 'anys', 'català': 'catala', 'catala': 'catala', 'càrrec': 'carrec', 'carrec': 'carrec',
+  'email xtec': 'email_xtec', 'email institutjoanmiro': 'email', 'jornada': 'jornada',
+  'anys': 'anys', 'català': 'catala', 'catala': 'catala', 'càrrec': 'carrec', 'carrec': 'carrec',
 };
+// Situació laboral: al full original són quatre columnes excloents (amb una X); a GESTIO és un sol camp
+const SITUACIONS = { 'definitiu': 'Definitiu', 'comissió serveis': 'Comissió de serveis', 'comissio serveis': 'Comissió de serveis',
+  'comissió de serveis': 'Comissió de serveis', 'provisional': 'Provisional', 'interí': 'Interí', 'interi': 'Interí' };
+const CLAUS_SITUACIO_ANTIGUES = ['definitiu', 'comissio_serveis', 'provisional', 'interi'];
+// Estat de cada docent (camp obligatori i de sistema: no es pot arxivar ni canviar de tipus)
+//   actiu         : forma part del claustre d'aquest curs
+//   baixa laboral : forma part del claustre i té una baixa laboral
+//   substitut     : forma part del claustre temporalment
+//   baixa         : ja no forma part del claustre (no pot entrar a GESTIO; es pot reactivar)
+const ESTATS = ['actiu', 'baixa laboral', 'substitut', 'baixa'];
+const deBaixa_ = (r) => norm_(r.estat) === 'baixa' || norm_(r.actiu) === 'no';
 const TIPUS = ['text', 'numero', 'data', 'llista', 'si_no', 'correu', 'calculat'];
 const NIVELLS = ['consulta', 'edicio', 'admin'];
 const MAX_TEXT = 2000;
@@ -118,7 +126,7 @@ function context_(email) {
   const cfg = llegeixConfig_();
   const admins = String(cfg.admins || '').toLowerCase().split(/[,;\s]+/).filter(Boolean);
   const persones = llegeix_(FULL.pers);
-  const p = persones.filter((x) => String(x.email || '').toLowerCase() === email && norm_(x.actiu) !== 'no')[0] || null;
+  const p = persones.filter((x) => String(x.email || '').toLowerCase() === email && !deBaixa_(x))[0] || null;
   const meus = p ? llegeix_(FULL.memb).filter((m) => m.id_persona === p.id_persona).map((m) => m.id_equip) : [];
   const equipsActius = llegeix_(FULL.eq).filter((q) => norm_(q.actiu) !== 'no').map((q) => q.id_equip);
   const eqs = meus.filter((id) => equipsActius.indexOf(id) >= 0);
@@ -164,8 +172,9 @@ function dades_(ctx, modul) {
   const camps = visibles_(ctx, modul, campsDe_(modul));
   const membres = llegeix_(FULL.memb);
   const files = llegeix_(full).map((r) => {
-    const o = { id: r.id_persona, actiu: norm_(r.actiu) === 'no' ? 'no' : 'si', data: r.data || '', desat_per: r.desat_per || '' };
-    camps.forEach((c) => { o[c.clau] = r[c.clau] == null ? '' : r[c.clau]; });
+    const o = { id: r.id_persona, data: r.data || '', desat_per: r.desat_per || '' };
+    camps.forEach((c) => { o[c.clau] = c.tipus === 'calculat' ? calcula_(c, r) : (r[c.clau] == null ? '' : r[c.clau]); });
+    if ('estat' in o && !o.estat) o.estat = deBaixa_(r) ? 'baixa' : 'actiu';
     o.equips = membres.filter((m) => m.id_persona === r.id_persona).map((m) => m.id_equip);
     return o;
   });
@@ -216,8 +225,7 @@ function desa_(ctx, req) {
     const sh = SpreadsheetApp.getActive().getSheetByName(nomFull);
     const totsCamps = campsDe_(modul, true);
     const editables = visibles_(ctx, modul, totsCamps.filter((c) => c.actiu && c.origen !== 'clickedu' && c.tipus !== 'calculat'));
-    const calculats = totsCamps.filter((c) => c.tipus === 'calculat');
-    assegura_(nomFull, totsCamps.map((c) => c.clau));
+    assegura_(nomFull, desats_(totsCamps));
     const vals = sh.getDataRange().getDisplayValues();
     const cap = vals[0].map(norm_);
     const col = (k) => cap.indexOf(k);
@@ -227,7 +235,7 @@ function desa_(ctx, req) {
     const ara = ara_();
     const conflictes = [], errors = [];
     const resultat = [];
-    // 1) Modificacions (inclosa la baixa: valors.actiu = 'no' / reactivació: 'si')
+    // 1) Modificacions (inclosa la baixa: valors.estat = 'baixa' / reactivació: 'actiu')
     const plans = [];
     canvis.forEach((c) => {
       const f = perId[String(c.id)];
@@ -238,8 +246,6 @@ function desa_(ctx, req) {
       const nou = Object.assign({}, actual);
       const v = c.valors || {};
       editables.forEach((cm) => { if (Object.prototype.hasOwnProperty.call(v, cm.clau)) nou[cm.clau] = net_(v[cm.clau], cm); });
-      if (Object.prototype.hasOwnProperty.call(v, 'actiu')) nou.actiu = norm_(v.actiu) === 'no' ? 'no' : 'si';
-      calculats.forEach((cm) => { nou[cm.clau] = calcula_(cm, nou); });
       const err = valida_(editables, nou);
       if (err) errors.push(Object.assign({ id: c.id }, err));
       plans.push({ f: f, abans: actual, nou: nou, equips: Array.isArray(v.equips) ? v.equips : null });
@@ -248,9 +254,9 @@ function desa_(ctx, req) {
     const altesPlans = [];
     let seguent = 1 + Object.keys(perId).reduce((m, id) => { const n = Number(String(id).replace(/\D/g, '')); return n > m ? n : m; }, 0);
     altes.forEach((a, k) => {
-      const v = a.valors || {}, nou = { actiu: 'si' };
+      const v = a.valors || {}, nou = {};
       editables.forEach((cm) => { nou[cm.clau] = net_(v[cm.clau], cm); });
-      calculats.forEach((cm) => { nou[cm.clau] = calcula_(cm, nou); });
+      if (totsCamps.some((cm) => cm.clau === 'estat') && !nou.estat) nou.estat = 'actiu';
       const err = valida_(editables, nou);
       nou.id_persona = 'PER-' + ('000' + (seguent++)).slice(-4);
       if (err) errors.push(Object.assign({ id: a.tmp || ('alta-' + (k + 1)) }, err));
@@ -285,7 +291,8 @@ function desa_(ctx, req) {
       p.nou.data = ara; p.nou.desat_per = usuari;
       const fila = cap.map((k) => (k && p.nou[k] !== undefined ? p.nou[k] : ''));
       sh.getRange(p.f.fila, 1, 1, cap.length).setValues([fila]);
-      historial_(usuari, p.nou.actiu !== p.abans.actiu ? (p.nou.actiu === 'no' ? 'baixa' : 'reactivacio') : 'modificacio', nomFull, p.abans.id_persona, difer_(p.abans, p.nou));
+      const eraBaixa = deBaixa_(p.abans), esBaixa = norm_(p.nou.estat) === 'baixa';
+      historial_(usuari, esBaixa && !eraBaixa ? 'baixa' : (!esBaixa && eraBaixa ? 'reactivacio' : 'modificacio'), nomFull, p.abans.id_persona, difer_(p.abans, p.nou));
       resultat.push(p.nou);
     });
     altesPlans.forEach((p) => {
@@ -300,9 +307,9 @@ function desa_(ctx, req) {
       desaMembres_(canviEquips, usuari);
     }
     const membres = llegeix_(FULL.memb);
-    return { ok: true, data: ara, files: resultat.map((r) => ({ tmp: r.tmp, id: r.id_persona, data: r.data, actiu: r.actiu,
+    return { ok: true, data: ara, files: resultat.map((r) => ({ tmp: r.tmp, id: r.id_persona, data: r.data,
       equips: membres.filter((m) => m.id_persona === r.id_persona).map((m) => m.id_equip),
-      valors: visibles_(ctx, modul, totsCamps).reduce((o, c) => { o[c.clau] = r[c.clau] == null ? '' : r[c.clau]; return o; }, {}) })) };
+      valors: visibles_(ctx, modul, totsCamps).reduce((o, c) => { o[c.clau] = c.tipus === 'calculat' ? calcula_(c, r) : (r[c.clau] == null ? '' : r[c.clau]); return o; }, {}) })) };
   } finally { lock.releaseLock(); }
 }
 function net_(x, c) {
@@ -369,10 +376,18 @@ function campsDesa_(ctx, req) {
     if (!/^[a-z][a-z0-9_]{0,39}$/.test(clau) || ['id_persona', 'actiu', 'data', 'desat_per', 'equips', 'id'].indexOf(clau) >= 0) return { ok: false, error: 'clau_invalida', camp: clau || '(buida)' };
     if (claus[clau]) return { ok: false, error: 'clau_repetida', camp: clau };
     claus[clau] = 1;
-    const tipus = TIPUS.indexOf(c.tipus) >= 0 ? c.tipus : 'text';
+    let tipus = TIPUS.indexOf(c.tipus) >= 0 ? c.tipus : 'text';
     if (!String(c.nom || '').trim()) return { ok: false, error: 'nom_buit', camp: clau };
-    files.push([modul, clau, String(c.nom).trim().slice(0, 80), tipus, String(c.valors || '').slice(0, 1000), c.obligatori ? 'si' : 'no', c.unic ? 'si' : 'no',
-      NIVELLS.indexOf(c.visible_des_de) >= 0 ? c.visible_des_de : 'consulta', c.origen === 'clickedu' ? 'clickedu' : 'gestio', i + 1, c.actiu === false ? 'no' : 'si']);
+    let valors = String(c.valors || '').slice(0, 1000), obligatori = !!c.obligatori, actiu = c.actiu !== false, origen = c.origen === 'clickedu' ? 'clickedu' : 'gestio';
+    if (clau === 'estat' && modul === 'professorat') {
+      // Camp de sistema: sempre llista obligatòria i activa, amb «actiu» i «baixa» com a valors
+      tipus = 'llista'; obligatori = true; actiu = true; origen = 'gestio';
+      const ops = valors.split('|').map((x) => x.trim()).filter(Boolean);
+      ['actiu', 'baixa'].forEach((x) => { if (ops.indexOf(x) < 0) ops.push(x); });
+      valors = ops.join('|');
+    }
+    files.push([modul, clau, String(c.nom).trim().slice(0, 80), tipus, valors, obligatori ? 'si' : 'no', c.unic ? 'si' : 'no',
+      NIVELLS.indexOf(c.visible_des_de) >= 0 ? c.visible_des_de : 'consulta', origen, i + 1, actiu ? 'si' : 'no']);
   }
   // Un camp existent no es pot fer desaparèixer: s'arxiva (actiu = no) perquè les dades es conservin
   const perduts = existents.filter((e) => !claus[e.clau]).map((e) => e.clau);
@@ -386,7 +401,7 @@ function campsDesa_(ctx, req) {
     const totes = altres.concat(files.map((f) => CAP.camps.map((k) => f[CAP.camps.indexOf(k)])));
     if (vals.length > 1) sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
     if (totes.length) sh.getRange(2, 1, totes.length, CAP.camps.length).setValues(totes);
-    assegura_(nomFull, files.map((f) => f[1]));
+    assegura_(nomFull, files.filter((f) => f[3] !== 'calculat').map((f) => f[1]));
     historial_(ctx.email, 'camps', FULL.camps, modul, JSON.stringify(files.map((f) => f.slice(1, 5))).slice(0, 45000));
     return { ok: true };
   } finally { lock.releaseLock(); }
@@ -446,7 +461,7 @@ function equips_(ctx) {
   const membres = llegeix_(FULL.memb);
   const perms = llegeix_(FULL.perm);
   const persones = llegeix_(FULL.pers);
-  const nomDe = (id) => { const p = persones.filter((x) => x.id_persona === id)[0]; return p ? (p.nom_complet || [p.nom, p.cognom1].join(' ')) : id; };
+  const nomDe = (id) => { const p = persones.filter((x) => x.id_persona === id)[0]; return p ? [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' ') : id; };
   return { ok: true, equips: llegeix_(FULL.eq).map((q) => ({ id_equip: q.id_equip, nom: q.nom, tipus: q.tipus || 'gestio', descripcio: q.descripcio || '',
     actiu: norm_(q.actiu) === 'no' ? 'no' : 'si',
     membres: membres.filter((m) => m.id_equip === q.id_equip).map((m) => nomDe(m.id_persona)),
@@ -482,6 +497,8 @@ function equipsDesa_(ctx, req) {
 }
 
 // ------------------------------------------------------------------ utilitats de fulls
+// Claus que tenen columna a la pestanya de dades (els calculats es generen en llegir: no ocupen espai)
+function desats_(camps) { return camps.filter((c) => c.tipus !== 'calculat').map((c) => c.clau); }
 function norm_(s) { return String(s == null ? '' : s).trim().toLowerCase(); }
 function ara_() { return Utilities.formatDate(new Date(), 'Europe/Madrid', 'yyyy-MM-dd HH:mm:ss'); }
 function llegeix_(nom) {
@@ -542,7 +559,8 @@ function configura() {
     const sh = ss.getSheetByName(FULL.camps);
     CAMPS_PROFESSORAT.forEach((c, i) => sh.appendRow(['professorat', c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], i + 1, 'si']));
   }
-  assegura_(FULL.pers, campsDe_('professorat', true).map((c) => c.clau));
+  actualitzaProfessorat_();
+  assegura_(FULL.pers, desats_(campsDe_('professorat', true)));
   if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-DIR')) ss.getSheetByName(FULL.eq).appendRow(['EQ-DIR', 'Equip directiu', 'gestio', 'Administració de GESTIO', 'si']);
   if (!llegeix_(FULL.perm).some((p) => p.id_equip === 'EQ-DIR' && p.id_modul === '*')) ss.getSheetByName(FULL.perm).appendRow(['EQ-DIR', '*', 'admin']);
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = ss.getSheetByName(n); if (f && f.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(f); });
@@ -551,7 +569,8 @@ function configura() {
 
 // Execució manual: importa el professorat del full indicat a config › font_professorat (una vegada).
 // Les capçaleres es reconeixen pel nom (vegeu IMPORTACIO_PROFESSORAT); les altres columnes no s'importen.
-// No duplica: si el correu institutjoanmiro ja hi és, la persona se salta. Els camps calculats es recalculen.
+// No duplica: si el correu institutjoanmiro ja hi és, la persona se salta. Els camps calculats no es desen.
+// Definitiu / Comissió serveis / Provisional / Interí (una X) → camp únic «situacio». Tothom entra amb estat «actiu».
 function importaProfessorat() {
   const cfg = llegeixConfig_();
   const font = String(cfg.font_professorat || '').trim();
@@ -565,12 +584,11 @@ function importaProfessorat() {
   let fc = vals.findIndex((r) => r.map(norm_).indexOf('nom') >= 0 && r.map(norm_).indexOf('1r cognom') >= 0);
   if (fc < 0) throw new Error('No trobo la fila de capçaleres (cal «Nom» i «1r Cognom»).');
   const cap = vals[fc].map(norm_);
-  const mapa = cap.map((k) => IMPORTACIO_PROFESSORAT[k] || '');
+  const mapa = cap.map((k) => IMPORTACIO_PROFESSORAT[k] || (SITUACIONS[k] ? 'situacio:' + SITUACIONS[k] : ''));
   Logger.log('Columnes reconegudes: ' + cap.filter((k, i) => mapa[i]).join(', '));
   Logger.log('Columnes que no s\'importen: ' + cap.filter((k, i) => k && !mapa[i]).join(', '));
   const camps = campsDe_('professorat', true);
-  const calculats = camps.filter((c) => c.tipus === 'calculat');
-  assegura_(FULL.pers, camps.map((c) => c.clau));
+  assegura_(FULL.pers, desats_(camps));
   const sh = SpreadsheetApp.getActive().getSheetByName(FULL.pers);
   const capP = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
   const existents = llegeix_(FULL.pers);
@@ -580,11 +598,14 @@ function importaProfessorat() {
   let saltades = 0;
   vals.slice(fc + 1).forEach((r) => {
     if (!r.join('').trim()) return;
-    const o = { actiu: 'si' };
-    mapa.forEach((k, i) => { if (k) { const c = camps.filter((x) => x.clau === k)[0]; o[k] = c ? net_(r[i], c) : String(r[i]).trim(); } });
+    const o = { estat: 'actiu' };
+    mapa.forEach((k, i) => {
+      if (!k) return;
+      if (k.indexOf('situacio:') === 0) { if (marcat_(r[i])) o.situacio = k.slice(9); return; }
+      const c = camps.filter((x) => x.clau === k)[0]; o[k] = c ? net_(r[i], c) : String(r[i]).trim();
+    });
     if (!o.nom && !o.cognom1) return;
     if (o.email && correus.indexOf(norm_(o.email)) >= 0) { saltades++; return; }
-    calculats.forEach((c) => { o[c.clau] = calcula_(c, o); });
     o.id_persona = 'PER-' + ('000' + (seguent++)).slice(-4);
     o.data = ara; o.desat_per = 'importació';
     correus.push(norm_(o.email));
@@ -593,4 +614,74 @@ function importaProfessorat() {
   if (noves.length) sh.getRange(sh.getLastRow() + 1, 1, noves.length, capP.length).setValues(noves);
   historial_('importació', 'importacio', FULL.pers, '', noves.length + ' files');
   Logger.log('Importades: ' + noves.length + ' persones. Saltades (correu repetit): ' + saltades + '.');
+}
+
+const marcat_ = (x) => ['x', 'si', 'sí', 'true', '1', 'verdadero', 'cert'].indexOf(norm_(x)) >= 0;
+
+// ---------------------------------------------------------------------------------------------
+// PAS 22 · s'executa sol amb «configura» (i es pot repetir sense perill):
+//  1. Camps: treu Definitiu, Comissió de serveis, Provisional i Interí i hi posa «Situació laboral» (un sol camp);
+//     afegeix «Estat» (obligatori) si no hi és.
+//  2. persones: omple «situacio» a partir de les quatre columnes antigues i «estat» a partir de l'antiga «actiu»
+//     (no → baixa; si → actiu); després treu les columnes antigues i les dels camps calculats, que ara es
+//     generen en llegir. Les altres columnes es conserven.
+function actualitzaProfessorat_() {
+  const ss = SpreadsheetApp.getActive();
+  // 1) camps
+  const shC = ss.getSheetByName(FULL.camps);
+  const valsC = shC.getDataRange().getValues(), capC = valsC[0].map(norm_);
+  const iC = (k) => capC.indexOf(k);
+  const propis = valsC.slice(1).filter((r) => String(r[iC('modul')]) === 'professorat');
+  const altres = valsC.slice(1).filter((r) => String(r[iC('modul')]) !== 'professorat' && r.join('') !== '');
+  const def = (clau) => { const c = CAMPS_PROFESSORAT.filter((x) => x[0] === clau)[0]; const r = capC.map(() => '');
+    [['modul', 'professorat'], ['clau', c[0]], ['nom', c[1]], ['tipus', c[2]], ['valors', c[3]], ['obligatori', c[4]], ['unic', c[5]],
+      ['visible_des_de', c[6]], ['origen', c[7]], ['actiu', 'si']].forEach((kv) => { if (iC(kv[0]) >= 0) r[iC(kv[0])] = kv[1]; });
+    return r; };
+  const clausC = propis.map((r) => String(r[iC('clau')]));
+  let canviCamps = false;
+  let nous = [];
+  propis.sort((a, b) => (Number(a[iC('ordre')]) || 0) - (Number(b[iC('ordre')]) || 0)).forEach((r) => {
+    const k = String(r[iC('clau')]);
+    if (CLAUS_SITUACIO_ANTIGUES.indexOf(k) >= 0) {
+      if (clausC.indexOf('situacio') < 0 && !nous.some((x) => String(x[iC('clau')]) === 'situacio')) nous.push(def('situacio'));
+      canviCamps = true; return;
+    }
+    nous.push(r);
+    if (k === 'nom_cognoms' && clausC.indexOf('estat') < 0) { nous.push(def('estat')); canviCamps = true; }
+  });
+  if (propis.length && !nous.some((x) => String(x[iC('clau')]) === 'estat')) { nous.splice(Math.min(3, nous.length), 0, def('estat')); canviCamps = true; }
+  if (canviCamps) {
+    nous.forEach((r, i) => { r[iC('ordre')] = i + 1; });
+    const totes = altres.concat(nous);
+    if (valsC.length > 1) shC.getRange(2, 1, valsC.length - 1, capC.length).clearContent();
+    if (totes.length) shC.getRange(2, 1, totes.length, capC.length).setValues(totes);
+  }
+  // 2) persones
+  const shP = ss.getSheetByName(FULL.pers);
+  if (!shP || shP.getLastColumn() < 1) return;
+  const vals = shP.getDataRange().getDisplayValues(), cap = vals[0].map(norm_);
+  const camps = campsDe_('professorat', true);
+  const calcs = camps.filter((c) => c.tipus === 'calculat').map((c) => c.clau);
+  const treure = CLAUS_SITUACIO_ANTIGUES.concat(calcs, ['actiu']).filter((k) => cap.indexOf(k) >= 0);
+  const falten = ['estat', 'situacio'].filter((k) => cap.indexOf(k) < 0 && camps.some((c) => c.clau === k));
+  if (!treure.length && !falten.length) return;
+  const desats = desats_(camps);
+  const extres = cap.filter((k) => k && treure.indexOf(k) < 0 && desats.indexOf(k) < 0 && ['id_persona', 'data', 'desat_per'].indexOf(k) < 0);
+  const nouCap = ['id_persona'].concat(desats, extres, ['data', 'desat_per']);
+  const files = vals.slice(1).filter((r) => r.join('') !== '').map((r) => {
+    const o = {}; cap.forEach((k, j) => { if (k) o[k] = r[j]; });
+    if (!o.situacio) {
+      const n = { definitiu: 'Definitiu', comissio_serveis: 'Comissió de serveis', provisional: 'Provisional', interi: 'Interí' };
+      CLAUS_SITUACIO_ANTIGUES.forEach((k) => { if (!o.situacio && marcat_(o[k])) o.situacio = n[k]; });
+    }
+    if (!o.estat) o.estat = norm_(o.actiu) === 'no' ? 'baixa' : 'actiu';
+    return nouCap.map((k) => (o[k] == null ? '' : o[k]));
+  });
+  shP.clearContents();
+  shP.getRange(1, 1, shP.getMaxRows(), shP.getMaxColumns()).setNumberFormat('@');
+  shP.getRange(1, 1, 1, nouCap.length).setValues([nouCap]).setFontWeight('bold');
+  if (files.length) shP.getRange(2, 1, files.length, nouCap.length).setValues(files);
+  if (shP.getMaxColumns() > nouCap.length) shP.deleteColumns(nouCap.length + 1, shP.getMaxColumns() - nouCap.length);
+  historial_('configura', 'actualitzacio', FULL.pers, '', 'PAS 22: treu ' + treure.join(', ') + (falten.length ? ' · afegeix ' + falten.join(', ') : ''));
+  Logger.log('persones actualitzada: treu ' + treure.join(', ') + '; columnes: ' + nouCap.join(', '));
 }

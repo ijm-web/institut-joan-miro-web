@@ -3,7 +3,8 @@
    - Accés amb Google (funcions /api/gestio/login|api|sortir|config).
    - Portada amb una targeta per mòdul permès (nivell consulta, edició o admin).
    - Mòdul PROFESSORAT: graella (Tabulator) amb filtres per columna, cercador, edició a la cel·la,
-     alta, baixa (sense esborrar), «Desa els canvis», exportació a Excel/PDF, columnes visibles,
+     alta, estat (actiu, baixa laboral, substitut, baixa), «Desa els canvis» / «Descarta» (sense tornar al servidor),
+     exportació a Excel/PDF, columnes visibles (amb Nom i 1r cognom fixats a l'esquerra),
      camps (admin) i permisos (edició: dona consulta; admin: dona consulta i edició).
    - Mòdul EQUIPS (només admins globals): equips de gestió i docents.
    Qui pot fer què ho decideix l'Apps Script d'ijm_nucli_db; aquí només s'amaguen els botons.
@@ -56,6 +57,10 @@
     repetit: 'està repetit (ja el té una altra persona)', no_existeix: 'aquesta fila ja no existeix'
   };
   var text = function (c) { return MISSATGES[c] || MISSATGES.error_servidor; };
+  var PAPERERA = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
+  var FIXADES = ['nom', 'cognom1'];   // columnes bloquejades a l'esquerra per defecte
+  var copia = function (f) { var o = Object.assign({}, f); if (Array.isArray(o.equips)) o.equips = o.equips.slice(); return o; };
+  var deBaixa = function (d) { return d.estat === 'baixa'; };
 
   // ------------------------------------------------------------------ utilitats
   function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -231,7 +236,7 @@
   function editorDe(c) {
     if (c.tipus === 'numero') return { editor: 'number' };
     if (c.tipus === 'data') return { editor: 'date' };
-    if (c.tipus === 'llista') return { editor: 'list', editorParams: { values: [''].concat(c.valors.split('|').map(function (s) { return s.trim(); })), clearable: true } };
+    if (c.tipus === 'llista') { var ops = c.valors.split('|').map(function (s) { return s.trim(); }); return { editor: 'list', editorParams: { values: c.obligatori ? ops : [''].concat(ops), clearable: !c.obligatori } }; }
     if (c.tipus === 'si_no') return { editor: 'list', editorParams: { values: { 'sí': 'sí', '': '—' } } };
     return { editor: 'input' };
   }
@@ -244,20 +249,22 @@
   function columnes() {
     var ed = potEditar(), adm = esAdmin();
     var cols = [];
-    if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: adm ? 132 : 92, cssClass: 'gs-accions',
+    if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: adm ? 118 : 92, cssClass: 'gs-accions',
       formatter: function (cell) {
         var r = cell.getRow().getData();
-        return '<span class="gs-acc">' + (r.actiu === 'no' ? '<button type="button" data-a="reactiva">Reactiva</button>' : '<button type="button" data-a="baixa">Baixa</button>') +
-          (adm || String(r.id).indexOf('nou-') === 0 ? '<button type="button" class="gs-perill" data-a="esborra" title="Esborra del tot">✕</button>' : '') + '</span>';
+        return '<span class="gs-acc">' + (deBaixa(r) ? '<button type="button" data-a="reactiva">Reactiva</button>' : '<button type="button" data-a="baixa">Baixa</button>') +
+          (adm || String(r.id).indexOf('nou-') === 0 ? '<button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra del tot" aria-label="Esborra del tot">' + PAPERERA + '</button>' : '') + '</span>';
       },
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
-    cols.push({ title: 'Codi', field: 'id', frozen: true, width: 96, headerFilter: 'input', headerFilterPlaceholder: 'Filtra…',
-      formatter: function (cell) { var v = cell.getValue(); return String(v).indexOf('nou-') === 0 ? '<em>nou</em>' : esc(v); } });
-    S.d.camps.forEach(function (c) {
+    // El codi intern (PER-…) no es mostra: és l'índex de cada fila. Nom i 1r cognom, fixats a l'esquerra.
+    var camps = S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) >= 0; }).concat(S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) < 0; }));
+    camps.forEach(function (c) {
       var col = Object.assign({ title: c.nom + (c.obligatori && editable(c) ? ' *' : ''), field: c.clau, minWidth: 90, maxWidth: 360,
         editable: editable(c), cssClass: c.tipus === 'calculat' ? 'gs-calc' : (c.origen === 'clickedu' ? 'gs-ck' : ''),
         tooltip: c.tipus === 'calculat' ? 'Es calcula sol' : (c.origen === 'clickedu' ? 'Ve de Clickedu: no s’edita aquí' : false) }, filtreDe(c));
+      if (FIXADES.indexOf(c.clau) >= 0) col.frozen = true;
       if (editable(c)) Object.assign(col, editorDe(c));
+      if (c.clau === 'estat') col.formatter = function (cell) { var v = cell.getValue() || ''; return v ? '<span class="gs-estat gs-estat--' + esc(v.replace(/\s+/g, '-')) + '">' + esc(v) + '</span>' : ''; };
       if (c.tipus === 'si_no') col.formatter = function (cell) { return cell.getValue() === 'sí' ? '<span class="gs-si">sí</span>' : ''; };
       if (c.tipus === 'numero') { col.hozAlign = 'right'; col.sorter = 'number'; }
       cols.push(col);
@@ -268,9 +275,6 @@
       headerFilter: 'list', headerFilterParams: { values: (S.d.equips || []).reduce(function (o, e) { o[e.id] = e.nom; return o; }, {}), clearable: true },
       headerFilterFunc: function (f, v) { return (v || []).indexOf(f) >= 0; },
       editable: ed && S.d.admin_global, editor: 'list', editorParams: { values: (S.d.equips || []).reduce(function (o, e) { o[e.id] = e.nom; return o; }, {}), multiselect: true } });
-    cols.push({ title: 'Estat', field: 'actiu', width: 90, formatter: function (cell) { return cell.getValue() === 'no' ? 'de baixa' : 'actiu'; },
-      accessorDownload: function (v) { return v === 'no' ? 'de baixa' : 'actiu'; },
-      headerFilter: 'list', headerFilterParams: { values: { si: 'actiu', no: 'de baixa' }, clearable: true }, headerFilterFunc: '=' });
     return cols;
   }
   function pintaTaula() {
@@ -280,11 +284,11 @@
     if (Array.isArray(visibles)) cols.forEach(function (c) { if (c.field && c.field.charAt(0) !== '_' && c.field !== 'id' && visibles.indexOf(c.field) < 0) c.visible = false; });
     $('gsTaula').hidden = mobil;
     S.taula = new Tabulator('#gsTaula', {
-      data: S.d.files.map(function (f) { return Object.assign({}, f); }),
+      data: S.d.files.map(copia),
       index: 'id', columns: cols, layout: 'fitDataStretch', height: 'min(72vh, 760px)', movableColumns: true,
       placeholder: 'No hi ha cap fila amb aquests filtres.', columnHeaderVertAlign: 'bottom',
       initialSort: [{ column: S.d.camps.some(function (c) { return c.clau === 'nom_cognoms'; }) ? 'nom_cognoms' : 'id', dir: 'asc' }],
-      rowFormatter: function (row) { var d = row.getData(); var el = row.getElement(); el.classList.toggle('gs-baixa', d.actiu === 'no'); el.classList.toggle('gs-nova', String(d.id).indexOf('nou-') === 0); }
+      rowFormatter: function (row) { var d = row.getData(); var el = row.getElement(); el.classList.toggle('gs-baixa', deBaixa(d)); el.classList.toggle('gs-nova', String(d.id).indexOf('nou-') === 0); }
     });
     S.taula.on('tableBuilt', function () { aplicaFiltre(); });
     S.taula.on('dataFiltered', function (f, rows) { var c = $('gsCompte'); if (c) c.textContent = rows.length + ' de ' + S.taula.getDataCount() + ' files'; });
@@ -293,9 +297,9 @@
   }
   function aplicaFiltre() {
     if (!S.taula) return;
-    var claus = ['id'].concat(S.d.camps.map(function (c) { return c.clau; }));
+    var claus = S.d.camps.map(function (c) { return c.clau; });
     S.taula.setFilter(function (d) {
-      if (!S.baixes && d.actiu === 'no' && !S.canvis[d.id]) return false;
+      if (!S.baixes && deBaixa(d) && !S.canvis[d.id]) return false;
       if (!S.cerca) return true;
       return claus.some(function (k) { return String(d[k] == null ? '' : d[k]).toLowerCase().indexOf(S.cerca) >= 0; }) ||
         (d.equips || []).some(function (e) { return e.toLowerCase().indexOf(S.cerca) >= 0 || nomEquip(e).toLowerCase().indexOf(S.cerca) >= 0; });
@@ -343,9 +347,10 @@
   function accioFila(a, row) {
     var d = row.getData();
     if (a === 'baixa' || a === 'reactiva') {
-      var nou = a === 'baixa' ? 'no' : 'si';
+      var nou = a === 'baixa' ? 'baixa' : 'actiu';
       if (String(d.id).indexOf('nou-') === 0) return;
-      row.update({ actiu: nou }); registra(d.id, 'actiu', nou); row.reformat();
+      row.update({ estat: nou }); registra(d.id, 'estat', nou); row.reformat();
+      var ce = row.getCell('estat'); if (ce) ce.getElement().classList.add('gs-canviat');
       toast(a === 'baixa' ? 'Fila marcada de baixa. Premeu «Desa els canvis».' : 'Fila reactivada. Premeu «Desa els canvis».');
       return;
     }
@@ -363,9 +368,10 @@
     }
   }
   function alta() {
-    var id = 'nou-' + (++S.nTmp), fila = { id: id, actiu: 'si', equips: [] };
+    var id = 'nou-' + (++S.nTmp), fila = { id: id, equips: [] };
     S.d.camps.forEach(function (c) { fila[c.clau] = ''; });
     S.altes[id] = { tmp: id, valors: {} };
+    if (S.d.camps.some(function (c) { return c.clau === 'estat'; })) { fila.estat = 'actiu'; S.altes[id].valors.estat = 'actiu'; }
     marcaBrut(true);
     S.taula.addRow(fila, true).then(function (row) {
       S.taula.scrollToRow(row, 'top', false);
@@ -382,9 +388,10 @@
     api('desa', { modul: S.modul.id, canvis: canvis, altes: altes, forca: !!forca }, 'Desant…').then(function (r) {
       if (r.ok) {
         r.files.forEach(function (f) {
-          var dades = Object.assign({ id: f.id, actiu: f.actiu, data: f.data, equips: f.equips }, f.valors);
-          if (f.tmp) { var rt = S.taula.getRow(f.tmp); if (rt) rt.delete(); S.taula.addRow(dades); S.d.files.push(dades); }
-          else { var rw = S.taula.getRow(f.id); if (rw) rw.update(dades); S.d.files = S.d.files.map(function (x) { return x.id === f.id ? dades : x; }); }
+          var dades = Object.assign({ id: f.id, data: f.data, equips: f.equips || [] }, f.valors);
+          // S.d.files és la còpia «desada» (la que es recupera en descartar): mai no comparteix objectes amb la graella
+          if (f.tmp) { var rt = S.taula.getRow(f.tmp); if (rt) rt.delete(); S.taula.addRow(copia(dades)); S.d.files.push(copia(dades)); }
+          else { var rw = S.taula.getRow(f.id); if (rw) rw.update(copia(dades)); S.d.files = S.d.files.map(function (x) { return x.id === f.id ? copia(dades) : x; }); }
         });
         S.canvis = {}; S.altes = {}; marcaBrut(false);
         document.querySelectorAll('#gsTaula .gs-canviat').forEach(function (el) { el.classList.remove('gs-canviat'); });
@@ -414,12 +421,15 @@
   }
 
   function triaColumnes() {
+    var marca = function (b) { $('gsModalText').querySelectorAll('.gs-cols input').forEach(function (i) { i.checked = b; }); };
     var cols = S.taula.getColumns().filter(function (c) { var f = c.getField(); return f && f.charAt(0) !== '_' && f !== 'id'; });
     pregunta('Columnes visibles', '<p class="gs-ajuda">Trieu quines columnes voleu veure. Es recorda en aquest navegador. També podeu arrossegar les capçaleres per canviar l’ordre.</p><div class="gs-cols">' +
       cols.map(function (c) { return '<label><input type="checkbox" value="' + esc(c.getField()) + '"' + (c.isVisible() ? ' checked' : '') + '> ' + esc(c.getDefinition().title.replace(/ \*$/, '')) + '</label>'; }).join('') + '</div>',
-      [{ t: 'Totes', valor: 'totes', tipus: 'ghost' }, { t: 'Aplica', valor: 'aplica' }], false).then(function (v) {
+      [{ t: 'Cap', tipus: 'ghost', abans: function () { marca(false); return false; } },
+       { t: 'Totes', tipus: 'ghost', abans: function () { marca(true); return false; } },
+       { t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Aplica', valor: 'aplica' }], false).then(function (v) {
       if (!v) return;
-      var marcats = v === 'totes' ? cols.map(function (c) { return c.getField(); }) : [].map.call($('gsModalText').querySelectorAll('input:checked'), function (i) { return i.value; });
+      var marcats = [].map.call($('gsModalText').querySelectorAll('input:checked'), function (i) { return i.value; });
       cols.forEach(function (c) { if (marcats.indexOf(c.getField()) >= 0) c.show(); else c.hide(); });
       guarda.desa('cols|' + S.modul.id, marcats);
     });
@@ -427,27 +437,75 @@
   function exporta(tipus) {
     var nom = S.modul.id + '-' + new Date().toISOString().slice(0, 10);
     if (tipus === 'xlsx') return carregaScript(LIBS.xlsx).then(function () { S.taula.download('xlsx', nom + '.xlsx', { sheetName: S.modul.nom.slice(0, 30) }); });
-    return carregaScript(LIBS.jspdf).then(function () { return carregaScript(LIBS.autotable); }).then(function () {
-      S.taula.download('pdf', nom + '.pdf', { orientation: 'landscape', title: S.modul.nom + ' · Institut Joan Miró',
-        autoTable: { styles: { fontSize: 7, cellPadding: 1.5 }, headStyles: { fillColor: [28, 12, 188] }, margin: { top: 16, left: 8, right: 8 } } });
+    return carregaScript(LIBS.jspdf).then(function () { return carregaScript(LIBS.autotable); }).then(function () { pdf(nom); });
+  }
+  // PDF fet a mà (jsPDF + autoTable): capçalera fora de la taula, amplades segons el contingut, peu amb pàgines
+  function pdf(nom) {
+    var cols = S.taula.getColumns().filter(function (c) { var f = c.getField(); return c.isVisible() && f && f.charAt(0) !== '_'; });
+    var files = S.taula.getData('active');
+    var valor = function (c, d) { var f = c.getField(), v = d[f]; if (f === 'equips') return (v || []).join(', '); return v == null ? '' : String(v); };
+    var cap = cols.map(function (c) { return c.getDefinition().title.replace(/ \*$/, ''); });
+    var cos = files.map(function (d) { return cols.map(function (c) { return valor(c, d); }); });
+    var doc = new window.jspdf.jsPDF({ orientation: cols.length > 6 ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+    var W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 10, util = W - 2 * M;
+    var mida = cols.length > 14 ? 6 : cols.length > 10 ? 6.5 : 7.5;
+    // Amplada de cada columna segons el text real: natural = el que ocupa el 95 % de les files (o la capçalera);
+    // mínima = la paraula més llarga. Si no hi cap tot, s'encongeixen les columnes llargues (els correus, els noms
+    // complets), mai per sota de la mínima; si sobra espai, es reparteix.
+    doc.setFont('helvetica', 'normal'); doc.setFontSize(mida);
+    var mm = function (t, negreta) { doc.setFont('helvetica', negreta ? 'bold' : 'normal'); return doc.getStringUnitWidth(t) * mida / doc.internal.scaleFactor; };
+    var pad = 2 * 1.2 + 0.6;
+    var nat = [], min = [];
+    cols.forEach(function (c, j) {
+      var amp = cos.map(function (r) { return mm(r[j]); }).sort(function (x, y) { return x - y; });
+      var p95 = amp.length ? amp[Math.min(amp.length - 1, Math.floor(amp.length * 0.95))] : 0;
+      var paraules = cap[j].split(/\s+/).map(function (w) { return mm(w, true); });
+      var mot = cos.reduce(function (m, r) { return r[j].split(/\s+/).reduce(function (mm2, w) { return Math.max(mm2, mm(w)); }, m); }, 0);
+      min[j] = Math.max(Math.max.apply(null, paraules), Math.min(mot, 26)) + pad;
+      nat[j] = Math.max(min[j], Math.min(p95 + pad, 70), Math.min(mm(cap[j], true) + pad, 30));
     });
+    var amples = nat.slice(), suma = amples.reduce(function (x, y) { return x + y; }, 0);
+    if (suma > util) {
+      var flex = amples.reduce(function (t, w, j) { return t + (w - min[j]); }, 0), sobra = suma - util;
+      amples = amples.map(function (w, j) { return flex > sobra ? w - (w - min[j]) * sobra / flex : min[j]; });
+      suma = amples.reduce(function (x, y) { return x + y; }, 0);
+    }
+    if (suma < util) amples = amples.map(function (w) { return w * util / suma; });
+    var columnStyles = {}; amples.forEach(function (w, j) { columnStyles[j] = { cellWidth: w }; });
+    var filtres = [S.cerca ? 'cerca «' + S.cerca + '»' : '', S.taula.getHeaderFilters().length ? 'filtres a les columnes' : '', S.baixes ? 'amb baixes' : 'sense baixes'].filter(Boolean).join(' · ');
+    var data = new Date().toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+    doc.autoTable({
+      head: [cap], body: cos, startY: 24, margin: { top: 24, left: M, right: M, bottom: 12 }, tableWidth: 'wrap', columnStyles: columnStyles,
+      styles: { font: 'helvetica', fontSize: mida, cellPadding: 1.2, overflow: 'linebreak', valign: 'top', lineColor: [225, 229, 238], lineWidth: 0.1 },
+      headStyles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold' }, alternateRowStyles: { fillColor: [247, 248, 252] },
+      didDrawPage: function () {
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(28, 12, 188);
+        doc.text(S.modul.nom.toUpperCase() + ' · Institut Joan Miró', M, 12);
+        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90, 96, 120);
+        doc.text(data + ' · ' + files.length + ' files' + (filtres ? ' · ' + filtres : ''), M, 17);
+        doc.text('Pàgina ' + doc.internal.getNumberOfPages(), W - M, H - 6, { align: 'right' });
+      }
+    });
+    doc.save(nom + '.pdf');
   }
 
   // ------------------------------------------------------------------ camps (admin)
   function editaCamps() {
     var camps = (S.d.camps_tots || S.d.camps).map(function (c) { return Object.assign({ nou: false }, c); });
     function fila(c, i) {
+      var sis = c.clau === 'estat' && S.modul.id === 'professorat';   // camp de sistema: obligatori, llista i sempre actiu
+      var bloq = sis ? ' disabled title="Camp de sistema: sempre és una llista obligatòria i activa"' : '';
       var opcionsTipus = Object.keys(TIPUS).map(function (t) { return '<option value="' + t + '"' + (c.tipus === t ? ' selected' : '') + '>' + TIPUS[t] + '</option>'; }).join('');
       return '<tr data-i="' + i + '" class="' + (c.actiu === false ? 'gs-arxivat' : '') + '">' +
         '<td><input type="text" data-k="nom" value="' + esc(c.nom) + '"></td>' +
         '<td><input type="text" data-k="clau" value="' + esc(c.clau) + '"' + (c.nou ? '' : ' readonly title="La clau no es pot canviar: les dades hi estan lligades"') + '></td>' +
-        '<td><select data-k="tipus">' + opcionsTipus + '</select></td>' +
+        '<td><select data-k="tipus"' + bloq + '>' + opcionsTipus + '</select></td>' +
         '<td><input type="text" data-k="valors" value="' + esc(c.valors) + '" placeholder="A|B|C · @domini · nom cognom1"></td>' +
-        '<td style="text-align:center"><input type="checkbox" data-k="obligatori"' + (c.obligatori ? ' checked' : '') + '></td>' +
+        '<td style="text-align:center"><input type="checkbox" data-k="obligatori"' + (c.obligatori ? ' checked' : '') + bloq + '></td>' +
         '<td style="text-align:center"><input type="checkbox" data-k="unic"' + (c.unic ? ' checked' : '') + '></td>' +
         '<td><select data-k="visible_des_de"><option value="consulta"' + (c.visible_des_de === 'consulta' ? ' selected' : '') + '>Consulta</option><option value="edicio"' + (c.visible_des_de === 'edicio' ? ' selected' : '') + '>Edició</option><option value="admin"' + (c.visible_des_de === 'admin' ? ' selected' : '') + '>Admin</option></select></td>' +
         '<td><select data-k="origen"><option value="gestio"' + (c.origen !== 'clickedu' ? ' selected' : '') + '>GESTIO</option><option value="clickedu"' + (c.origen === 'clickedu' ? ' selected' : '') + '>Clickedu</option></select></td>' +
-        '<td style="text-align:center"><input type="checkbox" data-k="actiu"' + (c.actiu !== false ? ' checked' : '') + '></td>' +
+        '<td style="text-align:center"><input type="checkbox" data-k="actiu"' + (c.actiu !== false ? ' checked' : '') + bloq + '></td>' +
         '<td style="white-space:nowrap"><button type="button" class="prog-ico" data-m="-1" title="Puja">↑</button><button type="button" class="prog-ico" data-m="1" title="Baixa">↓</button></td></tr>';
     }
     function pinta() {
@@ -511,11 +569,13 @@
     api('equips', {}, 'Carregant els equips…').then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
       S.d = { equips_dades: r.equips, moduls: r.moduls, nivell: 'admin', obert: true };
+      var dadesEquips = function () { return r.equips.map(function (q) { return Object.assign({ _nou: false }, q, { membres: (q.membres || []).slice(), permisos: (q.permisos || []).slice() }); }); };
+      S.descartaEquips = function () { S.taula.replaceData(dadesEquips()); };
       $('gsEines').innerHTML = '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Equips de gestió i docents. Qui és a cada equip es canvia a la columna <strong>Equips</strong> del mòdul Professorat; els permisos de cada mòdul, amb el botó <strong>Permisos</strong> de cada mòdul. Un equip no s’esborra: es marca com a inactiu.</p>' +
         '<span class="gs-espai"></span><button type="button" class="prog-btn" data-accio="nou-equip">+ Afegeix equip</button>';
       var nomMod = function (id) { if (id === '*') return 'tots'; var m = r.moduls.filter(function (x) { return x.id === id; })[0]; return m ? m.nom : id; };
       S.taula = new Tabulator('#gsTaula', {
-        data: r.equips.map(function (q) { return Object.assign({ _nou: false }, q); }), index: 'id_equip', layout: 'fitDataStretch', height: 'min(70vh, 700px)',
+        data: dadesEquips(), index: 'id_equip', layout: 'fitDataStretch', height: 'min(70vh, 700px)',
         columns: [
           { title: 'Codi', field: 'id_equip', width: 130, editable: function (cell) { return cell.getRow().getData()._nou; }, editor: 'input', headerFilter: 'input' },
           { title: 'Nom', field: 'nom', editor: 'input', minWidth: 200, headerFilter: 'input' },
@@ -537,6 +597,14 @@
     });
   }
 
+  // Descartar: es torna a la còpia desada que ja és al navegador; no es crida el servidor ni es toca el full
+  function descarta() {
+    if (S.modul.id === 'equips') { if (S.descartaEquips) S.descartaEquips(); marcaBrut(false); toast('Canvis descartats.'); return; }
+    S.canvis = {}; S.altes = {}; marcaBrut(false);
+    S.taula.replaceData(S.d.files.map(copia)).then(function () { aplicaFiltre(); });
+    toast('Canvis descartats.');
+  }
+
   // ------------------------------------------------------------------ esdeveniments
   $('gsEines').addEventListener('click', function (e) {
     var b = e.target.closest('[data-accio]'); if (!b) return;
@@ -553,7 +621,7 @@
   $('gsBarra').addEventListener('click', function (e) {
     var b = e.target.closest('[data-accio]'); if (!b) return;
     if (b.dataset.accio === 'desa') { if (S.modul.id === 'equips') desaEquips(); else desa(false); }
-    if (b.dataset.accio === 'descarta') { marcaBrut(false); obreModul(S.modul); }
+    if (b.dataset.accio === 'descarta') descarta();
   });
 
   window.GestioApp = { S: S };   // per a les proves
