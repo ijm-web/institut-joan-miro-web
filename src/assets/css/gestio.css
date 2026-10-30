@@ -59,6 +59,11 @@
 .gs-estat--baixa-laboral{ background: #FFF4E5; color: #B54708; }
 .gs-estat--substitut{ background: #E7F1FB; color: #1D4F91; }
 .gs-estat--baixa{ background: #EEF0F6; color: #6B7280; }
+.gs-estat--promociona{ background: #E7F6EC; color: #1E7B3E; }
+.gs-estat--alumne-extern{ background: #E7F1FB; color: #1D4F91; }
+.gs-estat--repeteix-1r, .gs-estat--repeteix-2n{ background: #FFF4E5; color: #B54708; }
+/* Alumnat de 1r: els camps que només són de 2n queden en gris i no s'editen */
+.gs-taula .tabulator-row.gs-n1 .tabulator-cell.gs-nomes2n{ background: repeating-linear-gradient(135deg, #F6F7FA 0 6px, #EEF0F5 6px 12px); }
 
 /* Barra de desar: només quan hi ha canvis. Va damunt de la graella (no tapa la barra de desplaçament horitzontal) */
 .gs-app .gs-desa{ position: static; margin: 0 0 12px; padding: 10px 14px; box-shadow: none; background: #FFF8EE; border-color: #F3D9B5; }
