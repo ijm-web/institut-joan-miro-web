@@ -301,7 +301,9 @@
     return { editor: 'input' };
   }
   function filtreDe(c) {
-    if (c.tipus === 'llista') return { headerFilter: 'list', headerFilterParams: { values: c.valors.split('|').map(function (s) { return s.trim(); }), clearable: true }, headerFilterFunc: '=' };
+    // Llistes: filtre de selecció múltiple (es poden marcar diversos valors; la fila surt si té qualsevol d'ells)
+    if (c.tipus === 'llista') return { headerFilter: 'list', headerFilterPlaceholder: 'Tots', headerFilterParams: { values: c.valors.split('|').map(function (s) { return s.trim(); }), multiselect: true, clearable: true },
+      headerFilterFunc: function (f, v) { return !f || !f.length || f.indexOf(v) >= 0; }, headerFilterEmptyCheck: function (f) { return !f || !f.length; } };
     if (c.tipus === 'si_no') return { headerFilter: 'list', headerFilterParams: { values: { 'sí': 'sí', 'no': 'no' }, clearable: true }, headerFilterFunc: function (f, v) { return f === 'sí' ? v === 'sí' : f === 'no' ? v !== 'sí' : true; } };
     return { headerFilter: 'input', headerFilterPlaceholder: 'Filtra…' };
   }
@@ -316,7 +318,7 @@
           (adm || String(r.id).indexOf('nou-') === 0 ? '<button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra del tot" aria-label="Esborra del tot">' + PAPERERA + '</button>' : '') + '</span>';
       },
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
-    // El codi intern (PER-…) no es mostra: és l'índex de cada fila. Nom i 1r cognom, fixats a l'esquerra.
+    // El codi intern (PRO-…, ALU-…) no es mostra: és l'índex de cada fila. Nom i 1r cognom, fixats a l'esquerra.
     var camps = S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) >= 0; }).concat(S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) < 0; }));
     camps.forEach(function (c) {
       var col = Object.assign({ title: c.nom + (c.obligatori && editable(c) ? ' *' : ''), field: c.clau, minWidth: 90, maxWidth: 360,
@@ -360,7 +362,7 @@
     S.taula.on('cellEdited', celEditada);
     if (mobil) pintaMobil();
   }
-  function filtreEstat() { try { return !!(S.taula && S.taula.getColumn('estat') && S.taula.getHeaderFilterValue('estat')); } catch (e) { return false; } }
+  function filtreEstat() { try { var f = S.taula && S.taula.getColumn('estat') && S.taula.getHeaderFilterValue('estat'); return !!(f && (f.length || f === true)); } catch (e) { return false; } }
   function aplicaFiltre() {
     if (!S.taula) return;
     var claus = S.d.camps.map(function (c) { return c.clau; });
@@ -651,7 +653,7 @@
       S.d = { equips_dades: r.equips, moduls: r.moduls, nivell: 'admin', obert: true };
       var dadesEquips = function () { return r.equips.map(function (q) { return Object.assign({ _nou: false }, q, { membres: (q.membres || []).slice(), permisos: (q.permisos || []).slice() }); }); };
       S.descartaEquips = function () { S.taula.replaceData(dadesEquips()); };
-      $('gsEines').innerHTML = '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Equips de gestió i docents. Qui és a cada equip es canvia a la columna <strong>Equips</strong> del mòdul Professorat; els permisos de cada mòdul, amb el botó <strong>Permisos</strong> de cada mòdul. Un equip no s’esborra: es marca com a inactiu.</p>' +
+      $('gsEines').innerHTML = '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Equips de <strong>gestió</strong> (direcció, coordinacions, secretaria…) i <strong>docents</strong> (equips de nivell, departaments…). El tipus només serveix per classificar-los i filtrar-los: tots dos funcionen igual. Un docent pot ser a diversos equips i té el nivell més alt de tots ells. <strong>Membres</strong>: cliqueu la cel·la per afegir-ne o treure’n (també es pot fer a la columna Equips del mòdul Professorat). Els permisos de cada mòdul es donen amb el botó <strong>Permisos</strong> de cada mòdul. Un equip no s’esborra: es marca com a inactiu.</p>' +
         '<span class="gs-espai"></span><button type="button" class="prog-btn" data-accio="nou-equip">+ Afegeix equip</button>';
       var nomMod = function (id) { if (id === '*') return 'tots'; var m = r.moduls.filter(function (x) { return x.id === id; })[0]; return m ? m.nom : id; };
       S.taula = new Tabulator('#gsTaula', {
@@ -662,12 +664,40 @@
           { title: 'Tipus', field: 'tipus', editor: 'list', editorParams: { values: { gestio: 'Gestió', docent: 'Docent' } }, formatter: function (c) { return c.getValue() === 'docent' ? 'Docent' : 'Gestió'; }, headerFilter: 'list', headerFilterParams: { values: { gestio: 'Gestió', docent: 'Docent' }, clearable: true } },
           { title: 'Descripció', field: 'descripcio', editor: 'input', minWidth: 200 },
           { title: 'Actiu', field: 'actiu', editor: 'list', editorParams: { values: { si: 'sí', no: 'no' } }, formatter: function (c) { return c.getValue() === 'no' ? 'no' : 'sí'; } },
-          { title: 'Membres', field: 'membres', formatter: function (c) { var m = c.getValue() || []; return m.length ? '<span title="' + esc(m.join(', ')) + '">' + m.length + ' · ' + esc(m.slice(0, 3).join(', ')) + (m.length > 3 ? '…' : '') + '</span>' : '—'; } },
+          { title: 'Membres', field: 'membres', minWidth: 220, cssClass: 'gs-membres', formatter: function (c) { var m = c.getValue() || []; return '<button type="button" class="gs-membres__btn" title="Afegeix o treu membres">' + (m.length ? m.length + ' · ' + esc(m.slice(0, 3).join(', ')) + (m.length > 3 ? '…' : '') : 'Cap membre') + ' <span aria-hidden="true">✎</span></button>'; },
+            cellClick: function (e, cell) { var q = cell.getRow().getData(); if (q._nou) return toast('Primer deseu l’equip nou; després hi podreu afegir membres.', true); if (S.brut) return toast('Primer deseu o descarteu els canvis dels equips.', true); editaMembres(q, r.professorat || []); } },
           { title: 'Permisos', field: 'permisos', formatter: function (c) { return (c.getValue() || []).map(function (p) { return '<span class="gs-pill">' + esc(nomMod(p.modul)) + ': ' + esc(NOM_NIVELL[p.nivell] || p.nivell) + '</span>'; }).join('') || '—'; } }
         ]
       });
       S.taula.on('cellEdited', function (cell) { cell.getElement().classList.add('gs-canviat'); marcaBrut(true); $('gsEstat').textContent = 'Canvis sense desar als equips'; });
     });
+  }
+  // Membres d'un equip: llista del professorat amb cercador; es desa de cop (membres_desa)
+  function editaMembres(q, prof) {
+    var sel = (q.membres_ids || []).slice();
+    var html = '<p class="gs-ajuda">Marqueu els docents que formen part de <strong>' + esc(q.nom) + '</strong> (' + esc(q.id_equip) + '). Un docent pot ser a diversos equips.</p>' +
+      '<input type="search" class="gs-cerca" id="gsMembresCerca" placeholder="Cerca un docent…" style="max-width:none;width:100%;margin-bottom:8px">' +
+      '<p class="gs-compte" id="gsMembresCompte"></p><div class="gs-cols gs-membres__llista">' + prof.map(function (p) {
+        return '<label data-nom="' + esc((p.nom + ' ' + p.especialitat).toLowerCase()) + '"><input type="checkbox" value="' + esc(p.id) + '"' + (sel.indexOf(p.id) >= 0 ? ' checked' : '') + '> ' + esc(p.nom) +
+          (p.especialitat ? ' <small>· ' + esc(p.especialitat) + '</small>' : '') + (p.baixa ? ' <small>(de baixa)</small>' : '') + '</label>';
+      }).join('') + '</div>';
+    var compta = function () { var n = $('gsModalText').querySelectorAll('.gs-membres__llista input:checked').length; $('gsMembresCompte').textContent = n + (n === 1 ? ' membre' : ' membres'); };
+    pregunta('Membres · ' + q.nom, html, [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa els membres', valor: 1, abans: function () {
+      var n = $('gsModalText').querySelectorAll('.gs-membres__llista input:checked').length;
+      if (q.id_equip === 'EQ-DIR' && n < 2 && !confirmaDir) { confirmaDir = true; toast('Recomanació: almenys dues persones a l’equip directiu, perquè ningú no es quedi sense accés. Torneu a prémer «Desa els membres» per desar igualment.', true); return false; }
+    } }], false).then(function (v) {
+      confirmaDir = false;
+      if (!v) return;
+      api('membres_desa', { id_equip: q.id_equip, membres: sel }, 'Desant els membres…').then(function (r2) {
+        if (!r2.ok) return toast(text(r2.error), true);
+        delete S.cache.professorat;   // la columna Equips del professorat ha canviat
+        toast('Membres desats (' + r2.entren + ' altes, ' + r2.surten + ' baixes).'); obreModul(S.modul);
+      });
+    });
+    var confirmaDir = false;
+    compta();
+    $('gsModalText').querySelectorAll('.gs-membres__llista input').forEach(function (i) { i.addEventListener('change', function () { if (i.checked) { if (sel.indexOf(i.value) < 0) sel.push(i.value); } else sel = sel.filter(function (x) { return x !== i.value; }); compta(); }); });
+    $('gsMembresCerca').addEventListener('input', function () { var t = this.value.trim().toLowerCase(); $('gsModalText').querySelectorAll('.gs-membres__llista label').forEach(function (l) { l.hidden = t && l.dataset.nom.indexOf(t) < 0; }); });
   }
   function desaEquips() {
     var equips = S.taula.getData().map(function (q) { return { id_equip: q.id_equip, nom: q.nom, tipus: q.tipus, descripcio: q.descripcio, actiu: q.actiu }; });

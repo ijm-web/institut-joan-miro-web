@@ -25,7 +25,11 @@ Programacions no es toca: GESTIO té les seves funcions, la seva galeta (`ijm_ge
 | Admin | A més, camps (columnes) del mòdul · donar «consulta» i «edició» |
 | Admin global | L'equip directiu (`EQ-DIR`, permís `*` admin) i els correus de `config › admins`: tots els mòduls, el mòdul Equips, qui és a cada equip i el nivell admin |
 
-Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un docent pot ser a diversos equips (pestanya `membres`); val el nivell més alt. Un docent amb estat **baixa** ja no pot entrar (amb «baixa laboral» o «substitut», sí).
+Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un docent pot ser a **diversos equips** alhora (una fila per pertinença a la pestanya `membres`); si dos equips li donen nivells diferents en un mòdul, val el més alt.
+
+**Tipus d'equip**: *gestió* (direcció, coordinacions, secretaria…) o *docent* (equips de nivell, departaments…). Només serveix per classificar i filtrar: els dos tipus funcionen igual (membres i permisos).
+
+**Membres d'un equip** (només direcció): al mòdul **Equips i permisos**, clic a la cel·la *Membres* → llista del professorat amb cercador → marcar/desmarcar → *Desa els membres*. També es pot fer des de la columna *Equips* del mòdul Professorat (un docent → els seus equips). La consulta és la mateixa columna; cada canvi queda a l'historial. Un docent amb estat **baixa** ja no pot entrar (amb «baixa laboral» o «substitut», sí).
 
 ## Activació (una sola vegada)
 
@@ -36,7 +40,7 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
 4. A l'editor, tria la funció **configura** › ▶ Executa (autoritza-la). Crea les pestanyes, els mòduls, els camps i l'equip `EQ-DIR` amb permís admin a tot. Es pot tornar a executar sempre que es vulgui: no esborra dades i, si el full ve d'una versió anterior, l'adapta (vegeu «Actualitzar una instal·lació anterior»).
 5. Al full, pestanya `config`: posa el teu correu a **admins** (accés d'emergència) i, a **font_professorat**, l'URL del full actual de professorat (i a `font_professorat_pestanya` el nom de la pestanya, si no és la primera).
 6. A l'editor, executa **importaProfessorat**. Al registre d'execució diu quantes persones ha importat i quines columnes ha reconegut. Només importa les columnes previstes (Nom, 1r Cognom, 2n Cognom, NIF, Especialitat, email xtec, email institutjoanmiro, Jornada, Anys, Català, Càrrec). Definitiu, Comissió Serveis, Provisional i Interí es converteixen en un sol camp, **Situació laboral** (la columna que té la X). La jornada «Completa» passa a «Sencera» i «2/3» a «⅔». Tothom entra amb estat «actiu». Si la tornes a executar, no duplica (salta els correus que ja hi són).
-7. Pestanya `membres`: afegeix una fila per a cada persona de l'equip directiu: `EQ-DIR` | `PER-00xx` (el codi és a la columna `id_professor` de la pestanya `professorat`). La resta d'equips i membres es poden fer des del web.
+7. Pestanya `membres`: afegeix una fila per a cada persona de l'equip directiu: `EQ-DIR` | `PRO-00xx` (el codi és a la columna `id_professor` de la pestanya `professorat`). La resta d'equips i membres es poden fer des del web.
 8. Desplega › Desplegament nou › Tipus: **Aplicació web** · Executa com a: **Jo** · Qui hi té accés: **Qualsevol** › Desplega. Copia l'URL que acaba en `/exec`.
 
 ### 2. ijm_alumnat_db (mòdul Alumnat)
@@ -50,6 +54,7 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
    - quants alumnes ha importat de cada full i quines columnes ha reconegut;
    - «noms separats automàticament»: els alumnes que no eren a la pestanya `Noms` del full de registre. Els cognoms s'han separat per la coma i pels espais; revisa els cognoms compostos;
    - «Cal revisar»: valors que no són a les llistes (p. ex. una optativa antiga) o observacions que no ha entès. Es conserven tal com eren: corregeix-los des del web.
+   - Les files de títol dins del full (p. ex. «REPETIDORS DE 1r») se salten. «Cons_Mates» s'entén com a Taller de matemàtiques i «FALSE» en una data, com a buit.
 5. Si la tornes a executar, no duplica (salta els alumnes amb el mateix nom i cognoms).
 
 ### Actualitzar una instal·lació anterior (PAS 21, 22 o 23)
@@ -57,6 +62,7 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
    - La pestanya `persones` passa a dir-se **`professorat`**, i la columna `id_persona` passa a **`id_professor`** (també a `membres`).
    - Els camps Estat, NIF, Jornada, Situació laboral, Anys i Català passen a ser visibles només des d'edició (el nivell consulta veu Nom, cognoms, Especialitat, correus i Càrrec). Només es fa una vegada: si després en tornes a fer visible algun, es respecta.
    - Apareix el mòdul **Alumnat** i els seus camps.
+   - PAS 25: els codis del professorat passen de `PER-0001` a **`PRO-0001`** (pestanyes `professorat` i `membres`; l'historial antic es queda com era).
    - Si venies del PAS 21 o 22: també omple **estat** i **situacio**, treu les columnes antigues i els tres camps de nom complet, i passa Jornada a llista, NIF a NIF/NIE i Correu XTEC a `@xtec.cat`.
 2. Fes el punt 2 (ijm_alumnat_db).
 3. Desplega › Gestiona els desplegaments › ✏️ › Versió: **Versió nova** › Desplega (l'URL `/exec` no canvia).
@@ -82,9 +88,9 @@ Site configuration › Environment variables › Add a variable (àmbit «All» 
 ## Ús dels mòduls
 Comú a Professorat i Alumnat:
 - **Càrrega**: les dades d'un mòdul es llegeixen la primera vegada que s'obre; si tornes a la portada i hi tornes a entrar, no es tornen a llegir. **Actualitza** les torna a llegir del full (p. ex. si algú altre hi ha fet canvis).
-- **Filtres**: a sota de cada capçalera; **cercador** general a dalt. Les files amb estat «baixa» no surten si no es marca «Mostra també les baixes» **o** es filtra la columna Estat per «baixa».
+- **Filtres**: a sota de cada capçalera; **cercador** general a dalt. A les columnes amb llista (grup, estat, optatives, jornada…) el filtre és **múltiple**: es poden marcar diversos valors i surten les files que en tenen qualsevol (clic fora per tancar-lo; la creu el buida). Les files amb estat «baixa» no surten si no es marca «Mostra també les baixes» **o** es filtra la columna Estat per «baixa».
 - **Recuperar una baixa**: marca «Mostra també les baixes» (o filtra Estat = baixa), prem **Reactiva** a la fila (o tria un altre estat a la cel·la) i **Desa els canvis**.
-- **Nom i 1r cognom** queden fixats a l'esquerra quan et desplaces. El codi intern (`PER-…`, `ALU-…`) no es mostra.
+- **Nom i 1r cognom** queden fixats a l'esquerra quan et desplaces. El codi intern (`PRO-…`, `ALU-…`) no es mostra.
 - **Modificar**: clic a la cel·la, escriure i Enter (o Tab per passar a la següent). Les cel·les canviades queden en taronja fins que es prem **Desa els canvis** (la barra surt damunt de la graella). Cada cel·la es comprova en sortir: si el valor no té el format correcte, queda en vermell i surt un avís. L'Apps Script ho torna a comprovar en desar.
 - **Alta**: «+ Afegeix docent / alumne» (fila verda); el codi es posa en desar.
 - **Baixa**: botó «Baixa» de la fila (posa l'estat «baixa»). La **paperera** esborra del tot (només admin; queda a l'historial).
@@ -92,7 +98,7 @@ Comú a Professorat i Alumnat:
 - **Errors**: si alguna dada no és vàlida, no es desa res i les cel·les queden en vermell.
 - **Dues persones alhora**: si algú altre ha desat la mateixa fila, avisa i deixa triar entre tornar a carregar o desar la teva versió.
 - **Visualització camps**: amagar/mostrar amb els botons **Cap** i **Totes** (es recorda en aquest navegador) i arrossegar per canviar l'ordre.
-- **Excel / PDF**: el que es veu (filtres i columnes visibles).
+- **Excel / PDF** (a la dreta, des del nivell consulta): el que es veu (filtres i columnes visibles).
 - **Gestió camps** (admin): afegir columnes, canviar-ne el nom, el tipus (text, número, data, llista, sí/no, correu amb domini, NIF/NIE, calculat), els valors, si és obligatòria o única, des de quin nivell es veu i si ve de Clickedu (no s'edita). Una columna no s'esborra: s'arxiva (desmarcar «Actiu»). L'**Estat** és un camp de sistema: sempre és una llista obligatòria i sempre té el valor «baixa».
 - **Mòbil**: fitxes de consulta; per editar, ordinador.
 

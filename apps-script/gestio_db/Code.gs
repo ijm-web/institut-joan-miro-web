@@ -44,7 +44,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 24;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 25;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -124,7 +124,8 @@ const IMPORTACIO_ALUMNAT = {
 // Noms d'optatives als fulls antics → nom de la llista
 const OPTATIVA_ALIES = { 'c.científic': 'Taller de matemàtiques', 'c. científic': 'Taller de matemàtiques', 'construïm coneixement científic': 'Taller de matemàtiques',
   'esports raquetes': 'Esports de raqueta', 'raquetes': 'Esports de raqueta', 'iniciació als esports de raqueta': 'Esports de raqueta',
-  'tecnificació en esports de raqueta': 'Esports de raqueta', 'anglès (reforç)': 'Anglès', 'opt. anglès': 'Anglès' };
+  'tecnificació en esports de raqueta': 'Esports de raqueta', 'anglès (reforç)': 'Anglès', 'opt. anglès': 'Anglès',
+  'cons_mates': 'Taller de matemàtiques', 'cons mates': 'Taller de matemàtiques', 'cons. mates': 'Taller de matemàtiques' };
 // Observacions dels fulls de registre → estat
 const ESTAT_ALIES = { 'nou alumne': 'alumne extern', 'alumne nou': 'alumne extern', 'extern': 'alumne extern', 'repetidor 1r': 'repeteix 1r',
   'repetidor 2n': 'repeteix 2n' };
@@ -148,7 +149,7 @@ const MAX_TEXT = 2000;
 
 // Mòduls amb graella de dades: on es desen i com són els codis interns
 const MODULS = {
-  professorat: { full: FULL.prof, id: 'id_professor', prefix: 'PER-', xifres: 4, equips: true, nom: 'docent', ss: () => SpreadsheetApp.getActive() },
+  professorat: { full: FULL.prof, id: 'id_professor', prefix: 'PRO-', xifres: 4, equips: true, nom: 'docent', ss: () => SpreadsheetApp.getActive() },
   alumnat: { full: FULL.alu, id: 'id_alumne', prefix: 'ALU-', xifres: 5, equips: false, nom: 'alumne', ss: () => ssAlumnat_() },
 };
 function ssAlumnat_() {
@@ -194,6 +195,7 @@ function doPost(e) {
       case 'permisos_desa':return json_(permisosDesa_(ctx, req));
       case 'equips':       return json_(equips_(ctx));
       case 'equips_desa':  return json_(equipsDesa_(ctx, req));
+      case 'membres_desa': return json_(membresDesa_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -429,6 +431,7 @@ function net_(x, c) {
   if (c.tipus === 'correu') s = s.toLowerCase();
   if (c.tipus === 'numero') s = s.replace(',', '.');
   if (c.tipus === 'nif') s = s.toUpperCase().replace(/[\s.\-]/g, '');
+  if (c.tipus === 'data' && ['false', 'true', 'fals', 'cert', '-'].indexOf(l) >= 0) s = '';
   if (c.tipus === 'data') { const m = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/.exec(s); if (m) s = m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2); }
   if (c.clau === 'jornada' && JORNADA_ALIES[l]) s = JORNADA_ALIES[l];
   if (c.clau.indexOf('optativa') === 0 && OPTATIVA_ALIES[l]) s = OPTATIVA_ALIES[l];
@@ -586,8 +589,13 @@ function equips_(ctx) {
   return { ok: true, equips: llegeix_(FULL.eq).map((q) => ({ id_equip: q.id_equip, nom: q.nom, tipus: q.tipus || 'gestio', descripcio: q.descripcio || '',
     actiu: norm_(q.actiu) === 'no' ? 'no' : 'si',
     membres: membres.filter((m) => m.id_equip === q.id_equip).map((m) => nomDe(m.id_professor)),
+    membres_ids: membres.filter((m) => m.id_equip === q.id_equip).map((m) => m.id_professor),
     permisos: perms.filter((p) => p.id_equip === q.id_equip).map((p) => ({ modul: p.id_modul, nivell: p.nivell })) })),
-    moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })) };
+    moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })),
+    // Per triar membres: tot el professorat que no és de baixa (els de baixa que ja hi són també surten)
+    professorat: prof.filter((p) => !deBaixa_(p) || membres.some((m) => m.id_professor === p.id_professor))
+      .map((p) => ({ id: p.id_professor, nom: [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '), especialitat: p.especialitat || '', baixa: deBaixa_(p) }))
+      .sort((a, b) => a.nom.localeCompare(b.nom, 'ca')) };
 }
 function equipsDesa_(ctx, req) {
   if (!ctx.global) return { ok: false, error: 'sense_permis' };
@@ -614,6 +622,36 @@ function equipsDesa_(ctx, req) {
     if (files.length) sh.getRange(2, 1, files.length, cap.length).setValues(files);
     historial_(ctx.email, 'equips', FULL.eq, '', JSON.stringify(llista.map((q) => q.id_equip + ':' + q.nom)).slice(0, 45000));
     return { ok: true };
+  } finally { lock.releaseLock(); }
+}
+
+// Membres d'un equip (des del mòdul Equips): substitueix la llista de membres d'aquell equip. Només admins globals.
+function membresDesa_(ctx, req) {
+  if (!ctx.global) return { ok: false, error: 'sense_permis' };
+  const eq = String(req.id_equip || '');
+  if (!llegeix_(FULL.eq).some((q) => q.id_equip === eq)) return { ok: false, error: 'id_equip_invalid', id_equip: eq };
+  const ids = (Array.isArray(req.membres) ? req.membres.map(String) : []).filter((id, i, t) => t.indexOf(id) === i);
+  const existents = llegeix_(FULL.prof).map((p) => p.id_professor);
+  const dolents = ids.filter((id) => existents.indexOf(id) < 0);
+  if (dolents.length) return { ok: false, error: 'no_existeix', ids: dolents };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = SpreadsheetApp.getActive().getSheetByName(FULL.memb);
+    const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+    const ci = cap.indexOf('id_professor'), ce = cap.indexOf('id_equip'), cc = cap.indexOf('carrec');
+    const antics = vals.slice(1).filter((r) => String(r[ce]) === eq);
+    const queden = vals.slice(1).filter((r) => String(r[ce]) !== eq && r.join('') !== '');
+    ids.forEach((id) => {
+      const vell = antics.filter((r) => String(r[ci]) === id)[0];   // es conserva el càrrec dins l'equip
+      const r = cap.map(() => ''); r[ce] = eq; r[ci] = id; if (vell && cc >= 0) r[cc] = vell[cc]; queden.push(r);
+    });
+    if (vals.length > 1) sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
+    if (queden.length) sh.getRange(2, 1, queden.length, cap.length).setValues(queden);
+    const abans = antics.map((r) => String(r[ci]));
+    const entren = ids.filter((id) => abans.indexOf(id) < 0), surten = abans.filter((id) => ids.indexOf(id) < 0);
+    historial_(ctx.email, 'membres', FULL.memb, eq, JSON.stringify({ entren: entren, surten: surten }));
+    return { ok: true, entren: entren.length, surten: surten.length };
   } finally { lock.releaseLock(); }
 }
 
@@ -703,6 +741,7 @@ function configura() {
   });
   actualitzaProfessorat_();
   if (esquema < 24 && !profNou) visibilitatConsultaPAS24_();
+  canviaCodisPAS25_();
   fullModul_(MODULS.professorat, campsDe_('professorat', true));
   if (String(llegeixConfig_().db_alumnat || '').trim()) {
     fullModul_(MODULS.alumnat, campsDe_('alumnat', true));
@@ -733,6 +772,24 @@ function canviaNomsPAS24_() {
     const j = cap.map(norm_).indexOf('id_persona');
     if (j >= 0) { sh.getRange(1, j + 1, 1, 1).setValues([['id_professor']]); Logger.log(n + ': id_persona → id_professor.'); }
   });
+}
+// PAS 25: els codis del professorat passen de PER-0001 a PRO-0001 (pestanyes professorat i membres).
+// L'historial antic es deixa tal com era. Es pot repetir: si ja no hi ha cap PER-, no fa res.
+function canviaCodisPAS25_() {
+  const ss = SpreadsheetApp.getActive();
+  let n = 0;
+  [FULL.prof, FULL.memb].forEach((nom) => {
+    const sh = ss.getSheetByName(nom);
+    if (!sh || sh.getLastRow() < 2) return;
+    const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+    const j = cap.indexOf('id_professor');
+    if (j < 0) return;
+    const rg = sh.getRange(2, j + 1, sh.getLastRow() - 1, 1), vals = rg.getDisplayValues();
+    let canvi = false;
+    const nous = vals.map((r) => { const v = String(r[0]); if (/^PER-\d+$/.test(v)) { canvi = true; n++; return ['PRO-' + v.slice(4)]; } return [v]; });
+    if (canvi) rg.setValues(nous);
+  });
+  if (n) { historial_('configura', 'actualitzacio', FULL.prof, '', 'codis PER- → PRO- (' + n + ' cel·les)'); Logger.log('Codis del professorat: PER- → PRO- (' + n + ' cel·les).'); }
 }
 // PAS 24: el nivell consulta del professorat només veu nom, cognoms, especialitat, correus i càrrec.
 // Només s'aplica una vegada (config › esquema < 24): si després l'admin en torna a fer visible algun, es respecta.
@@ -843,6 +900,8 @@ function importaAlumnat() {
     vals.slice(fc + 1).forEach((r) => {
       const complet = String(r[ci('cognoms i nom')] || '').trim();
       if (!complet || !/[a-zà-ÿ]/i.test(complet)) return;
+      // Files de títol dins del full (p. ex. «REPETIDORS DE 1r»): sense coma i començant per una paraula en majúscules
+      if (complet.indexOf(',') < 0 && /^[A-ZÀ-ÚÇ]{4,}(\s|$)/.test(complet)) { avisos.push('Fila saltada (no sembla un alumne): «' + complet + '»'); return; }
       const trobat = noms[normNom_(complet)];
       if (!trobat) separats++;
       const o = Object.assign({}, trobat || separaNom_(complet));
