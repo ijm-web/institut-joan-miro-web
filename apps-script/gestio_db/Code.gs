@@ -533,14 +533,14 @@ function campsDesa_(ctx, req) {
 }
 
 // ------------------------------------------------------------------ permisos d'un mòdul
-// Es donen a equips. PAS 26: només l'admin del mòdul els gestiona (pot donar consulta i edició); l'admin global, tot.
-// La gestió completa (tots els equips × tots els mòduls) és al mòdul «Equips i permisos» (permisosMatriuDesa_).
+// Es donen a equips. PAS 27: només els administradors globals (equips amb admin a «Tots els mòduls», p. ex. EQ-DIR)
+// els gestionen, des del mòdul «Equips i permisos» (matriu: permisosMatriuDesa_). Dins dels mòduls ja no hi ha
+// botó Permisos; aquestes dues accions es mantenen per compatibilitat, però també només per a admins globals.
 function assignables_(ctx, modul) {
-  if (ctx.global) return NIVELLS.slice();
-  return ctx.nivell(modul) === 'admin' ? ['consulta', 'edicio'] : [];
+  return ctx.global ? NIVELLS.slice() : [];
 }
 function permisos_(ctx, modul) {
-  if (!modul || !pot_(ctx, modul, 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!modul || !ctx.global) return { ok: false, error: 'sense_permis' };
   const perms = llegeix_(FULL.perm);
   const eqs = llegeix_(FULL.eq).filter((q) => norm_(q.actiu) !== 'no');
   const llista = eqs.map((q) => {
