@@ -2,7 +2,8 @@
    Es carrega després de programacions.css (botons, modal, avisos i accés compartits) i del CSS de Tabulator.
    Script: /assets/js/gestio.js · Pàgina: src/gestio.njk */
 
-.gs-app__inner{ max-width: 1480px; }
+.gs-app__inner{ max-width: none; }   /* PAS 26: els llistats ocupen tota l'amplada */
+.gs-app.prog-app{ padding-left: clamp(12px, 2vw, 32px); padding-right: clamp(12px, 2vw, 32px); }
 .gs-app [hidden]{ display: none !important; }
 
 /* Portada: etiqueta del nivell a cada targeta */
@@ -84,6 +85,29 @@
 .gs-cols label{ display: flex; gap: 8px; align-items: center; padding: 4px 0; break-inside: avoid; font-size: 14px; }
 .gs-errors li{ margin: 4px 0; }
 
+/* Filtre de capçalera: casella ràpida + embut amb selecció múltiple */
+.gs-filtre{ display: flex; gap: 4px; align-items: center; }
+.gs-filtre input{ flex: 1 1 auto; min-width: 0; }
+.gs-filtre__embut{ flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border: 1px solid #D5D9E6; border-radius: 6px; background: #fff; color: #6B7280; cursor: pointer; padding: 0; }
+.gs-filtre__embut:hover{ color: var(--color-blue); border-color: var(--color-blue); }
+.gs-filtre__embut.is-actiu{ background: var(--color-blue); border-color: var(--color-blue); color: #fff; }
+.gs-popover{ position: absolute; z-index: 1000; min-width: 220px; max-width: 320px; background: #fff; border: 1px solid #DDE1EC; border-radius: 10px; box-shadow: 0 12px 32px rgba(20, 20, 60, .16); padding: 10px 12px; font: 400 13px var(--font-main); }
+.gs-popover__tit{ margin: 0 0 6px; font-weight: 700; color: var(--color-blue); }
+.gs-popover__llista{ max-height: 260px; overflow: auto; display: grid; gap: 2px; margin-bottom: 8px; }
+.gs-popover__llista label{ display: flex; gap: 8px; align-items: center; padding: 3px 2px; cursor: pointer; }
+.gs-popover__btns{ display: flex; gap: 6px; align-items: center; border-top: 1px solid #EEF0F6; padding-top: 8px; }
+.gs-popover__btns span{ flex: 1; }
+.gs-popover__btns button{ border: 1px solid #D5D9E6; background: #fff; border-radius: 6px; padding: 4px 9px; font: 600 12px var(--font-main); color: var(--color-text); cursor: pointer; }
+.gs-popover__btns button.is-primari{ background: var(--color-blue); border-color: var(--color-blue); color: #fff; }
+
+/* Mòdul Equips i permisos: pestanyes i matriu */
+.gs-pestanyes{ display: inline-flex; border: 1px solid #D5D9E6; border-radius: 999px; padding: 3px; background: #fff; }
+.gs-pestanyes button{ border: 0; background: none; border-radius: 999px; padding: 7px 16px; font: 600 13px var(--font-main); color: var(--color-text-muted); cursor: pointer; }
+.gs-pestanyes button[aria-selected="true"]{ background: var(--color-blue); color: #fff; }
+.gs-matriu{ overflow: auto; border: 1px solid #E1E5EE; border-radius: 10px; background: #fff; padding: 4px 8px; }
+.gs-matriu select.gs-canviat{ background: #FFF4E5; border-color: #E8600C; }
+.gs-matriu td:first-child{ min-width: 220px; }
+
 /* Membres d'un equip */
 .gs-membres__btn{ border: 0; background: none; padding: 0; font: inherit; color: var(--color-blue); cursor: pointer; text-align: left; }
 .gs-membres__btn:hover{ text-decoration: underline; }
@@ -104,3 +128,6 @@
   .gs-cols{ columns: 1; }
   .gs-cerca{ max-width: none; }
 }
+
+/* Accés: nota sota el botó de Google */
+.gs-ajuda-login{ margin: 14px 0 0; font-size: 12.5px; color: var(--color-text-muted); }

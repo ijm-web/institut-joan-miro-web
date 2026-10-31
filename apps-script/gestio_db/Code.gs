@@ -29,8 +29,8 @@
  *
  * Nivells (cadascun inclou l'anterior):
  *   consulta : veure, filtrar i exportar (només els camps «visible_des_de = consulta»)
- *   edicio   : alta, baixa i modificació de files · pot donar «consulta» a altres equips
- *   admin    : a més, camps (columnes) del mòdul · pot donar «consulta» i «edicio»
+ *   edicio   : alta, baixa i modificació de files
+ *   admin    : a més, camps (columnes) del mòdul · permisos del mòdul: pot donar «consulta» i «edicio» (PAS 26: només admin)
  *   admin global (equip amb permís «*» admin, o correu a config › admins): tots els mòduls, equips i nivell admin
  */
 
@@ -196,6 +196,7 @@ function doPost(e) {
       case 'equips':       return json_(equips_(ctx));
       case 'equips_desa':  return json_(equipsDesa_(ctx, req));
       case 'membres_desa': return json_(membresDesa_(ctx, req));
+      case 'permisos_matriu_desa': return json_(permisosMatriuDesa_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -532,14 +533,14 @@ function campsDesa_(ctx, req) {
 }
 
 // ------------------------------------------------------------------ permisos d'un mòdul
-// Es donen a equips. Edició pot donar consulta; admin pot donar consulta i edició; admin global, tot.
+// Es donen a equips. PAS 26: només l'admin del mòdul els gestiona (pot donar consulta i edició); l'admin global, tot.
+// La gestió completa (tots els equips × tots els mòduls) és al mòdul «Equips i permisos» (permisosMatriuDesa_).
 function assignables_(ctx, modul) {
   if (ctx.global) return NIVELLS.slice();
-  const n = NIVELLS.indexOf(ctx.nivell(modul));
-  return NIVELLS.slice(0, Math.max(0, n));
+  return ctx.nivell(modul) === 'admin' ? ['consulta', 'edicio'] : [];
 }
 function permisos_(ctx, modul) {
-  if (!modul || !pot_(ctx, modul, 'consulta')) return { ok: false, error: 'sense_permis' };
+  if (!modul || !pot_(ctx, modul, 'admin')) return { ok: false, error: 'sense_permis' };
   const perms = llegeix_(FULL.perm);
   const eqs = llegeix_(FULL.eq).filter((q) => norm_(q.actiu) !== 'no');
   const llista = eqs.map((q) => {
@@ -573,6 +574,38 @@ function permisosDesa_(ctx, req) {
       if (nou) { const r = cap.map(() => ''); r[ce] = eq; r[cm] = modul; r[cn] = nou; files.push(r); }
       historial_(ctx.email, 'permisos', FULL.perm, eq + ' · ' + modul, nivellActual + ' → ' + (nou || '(cap)'));
     }
+    if (vals.length > 1) sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
+    if (files.length) sh.getRange(2, 1, files.length, cap.length).setValues(files);
+    return { ok: true };
+  } finally { lock.releaseLock(); }
+}
+
+// Matriu de permisos (mòdul Equips i permisos, només admins globals): canvis [{ id_equip, id_modul (o *), nivell ('' = cap) }]
+function permisosMatriuDesa_(ctx, req) {
+  if (!ctx.global) return { ok: false, error: 'sense_permis' };
+  const canvis = Array.isArray(req.canvis) ? req.canvis : [];
+  const equips = llegeix_(FULL.eq).map((q) => q.id_equip), moduls = llegeix_(FULL.mod).map((m) => m.id_modul).concat(['*']);
+  for (const c of canvis) {
+    if (equips.indexOf(String(c.id_equip)) < 0) return { ok: false, error: 'id_equip_invalid', id_equip: c.id_equip };
+    if (moduls.indexOf(String(c.id_modul)) < 0 || c.id_modul === 'equips') return { ok: false, error: 'peticio_invalida' };
+    if (c.nivell && NIVELLS.indexOf(norm_(c.nivell)) < 0) return { ok: false, error: 'nivell_no_permes', id_equip: c.id_equip };
+  }
+  // Salvaguarda: l'equip directiu no es pot quedar sense «*» admin des del web (es canvia directament al full)
+  if (canvis.some((c) => c.id_equip === 'EQ-DIR' && c.id_modul === '*' && norm_(c.nivell) !== 'admin')) return { ok: false, error: 'eq_dir_protegit' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = SpreadsheetApp.getActive().getSheetByName(FULL.perm);
+    const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+    const ce = cap.indexOf('id_equip'), cm = cap.indexOf('id_modul'), cn = cap.indexOf('nivell');
+    let files = vals.slice(1).filter((r) => r.join('') !== '');
+    canvis.forEach((c) => {
+      const eq = String(c.id_equip), mod = String(c.id_modul), nou = norm_(c.nivell || '');
+      const abans = (files.filter((r) => String(r[ce]) === eq && String(r[cm]) === mod)[0] || [])[cn] || '';
+      files = files.filter((r) => !(String(r[ce]) === eq && String(r[cm]) === mod));
+      if (nou) { const r = cap.map(() => ''); r[ce] = eq; r[cm] = mod; r[cn] = nou; files.push(r); }
+      if (norm_(abans) !== nou) historial_(ctx.email, 'permisos', FULL.perm, eq + ' · ' + mod, norm_(abans) + ' → ' + (nou || '(cap)'));
+    });
     if (vals.length > 1) sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
     if (files.length) sh.getRange(2, 1, files.length, cap.length).setValues(files);
     return { ok: true };

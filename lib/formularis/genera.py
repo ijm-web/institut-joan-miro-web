@@ -200,7 +200,9 @@ MATERIES_BAT = [
          "amb el llenguatge. L'alumnat escriu, revisa i comparteix els seus textos i en fa la difusió."),
         ("Món Clàssic", "Franja 2 · 2 h",
          "Aproximació a la cultura de Grècia i Roma: història, mitologia, art, literatura, pensament i vida quotidiana, "
-         "i el seu llegat en la llengua, les institucions i la cultura actuals."),
+         "i el seu llegat en la llengua, les institucions i la cultura actuals. L'objectiu principal d'aquesta matèria és "
+         "entendre d'on venim per comprendre millor el món actual, analitzant la petjada inesborrable que el món grecoromà "
+         "ha deixat en la nostra llengua, pensament, art, política i societat."),
     ]),
 ]
 

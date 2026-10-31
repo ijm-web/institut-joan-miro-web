@@ -21,8 +21,8 @@ Programacions no es toca: GESTIO té les seves funcions, la seva galeta (`ijm_ge
 | Nivell | Pot |
 |---|---|
 | Consulta | Veure, filtrar, ordenar i exportar (Excel, PDF). Al Professorat només veu Nom, cognoms, Especialitat, els dos correus i Càrrec (i no veu les baixes); a l'Alumnat ho veu tot |
-| Edició | A més, alta, baixa i modificació de files · donar «consulta» a altres equips |
-| Admin | A més, camps (columnes) del mòdul · donar «consulta» i «edició» |
+| Edició | A més, alta, baixa i modificació de files |
+| Admin | A més, camps (columnes) del mòdul i **permisos** del mòdul (donar «consulta» i «edició») |
 | Admin global | L'equip directiu (`EQ-DIR`, permís `*` admin) i els correus de `config › admins`: tots els mòduls, el mòdul Equips, qui és a cada equip i el nivell admin |
 
 Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un docent pot ser a **diversos equips** alhora (una fila per pertinença a la pestanya `membres`); si dos equips li donen nivells diferents en un mòdul, val el més alt.
@@ -30,6 +30,10 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
 **Tipus d'equip**: *gestió* (direcció, coordinacions, secretaria…) o *docent* (equips de nivell, departaments…). Només serveix per classificar i filtrar: els dos tipus funcionen igual (membres i permisos).
 
 **Membres d'un equip** (només direcció): al mòdul **Equips i permisos**, clic a la cel·la *Membres* → llista del professorat amb cercador → marcar/desmarcar → *Desa els membres*. També es pot fer des de la columna *Equips* del mòdul Professorat (un docent → els seus equips). La consulta és la mateixa columna; cada canvi queda a l'historial. Un docent amb estat **baixa** ja no pot entrar (amb «baixa laboral» o «substitut», sí).
+
+**Permisos** (PAS 26): els gestiona la direcció des de **Equips i permisos › Permisos** (matriu de tots els equips i mòduls) i, per a un sol mòdul, qui en té el nivell *admin* (botó **Permisos** del mòdul, només consulta i edició). El nivell edició ja no dona permisos. L'administració global de l'equip directiu (`EQ-DIR` · `*` · admin) no es pot treure des del web.
+
+**Accés amb Google**: el nom que surt a la finestra de Google («Llibres de text») és el de l'aplicació configurada a Google Cloud per al `GOOGLE_CLIENT_ID` (el mateix que fa servir Programacions). Es canvia a console.cloud.google.com › el projecte del client › **Google Auth Platform › Branding** (nom de l'aplicació: «Institut Joan Miró») i, a **Audience**, el tipus d'usuari **Intern** (només comptes @institutjoanmiro.cat, sense pantalla de consentiment per a cada usuari nou).
 
 ## Activació (una sola vegada)
 
@@ -83,12 +87,12 @@ Site configuration › Environment variables › Add a variable (àmbit «All» 
 2. Han de sortir les targetes **Professorat**, **Alumnat** i **Equips i permisos**.
 3. Equips i permisos: crea els equips (p. ex. `EQ-COORD` Coordinacions, `EQ-SEC` Secretaria, `EQ-1ESO` Equip docent 1r ESO) i desa.
 4. Professorat: a la columna **Equips** de cada docent, tria els seus equips i desa.
-5. A cada mòdul, botó **Permisos**: dona a cada equip el nivell que li toqui.
+5. **Equips i permisos › Permisos**: matriu equips × mòduls; tria el nivell de cada equip a cada mòdul (o a «Tots els mòduls») i *Desa els canvis*. Els admins d'un mòdul també poden donar consulta i edició des del botó **Permisos** del mòdul.
 
 ## Ús dels mòduls
 Comú a Professorat i Alumnat:
 - **Càrrega**: les dades d'un mòdul es llegeixen la primera vegada que s'obre; si tornes a la portada i hi tornes a entrar, no es tornen a llegir. **Actualitza** les torna a llegir del full (p. ex. si algú altre hi ha fet canvis).
-- **Filtres**: a sota de cada capçalera; **cercador** general a dalt. A les columnes amb llista (grup, estat, optatives, jornada…) el filtre és **múltiple**: es poden marcar diversos valors i surten les files que en tenen qualsevol (clic fora per tancar-lo; la creu el buida). Les files amb estat «baixa» no surten si no es marca «Mostra també les baixes» **o** es filtra la columna Estat per «baixa».
+- **Filtres**: a sota de cada capçalera; **cercador** general a dalt. A les columnes amb llista o sí/no (grup, estat, optatives, jornada…) hi ha dos filtres: la **casella** (filtre ràpid: escriviu-hi un tros del valor) i l'**embut** del costat, que obre una caixa amb tots els valors per marcar-ne **diversos** (botons *Tots*, *Cap*, *Cancel·la* i *Accepta*). Quan l'embut filtra, es veu en blau. Les files amb estat «baixa» no surten si no es marca «Mostra també les baixes» **o** es filtra la columna Estat per «baixa».
 - **Recuperar una baixa**: marca «Mostra també les baixes» (o filtra Estat = baixa), prem **Reactiva** a la fila (o tria un altre estat a la cel·la) i **Desa els canvis**.
 - **Nom i 1r cognom** queden fixats a l'esquerra quan et desplaces. El codi intern (`PRO-…`, `ALU-…`) no es mostra.
 - **Modificar**: clic a la cel·la, escriure i Enter (o Tab per passar a la següent). Les cel·les canviades queden en taronja fins que es prem **Desa els canvis** (la barra surt damunt de la graella). Cada cel·la es comprova en sortir: si el valor no té el format correcte, queda en vermell i surt un avís. L'Apps Script ho torna a comprovar en desar.

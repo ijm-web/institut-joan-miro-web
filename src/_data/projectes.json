@@ -931,52 +931,18 @@
       "es": "La AFA del Institut Joan Miró es la asociación de las familias del alumnado del centro. Con las cuotas de las familias socias, <span class=\"kw\">financia materiales, actividades y mejoras para todo el alumnado</span> y colabora con el instituto en proyectos que hacen crecer la comunidad educativa.",
       "en": "The AFA is the association of the families of Institut Joan Miró students. With the fees paid by member families, it <span class=\"kw\">funds materials, activities and improvements for all students</span> and works with the school on projects that strengthen the school community."
     },
-    "stats": [
-      {
-        "num": "26<small>€</small>",
-        "label": {
-          "ca": "quota anual per família",
-          "es": "cuota anual por familia",
-          "en": "annual fee per family"
-        }
-      },
-      {
-        "num": "+6<small>€</small>",
-        "label": {
-          "ca": "per cada germà o germana",
-          "es": "por cada hermano o hermana",
-          "en": "for each additional sibling"
-        }
-      },
-      {
-        "num": "4",
-        "label": {
-          "ca": "grups de reforç de matemàtiques el curs 2026-2027",
-          "es": "grupos de refuerzo de matemáticas en el curso 2026-2027",
-          "en": "maths support groups in 2026-2027"
-        }
-      },
-      {
-        "num": "15",
-        "label": {
-          "ca": "dies de suport al reciclatge de llibres a l’estiu",
-          "es": "días de apoyo al reciclaje de libros en verano",
-          "en": "days of book-recycling support in summer"
-        }
-      }
-    ],
     "seccions": [
       {
         "titol": {
-          "ca": "Per a què serveix la quota",
-          "es": "Para qué sirve la cuota",
-          "en": "What the fee pays for"
+          "ca": "Què finança l’AFA",
+          "es": "Qué financia la AFA",
+          "en": "What the AFA funds"
         },
         "paras": [
           {
-            "ca": "La quota anual és de <span class=\"kw\">26 € per família</span>, més <span class=\"kw\">6 € per cada germà o germana</span>. Amb aquests diners, l’AFA cobreix:",
-            "es": "La cuota anual es de <span class=\"kw\">26 € por familia</span>, más <span class=\"kw\">6 € por cada hermano o hermana</span>. Con este dinero, la AFA cubre:",
-            "en": "The annual fee is <span class=\"kw\">€26 per family</span>, plus <span class=\"kw\">€6 for each additional sibling</span>. With this money, the AFA covers:"
+            "ca": "Amb les quotes dels socis l’AFA cobreix:",
+            "es": "Con las cuotas de los socios, la AFA cubre:",
+            "en": "With the fees paid by its members, the AFA covers:"
           }
         ],
         "checks": [
@@ -1063,25 +1029,13 @@
               "es": "Apoyo para todos los niveles durante 15 días en verano, de 8 a 13 h, con la colaboración puntual de familias de la AFA y de exalumnos.",
               "en": "Support for all year groups for 15 days in summer, 8 am to 1 pm, with occasional help from AFA families and former students."
             }
-          },
-          {
-            "t": {
-              "ca": "Quota de la FaPaC",
-              "es": "Cuota de la FaPaC",
-              "en": "FaPaC membership"
-            },
-            "d": {
-              "ca": "Inclou l’assegurança per fer activitats fora de l’horari lectiu, assessorament i formació.",
-              "es": "Incluye el seguro para hacer actividades fuera del horario lectivo, asesoramiento y formación.",
-              "en": "It includes insurance for activities outside school hours, advice and training."
-            }
           }
         ],
         "parasFinal": [
           {
-            "ca": "Els diners sobrants s’inverteixen en <span class=\"kw\">millores per al centre i l’alumnat que no cobreix l’administració</span>: ventiladors, tendals per al pati, tauletes… També poden subvencionar tallers i xerrades per a l’alumnat, o bé allò que s’acordi a l’assemblea de famílies o que demani l’institut segons les necessitats.",
-            "es": "El dinero sobrante se invierte en <span class=\"kw\">mejoras para el centro y el alumnado que no cubre la administración</span>: ventiladores, toldos para el patio, tabletas… También puede subvencionar talleres y charlas para el alumnado, o bien lo que se acuerde en la asamblea de familias o pida el instituto según las necesidades.",
-            "en": "Any money left over is spent on <span class=\"kw\">improvements for the school and its students that the administration does not cover</span>: fans, awnings for the playground, tablets… It can also fund workshops and talks for students, or whatever the families’ assembly agrees or the school requests as needs arise."
+            "ca": "També invertim en <span class=\"kw\">millores per al centre i l’alumnat</span>, com ara ventiladors o tendals per al pati, i subvencionem tallers i xerrades. A més, duem a terme les accions que acorda l’assemblea de famílies o que demana l’institut segons les necessitats.",
+            "es": "También invertimos en <span class=\"kw\">mejoras para el centro y el alumnado</span>, como ventiladores o toldos para el patio, y subvencionamos talleres y charlas. Además, llevamos a cabo las acciones que acuerda la asamblea de familias o que pide el instituto según las necesidades.",
+            "en": "We also invest in <span class=\"kw\">improvements for the school and its students</span>, such as fans or awnings for the playground, and fund workshops and talks. We also carry out whatever the families’ assembly agrees or the school requests as needs arise."
           }
         ]
       },
@@ -1262,32 +1216,20 @@
               "es": "Nueva propuesta: este curso se han comprado ejemplares adicionales, en la librería Pati Blau, para facilitar el préstamo de los libros de lectura.",
               "en": "New this year: extra copies have been bought from the Pati Blau bookshop to make it easier to lend reading books."
             }
-          },
-          {
-            "t": {
-              "ca": "Biblioteca a les tardes",
-              "es": "Biblioteca por las tardes",
-              "en": "Library in the afternoons"
-            },
-            "d": {
-              "ca": "Un exalumne contractat per l’AFA obre la biblioteca a les tardes perquè l’alumnat hi pugui estudiar. L’institut valora molt aquest suport; la continuïtat està pendent de valorar.",
-              "es": "Un exalumno contratado por la AFA abre la biblioteca por las tardes para que el alumnado pueda estudiar. El instituto valora mucho este apoyo; la continuidad está pendiente de valorar.",
-              "en": "A former student hired by the AFA opens the library in the afternoons so students can study there. The school values this support highly; whether it continues is still being assessed."
-            }
           }
         ]
       },
       {
         "titol": {
-          "ca": "Obres i infraestructures",
-          "es": "Obras e infraestructuras",
-          "en": "Building works"
+          "ca": "Seguiment de projectes",
+          "es": "Seguimiento de proyectos",
+          "en": "Project follow-up"
         },
         "paras": [
           {
-            "ca": "L’AFA fa seguiment, juntament amb la direcció del centre, de les obres i millores pendents de l’edifici.",
-            "es": "La AFA hace seguimiento, junto con la dirección del centro, de las obras y mejoras pendientes del edificio.",
-            "en": "Together with the school’s management team, the AFA follows up on pending building works and improvements."
+            "ca": "L’AFA col·labora amb la direcció per fer el seguiment dels projectes pendents:",
+            "es": "La AFA colabora con la dirección para hacer el seguimiento de los proyectos pendientes:",
+            "en": "The AFA works with the management team to follow up on pending projects:"
           }
         ],
         "accions": [
@@ -1310,9 +1252,9 @@
               "en": "Extension and upgrade"
             },
             "d": {
-              "ca": "Superat el bloqueig inicial de la cessió de terrenys, hi ha una comissió de seguiment impulsada per l’AFA, i la direcció és en contacte amb el Departament d’Educació.",
-              "es": "Superado el bloqueo inicial de la cesión de terrenos, hay una comisión de seguimiento impulsada por la AFA, y la dirección está en contacto con el Departament d’Educació.",
-              "en": "The initial hold-up over the land transfer has been resolved; a monitoring committee promoted by the AFA is in place, and the management team is in contact with the Department of Education."
+              "ca": "Hi ha una comissió de seguiment, impulsada per l’AFA i la direcció, que fa el seguiment del projecte d’ampliació i millora del centre.",
+              "es": "Hay una comisión de seguimiento, impulsada por la AFA y la dirección, que hace el seguimiento del proyecto de ampliación y mejora del centro.",
+              "en": "A monitoring committee, promoted by the AFA and the management team, follows the project to extend and upgrade the school."
             }
           },
           {
