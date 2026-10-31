@@ -18,14 +18,16 @@
  * Pestanyes de ijm_nucli_db (es creen soles amb «configura»; les columnes es llegeixen pel nom de la capçalera):
  *   config      : clau | valor | descripcio          (admins d'emergència, estat, curs, fitxers i fonts d'importació)
  *   professorat : id_professor | <un camp per columna, definits a «camps»; els calculats no es desen> | data | desat_per
+ *   pas         : id_pas | <camps del mòdul PAS> | data | desat_per        (PAS 28: personal d'administració i serveis)
  *   equips      : id_equip | nom | tipus (gestio/docent) | descripcio | actiu
- *   membres     : id_equip | id_professor | carrec
+ *   membres     : id_equip | id_membre (PRO-… o PAS-…) | carrec
  *   moduls      : id_modul | nom | descripcio | ordre | actiu
  *   permisos    : id_equip | id_modul (o *) | nivell (consulta/edicio/admin)
  *   camps       : modul | clau | nom | tipus | valors | obligatori | unic | visible_des_de | origen | ordre | actiu
  *   historial   : data | usuari | accio | taula | id | detall
  * Pestanya de ijm_alumnat_db:
  *   alumnes     : id_alumne | <camps del mòdul alumnat> | data | desat_per
+ *   copia_<curs>_<data> : còpia de seguretat que fa el tancament de curs abans de canviar res (PAS 28)
  *
  * Nivells (cadascun inclou l'anterior):
  *   consulta : veure, filtrar i exportar (només els camps «visible_des_de = consulta»)
@@ -34,31 +36,33 @@
  *   admin global (equip amb permís «*» admin, o correu a config › admins): tots els mòduls, equips i nivell admin
  */
 
-const FULL = { conf: 'config', prof: 'professorat', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
+const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
   camps: 'camps', hist: 'historial', alu: 'alumnes' };
 const CAP = {
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu'],
-  membres: ['id_equip', 'id_professor', 'carrec'],
+  membres: ['id_equip', 'id_membre', 'carrec'],
   moduls: ['id_modul', 'nom', 'descripcio', 'ordre', 'actiu'],
   permisos: ['id_equip', 'id_modul', 'nivell'],
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 25;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 28;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
-  ['curs', '2026-2027', 'Curs actual (informatiu).'],
+  ['curs', '2026-2027', 'Curs actual (aaaa-aaaa). El tancament de curs de l\'alumnat el fa avançar i canvia els títols dels grups (Grup-Classe 25-26 / 26-27).'],
   ['font_professorat', '', 'Per a importaProfessorat: ID (o URL) del full amb les dades actuals del professorat.'],
   ['font_professorat_pestanya', '', 'Per a importaProfessorat: nom de la pestanya (en blanc = la primera).'],
   ['db_alumnat', '', 'ID (o URL) del full ijm_alumnat_db, on es desen les dades del mòdul Alumnat.'],
   ['font_alumnat', '', 'Per a importaAlumnat: URL dels fulls de registre (1r ESO, 2n ESO…), separats per comes.'],
   ['font_alumnat_pestanya', 'Dades', 'Per a importaAlumnat: nom de la pestanya amb les dades de cada full de registre.'],
   ['esquema', '', 'Versió de l\'estructura dels fulls. La posa «configura»: no la canvieu.'],
+  ['copia_tancament', '', 'La posa el tancament de curs: pestanya d\'ijm_alumnat_db amb la còpia d\'abans del darrer tancament (per a desfesTancament).'],
 ];
 const MODULS_PER_DEFECTE = [
   ['professorat', 'Professorat', 'Dades administratives de cada docent: graella amb filtres, alta, baixa i modificació.', 1, 'si'],
   ['alumnat', 'Alumnat', 'Dades acadèmiques de l\'alumnat (1r i 2n d\'ESO): grups, optatives, diversitat i autoritzacions.', 2, 'si'],
+  ['pas', 'PAS', 'Personal d\'administració i serveis: administració, consergeria… Graella amb filtres, alta, baixa i modificació.', 3, 'si'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
@@ -78,6 +82,20 @@ const CAMPS_PROFESSORAT = [
   ['catala', 'Català', 'text', '', 'no', 'no', 'edicio', 'gestio'],
   ['carrec', 'Càrrec', 'text', '', 'no', 'no', 'consulta', 'gestio'],
 ];
+// PAS 28: personal d'administració i serveis (es gestiona com el professorat; poques persones, alta a mà)
+const CAMPS_PAS = [
+  ['nom', 'Nom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
+  ['cognom1', '1r cognom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
+  ['cognom2', '2n cognom', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['estat', 'Estat', 'llista', 'actiu|baixa laboral|substitut|baixa', 'si', 'no', 'edicio', 'gestio'],
+  ['categoria', 'Àmbit', 'llista', 'Administració|Consergeria|Altres', 'si', 'no', 'consulta', 'gestio'],
+  ['nif', 'NIF', 'nif', '', 'no', 'si', 'edicio', 'gestio'],
+  ['email', 'Correu institutjoanmiro', 'correu', '@institutjoanmiro.cat', 'no', 'si', 'consulta', 'gestio'],
+  ['telefon', 'Telèfon', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['jornada', 'Jornada', 'llista', 'Sencera|1/2|⅔', 'no', 'no', 'edicio', 'gestio'],
+  ['horari', 'Horari', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['carrec', 'Càrrec', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+];
 // PAS 24: el nivell consulta del professorat només veu aquests camps (la resta passen a «des d'edició»)
 const PROFESSORAT_CONSULTA = ['nom', 'cognom1', 'cognom2', 'especialitat', 'email_xtec', 'email', 'carrec'];
 const GRUPS_1R = ['1r ESO A', '1r ESO B', '1r ESO C', '1r ESO D', '1r ESO GR'];
@@ -85,13 +103,19 @@ const GRUPS_2N = ['2n ESO A', '2n ESO B', '2n ESO C', '2n ESO D', '2n ESO GR'];
 const OPTATIVES_1R = ['Alemany', 'Francès', 'Italià', 'Anglès', 'Tècniques d\'estudi', 'Esports de raqueta', 'Taller de matemàtiques', 'Taller d\'expressió'];
 const OPTATIVES_2N = ['Alemany', 'Francès', 'Italià', 'Anglès', 'Taller d\'expressió', 'Expressió artística', 'Esports de raqueta'];
 const ESTATS_ALUMNAT = ['promociona', 'repeteix 1r', 'repeteix 2n', 'alumne extern', 'baixa'];
+// PAS 28: nivells d'ESO en ordre (el tancament de curs fa avançar «promociona» al següent) i decisió de final de curs
+const NIVELLS_ESO = ['1r ESO', '2n ESO', '3r ESO', '4t ESO'];
+const NIVELLS_ALUMNAT = ['1r ESO', '2n ESO'];   // els que té ara el mòdul (3r i 4t, quan s'importin)
+const DECISIONS = ['promociona', 'repeteix', 'baixa'];
 const CAMPS_ALUMNAT = [
   ['nom', 'Nom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom1', '1r cognom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom2', '2n cognom', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['grup_2526', 'Grup-Classe 25-26', 'llista', GRUPS_1R.concat(GRUPS_2N).join('|'), 'no', 'no', 'consulta', 'gestio'],
-  ['grup_2627', 'Grup-Classe 26-27', 'llista', GRUPS_1R.concat(GRUPS_2N).join('|'), 'si', 'no', 'consulta', 'gestio'],
+  ['nivell', 'Nivell', 'llista', NIVELLS_ALUMNAT.join('|'), 'si', 'no', 'consulta', 'gestio'],
+  ['grup_anterior', 'Grup-Classe 25-26', 'llista', GRUPS_1R.concat(GRUPS_2N).join('|'), 'no', 'no', 'consulta', 'gestio'],
+  ['grup_actual', 'Grup-Classe 26-27', 'llista', GRUPS_1R.concat(GRUPS_2N).join('|'), 'no', 'no', 'consulta', 'gestio'],
   ['estat', 'Estat', 'llista', ESTATS_ALUMNAT.join('|'), 'si', 'no', 'consulta', 'gestio'],
+  ['decisio_final', 'Decisió final', 'llista', DECISIONS.join('|'), 'no', 'no', 'consulta', 'gestio'],
   ['optativa_1r', 'Optativa 1r', 'llista', OPTATIVES_1R.join('|'), 'no', 'no', 'consulta', 'gestio'],
   ['optativa_2n', 'Optativa 2n', 'llista', OPTATIVES_2N.join('|'), 'no', 'no', 'consulta', 'gestio'],
   ['div_mates', 'Div. mates', 'si_no', '', 'no', 'no', 'consulta', 'gestio'],
@@ -114,8 +138,9 @@ const IMPORTACIO_PROFESSORAT = {
   'anys': 'anys', 'català': 'catala', 'catala': 'catala', 'càrrec': 'carrec', 'carrec': 'carrec',
 };
 // Capçaleres dels fulls de registre d'alumnat → clau del camp (per a importaAlumnat)
+// (Les columnes «Grup-Classe aa-bb» es reconeixen a part: la de l'any més alt és el grup actual i l'altra, l'anterior.)
 const IMPORTACIO_ALUMNAT = {
-  'grup-classe 25-26': 'grup_2526', 'grup-classe 26-27': 'grup_2627', 'optativa 1r': 'optativa_1r', 'optativa 2n': 'optativa_2n',
+  'optativa 1r': 'optativa_1r', 'optativa 2n': 'optativa_2n',
   'div mates': 'div_mates', 'div català': 'div_catala', 'div catala': 'div_catala', 'div castellà': 'div_castella', 'div castella': 'div_castella',
   'nouvingut': 'nouvingut', 'data arribada': 'data_arribada', 'pi/psp': 'pi_psp', 'nese-a': 'nese_a', 'nese-b': 'nese_b', 'nee': 'nee',
   'aut. imatge': 'aut_imatge', 'dies especials': 'aut_dies_especials', 'aut. dies especials': 'aut_dies_especials',
@@ -150,6 +175,7 @@ const MAX_TEXT = 2000;
 // Mòduls amb graella de dades: on es desen i com són els codis interns
 const MODULS = {
   professorat: { full: FULL.prof, id: 'id_professor', prefix: 'PRO-', xifres: 4, equips: true, nom: 'docent', ss: () => SpreadsheetApp.getActive() },
+  pas: { full: FULL.pas, id: 'id_pas', prefix: 'PAS-', xifres: 3, equips: true, nom: 'persona', ss: () => SpreadsheetApp.getActive() },
   alumnat: { full: FULL.alu, id: 'id_alumne', prefix: 'ALU-', xifres: 5, equips: false, nom: 'alumne', ss: () => ssAlumnat_() },
 };
 function ssAlumnat_() {
@@ -157,19 +183,30 @@ function ssAlumnat_() {
   if (!id) throw new Error('db_alumnat_no_configurat');
   return SpreadsheetApp.openById(id);
 }
-const nivellAlumne_ = (v) => { const g = String(v.grup_2627 || ''); return /^1r/i.test(g) ? 1 : /^2n/i.test(g) ? 2 : 0; };
+// Nivell d'un alumne: 1 (1r ESO) … 4 (4t ESO); el camp «nivell» i, si és buit, el grup actual
+const nivellAlumne_ = (v) => { const g = String(v.nivell || v.grup_actual || ''); const i = NIVELLS_ESO.findIndex((n) => g.indexOf(n) === 0); return i + 1; };
+const ordinal_ = (nivell) => String(nivell || '').split(' ')[0];   // «2n ESO» → «2n»
+// Títols dels grups a partir del curs (2026-2027 → «Grup-Classe 25-26» i «Grup-Classe 26-27»)
+function titolsGrups_(curs) {
+  const a = Number(String(curs || '').slice(0, 4)) || 2026;
+  const yy = (n) => String(n).slice(2);
+  return { grup_anterior: 'Grup-Classe ' + yy(a - 1) + '-' + yy(a), grup_actual: 'Grup-Classe ' + yy(a) + '-' + yy(a + 1) };
+}
 // Regles entre camps (a més de la validació de cada camp). Retornen null o { error, camp }.
 // canviats: en una modificació, la regla només es comprova si ha canviat algun dels camps que hi intervenen.
 const REGLES = {
   alumnat: (v, canviats) => {
-    if (canviats && !canviats.some((k) => ['grup_2526', 'grup_2627', 'estat', 'optativa_2n'].indexOf(k) >= 0)) return null;
+    if (canviats && !canviats.some((k) => ['nivell', 'grup_anterior', 'grup_actual', 'estat', 'optativa_2n'].indexOf(k) >= 0)) return null;
     const n = nivellAlumne_(v);
+    // El grup actual ha de ser del nivell (p. ex. 2n ESO → 2n ESO A…); buit = per assignar (després del tancament)
+    if (v.nivell && String(v.grup_actual || '').trim() && String(v.grup_actual).indexOf(v.nivell) !== 0) return { error: 'grup_nivell', camp: 'grup_actual' };
     if (n === 1) {
-      if (String(v.grup_2526 || '').trim()) return { error: 'no_aplica_1r', camp: 'Grup-Classe 25-26' };
-      if (String(v.optativa_2n || '').trim()) return { error: 'no_aplica_1r', camp: 'Optativa 2n' };
-      if (v.estat && ['alumne extern', 'repeteix 1r', 'baixa'].indexOf(v.estat) < 0) return { error: 'estat_nivell', camp: 'Estat' };
+      // A 1r només té grup anterior qui repeteix 1r (els altres vénen de primària)
+      if (String(v.grup_anterior || '').trim() && v.estat !== 'repeteix 1r') return { error: 'no_aplica_1r', camp: 'grup_anterior' };
+      if (String(v.optativa_2n || '').trim()) return { error: 'no_aplica_1r', camp: 'optativa_2n' };
+      if (v.estat && ['alumne extern', 'repeteix 1r', 'baixa'].indexOf(v.estat) < 0) return { error: 'estat_nivell', camp: 'estat' };
     }
-    if (n === 2 && v.estat === 'repeteix 1r') return { error: 'estat_nivell', camp: 'Estat' };
+    if (n === 2 && v.estat === 'repeteix 1r') return { error: 'estat_nivell', camp: 'estat' };
     return null;
   },
 };
@@ -197,6 +234,7 @@ function doPost(e) {
       case 'equips_desa':  return json_(equipsDesa_(ctx, req));
       case 'membres_desa': return json_(membresDesa_(ctx, req));
       case 'permisos_matriu_desa': return json_(permisosMatriuDesa_(ctx, req));
+      case 'tanca_curs':   return json_(tancaCurs_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -212,9 +250,11 @@ function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).se
 function context_(email) {
   const cfg = llegeixConfig_();
   const admins = String(cfg.admins || '').toLowerCase().split(/[,;\s]+/).filter(Boolean);
-  const prof = llegeix_(FULL.prof);
-  const p = prof.filter((x) => String(x.email || '').toLowerCase() === email && !deBaixa_(x))[0] || null;
-  const meus = p ? llegeix_(FULL.memb).filter((m) => m.id_professor === p.id_professor).map((m) => m.id_equip) : [];
+  // PAS 28: qui entra pot ser del professorat o del PAS (el mateix correu no hauria de ser a tots dos)
+  const persones = llegeix_(FULL.prof).map((x) => Object.assign({ id: x.id_professor }, x))
+    .concat(llegeix_(FULL.pas).map((x) => Object.assign({ id: x.id_pas }, x)));
+  const p = persones.filter((x) => String(x.email || '').toLowerCase() === email && !deBaixa_(x))[0] || null;
+  const meus = p ? llegeix_(FULL.memb).filter((m) => m.id_membre === p.id).map((m) => m.id_equip) : [];
   const equipsActius = llegeix_(FULL.eq).filter((q) => norm_(q.actiu) !== 'no').map((q) => q.id_equip);
   const eqs = meus.filter((id) => equipsActius.indexOf(id) >= 0);
   const perms = llegeix_(FULL.perm).filter((r) => eqs.indexOf(r.id_equip) >= 0);
@@ -238,7 +278,7 @@ function inici_(ctx) {
     .sort((a, b) => a.ordre - b.ordre);
   if (!moduls.length) return { ok: false, error: 'sense_acces' };
   const p = ctx.persona;
-  return { ok: true, email: ctx.email, nom: p ? [p.nom, p.cognom1].filter(Boolean).join(' ') : '', id_professor: p ? p.id_professor : '',
+  return { ok: true, email: ctx.email, nom: p ? [p.nom, p.cognom1].filter(Boolean).join(' ') : '', id_persona: p ? p.id : '',
     admin_global: ctx.global, moduls: moduls, estat: norm_(ctx.cfg.estat || 'obert') };
 }
 
@@ -267,12 +307,13 @@ function dades_(ctx, modul) {
     .map((r) => {
       const o = { id: r[M.id], data: r.data || '', desat_per: r.desat_per || '' };
       camps.forEach((c) => { o[c.clau] = c.tipus === 'calculat' ? calcula_(c, r) : (r[c.clau] == null ? '' : r[c.clau]); });
-      if (ambEquips) o.equips = membres.filter((m) => m.id_professor === r[M.id]).map((m) => m.id_equip);
+      if (ambEquips) o.equips = membres.filter((m) => m.id_membre === r[M.id]).map((m) => m.id_equip);
       return o;
     });
   const equips = ambEquips ? llegeix_(FULL.eq).filter((q) => norm_(q.actiu) !== 'no').map((q) => ({ id: q.id_equip, nom: q.nom, tipus: q.tipus })) : [];
   const nivell = ctx.nivell(modul);
   return { ok: true, modul: modul, nivell: nivell, obert: obert_(ctx), admin_global: ctx.global, amb_equips: ambEquips, nom_fila: M.nom,
+    curs: ctx.cfg.curs || '', nivells_eso: modul === 'alumnat' ? NIVELLS_ESO : undefined,
     camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips };
 }
 
@@ -335,7 +376,9 @@ function desa_(ctx, req) {
     const totsCamps = campsDe_(modul, true);
     const sh = fullModul_(M, totsCamps);
     const editables = visibles_(ctx, modul, totsCamps.filter((c) => c.actiu && c.origen !== 'clickedu' && c.tipus !== 'calculat'));
-    const regla = REGLES[modul] || (() => null);
+    // Les regles retornen la clau del camp; a l'error hi va el nom (com a la validació de cada camp)
+    const reglaClau = REGLES[modul] || (() => null);
+    const regla = (v, ch) => { const e = reglaClau(v, ch); if (!e) return null; const c = totsCamps.filter((x) => x.clau === e.camp)[0]; return Object.assign({}, e, { camp: c ? c.nom : e.camp }); };
     const vals = sh.getDataRange().getDisplayValues();
     const cap = vals[0].map(norm_);
     const col = (k) => cap.indexOf(k);
@@ -366,7 +409,12 @@ function desa_(ctx, req) {
     altes.forEach((a, k) => {
       const v = a.valors || {}, nou = {};
       editables.forEach((cm) => { nou[cm.clau] = net_(v[cm.clau], cm); });
-      if (modul === 'professorat' && totsCamps.some((cm) => cm.clau === 'estat') && !nou.estat) nou.estat = 'actiu';
+      if ((modul === 'professorat' || modul === 'pas') && totsCamps.some((cm) => cm.clau === 'estat') && !nou.estat) nou.estat = 'actiu';
+      // Alumnat (també l'alta massiva per fitxer): sense nivell, el del grup; sense estat, «alumne extern»
+      if (modul === 'alumnat') {
+        if (!nou.nivell && nou.grup_actual) nou.nivell = NIVELLS_ESO.filter((x) => String(nou.grup_actual).indexOf(x) === 0)[0] || '';
+        if (!nou.estat && editables.some((cm) => cm.clau === 'estat')) nou.estat = 'alumne extern';
+      }
       const err = valida_(editables, nou) || regla(nou);
       nou[M.id] = codi_(M, seguent++);
       if (err) errors.push(Object.assign({ id: a.tmp || ('alta-' + (k + 1)) }, err));
@@ -419,7 +467,7 @@ function desa_(ctx, req) {
     const ambEquips = M.equips && pot_(ctx, modul, 'edicio');
     const membres = ambEquips ? llegeix_(FULL.memb) : [];
     return { ok: true, data: ara, files: resultat.map((r) => ({ tmp: r.tmp, id: r[M.id], data: r.data,
-      equips: ambEquips ? membres.filter((m) => m.id_professor === r[M.id]).map((m) => m.id_equip) : undefined,
+      equips: ambEquips ? membres.filter((m) => m.id_membre === r[M.id]).map((m) => m.id_equip) : undefined,
       valors: visibles_(ctx, modul, totsCamps).reduce((o, c) => { o[c.clau] = c.tipus === 'calculat' ? calcula_(c, r) : (r[c.clau] == null ? '' : r[c.clau]); return o; }, {}) })) };
   } finally { lock.releaseLock(); }
 }
@@ -452,7 +500,7 @@ function difer_(a, b) {
 function desaMembres_(canvis, usuari) {
   const sh = SpreadsheetApp.getActive().getSheetByName(FULL.memb);
   const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
-  const ci = cap.indexOf('id_professor'), ce = cap.indexOf('id_equip');
+  const ci = cap.indexOf('id_membre'), ce = cap.indexOf('id_equip');
   const ids = canvis.map((c) => c.id);
   const queden = vals.slice(1).filter((r) => ids.indexOf(String(r[ci])) < 0 && r.join('') !== '');
   canvis.forEach((c) => c.equips.forEach((e) => { const r = cap.map(() => ''); r[ci] = c.id; r[ce] = e; queden.push(r); }));
@@ -508,7 +556,7 @@ function campsDesa_(ctx, req) {
       // Camp de sistema: sempre llista obligatòria i activa, amb «baixa» (i al professorat, «actiu») com a valors
       tipus = 'llista'; obligatori = true; actiu = true; origen = 'gestio';
       const ops = valors.split('|').map((x) => x.trim()).filter(Boolean);
-      (modul === 'professorat' ? ['actiu', 'baixa'] : ['baixa']).forEach((x) => { if (ops.indexOf(x) < 0) ops.push(x); });
+      (modul === 'professorat' || modul === 'pas' ? ['actiu', 'baixa'] : ['baixa']).forEach((x) => { if (ops.indexOf(x) < 0) ops.push(x); });
       valors = ops.join('|');
     }
     files.push([modul, clau, String(c.nom).trim().slice(0, 80), tipus, valors, obligatori ? 'si' : 'no', c.unic ? 'si' : 'no',
@@ -617,17 +665,19 @@ function equips_(ctx) {
   if (!ctx.global) return { ok: false, error: 'sense_permis' };
   const membres = llegeix_(FULL.memb);
   const perms = llegeix_(FULL.perm);
-  const prof = llegeix_(FULL.prof);
-  const nomDe = (id) => { const p = prof.filter((x) => x.id_professor === id)[0]; return p ? [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' ') : id; };
+  // Persones que poden ser membres d'un equip: professorat i PAS (PAS 28)
+  const pers = llegeix_(FULL.prof).map((p) => ({ id: p.id_professor, p: p, detall: p.especialitat || '' }))
+    .concat(llegeix_(FULL.pas).map((p) => ({ id: p.id_pas, p: p, detall: 'PAS' + (p.categoria ? ' · ' + p.categoria : '') })));
+  const nomDe = (id) => { const x = pers.filter((y) => y.id === id)[0]; return x ? [x.p.nom, x.p.cognom1, x.p.cognom2].filter(Boolean).join(' ') : id; };
   return { ok: true, equips: llegeix_(FULL.eq).map((q) => ({ id_equip: q.id_equip, nom: q.nom, tipus: q.tipus || 'gestio', descripcio: q.descripcio || '',
     actiu: norm_(q.actiu) === 'no' ? 'no' : 'si',
-    membres: membres.filter((m) => m.id_equip === q.id_equip).map((m) => nomDe(m.id_professor)),
-    membres_ids: membres.filter((m) => m.id_equip === q.id_equip).map((m) => m.id_professor),
+    membres: membres.filter((m) => m.id_equip === q.id_equip).map((m) => nomDe(m.id_membre)),
+    membres_ids: membres.filter((m) => m.id_equip === q.id_equip).map((m) => m.id_membre),
     permisos: perms.filter((p) => p.id_equip === q.id_equip).map((p) => ({ modul: p.id_modul, nivell: p.nivell })) })),
     moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })),
-    // Per triar membres: tot el professorat que no és de baixa (els de baixa que ja hi són també surten)
-    professorat: prof.filter((p) => !deBaixa_(p) || membres.some((m) => m.id_professor === p.id_professor))
-      .map((p) => ({ id: p.id_professor, nom: [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '), especialitat: p.especialitat || '', baixa: deBaixa_(p) }))
+    // Per triar membres: professorat i PAS que no són de baixa (els de baixa que ja hi són també surten)
+    persones: pers.filter((x) => !deBaixa_(x.p) || membres.some((m) => m.id_membre === x.id))
+      .map((x) => ({ id: x.id, nom: [x.p.nom, x.p.cognom1, x.p.cognom2].filter(Boolean).join(' '), especialitat: x.detall, baixa: deBaixa_(x.p) }))
       .sort((a, b) => a.nom.localeCompare(b.nom, 'ca')) };
 }
 function equipsDesa_(ctx, req) {
@@ -664,7 +714,7 @@ function membresDesa_(ctx, req) {
   const eq = String(req.id_equip || '');
   if (!llegeix_(FULL.eq).some((q) => q.id_equip === eq)) return { ok: false, error: 'id_equip_invalid', id_equip: eq };
   const ids = (Array.isArray(req.membres) ? req.membres.map(String) : []).filter((id, i, t) => t.indexOf(id) === i);
-  const existents = llegeix_(FULL.prof).map((p) => p.id_professor);
+  const existents = llegeix_(FULL.prof).map((p) => p.id_professor).concat(llegeix_(FULL.pas).map((p) => p.id_pas));
   const dolents = ids.filter((id) => existents.indexOf(id) < 0);
   if (dolents.length) return { ok: false, error: 'no_existeix', ids: dolents };
   const lock = LockService.getScriptLock();
@@ -672,7 +722,7 @@ function membresDesa_(ctx, req) {
   try {
     const sh = SpreadsheetApp.getActive().getSheetByName(FULL.memb);
     const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
-    const ci = cap.indexOf('id_professor'), ce = cap.indexOf('id_equip'), cc = cap.indexOf('carrec');
+    const ci = cap.indexOf('id_membre'), ce = cap.indexOf('id_equip'), cc = cap.indexOf('carrec');
     const antics = vals.slice(1).filter((r) => String(r[ce]) === eq);
     const queden = vals.slice(1).filter((r) => String(r[ce]) !== eq && r.join('') !== '');
     ids.forEach((id) => {
@@ -757,6 +807,7 @@ function assegura_(nom) {
 function configura() {
   const ss = SpreadsheetApp.getActive();
   canviaNomsPAS24_();
+  canviaMembresPAS28_();   // abans d'assegura_: si no, afegiria una columna id_membre buida
   [FULL.conf, FULL.eq, FULL.memb, FULL.mod, FULL.perm, FULL.camps, FULL.hist].forEach((n) => assegura_(n));
   const conf = ss.getSheetByName(FULL.conf);
   if (conf.getLastRow() < 1) conf.getRange(1, 1, 1, 3).setValues([['clau', 'valor', 'descripcio']]).setFontWeight('bold');
@@ -766,7 +817,8 @@ function configura() {
   MODULS_PER_DEFECTE.forEach((m) => { if (mods.indexOf(m[0]) < 0) ss.getSheetByName(FULL.mod).appendRow(m); });
   const esquema = Number(llegeixConfig_().esquema) || 0;
   const profNou = !llegeix_(FULL.camps).some((c) => c.modul === 'professorat');
-  [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT]].forEach((x) => {
+  if (llegeix_(FULL.camps).some((c) => c.modul === 'alumnat')) canviaCampsAlumnatPAS28_();
+  [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['pas', CAMPS_PAS]].forEach((x) => {
     if (!llegeix_(FULL.camps).some((c) => c.modul === x[0])) {
       const sh = ss.getSheetByName(FULL.camps);
       x[1].forEach((c, i) => sh.appendRow([x[0], c[0], c[1], c[2], c[3], c[4], c[5], c[6], c[7], i + 1, 'si']));
@@ -776,8 +828,11 @@ function configura() {
   if (esquema < 24 && !profNou) visibilitatConsultaPAS24_();
   canviaCodisPAS25_();
   fullModul_(MODULS.professorat, campsDe_('professorat', true));
+  fullModul_(MODULS.pas, campsDe_('pas', true));
   if (String(llegeixConfig_().db_alumnat || '').trim()) {
+    canviaAlumnesPAS28_();
     fullModul_(MODULS.alumnat, campsDe_('alumnat', true));
+    ompleNivellPAS28_();
     Logger.log('ijm_alumnat_db: pestanya «alumnes» a punt.');
   } else Logger.log('Encara no hi ha config › db_alumnat: el mòdul Alumnat no funcionarà fins que hi poseu l\'URL d\'ijm_alumnat_db.');
   if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-DIR')) ss.getSheetByName(FULL.eq).appendRow(['EQ-DIR', 'Equip directiu', 'gestio', 'Administració de GESTIO', 'si']);
@@ -815,7 +870,7 @@ function canviaCodisPAS25_() {
     const sh = ss.getSheetByName(nom);
     if (!sh || sh.getLastRow() < 2) return;
     const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
-    const j = cap.indexOf('id_professor');
+    const j = cap.indexOf('id_professor') >= 0 ? cap.indexOf('id_professor') : cap.indexOf('id_membre');
     if (j < 0) return;
     const rg = sh.getRange(2, j + 1, sh.getLastRow() - 1, 1), vals = rg.getDisplayValues();
     let canvi = false;
@@ -824,6 +879,176 @@ function canviaCodisPAS25_() {
   });
   if (n) { historial_('configura', 'actualitzacio', FULL.prof, '', 'codis PER- → PRO- (' + n + ' cel·les)'); Logger.log('Codis del professorat: PER- → PRO- (' + n + ' cel·les).'); }
 }
+// PAS 28 · membres: la columna id_professor passa a id_membre (hi poden anar codis PRO-… i PAS-…). Es pot repetir.
+function canviaMembresPAS28_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.memb);
+  if (!sh || sh.getLastColumn() < 1) return;
+  const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+  const j = cap.indexOf('id_professor');
+  if (j >= 0 && cap.indexOf('id_membre') < 0) { sh.getRange(1, j + 1, 1, 1).setValues([['id_membre']]); Logger.log('membres: id_professor → id_membre.'); }
+}
+// PAS 28 · camps de l'alumnat: grup_2526 → grup_anterior, grup_2627 → grup_actual (ja no obligatori: després del
+// tancament queda per assignar), i dos camps nous: «nivell» (obligatori, després dels cognoms) i «decisio_final»
+// (després de l'estat). Els títols dels grups surten de config › curs. Es pot repetir.
+function canviaCampsAlumnatPAS28_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+  const iC = (k) => cap.indexOf(k);
+  const propis = vals.slice(1).filter((r) => String(r[iC('modul')]) === 'alumnat')
+    .sort((a, b) => (Number(a[iC('ordre')]) || 0) - (Number(b[iC('ordre')]) || 0));
+  const altres = vals.slice(1).filter((r) => String(r[iC('modul')]) !== 'alumnat' && r.join('') !== '');
+  const claus = propis.map((r) => String(r[iC('clau')]));
+  if (claus.indexOf('grup_2526') < 0 && claus.indexOf('grup_2627') < 0 && claus.indexOf('nivell') >= 0 && claus.indexOf('decisio_final') >= 0) return;
+  const titols = titolsGrups_(llegeixConfig_().curs);
+  const def = (clau) => { const c = CAMPS_ALUMNAT.filter((x) => x[0] === clau)[0]; const r = cap.map(() => '');
+    [['modul', 'alumnat'], ['clau', c[0]], ['nom', c[1]], ['tipus', c[2]], ['valors', c[3]], ['obligatori', c[4]], ['unic', c[5]],
+      ['visible_des_de', c[6]], ['origen', c[7]], ['actiu', 'si']].forEach((kv) => { if (iC(kv[0]) >= 0) r[iC(kv[0])] = kv[1]; });
+    return r; };
+  const nous = [];
+  propis.forEach((r) => {
+    const k = String(r[iC('clau')]);
+    if (k === 'grup_2526') { r[iC('clau')] = 'grup_anterior'; r[iC('nom')] = titols.grup_anterior; }
+    if (k === 'grup_2627') { r[iC('clau')] = 'grup_actual'; r[iC('nom')] = titols.grup_actual; r[iC('obligatori')] = 'no'; }
+    if (k === 'grup_2526' && claus.indexOf('nivell') < 0) nous.push(def('nivell'));
+    nous.push(r);
+    if (k === 'estat' && claus.indexOf('decisio_final') < 0) nous.push(def('decisio_final'));
+  });
+  if (!nous.some((r) => String(r[iC('clau')]) === 'nivell')) nous.splice(Math.min(3, nous.length), 0, def('nivell'));
+  if (!nous.some((r) => String(r[iC('clau')]) === 'decisio_final')) nous.push(def('decisio_final'));
+  nous.forEach((r, i) => { r[iC('ordre')] = i + 1; });
+  const totes = altres.concat(nous);
+  if (vals.length > 1) sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
+  sh.getRange(2, 1, totes.length, cap.length).setValues(totes);
+  historial_('configura', 'actualitzacio', FULL.camps, 'alumnat', 'grup_2526 → grup_anterior, grup_2627 → grup_actual, + nivell, + decisio_final');
+  Logger.log('Camps de l\'alumnat: grups renomenats, nivell i decisió final afegits.');
+}
+// PAS 28 · pestanya alumnes: les capçaleres grup_2526 / grup_2627 passen a grup_anterior / grup_actual. Es pot repetir.
+function canviaAlumnesPAS28_() {
+  const sh = ssAlumnat_().getSheetByName(FULL.alu);
+  if (!sh || sh.getLastColumn() < 1) return;
+  const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0];
+  let canvi = false;
+  const nou = cap.map((k) => { const n = norm_(k); if (n === 'grup_2526') { canvi = true; return 'grup_anterior'; } if (n === 'grup_2627') { canvi = true; return 'grup_actual'; } return k; });
+  if (canvi) { sh.getRange(1, 1, 1, nou.length).setValues([nou]); Logger.log('alumnes: grup_2526/grup_2627 → grup_anterior/grup_actual.'); }
+}
+// PAS 28 · omple el nivell (buit) a partir del grup actual: «2n ESO B» → «2n ESO»
+function ompleNivellPAS28_() {
+  const sh = ssAlumnat_().getSheetByName(FULL.alu);
+  if (!sh || sh.getLastRow() < 2) return;
+  const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+  const jn = cap.indexOf('nivell'), jg = cap.indexOf('grup_actual');
+  if (jn < 0 || jg < 0) return;
+  const n = sh.getLastRow() - 1;
+  const niv = sh.getRange(2, jn + 1, n, 1).getDisplayValues(), grp = sh.getRange(2, jg + 1, n, 1).getDisplayValues();
+  let omplerts = 0;
+  const nous = niv.map((r, i) => { if (String(r[0]).trim()) return [r[0]]; const g = String(grp[i][0]); const v = NIVELLS_ESO.filter((x) => g.indexOf(x) === 0)[0] || ''; if (v) omplerts++; return [v]; });
+  if (omplerts) { sh.getRange(2, jn + 1, n, 1).setValues(nous); historial_('configura', 'actualitzacio', FULL.alu, '', 'nivell omplert a ' + omplerts + ' files'); Logger.log('alumnes: nivell omplert a ' + omplerts + ' files.'); }
+}
+
+// ------------------------------------------------------------------ tancament de curs (ALUMNAT) · PAS 28
+// Qui té edició del mòdul (coordinacions de nivell). Totes les files que no són de baixa han de tenir «Decisió final».
+//   promociona → nivell següent, estat «promociona»   · repeteix → mateix nivell, estat «repeteix 1r/2n…»
+//   baixa      → estat «baixa»                         · a totes: grup actual → grup anterior, grup actual buit (per assignar)
+//   L'últim nivell (4t ESO) que promociona acaba l'etapa: estat «baixa».
+// Abans de canviar res es copia la pestanya alumnes (copia_<curs>_<data>); després el curs avança i els títols dels grups canvien.
+function tancaCurs_(ctx, req) {
+  const modul = 'alumnat', M = MODULS.alumnat;
+  if (String(req.modul || modul) !== modul) return { ok: false, error: 'peticio_invalida' };
+  if (!pot_(ctx, modul, 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const curs = String(ctx.cfg.curs || '').trim();
+  if (!/^\d{4}-\d{4}$/.test(curs)) return { ok: false, error: 'curs_invalid' };
+  if (String(req.curs || '') !== curs) return { ok: false, error: 'curs_canviat', curs: curs };   // ja l'ha tancat algú altre
+  const lock = LockService.getScriptLock();
+  lock.waitLock(30000);
+  try {
+    const camps = campsDe_(modul, true);
+    const valorsNivell = ((camps.filter((c) => c.clau === 'nivell')[0] || {}).valors || '').split('|').map((x) => x.trim()).filter(Boolean);
+    const sh = fullModul_(M, camps);
+    const vals = sh.getDataRange().getDisplayValues(), cap = vals[0].map(norm_);
+    const col = (k) => cap.indexOf(k);
+    ['nivell', 'grup_anterior', 'grup_actual', 'estat', 'decisio_final'].forEach((k) => { if (col(k) < 0) throw new Error('falta_columna_' + k); });
+    const files = vals.slice(1).map((r, i) => ({ fila: i + 2, r: r })).filter((f) => f.r.join('') !== '');
+    const pendents = [], sensNivell = [], resum = {};
+    files.forEach((f) => {
+      const o = {}; cap.forEach((k, j) => { if (k) o[k] = String(f.r[j] || '').trim(); });
+      f.o = o;
+      if (deBaixa_(o)) return;
+      const d = norm_(o.decisio_final);
+      if (DECISIONS.indexOf(d) < 0) { pendents.push({ id: o[M.id], nom: [o.nom, o.cognom1, o.cognom2].filter(Boolean).join(' '), nivell: o.nivell, grup: o.grup_actual }); return; }
+      if (d === 'promociona') {
+        const i = NIVELLS_ESO.indexOf(o.nivell);
+        if (i < 0) { sensNivell.push(o[M.id]); return; }
+        const seg = NIVELLS_ESO[i + 1];
+        if (seg && valorsNivell.indexOf(seg) < 0) { resum['falta:' + seg] = (resum['falta:' + seg] || 0) + 1; }
+      }
+      if (d === 'repeteix' && NIVELLS_ESO.indexOf(o.nivell) < 0) sensNivell.push(o[M.id]);
+    });
+    if (pendents.length) return { ok: false, error: 'pendents', pendents: pendents.slice(0, 300), total: pendents.length };
+    if (sensNivell.length) return { ok: false, error: 'sense_nivell', ids: sensNivell.slice(0, 100) };
+    const falten = Object.keys(resum).filter((k) => k.indexOf('falta:') === 0);
+    if (falten.length) return { ok: false, error: 'nivell_no_existeix', nivells: falten.map((k) => ({ nivell: k.slice(6), alumnes: resum[k] })) };
+    // 1) Còpia de seguretat
+    const ss = ssAlumnat_();
+    const nomCopia = 'copia_' + curs + '_' + Utilities.formatDate(new Date(), 'Europe/Madrid', 'yyyyMMdd-HHmm');
+    sh.copyTo(ss).setName(nomCopia);
+    // 2) Canvis
+    const ara = ara_(), comptes = {};
+    const compta = (k) => { comptes[k] = (comptes[k] || 0) + 1; };
+    const nous = files.map((f) => {
+      const o = Object.assign({}, f.o);
+      const d = norm_(o.decisio_final);
+      if (!deBaixa_(o)) {
+        const i = NIVELLS_ESO.indexOf(o.nivell);
+        if (d === 'promociona') {
+          const seg = NIVELLS_ESO[i + 1];
+          if (seg) { o.nivell = seg; o.estat = 'promociona'; compta(f.o.nivell + ' → ' + seg); }
+          else { o.estat = 'baixa'; compta(f.o.nivell + ' → acaba l\'etapa'); }
+        } else if (d === 'repeteix') { o.estat = 'repeteix ' + ordinal_(o.nivell); compta(o.nivell + ' · repeteix'); }
+        else if (d === 'baixa') { o.estat = 'baixa'; compta('baixa'); }
+        o.grup_anterior = f.o.grup_actual; o.grup_actual = '';
+        o.data = ara; o.desat_per = ctx.email;
+      }
+      o.decisio_final = '';
+      return cap.map((k) => (k && o[k] !== undefined ? o[k] : ''));
+    });
+    if (nous.length) sh.getRange(2, 1, nous.length, cap.length).setValues(nous);
+    // 3) El curs avança i els títols dels grups canvien
+    const a = Number(curs.slice(0, 4)), cursNou = (a + 1) + '-' + (a + 2);
+    posaConfig_('curs', cursNou); posaConfig_('copia_tancament', nomCopia + '|' + curs);
+    reanomenaGrups_(cursNou);
+    historial_(ctx.email, 'tancament', M.full, curs + ' → ' + cursNou, JSON.stringify({ copia: nomCopia, resum: comptes }));
+    return { ok: true, curs: cursNou, copia: nomCopia, resum: comptes };
+  } finally { lock.releaseLock(); }
+}
+function reanomenaGrups_(curs) {
+  const t = titolsGrups_(curs);
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+  for (let i = 1; i < vals.length; i++) {
+    const k = String(vals[i][cap.indexOf('clau')]);
+    if (String(vals[i][cap.indexOf('modul')]) === 'alumnat' && t[k]) sh.getRange(i + 1, cap.indexOf('nom') + 1).setValues([[t[k]]]);
+  }
+}
+// Execució manual (des de l'editor), si el tancament s'ha fet per error: torna a posar la pestanya alumnes tal com era
+// abans del darrer tancament (config › copia_tancament), el curs anterior i els títols dels grups. Els canvis fets
+// després del tancament es perden (la pestanya actual es conserva com a «desfet_<data>»).
+function desfesTancament() {
+  const cfg = llegeixConfig_();
+  const parts = String(cfg.copia_tancament || '').split('|');
+  if (!parts[0]) throw new Error('No hi ha cap tancament per desfer (config › copia_tancament és buit).');
+  const ss = ssAlumnat_();
+  const copia = ss.getSheetByName(parts[0]);
+  if (!copia) throw new Error('No trobo la pestanya de còpia «' + parts[0] + '».');
+  const actual = ss.getSheetByName(FULL.alu);
+  if (actual) actual.setName('desfet_' + Utilities.formatDate(new Date(), 'Europe/Madrid', 'yyyyMMdd-HHmm'));
+  copia.copyTo(ss).setName(FULL.alu);
+  posaConfig_('curs', parts[1]); posaConfig_('copia_tancament', '');
+  reanomenaGrups_(parts[1]);
+  historial_('desfesTancament', 'tancament_desfet', FULL.alu, parts[1], parts[0]);
+  Logger.log('Desfet: alumnes tornen a ser com a «' + parts[0] + '» i el curs torna a ser ' + parts[1] + '.');
+}
+
 // PAS 24: el nivell consulta del professorat només veu nom, cognoms, especialitat, correus i càrrec.
 // Només s'aplica una vegada (config › esquema < 24): si després l'admin en torna a fer visible algun, es respecta.
 function visibilitatConsultaPAS24_() {
@@ -926,7 +1151,11 @@ function importaAlumnat() {
     });
     const ci = (k) => cap.indexOf(k);
     const esPrimer = cap.indexOf('optativa 2n') < 0 && cap.indexOf('optativa 1r') < 0;
-    const mapa = cap.map((k) => IMPORTACIO_ALUMNAT[k] || (k === 'optativa' && esPrimer ? 'optativa_1r' : ''));
+    // «Grup-Classe aa-bb»: la de l'any més alt és el grup actual; l'altra, l'anterior
+    const anysGrup = cap.map((k) => { const m = /^grup-classe (\d{2})-(\d{2})$/.exec(k); return m ? Number(m[1]) : -1; });
+    const maxAny = Math.max.apply(null, anysGrup);
+    const mapa = cap.map((k, i) => IMPORTACIO_ALUMNAT[k] || (anysGrup[i] >= 0 ? (anysGrup[i] === maxAny ? 'grup_actual' : 'grup_anterior') : '') ||
+      (k === 'optativa' && esPrimer ? 'optativa_1r' : ''));
     Logger.log(origen.getName() + ' · columnes reconegudes: ' + cap.filter((k, i) => mapa[i]).join(', ') +
       ' · no s\'importen: ' + cap.filter((k, i) => k && !mapa[i] && ['cognoms i nom', 'observacions', 'repetidor'].indexOf(k) < 0).join(', '));
     let n = 0, separats = 0;
@@ -942,12 +1171,13 @@ function importaAlumnat() {
       // Estat a partir d'Observacions (i de Repetidor si és buit)
       const obsOri = ci('observacions') >= 0 ? String(r[ci('observacions')] || '').trim() : '';
       const obs = norm_(obsOri), rep = ci('repetidor') >= 0 && marcat_(r[ci('repetidor')]);
+      if (!o.nivell) o.nivell = NIVELLS_ESO.filter((x) => String(o.grup_actual || '').indexOf(x) === 0)[0] || '';
       const niv = nivellAlumne_(o);
       let estat = ESTATS_ALUMNAT.indexOf(obs) >= 0 ? obs : (ESTAT_ALIES[obs] || '');
       if (obs && !estat) avisos.push(complet + ': observacions «' + obsOri + '» no reconegudes');
-      if (!estat) estat = niv === 1 ? (rep ? 'repeteix 1r' : 'alumne extern') : rep ? 'repeteix 2n' : (/^1r/i.test(String(o.grup_2526 || '')) ? 'promociona' : 'alumne extern');
+      if (!estat) estat = niv === 1 ? (rep ? 'repeteix 1r' : 'alumne extern') : rep ? 'repeteix 2n' : (/^1r/i.test(String(o.grup_anterior || '')) ? 'promociona' : 'alumne extern');
       o.estat = estat;
-      if (niv === 1) { o.grup_2526 = ''; o.optativa_2n = ''; }
+      if (niv === 1) { if (estat !== 'repeteix 1r') o.grup_anterior = ''; o.optativa_2n = ''; }
       // Valors que no són a les llistes: es conserven, però s'avisa
       camps.forEach((c) => { if (!o[c.clau]) return; const err = valida_([c], o); if (err) avisos.push(complet + ': ' + c.nom + ' «' + o[c.clau] + '» (' + err.error + ')'); });
       if (vistos.indexOf(clauNom(o)) >= 0) { saltades++; return; }

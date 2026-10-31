@@ -151,3 +151,17 @@
 @media (min-width: 761px) and (min-height: 560px){
   html:has(body.gs-en-modul), body.gs-en-modul{ overflow: hidden; }
 }
+
+/* PAS 28 · Selecció de files, tancament de curs i alta massiva */
+.gs-seleccio{ display: inline-flex; align-items: center; gap: 8px; padding: 4px 10px; border-radius: 999px; background: #EEF0FB; font-size: 13px; color: var(--color-blue); white-space: nowrap; }
+.gs-enllac{ border: 0; background: none; padding: 0; font: 600 12px var(--font-main); color: var(--color-text-muted); text-decoration: underline; cursor: pointer; }
+.gs-taula .tabulator-row .tabulator-cell.gs-sel{ padding: 7px 0; text-overflow: clip; }
+.gs-taula .tabulator .tabulator-header .tabulator-col.gs-sel .tabulator-col-content{ padding: 8px 0; text-align: center; }
+.gs-taula .tabulator-row.tabulator-selected{ background: #E9ECFB !important; }
+.gs-taula .tabulator-row.gs-sense-ant .tabulator-cell.gs-ant{ background: repeating-linear-gradient(135deg, #F6F7FA 0 6px, #EEF0F5 6px 12px); }
+.gs-form-fila{ display: flex; flex-wrap: wrap; gap: 12px; }
+.gs-form-fila label{ display: grid; gap: 4px; font-size: 13px; font-weight: 600; flex: 1 1 200px; }
+.gs-form-fila select{ height: 36px; border: 1px solid #D5D9E6; border-radius: 6px; padding: 0 8px; font: 400 14px var(--font-main); }
+.gs-resum td, .gs-resum th{ text-align: center; }
+.gs-resum td:first-child, .gs-resum th:first-child{ text-align: left; }
+.gs-pendent{ color: #B42318; font-weight: 700; }

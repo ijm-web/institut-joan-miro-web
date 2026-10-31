@@ -2,7 +2,7 @@
 
 Àrea privada de gestió del centre a **/gestio**: s'hi entra amb el compte de Google de l'escola i cada persona veu només els mòduls que té assignats algun dels seus equips. Disseny i decisions: document «GESTIO - Proposta de disseny» (carpeta local `docs`, al costat de la carpeta del projecte).
 
-Mòduls: **Professorat**, **Alumnat** (1r i 2n d'ESO) i **Equips i permisos** (només direcció).
+Mòduls: **Professorat**, **Alumnat** (1r i 2n d'ESO), **PAS** (personal d'administració i serveis, PAS 28) i **Equips i permisos** (només direcció).
 
 ## Peces
 
@@ -29,7 +29,7 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
 
 **Tipus d'equip**: *gestió* (direcció, coordinacions, secretaria…) o *docent* (equips de nivell, departaments…). Només serveix per classificar i filtrar: els dos tipus funcionen igual (membres i permisos).
 
-**Membres d'un equip** (només direcció): al mòdul **Equips i permisos**, clic a la cel·la *Membres* → llista del professorat amb cercador → marcar/desmarcar → *Desa els membres*. També es pot fer des de la columna *Equips* del mòdul Professorat (un docent → els seus equips). La consulta és la mateixa columna; cada canvi queda a l'historial. Un docent amb estat **baixa** ja no pot entrar (amb «baixa laboral» o «substitut», sí).
+**Membres d'un equip** (només direcció): al mòdul **Equips i permisos**, clic a la cel·la *Membres* → llista del professorat i del PAS (marcats «PAS · Administració», «PAS · Consergeria»…) amb cercador → marcar/desmarcar → *Desa els membres*. També es pot fer des de la columna *Equips* del mòdul Professorat (un docent → els seus equips). La consulta és la mateixa columna; cada canvi queda a l'historial. Un docent o una persona del PAS amb estat **baixa** ja no pot entrar (amb «baixa laboral» o «substitut», sí). PAS 28: la columna de la pestanya `membres` es diu `id_membre` (hi van codis `PRO-…` i `PAS-…`). Per donar accés al PAS: crear els equips (p. ex. `EQ-ADM` Administració, `EQ-CON` Consergeria), afegir-hi les persones del PAS i donar-los permisos a la matriu.
 
 **Permisos** (PAS 26-27): només els gestionen els administradors globals (equip directiu) des de **Equips i permisos › Permisos** (matriu de tots els equips i mòduls). Dins dels mòduls ja no hi ha botó Permisos i l'Apps Script tampoc no deixa que l'admin d'un sol mòdul en doni. L'administració global de l'equip directiu (`EQ-DIR` · `*` · admin) no es pot treure des del web.
 
@@ -61,8 +61,9 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
    - Les files de títol dins del full (p. ex. «REPETIDORS DE 1r») se salten. «Cons_Mates» s'entén com a Taller de matemàtiques i «FALSE» en una data, com a buit.
 5. Si la tornes a executar, no duplica (salta els alumnes amb el mateix nom i cognoms).
 
-### Actualitzar una instal·lació anterior (PAS 21, 22 o 23)
+### Actualitzar una instal·lació anterior (PAS 21 a 27)
 1. Apps Script: enganxa el `Code.gs` nou, desa i executa **configura**. Al registre surt què ha canviat:
+   - PAS 28: es crea la pestanya **`pas`** i el mòdul **PAS** (amb els seus camps); a `membres`, la columna `id_professor` passa a **`id_membre`**; a l'alumnat, els camps `grup_2526` / `grup_2627` passen a **`grup_anterior`** / **`grup_actual`** (també les capçaleres de la pestanya `alumnes`), s'hi afegeixen **Nivell** (s'omple sol a partir del grup actual) i **Decisió final**, i a `config` apareixen **curs** (`2026-2027`) i `copia_tancament`. Els títols «Grup-Classe 25-26 / 26-27» surten de `config › curs`.
    - La pestanya `persones` passa a dir-se **`professorat`**, i la columna `id_persona` passa a **`id_professor`** (també a `membres`).
    - Els camps Estat, NIF, Jornada, Situació laboral, Anys i Català passen a ser visibles només des d'edició (el nivell consulta veu Nom, cognoms, Especialitat, correus i Càrrec). Només es fa una vegada: si després en tornes a fer visible algun, es respecta.
    - Apareix el mòdul **Alumnat** i els seus camps.
@@ -84,7 +85,7 @@ Site configuration › Environment variables › Add a variable (àmbit «All» 
 
 ### 4. Comprovar-ho
 1. Obre https://institutjoanmiro.netlify.app/gestio i entra amb el teu compte.
-2. Han de sortir les targetes **Professorat**, **Alumnat** i **Equips i permisos**.
+2. Han de sortir les targetes **Professorat**, **Alumnat**, **PAS** i **Equips i permisos**.
 3. Equips i permisos: crea els equips (p. ex. `EQ-COORD` Coordinacions, `EQ-SEC` Secretaria, `EQ-1ESO` Equip docent 1r ESO) i desa.
 4. Professorat: a la columna **Equips** de cada docent, tria els seus equips i desa.
 5. **Equips i permisos › Permisos**: matriu equips × mòduls; tria el nivell de cada equip a cada mòdul (o a «Tots els mòduls») i *Desa els canvis*.
@@ -97,7 +98,9 @@ Comú a Professorat i Alumnat:
 - **Recuperar una baixa**: marca «Mostra també les baixes» (o filtra Estat = baixa), prem **Reactiva** a la fila (o tria un altre estat a la cel·la) i **Desa els canvis**.
 - **Nom i 1r cognom** queden fixats a l'esquerra quan et desplaces. El codi intern (`PRO-…`, `ALU-…`) no es mostra.
 - **Modificar**: clic a la cel·la, escriure i Enter (o Tab per passar a la següent). Les cel·les canviades queden en taronja fins que es prem **Desa els canvis** (la barra surt damunt de la graella). Cada cel·la es comprova en sortir: si el valor no té el format correcte, queda en vermell i surt un avís. L'Apps Script ho torna a comprovar en desar.
-- **Alta**: «+ Afegeix docent / alumne» (fila verda); el codi es posa en desar.
+- **Alta**: «+ Afegeix docent / alumne / persona» (fila verda, a dalt de tot); el codi es posa en desar.
+- **Selecció** (PAS 28, des d'edició): la primera columna té una casella per fila (la de la capçalera marca totes les files que es veuen amb els filtres). Amb files marcades surt **Aplica a la selecció**: es tria un camp de llista o sí/no i un valor, i es posa a totes les files marcades (en taronja, sense desar). **Treu la selecció** desmarca. Després, *Desa els canvis*.
+- **Importa fitxer** (alta massiva, PAS 28, des d'edició): *Baixa la plantilla* (Excel amb les columnes del mòdul, una pestanya amb els valors permesos i les instruccions) → omplir-la o copiar-hi les dades de la preinscripció/matrícula → pujar-la (xlsx, xls o csv). Les columnes es reconeixen pel nom (també «Cognoms, Nom» o «Cognoms i nom», que es separen sols). Abans d'afegir, mostra quantes files ha llegit, les columnes reconegudes i les que no, les files que ja hi són (mateix nom i cognoms, no s'afegeixen si no es tria *Afegeix-les igualment*) i les dades per corregir. Les files entren a dalt de la graella **sense desar**: es revisen (les dades incorrectes en vermell) i *Desa els canvis*.
 - **Baixa**: botó «Baixa» de la fila (posa l'estat «baixa»). La **paperera** esborra del tot (només admin; queda a l'historial).
 - **Descarta**: torna a deixar la graella com estava en l'última desada, sense tornar a llegir res del full.
 - **Errors**: si alguna dada no és vàlida, no es desa res i les cel·les queden en vermell.
@@ -112,14 +115,32 @@ Comú a Professorat i Alumnat:
 - Formats: correu XTEC acabat en `@xtec.cat`, correu institutjoanmiro acabat en `@institutjoanmiro.cat`, NIF/NIE amb la lletra correcta.
 - **Equips**: columna que només veu qui té edició; només la direcció la pot canviar.
 
+### PAS
+- Es gestiona com el Professorat (alta a mà: són poques persones). Camps: nom, cognoms, **Estat** (actiu, baixa laboral, substitut, baixa), **Àmbit** (Administració, Consergeria, Altres), NIF, correu institutjoanmiro, telèfon, jornada, horari i càrrec. Codis interns `PAS-001`…
+- El nivell consulta veu nom, cognoms, àmbit, correu, horari i càrrec. La columna **Equips** (edició) diu a quins equips és cada persona.
+
 ### Alumnat
-- Camps, per aquest ordre: nom, cognoms, Grup-Classe 25-26, Grup-Classe 26-27 (obligatori), Estat (obligatori), Optativa 1r, Optativa 2n, Div. mates / català / castellà, Nouvingut, Data arribada, PI/PSP, NESE-A, NESE-B, NEE, Aut. imatge, Aut. dies especials, Aut. medicaments.
-- El **nivell** el marca el Grup-Classe 26-27:
-  - **1r d'ESO**: Grup-Classe 25-26 i Optativa 2n no s'omplen (surten ratllats); Estat: alumne extern, repeteix 1r o baixa.
+- Camps, per aquest ordre: nom, cognoms, **Nivell** (obligatori: 1r ESO, 2n ESO), Grup-Classe anterior, Grup-Classe actual, **Estat** (obligatori), **Decisió final**, Optativa 1r, Optativa 2n, Div. mates / català / castellà, Nouvingut, Data arribada, PI/PSP, NESE-A, NESE-B, NEE, Aut. imatge, Aut. dies especials, Aut. medicaments. Els títols dels grups canvien sols cada curs (`config › curs`).
+- El grup actual ha de ser del nivell (2n ESO → 2n ESO A…). Pot quedar **buit** (per assignar), com passa després del tancament de curs.
+  - **1r d'ESO**: Optativa 2n no s'omple (ratllada); el grup anterior només l'omple qui repeteix 1r; Estat: alumne extern, repeteix 1r o baixa.
   - **2n d'ESO**: Estat: promociona, repeteix 2n, alumne extern o baixa.
 - Diversitats, Nouvingut, PI/PSP, NESE i NEE: sí / (buit). **Autoritzacions**: sí / no / (buit = sense resposta).
 - **Data arribada**: es pot escriure 15/09/2026; es desa com 2026-09-15 i es comprova que la data existeixi.
-- La graella s'ordena per grup i cognoms.
+- La graella s'ordena per nivell, grup i cognoms.
+
+### Tancament de curs (Alumnat, PAS 28)
+Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
+1. **Decisió final** (juny, després de l'avaluació final): promociona, repeteix o baixa per a cada alumne que no sigui de baixa. Per fer-ho de pressa: filtrar (p. ex. grup 2n ESO B), marcar totes les files, *Aplica a la selecció* › Decisió final › promociona, i canviar després els casos concrets. *Desa els canvis*.
+2. Botó **Tancament de curs**: resum per grup (promocionen, repeteixen, baixa, pendents). Si en queda cap de pendent o hi ha canvis sense desar, no deixa continuar (*Mostra els pendents* els filtra).
+3. Marcar la casella de revisió i **Tanca el curs**. L'Apps Script:
+   - copia la pestanya `alumnes` a **`copia_<curs>_<data>`** (a ijm_alumnat_db) abans de canviar res;
+   - **promociona** → nivell següent, Estat «promociona» (4t ESO → acaba l'etapa: Estat «baixa»); **repeteix** → mateix nivell, Estat «repeteix 1r/2n…»; **baixa** → Estat «baixa»;
+   - a tothom: el grup actual passa a grup anterior i el grup actual queda **buit, per assignar**; la Decisió final es buida;
+   - el curs avança (`config › curs`: 2026-2027 → 2027-2028) i els títols dels grups canvien (Grup-Classe 26-27 / 27-28); queda a l'historial.
+   - Si algun alumne promociona a un nivell que encara no és al mòdul (ara, 2n → 3r ESO), **no tanca** i diu quants són: primer cal tenir el nivell al mòdul (vegeu la proposta d'importació de 3r, 4t i batxillerat al document de disseny).
+4. Després: assignar els grups del curs vinent (selecció + *Aplica a la selecció* › Grup) i fer l'alta de l'alumnat nou amb **Importa fitxer** (Estat «alumne extern»).
+- **Desfer** (si s'ha fet per error): a l'editor d'Apps Script, executar **desfesTancament**. Torna a posar la pestanya `alumnes` com era abans del darrer tancament (la de després es conserva com a `desfet_<data>`), el curs anterior i els títols. Els canvis fets després del tancament es perden.
+- Si dues persones ho intenten alhora, la segona rep «el curs ja s'ha tancat» (no es tanca dues vegades).
 
 ## Proves en local
 `netlify dev` (vegeu `LEGIR_PROVES_LOCALS.md`) i obre http://localhost:8888/gestio/ — fa servir els fulls reals.
