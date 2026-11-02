@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 29 · 2 de novembre de 2026",
+  "versio": "PAS 30 · 2 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -118,7 +118,8 @@
         "titol": "Exportar a Excel o PDF",
         "claus": "exportar excel pdf imprimir descarregar llistat",
         "text": [
-          "Els botons **Excel** i **PDF** (a la dreta) descarreguen el que es veu: les files filtrades i les columnes visibles. Es pot fer des del nivell consulta."
+          "Els botons **Excel** i **PDF** (a la dreta) descarreguen el que es veu: les files filtrades i les columnes visibles. Es pot fer des del nivell consulta.",
+          "Tots els PDF que es generen des de GESTIO porten el **logo del centre** a la part superior."
         ]
       },
       {
@@ -149,12 +150,12 @@
         {
           "id": "prof-camps",
           "titol": "Camps del professorat",
-          "claus": "estat actiu substitut baixa laboral situació jornada nif correu xtec permís",
+          "claus": "camps nif naixement nacionalitat telèfon adreça especialitat jornada situació substitut anys docència arribada",
           "text": [
-            "- **Estat** (obligatori): actiu, baixa laboral, permís, substitut o baixa.",
-            "- **Situació laboral**: definitiu, comissió de serveis, provisional, interí o substitut. **Jornada**: sencera, 1/2 o ⅔.",
-            "- Formats: correu XTEC acabat en @xtec.cat; correu del centre acabat en @institutjoanmiro.cat (obligatori i únic); NIF/NIE amb la lletra correcta.",
-            "El nivell consulta només veu nom, cognoms, especialitat, correus i càrrec."
+            "Nom, cognoms, estat, NIF, **data de naixement, nacionalitat, telèfon i adreça** (carrer i número, població, codi postal i província), **especialitat** (desplegable), correus, jornada, situació laboral, **substitueix a** (si és substitut), **anys docència** (anys com a docent, no només al centre), català, càrrec i **data d'arribada al centre**.",
+            "Les dades personals (NIF, naixement, nacionalitat, telèfon, adreça) i la data d'arribada només les veu el nivell edició o administració. El nivell consulta veu nom, cognoms, especialitat, correus i càrrec.",
+            "Si la situació laboral és «Substitut», cal omplir **Substitueix a**.",
+            "La data d'arribada al centre es posa sola quan es dona d'alta un docent (des de la graella o des de Nou professor/a)."
           ]
         },
         {
@@ -171,7 +172,7 @@
           "titol": "Llistat per signar (reunions)",
           "claus": "llistat signatures reunió claustre pdf full de signatures",
           "text": [
-            "El botó **Llistat** (des d'edició) genera un PDF per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
+            "El botó **Llistat** (des d'edició) genera un PDF amb el logo del centre per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
             "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament, filtreu abans per especialitat."
           ]
         },
@@ -190,6 +191,24 @@
       "graella": true,
       "intro": "Dades acadèmiques de l'alumnat de 1r a 4t d'ESO: grups, estat, decisió final, pendents, optatives, 4t (itinerari i franges), diversitat i autoritzacions.",
       "temes": [
+        {
+          "id": "eso-selector",
+          "titol": "Triar el nivell",
+          "claus": "nivell selector 1r 2n 3r 4t bat botons columnes",
+          "text": [
+            "A dalt de la graella hi ha un botó per a cada nivell i un de **Tots**. En triar un nivell (p. ex. **1r ESO**), només es veuen els alumnes d'aquell nivell i s'amaguen les columnes que no s'omplen en aquell nivell.",
+            "El nivell triat es recorda en aquest navegador. Els comptadors, els filtres i l'exportació (Excel i PDF) treballen amb el que es veu.",
+            "Si afegiu un alumne amb un nivell triat, el nivell ja hi surt posat."
+          ]
+        },
+        {
+          "id": "eso-colors",
+          "titol": "Colors de l'estat",
+          "claus": "estat colors promociona repeteix alumne extern baixa",
+          "text": [
+            "Cada estat té un color: **promociona** verd, **repeteix** groc o taronja (un to per a cada nivell), **alumne extern** blau i **baixa** gris."
+          ]
+        },
         {
           "id": "eso-nivell",
           "titol": "Nivell, grups i estat",
@@ -251,6 +270,15 @@
             "4. Assigneu els grups nous (selecció) i doneu d'alta l'alumnat nou amb **Importa fitxer**.",
             "Si s'ha fet per error: a l'Apps Script, executeu **desfesTancament**."
           ]
+        },
+        {
+          "id": "eso-grups",
+          "titol": "Equips docents: només els seus grups",
+          "claus": "equip docent grup tutor consulta abast",
+          "text": [
+            "Cada grup-classe té el seu equip docent (p. ex. «Equip docent 1r ESO A»), amb el professorat que hi fa classe. Els seus membres **només veuen l'alumnat del seu grup** (si fan classe a dos grups, veuen els dos) i no poden editar res: només consulten.",
+            "Qui té permís per una altra via (coordinació, direcció) ho veu tot."
+          ]
         }
       ]
     },
@@ -259,6 +287,24 @@
       "graella": true,
       "intro": "Dades acadèmiques de l'alumnat de 1r i 2n de batxillerat: grups, estat, decisió final, itinerari, matèries, pendents, matèries soltes, PI i autoritzacions.",
       "temes": [
+        {
+          "id": "bat-selector",
+          "titol": "Triar el nivell",
+          "claus": "nivell selector 1r 2n 3r 4t bat botons columnes",
+          "text": [
+            "A dalt de la graella hi ha un botó per a cada nivell i un de **Tots**. En triar un nivell (p. ex. **1r BAT**), només es veuen els alumnes d'aquell nivell i s'amaguen les columnes que no s'omplen en aquell nivell.",
+            "El nivell triat es recorda en aquest navegador. Els comptadors, els filtres i l'exportació (Excel i PDF) treballen amb el que es veu.",
+            "Si afegiu un alumne amb un nivell triat, el nivell ja hi surt posat."
+          ]
+        },
+        {
+          "id": "bat-colors",
+          "titol": "Colors de l'estat",
+          "claus": "estat colors promociona repeteix alumne extern baixa",
+          "text": [
+            "Cada estat té un color: **promociona** verd, **repeteix** groc o taronja (un to per a cada nivell), **alumne extern** blau i **baixa** gris."
+          ]
+        },
         {
           "id": "bat-nivell",
           "titol": "Nivell, grups i estat",
@@ -320,6 +366,15 @@
           "text": [
             "PI: sí o buit. Autoritzacions (imatge, dies especials, medicaments, sortida amb el metge, sortida a 1a/6a hora): sí, no o buit."
           ]
+        },
+        {
+          "id": "bat-grups",
+          "titol": "Equips docents: només els seus grups",
+          "claus": "equip docent grup tutor consulta abast",
+          "text": [
+            "Cada grup-classe té el seu equip docent (p. ex. «Equip docent 1r ESO A»), amb el professorat que hi fa classe. Els seus membres **només veuen l'alumnat del seu grup** (si fan classe a dos grups, veuen els dos) i no poden editar res: només consulten.",
+            "Qui té permís per una altra via (coordinació, direcció) ho veu tot."
+          ]
         }
       ]
     },
@@ -331,10 +386,11 @@
         {
           "id": "pas-camps",
           "titol": "Camps del PAS",
-          "claus": "estat àmbit administració consergeria correu telèfon horari",
+          "claus": "estat naixement nacionalitat telèfon adreça jornada situació arribada",
           "text": [
-            "Nom, cognoms, **Estat** (actiu, baixa laboral, substitut, baixa), **Àmbit** (Administració, Consergeria, Altres), NIF, correu del centre, telèfon, jornada, horari i càrrec.",
-            "El nivell consulta veu nom, cognoms, àmbit, correu, horari i càrrec."
+            "Nom, cognoms, **estat** (actiu, baixa laboral, permís, substitut, baixa), NIF, data de naixement, nacionalitat, correu del centre, telèfon, adreça (carrer i número, població, codi postal i província), jornada, situació laboral i data d'arribada al centre.",
+            "Els camps àmbit, horari i càrrec ja no es fan servir (s'han arxivat: les dades antigues es conserven al full).",
+            "El nivell consulta veu nom, cognoms i correu. La data d'arribada es posa sola en donar d'alta una persona."
           ]
         },
         {
@@ -355,20 +411,34 @@
         {
           "id": "nou-omplir",
           "titol": "Omplir el formulari",
-          "claus": "formulari camps obligatoris informació i validar",
+          "claus": "formulari camps obligatoris informació validar especialitat província codi postal",
           "text": [
-            "Els camps amb * són obligatoris (nom, 1r cognom, estat i correu del centre). Passeu el ratolí (o el focus) per la **i** de cada camp per veure què cal posar-hi.",
+            "Els camps amb * són obligatoris: nom, 1r cognom, estat, NIF, data de naixement, nacionalitat, telèfon, adreça (carrer i número, població, codi postal i província), especialitat, correu del centre, jornada i situació laboral. La resta són opcionals.",
+            "Passeu el ratolí (o el focus) per la **i** de cada camp per veure què cal posar-hi. El requadre s'obre sempre dins de la pantalla.",
+            "**Especialitat** es tria d'una llista. En escriure el **codi postal** (5 xifres), la **província** s'omple sola. El telèfon ha de tenir com a mínim 9 xifres.",
+            "**Anys docència** són els anys que fa que treballa com a docent (en total, no només al centre).",
             "Cada camp es comprova en sortir-ne: correu XTEC acabat en @xtec.cat, correu del centre acabat en @institutjoanmiro.cat (no repetit), NIF/NIE amb la lletra correcta, valors de les llistes."
+          ]
+        },
+        {
+          "id": "nou-substitut",
+          "titol": "Substituts",
+          "claus": "substitut substitueix a qui càrrec situació laboral",
+          "text": [
+            "Per defecte, la **situació laboral** és «Substitut» i l'estat «actiu».",
+            "Si la situació és «Substitut», apareix el camp obligatori **Substitueix a**: trieu el docent de la llista. El **càrrec** s'omple sol amb el de la persona substituïda (el podeu canviar).",
+            "Si canvieu la situació a una altra (interí, definitiu…), el camp desapareix i no es desa."
           ]
         },
         {
           "id": "nou-desar",
           "titol": "Desar, cancel·lar i PDF",
-          "claus": "desar cancel·lar pdf signatura data imprimir",
+          "claus": "desar cancel·lar pdf signatura data imprimir data arribada",
           "text": [
             "- **Desa**: dona d'alta el docent al professorat (es torna a comprovar tot; si el correu o el NIF ja hi són, no es desa). Es mostra el codi intern (PRO-…).",
+            "- La **data d'arribada al centre** no s'escriu: la posa GESTIO, el dia que es desa.",
             "- **Cancel·la**: buida el formulari (pregunta si hi havia dades). Després de desar, el botó es diu **Nova alta**.",
-            "- **PDF per signar**: document amb la capçalera del centre, totes les dades i les caselles de **signatura** i **data** per signar a mà."
+            "- **PDF per signar**: document amb el logo del centre, totes les dades i una sola casella per a la **signatura i la data**."
           ]
         }
       ]
@@ -384,7 +454,9 @@
           "claus": "equip nou membres afegir treure inactiu gestió docent",
           "text": [
             "Pestanya **Equips i membres**: + Afegeix equip (codi EQ-…), nom, tipus (gestió o docent: només serveix per classificar) i actiu. Un equip no s'esborra: es marca com a inactiu.",
-            "Cliqueu la cel·la **Membres** per afegir-ne o treure'n (professorat i PAS, amb cercador). Una persona pot ser a diversos equips."
+            "Cliqueu la cel·la **Membres** per afegir-ne o treure'n (professorat i PAS, amb cercador). Una persona pot ser a diversos equips.",
+            "**Grups**: si un equip té grups (p. ex. «1r ESO A»), els seus membres només veuen l'alumnat d'aquests grups als mòduls d'alumnat i al control d'entrada. Buit vol dir tots els grups.",
+            "Hi ha un equip docent per grup-classe (EQ-1ESOA, EQ-1ESOGR, EQ-1BATA…), creat a partir del document d'equips docents, amb permís de consulta."
           ]
         },
         {

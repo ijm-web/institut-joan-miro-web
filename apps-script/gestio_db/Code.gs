@@ -19,7 +19,7 @@
  *   config      : clau | valor | descripcio          (admins d'emergència, estat, curs, fitxers i fonts d'importació)
  *   professorat : id_professor | <un camp per columna, definits a «camps»; els calculats no es desen> | data | desat_per
  *   pas         : id_pas | <camps del mòdul PAS> | data | desat_per        (PAS 28: personal d'administració i serveis)
- *   equips      : id_equip | nom | tipus (gestio/docent) | descripcio | actiu
+ *   equips      : id_equip | nom | tipus (gestio/docent) | descripcio | actiu | grups (PAS 30: grups-classe als quals es limita la consulta)
  *   membres     : id_equip | id_membre (PRO-… o PAS-…) | carrec
  *   moduls      : id_modul | nom | descripcio | ordre | actiu
  *   permisos    : id_equip | id_modul (o *) | nivell (consulta/edicio/admin)
@@ -39,14 +39,14 @@
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
   camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades' };
 const CAP = {
-  equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu'],
+  equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu', 'grups'],
   membres: ['id_equip', 'id_membre', 'carrec'],
   moduls: ['id_modul', 'nom', 'descripcio', 'ordre', 'actiu'],
   permisos: ['id_equip', 'id_modul', 'nivell'],
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 29;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 30;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -59,49 +59,89 @@ const CONFIG_PER_DEFECTE = [
   ['esquema', '', 'Versió de l\'estructura dels fulls. La posa «configura»: no la canvieu.'],
   ['copia_tancament', '', 'La posa el tancament de curs de l\'ESO: pestanya d\'ijm_alumnat_db amb la còpia d\'abans del darrer tancament (per a desfesTancament).'],
   ['curs_batxillerat', '', 'Curs actual del mòdul Alumnat Batxillerat (aaaa-aaaa; en blanc = el mateix que «curs»). El fa avançar el tancament de curs del batxillerat.'],
+  ['font_dades_professorat', '', 'Per a importaDadesProfessorat: URL del llistat del professorat de Clickedu (CSV pujat a Drive o full de càlcul) amb DNI, data de naixement, nacionalitat, adreça i telèfon.'],
+  ['font_pas', '', 'Per a importaPAS: URL del llistat del PAS de Clickedu (CSV pujat a Drive o full de càlcul).'],
   ['font_control_entrada', '', 'Per a importaControlEntrada: URL del full amb el registre d\'entrades amb retard que es feia fins ara.'],
   ['copia_tancament_batxillerat', '', 'La posa el tancament de curs del batxillerat (per a desfesTancamentBatxillerat).'],
 ];
 const MODULS_PER_DEFECTE = [
   ['professorat', 'Professorat', 'Dades administratives de cada docent: graella amb filtres, alta, baixa i modificació.', 1, 'si'],
-  ['alumnat', 'Alumnat ESO', 'Dades acadèmiques de l\'alumnat d\'ESO (1r a 4t): grups, optatives, itinerari, diversitat i autoritzacions.', 2, 'si'],
-  ['batxillerat', 'Alumnat Batxillerat', 'Dades acadèmiques de l\'alumnat de batxillerat: grups, itinerari, matèries, pendents i autoritzacions.', 3, 'si'],
-  ['pas', 'PAS', 'Personal d\'administració i serveis: administració, consergeria… Graella amb filtres, alta, baixa i modificació.', 4, 'si'],
+  ['pas', 'PAS', 'Personal d\'administració i serveis: administració, consergeria… Graella amb filtres, alta, baixa i modificació.', 2, 'si'],
+  ['alumnat', 'Alumnat ESO', 'Dades acadèmiques de l\'alumnat d\'ESO (1r a 4t): grups, optatives, itinerari, diversitat i autoritzacions.', 3, 'si'],
+  ['batxillerat', 'Alumnat Batxillerat', 'Dades acadèmiques de l\'alumnat de batxillerat: grups, itinerari, matèries, pendents i autoritzacions.', 4, 'si'],
   ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
 // [clau, nom, tipus, valors, obligatori, unic, visible_des_de, origen]
+// PAS 30: especialitats (desplegable) i dades personals (des d'edició; les omple importaDadesProfessorat)
+const ESPECIALITATS = ['Català', 'Castellà', 'Matemàtiques', 'Anglès', 'Francès', 'Alemany', 'Italià', 'Història', 'Orientació', 'Economia',
+  'Educació Física', 'Física i Química', 'Biologia', 'Dibuix', 'Música', 'Religió', 'Clàssiques', 'Filosofia', 'Tecnologia'];
+const ESPECIALITAT_ALIES = { 'llengua catalana': 'Català', 'catala': 'Català', 'llengua castellana': 'Castellà', 'castella': 'Castellà', 'llengua i literatura catalana': 'Català',
+  'llengua i literatura castellana': 'Castellà', 'matematiques': 'Matemàtiques', 'angles': 'Anglès', 'frances': 'Francès', 'italia': 'Italià', 'geografia i historia': 'Història',
+  'historia': 'Història', 'socials': 'Història', 'ciencies socials': 'Història', 'orientacio educativa': 'Orientació', 'psicologia i pedagogia': 'Orientació',
+  'educacio fisica': 'Educació Física', 'fisica i quimica': 'Física i Química', 'biologia i geologia': 'Biologia', 'dibuix': 'Dibuix', 'visual i plastica': 'Dibuix',
+  'educacio visual i plastica': 'Dibuix', 'musica': 'Música', 'religio': 'Religió', 'llati': 'Clàssiques', 'grec': 'Clàssiques', 'cultura classica': 'Clàssiques',
+  'classiques': 'Clàssiques', 'filosofia': 'Filosofia', 'tecnologia': 'Tecnologia', 'economia': 'Economia', 'alemany': 'Alemany' };
 const CAMPS_PROFESSORAT = [
   ['nom', 'Nom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom1', '1r cognom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom2', '2n cognom', 'text', '', 'no', 'no', 'consulta', 'gestio'],
   ['estat', 'Estat', 'llista', 'actiu|baixa laboral|permís|substitut|baixa', 'si', 'no', 'edicio', 'gestio'],
   ['nif', 'NIF', 'nif', '', 'no', 'si', 'edicio', 'gestio'],
-  ['especialitat', 'Especialitat', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['data_naixement', 'Data naixement', 'data', '', 'no', 'no', 'edicio', 'gestio'],
+  ['nacionalitat', 'Nacionalitat', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['telefon', 'Telèfon', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['adreca', 'Adreça (carrer i número)', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['poblacio', 'Població', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['codi_postal', 'Codi postal', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['provincia', 'Província', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['especialitat', 'Especialitat', 'llista', ESPECIALITATS.join('|'), 'no', 'no', 'consulta', 'gestio'],
   ['email_xtec', 'Correu XTEC', 'correu', '@xtec.cat', 'no', 'si', 'consulta', 'gestio'],
   ['email', 'Correu institutjoanmiro', 'correu', '@institutjoanmiro.cat', 'si', 'si', 'consulta', 'gestio'],
   ['jornada', 'Jornada', 'llista', 'Sencera|1/2|⅔', 'no', 'no', 'edicio', 'gestio'],
   ['situacio', 'Situació laboral', 'llista', 'Definitiu|Comissió de serveis|Provisional|Interí|Substitut', 'no', 'no', 'edicio', 'gestio'],
-  ['anys', 'Anys', 'numero', '', 'no', 'no', 'edicio', 'gestio'],
+  ['substitueix', 'Substitueix a', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['anys', 'Anys docència', 'numero', '', 'no', 'no', 'edicio', 'gestio'],
   ['catala', 'Català', 'text', '', 'no', 'no', 'edicio', 'gestio'],
   ['carrec', 'Càrrec', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['data_arribada_centre', 'Data arribada al centre', 'data', '', 'no', 'no', 'edicio', 'gestio'],
 ];
+// PAS 30: al formulari Nou professor/a són obligatoris aquests camps (a la graella no, per no bloquejar les fitxes antigues)
+const NOU_OBLIGATORIS = ['nom', 'cognom1', 'estat', 'nif', 'especialitat', 'data_naixement', 'nacionalitat', 'email', 'telefon', 'adreca', 'poblacio', 'codi_postal',
+  'provincia', 'jornada', 'situacio'];
+// Província a partir de les dues primeres xifres del codi postal
+const PROVINCIES = { '01': 'Àlaba', '02': 'Albacete', '03': 'Alacant', '04': 'Almeria', '05': 'Àvila', '06': 'Badajoz', '07': 'Illes Balears', '08': 'Barcelona', '09': 'Burgos',
+  '10': 'Càceres', '11': 'Cadis', '12': 'Castelló', '13': 'Ciudad Real', '14': 'Còrdova', '15': 'La Corunya', '16': 'Conca', '17': 'Girona', '18': 'Granada', '19': 'Guadalajara',
+  '20': 'Guipúscoa', '21': 'Huelva', '22': 'Osca', '23': 'Jaén', '24': 'Lleó', '25': 'Lleida', '26': 'La Rioja', '27': 'Lugo', '28': 'Madrid', '29': 'Màlaga', '30': 'Múrcia',
+  '31': 'Navarra', '32': 'Ourense', '33': 'Astúries', '34': 'Palència', '35': 'Las Palmas', '36': 'Pontevedra', '37': 'Salamanca', '38': 'Santa Cruz de Tenerife', '39': 'Cantàbria',
+  '40': 'Segòvia', '41': 'Sevilla', '42': 'Sòria', '43': 'Tarragona', '44': 'Terol', '45': 'Toledo', '46': 'València', '47': 'Valladolid', '48': 'Biscaia', '49': 'Zamora',
+  '50': 'Saragossa', '51': 'Ceuta', '52': 'Melilla' };
 // PAS 28: personal d'administració i serveis (es gestiona com el professorat; poques persones, alta a mà)
+// PAS 30: fora àmbit, horari i càrrec (s'arxiven: les dades es conserven); dades personals, situació i data d'arribada
 const CAMPS_PAS = [
   ['nom', 'Nom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom1', '1r cognom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom2', '2n cognom', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['estat', 'Estat', 'llista', 'actiu|baixa laboral|substitut|baixa', 'si', 'no', 'edicio', 'gestio'],
-  ['categoria', 'Àmbit', 'llista', 'Administració|Consergeria|Altres', 'si', 'no', 'consulta', 'gestio'],
+  ['estat', 'Estat', 'llista', 'actiu|baixa laboral|permís|substitut|baixa', 'si', 'no', 'edicio', 'gestio'],
   ['nif', 'NIF', 'nif', '', 'no', 'si', 'edicio', 'gestio'],
+  ['data_naixement', 'Data naixement', 'data', '', 'no', 'no', 'edicio', 'gestio'],
+  ['nacionalitat', 'Nacionalitat', 'text', '', 'no', 'no', 'edicio', 'gestio'],
   ['email', 'Correu institutjoanmiro', 'correu', '@institutjoanmiro.cat', 'no', 'si', 'consulta', 'gestio'],
   ['telefon', 'Telèfon', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['adreca', 'Adreça (carrer i número)', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['poblacio', 'Població', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['codi_postal', 'Codi postal', 'text', '', 'no', 'no', 'edicio', 'gestio'],
+  ['provincia', 'Província', 'text', '', 'no', 'no', 'edicio', 'gestio'],
   ['jornada', 'Jornada', 'llista', 'Sencera|1/2|⅔', 'no', 'no', 'edicio', 'gestio'],
-  ['horari', 'Horari', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['carrec', 'Càrrec', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['situacio', 'Situació laboral', 'llista', 'Definitiu|Comissió de serveis|Provisional|Interí|Substitut', 'no', 'no', 'edicio', 'gestio'],
+  ['data_arribada_centre', 'Data arribada al centre', 'data', '', 'no', 'no', 'edicio', 'gestio'],
 ];
+const PAS_ARXIVATS = ['categoria', 'horari', 'carrec'];
+// PAS 30: equips docents de cada grup-classe (document «Equips docents 26-27»): [nom, 1r cognom, 2n cognom] o el nom tal com era
+// si no s'ha trobat al llistat del professorat. creaEquipsDocents() en fa un equip per grup (EQ-1ESOA…) amb els membres.
+const EQUIPS_DOCENTS = {"1r ESO A":[["Nora","Manchado","Safont"],["Asunción","Muñoz","Cantueso"],["Josep","De Nicolás","Roman"],["Gemma","Montero","Carpio"],["Adria","Boix","Argemi"],["Laura","León","García"],["Cristina","Mora","Lobato"],["Gonzalo","Flox","Chillarón"],["Daniel","Álvarez","Gorgojo"],["Anna","Nos","Ripollés"],["Deborah","Silvestre","Terron"],["Patricia","Gelis","Doblado"],["Begoña","Balaña","Alonso"],["Noelia","Torrego","Solana"],["Romà","Mendoza","Niella"],["Marco","Albano",""],["Xavier","Garcia","Ros"],["Carla","Sancho",""],["Archi","Montañés","Sales"],["Tania","Biscarri","Israel"],["Ferran","Adam","Chavarría"]],"1r ESO B":[["Noelia","Torrego","Solana"],["Elisabet","Armengol","Gimeno"],["Josep","De Nicolás","Roman"],["Nora","Manchado","Safont"],["Adria","Boix","Argemi"],["Josep","Fas","Coma"],["Genis","Prats","Pueyo"],["Gonzalo","Flox","Chillarón"],["Daniel","Álvarez","Gorgojo"],["Anna","Nos","Ripollés"],["Patricia","Gelis","Doblado"],["Ana Isabel","Ridruejo","Millán"],["Silke","Fresno","Moreno"],["Marco","Albano",""],["Xavier","Garcia","Ros"],["Carla","Sancho",""],["Archi","Montañés","Sales"],["Tania","Biscarri","Israel"],["Ferran","Adam","Chavarría"],["Cristina","Mora","Lobato"]],"1r ESO C":[["Gemma","Montero","Carpio"],["Nora","Manchado","Safont"],["Josep","De Nicolás","Roman"],["Adria","Boix","Argemi"],["Laura","León","García"],["Cristina","Mora","Lobato"],["Carlos","Carrasco","Córdoba"],["Daniel","Álvarez","Gorgojo"],["Anna","Nos","Ripollés"],["Patricia","Gelis","Doblado"],["Begoña","Balaña","Alonso"],["Noelia","Torrego","Solana"],["Silke","Fresno","Moreno"],["Marco","Albano",""],["Xavier","Garcia","Ros"],["Carla","Sancho",""],["Archi","Montañés","Sales"],["Tania","Biscarri","Israel"],["Ferran","Adam","Chavarría"]],"1r ESO D":[["Josep","Fas","Coma"],["Dolors","Mateo","García"],["Josep","De Nicolás","Roman"],["Sergi","Batlle","Ferrer"],["Adria","Boix","Argemi"],["Genis","Prats","Pueyo"],["Carlos","Carrasco","Córdoba"],["Daniel","Álvarez","Gorgojo"],["Anna","Nos","Ripollés"],["Patricia","Gelis","Doblado"],["Ana Isabel","Ridruejo","Millán"],["Josep","Sunyer","Monfort"],["Silke","Fresno","Moreno"],["Marco","Albano",""],["Xavier","Garcia","Ros"],["Carla","Sancho",""],["Archi","Montañés","Sales"],["Tania","Biscarri","Israel"],["Ferran","Adam","Chavarría"],["Cristina","Mora","Lobato"]],"2n ESO A":[["Vanesa","García","Rovira"],["Elisabet","Armengol","Gimeno"],["Dolors","Mateo","García"],["Montse","Díaz","Gutiérrez"],["Nora","Manchado","Safont"],["José Maria","Navero","Cazorla"],["Gonzalo","Flox","Chillarón"],["José Luís","Blanco","Martínez"],["Patricia","Gelis","Doblado"],["Laura","García","Salgado"],["Miquel","de los Cobos","Ruiz"],["Xavier","Figueredo","Rodríguez"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Montse","Roquet","Pugès"],["Josep","De Nicolás","Roman"],["Raquel","Vilda","Andrés"]],"2n ESO B":[["Arnau","Baldoví","Fletes"],["Dolors","Mateo","García"],["Eva","Carretero","Ordoñez"],["Nora","Manchado","Safont"],["Mireia","Burguès","Vela"],["Beatriz","Martínez","Pascual"],["Gonzalo","Flox","Chillarón"],["José Luís","Blanco","Martínez"],["Patricia","Gelis","Doblado"],["Antonia","Salido","Porcel"],["Joan","Florit","Llorens"],["Ernesto","Prieto","Merino"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Montse","Roquet","Pugès"],["Josep","De Nicolás","Roman"],["Raquel","Vilda","Andrés"]],"2n ESO C":[["Ernesto","Prieto","Merino"],["Tania","Biscarri","Israel"],["Elisabet","Armengol","Gimeno"],["Arnau","Baldoví","Fletes"],["Gemma","Munné","Esteban"],["Montse","Díaz","Gutiérrez"],["Gemma","Montero","Carpio"],["Deborah","Silvestre","Terron"],["José Maria","Navero","Cazorla"],["Vanesa","García","Rovira"],["Gonzalo","Flox","Chillarón"],["Eugenia","Colell","Sort"],["Esther","Saranga",""],["Asunción","Muñoz","Cantueso"],["José Luís","Blanco","Martínez"],["Patricia","Gelis","Doblado"],["Laura","García","Salgado"],["Miquel","de los Cobos","Ruiz"],["Ana Isabel","Ridruejo","Millán"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Montse","Roquet","Pugès"],["Josep","De Nicolás","Roman"],["Raquel","Vilda","Andrés"]],"2n ESO D":[["Miquel","de los Cobos","Ruiz"],["Balbi","Iglesias","Ferrer"],["Arnau","Baldoví","Fletes"],["Gemma","Munné","Esteban"],["Eva","Carretero","Ordoñez"],["Gemma","Montero","Carpio"],["Deborah","Silvestre","Terron"],["Josep","Fas","Coma"],["Beatriz","Martínez","Pascual"],["Gonzalo","Flox","Chillarón"],["Eugenia","Colell","Sort"],["Esther","Saranga",""],["Asunción","Muñoz","Cantueso"],["José Luís","Blanco","Martínez"],["Patricia","Gelis","Doblado"],["Antonia","Salido","Porcel"],["Ernesto","Prieto","Merino"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Montse","Roquet","Pugès"],["Josep","De Nicolás","Roman"],["Raquel","Vilda","Andrés"]],"3r ESO A":[["Joan","Florit","Llorens"],["Balbi","Iglesias","Ferrer"],["Elisabet","Armengol","Gimeno"],["Sergi","Batlle","Ferrer"],["Montse","Díaz","Gutiérrez"],["Josep","Fas","Coma"],["Eugenia","Colell","Sort"],["Carlos","Carrasco","Córdoba"],["Daniel","Álvarez","Gorgojo"],["Gemma","Gamarra","Rúbio"],["Xavier","Figueredo","Rodríguez"],["Sergi","Rodríguez","Toha"],["Raquel","Vilda","Andrés"],["Arnau","Baldoví","Fletes"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Xavier","Garcia","Ros"],["Eva","Carretero","Ordoñez"]],"3r ESO B":[["Genis","Prats","Pueyo"],["Dolors","Mateo","García"],["Elisabet","Armengol","Gimeno"],["Adria","Boix","Argemi"],["Montse","Díaz","Gutiérrez"],["Laura","León","García"],["Carlos","Carrasco","Córdoba"],["Xavier","Garcia","Ros"],["Silke","Fresno","Moreno"],["Lluis","Marías","Barber"],["Mar","Martín","Navarro"],["Raquel","Vilda","Andrés"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Eva","Carretero","Ordoñez"]],"3r ESO C":[["Ferran","Adam","Chavarría"],["Nora","Manchado","Safont"],["Elisabet","Armengol","Gimeno"],["Sergi","Batlle","Ferrer"],["Montse","Díaz","Gutiérrez"],["José Maria","Navero","Cazorla"],["Eugenia","Colell","Sort"],["Carlos","Carrasco","Córdoba"],["Daniel","Álvarez","Gorgojo"],["Xavier","Garcia","Ros"],["Sergi","Rodríguez","Toha"],["Raquel","Vilda","Andrés"],["Arnau","Baldoví","Fletes"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Eva","Carretero","Ordoñez"]],"3r ESO D":[["Raquel","Vilda","Andrés"],["Dolors","Mateo","García"],["Elisabet","Armengol","Gimeno"],["Adria","Boix","Argemi"],["Montse","Díaz","Gutiérrez"],["Laura","León","García"],["Genis","Prats","Pueyo"],["Carlos","Carrasco","Córdoba"],["Xavier","Garcia","Ros"],["Silke","Fresno","Moreno"],["Joan","Florit","Llorens"],["Mar","Martín","Navarro"],["Arnau","Baldoví","Fletes"],["Marco","Albano",""],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Eva","Carretero","Ordoñez"]],"4t ESO A":[["Pere","Rios","Marin"],["Josep","De Nicolás","Roman"],["Arnau","Baldoví","Fletes"],["Balbi","Iglesias","Ferrer"],["Sergi","Batlle","Ferrer"],["Gemma","Montero","Carpio"],["Adria","Boix","Argemi"],["Genis","Prats","Pueyo"],["Cristina","González","Simón"],["Beatriz","Martínez","Pascual"],["José Luís","Blanco","Martínez"],["Laura","García","Salgado"],["Antonia","Salido","Porcel"],["Gemma","Munné","Esteban"],["Noelia","Torrego","Solana"],["Lluis","Marías","Barber"],["Xavier","Figueredo","Rodríguez"],["Esther","Saranga",""],["Ferran","Adam","Chavarría"],["Anna","Nos","Ripollés"],["Marc","Monereo","Cuscó"],["Mar","Martín","Navarro"],["Oscar","Rescalvo","Palomares"],["Romà","Mendoza","Niella"],["Patricia","Gelis","Doblado"],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Marco","Albano",""],["Gonzalo","Flox","Chillarón"],["Ernesto","Prieto","Merino"]],"4t ESO B":[["Cristina","González","Simón"],["Josep","De Nicolás","Roman"],["Arnau","Baldoví","Fletes"],["Balbi","Iglesias","Ferrer"],["Sergi","Batlle","Ferrer"],["Gemma","Montero","Carpio"],["Adria","Boix","Argemi"],["Mireia","Burguès","Vela"],["Genis","Prats","Pueyo"],["Beatriz","Martínez","Pascual"],["José Luís","Blanco","Martínez"],["Antonia","Salido","Porcel"],["Laura","García","Salgado"],["Gemma","Munné","Esteban"],["Noelia","Torrego","Solana"],["Lluis","Marías","Barber"],["Xavier","Figueredo","Rodríguez"],["Esther","Saranga",""],["Ferran","Adam","Chavarría"],["Anna","Nos","Ripollés"],["Marc","Monereo","Cuscó"],["Mar","Martín","Navarro"],["Oscar","Rescalvo","Palomares"],["Romà","Mendoza","Niella"],["Patricia","Gelis","Doblado"],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Marco","Albano",""],["Gonzalo","Flox","Chillarón"],["Ernesto","Prieto","Merino"]],"4t ESO C":[["Laura","García","Salgado"],["Josep","De Nicolás","Roman"],["Arnau","Baldoví","Fletes"],["Balbi","Iglesias","Ferrer"],["Sergi","Batlle","Ferrer"],["Gemma","Montero","Carpio"],["Adria","Boix","Argemi"],["Eva","Carretero","Ordoñez"],["Pere","Rios","Marin"],["Cristina","González","Simón"],["Gonzalo","Flox","Chillarón"],["Eugenia","Colell","Sort"],["Beatriz","Martínez","Pascual"],["José Luís","Blanco","Martínez"],["Antonia","Salido","Porcel"],["Gemma","Munné","Esteban"],["Noelia","Torrego","Solana"],["Lluis","Marías","Barber"],["Xavier","Figueredo","Rodríguez"],["Esther","Saranga",""],["Ferran","Adam","Chavarría"],["Anna","Nos","Ripollés"],["Marc","Monereo","Cuscó"],["Mar","Martín","Navarro"],["Oscar","Rescalvo","Palomares"],["Romà","Mendoza","Niella"],["Patricia","Gelis","Doblado"],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Marco","Albano",""],["Ernesto","Prieto","Merino"]],"4t ESO D":[["Gonzalo","Flox","Chillarón"],["Josep","De Nicolás","Roman"],["Arnau","Baldoví","Fletes"],["Balbi","Iglesias","Ferrer"],["Sergi","Batlle","Ferrer"],["Gemma","Montero","Carpio"],["Adria","Boix","Argemi"],["Eva","Carretero","Ordoñez"],["Mireia","Burguès","Vela"],["Cristina","González","Simón"],["Eugenia","Colell","Sort"],["Beatriz","Martínez","Pascual"],["Antonia","Salido","Porcel"],["Laura","García","Salgado"],["Gemma","Munné","Esteban"],["Noelia","Torrego","Solana"],["Lluis","Marías","Barber"],["Xavier","Figueredo","Rodríguez"],["Esther","Saranga",""],["Ferran","Adam","Chavarría"],["Anna","Nos","Ripollés"],["Marc","Monereo","Cuscó"],["Mar","Martín","Navarro"],["Oscar","Rescalvo","Palomares"],["Romà","Mendoza","Niella"],["Patricia","Gelis","Doblado"],["Archi","Montañés","Sales"],["Carla","Sancho",""],["Marco","Albano",""],["Ernesto","Prieto","Merino"]],"1r ESO GR":[["Asunción","Muñoz","Cantueso"],["Deborah","Silvestre","Terron"],["Sergi","Rofes","Barceló"],["Anna","Nos","Ripollés"],["Gemma","Munné","Esteban"],["Josep","De Nicolás","Roman"],["Adria","Boix","Argemi"],["Gonzalo","Flox","Chillarón"],["Daniel","Álvarez","Gorgojo"],["Nora","Manchado","Safont"]],"2n ESO GR":[["Asunción","Muñoz","Cantueso"],["Deborah","Silvestre","Terron"],["Sergi","Rofes","Barceló"],["Anna","Nos","Ripollés"],["Gemma","Munné","Esteban"],["Arnau","Baldoví","Fletes"],["Gemma","Montero","Carpio"],["Gonzalo","Flox","Chillarón"],["Eugenia","Colell","Sort"],["Esther","Saranga",""],["Patricia","Gelis","Doblado"],["Tania","Biscarri","Israel"],["José Luís","Blanco","Martínez"],["Ernesto","Prieto","Merino"]],"1r BAT A":[["Adria","Boix","Argemi"],["Balbi","Iglesias","Ferrer"],["Montse","Roquet","Pugès"],["Daniel","Álvarez","Gorgojo"],["Marc","Monereo","Cuscó"],["Beatriz","Martínez","Pascual"],["Ferran","Adam","Chavarría"],["Romà","Mendoza","Niella"],["Anna","Nos","Ripollés"],["Miquel","de los Cobos","Ruiz"],["Asunción","Muñoz","Cantueso"],["Archi","Montañés","Sales"],["Marco","Albano",""],["Lluis","Marías","Barber"],["Joan","Florit","Llorens"],["Mireia","Burguès","Vela"]],"1r BAT B":[["Sergi","Rofes","Barceló"],["Balbi","Iglesias","Ferrer"],["Sergi","Batlle","Ferrer"],["Ana Isabel","Ridruejo","Millán"],["Daniel","Álvarez","Gorgojo"],["Marc","Monereo","Cuscó"],["Cristina","Mora","Lobato"],["Oscar","Rescalvo","Palomares"],["Mar","Martín","Navarro"],["Sergi","Rodríguez","Toha"],["Pere","Rios","Marin"],["Gemma","Munné","Esteban"],["Esther","Saranga",""],["Asunción","Muñoz","Cantueso"],["Archi","Montañés","Sales"],["Marco","Albano",""],["Lluis","Marías","Barber"],["Joan","Florit","Llorens"],["Mireia","Burguès","Vela"]],"1r BAT C":[["Laura","León","García"],["Balbi","Iglesias","Ferrer"],["Sergi","Batlle","Ferrer"],["Ana Isabel","Ridruejo","Millán"],["Daniel","Álvarez","Gorgojo"],["Marc","Monereo","Cuscó"],["Cristina","González","Simón"],["Eugenia","Colell","Sort"],["Esther","Saranga",""],"Olga Garcia",["Pere","Rios","Marin"],["Gemma","Munné","Esteban"],["Asunción","Muñoz","Cantueso"],["Archi","Montañés","Sales"],["Marco","Albano",""],["Lluis","Marías","Barber"],["Joan","Florit","Llorens"],["Mireia","Burguès","Vela"]],"2n BAT A":[["Eugenia","Colell","Sort"],["Dolors","Mateo","García"],["Eva","Carretero","Ordoñez"],["Montse","Roquet","Pugès"],["Marc","Monereo","Cuscó"],["José Maria","Navero","Cazorla"],["Xavier","Figueredo","Rodríguez"],["Raquel","Vilda","Andrés"],["Sergi","Rofes","Barceló"],["Lluis","Marías","Barber"],["Sergi","Rodríguez","Toha"],["Marco","Albano",""],["Carla","Sancho",""],["Mireia","Burguès","Vela"]],"2n BAT B":[["Dolors","Mateo","García"],["Eva","Carretero","Ordoñez"],["Montse","Roquet","Pugès"],["Marc","Monereo","Cuscó"],["Josep","Fas","Coma"],["Cristina","Mora","Lobato"],["Oscar","Rescalvo","Palomares"],["Josep","Sunyer","Monfort"],["Sergi","Rofes","Barceló"],["Elisabet","Armengol","Gimeno"],["Joan","Florit","Llorens"],["Sergi","Rodríguez","Toha"],["Archi","Montañés","Sales"],["Marco","Albano",""],["Carla","Sancho",""],["Mireia","Burguès","Vela"],["Montse","Díaz","Gutiérrez"]],"2n BAT C":[["Montse","Díaz","Gutiérrez"],["Josep","De Nicolás","Roman"],["Montse","Roquet","Pugès"],["Marc","Monereo","Cuscó"],["José Maria","Navero","Cazorla"],["Cristina","González","Simón"],["Oscar","Rescalvo","Palomares"],"Olga Garcia",["Pere","Rios","Marin"],["Elisabet","Armengol","Gimeno"],["Archi","Montañés","Sales"],["Mireia","Burguès","Vela"]]};
 // PAS 24: el nivell consulta del professorat només veu aquests camps (la resta passen a «des d'edició»)
 const PROFESSORAT_CONSULTA = ['nom', 'cognom1', 'cognom2', 'especialitat', 'email_xtec', 'email', 'carrec'];
 const GRUPS_1R = ['1r ESO A', '1r ESO B', '1r ESO C', '1r ESO D', '1r ESO GR'];
@@ -368,7 +408,13 @@ function reglaAlumnat_(modul) {
     return null;
   };
 }
-const REGLES = { alumnat: reglaAlumnat_('alumnat'), batxillerat: reglaAlumnat_('batxillerat') };
+const REGLES = { alumnat: reglaAlumnat_('alumnat'), batxillerat: reglaAlumnat_('batxillerat'),
+  // PAS 30: si la situació laboral és «Substitut», cal dir a qui substitueix (només es comprova quan es canvia algun dels dos camps)
+  professorat: (v, canviats) => {
+    if (canviats && !canviats.some((k) => k === 'situacio' || k === 'substitueix')) return null;
+    if (v.situacio === 'Substitut' && !String(v.substitueix || '').trim() && Object.prototype.hasOwnProperty.call(v, 'substitueix')) return { error: 'obligatori', camp: 'substitueix' };
+    return null;
+  } };
 
 // ---------------------------------------------------------------------------------------------
 function doPost(e) {
@@ -411,6 +457,9 @@ function doPost(e) {
 function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON); }
 
 // ------------------------------------------------------------------ qui és i què pot fer
+const llistaGrups_ = (x) => (Array.isArray(x) ? x : String(x || '').split(/[,;|]/)).map((g) => String(g).trim()).filter(Boolean);
+const campGrup_ = (modul) => (ETAPES[modul] ? 'grup_actual' : (modul === 'control_entrada' ? 'grup' : ''));
+const dinsAbast_ = (ab, grup) => !ab || ab.indexOf(String(grup || '').trim()) >= 0;
 function context_(email) {
   const cfg = llegeixConfig_();
   const admins = String(cfg.admins || '').toLowerCase().split(/[,;\s]+/).filter(Boolean);
@@ -419,7 +468,9 @@ function context_(email) {
     .concat(llegeix_(FULL.pas).map((x) => Object.assign({ id: x.id_pas }, x)));
   const p = persones.filter((x) => String(x.email || '').toLowerCase() === email && !deBaixa_(x))[0] || null;
   const meus = p ? llegeix_(FULL.memb).filter((m) => m.id_membre === p.id).map((m) => m.id_equip) : [];
-  const equipsActius = llegeix_(FULL.eq).filter((q) => norm_(q.actiu) !== 'no').map((q) => q.id_equip);
+  const totsEquips = llegeix_(FULL.eq);
+  const equipsActius = totsEquips.filter((q) => norm_(q.actiu) !== 'no').map((q) => q.id_equip);
+  const grupsEq = {}; totsEquips.forEach((q) => { grupsEq[q.id_equip] = llistaGrups_(q.grups); });
   const eqs = meus.filter((id) => equipsActius.indexOf(id) >= 0);
   const perms = llegeix_(FULL.perm).filter((r) => eqs.indexOf(r.id_equip) >= 0);
   const global = admins.indexOf(email) >= 0 || perms.some((r) => r.id_modul === '*' && norm_(r.nivell) === 'admin');
@@ -430,7 +481,16 @@ function context_(email) {
     perms.forEach((r) => { if (r.id_modul === modul || r.id_modul === '*') n = Math.max(n, NIVELLS.indexOf(norm_(r.nivell))); });
     return n >= 0 ? NIVELLS[n] : '';
   };
-  return { email: email, persona: p, equips: eqs, global: global, nivell: nivell, cfg: cfg };
+  // PAS 30: si tots els permisos d'un mòdul venen d'equips amb «grups» (p. ex. l'equip docent de 1r ESO A), la persona
+  // només veu les files d'aquests grups. Qui té algun permís sense grups (coordinació, direcció) ho veu tot.
+  const abast = (modul) => {
+    if (global) return null;
+    const rel = perms.filter((r) => r.id_modul === modul || r.id_modul === '*');
+    if (!rel.length || rel.some((r) => !(grupsEq[r.id_equip] || []).length)) return null;
+    const g = {}; rel.forEach((r) => grupsEq[r.id_equip].forEach((x) => { g[x] = 1; }));
+    return Object.keys(g);
+  };
+  return { email: email, persona: p, equips: eqs, global: global, nivell: nivell, abast: abast, cfg: cfg };
 }
 const pot_ = (ctx, modul, nivell) => NIVELLS.indexOf(ctx.nivell(modul)) >= NIVELLS.indexOf(nivell);
 const obert_ = (ctx) => norm_(ctx.cfg.estat || 'obert') === 'obert' || ctx.global;
@@ -465,9 +525,12 @@ function dades_(ctx, modul) {
   const veuEstat = camps.some((c) => c.clau === 'estat');
   const ambEquips = M.equips && pot_(ctx, modul, 'edicio');
   const membres = ambEquips ? llegeix_(FULL.memb) : [];
+  const ab = ctx.abast ? ctx.abast(modul) : null, cg = campGrup_(modul);
   const files = llegeixFull_(fullModul_(M, tots))
     // Qui no pot veure l'estat (p. ex. consulta del professorat) només veu les files que no són de baixa
     .filter((r) => veuEstat || !deBaixa_(r))
+    // PAS 30: equips docents → només els seus grups
+    .filter((r) => !ab || !cg || dinsAbast_(ab, r[cg]))
     .map((r) => {
       const o = { id: r[M.id], data: r.data || '', desat_per: r.desat_per || '' };
       camps.forEach((c) => { o[c.clau] = c.tipus === 'calculat' ? calcula_(c, r) : (r[c.clau] == null ? '' : r[c.clau]); });
@@ -478,6 +541,7 @@ function dades_(ctx, modul) {
   const nivell = ctx.nivell(modul);
   return { ok: true, modul: modul, nivell: nivell, obert: obert_(ctx), admin_global: ctx.global, amb_equips: ambEquips, nom_fila: M.nom,
     curs: ETAPES[modul] ? cursDe_(ctx.cfg, modul) : (ctx.cfg.curs || ''), nivells: ETAPES[modul] ? ETAPES[modul].nivells : undefined,
+    abast: ab && cg ? ab : undefined,
     versio: versio_(modul),
     camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips };
 }
@@ -576,6 +640,8 @@ function desa_(ctx, req) {
       const v = a.valors || {}, nou = {};
       editables.forEach((cm) => { nou[cm.clau] = net_(v[cm.clau], cm); });
       if ((modul === 'professorat' || modul === 'pas') && totsCamps.some((cm) => cm.clau === 'estat') && !nou.estat) nou.estat = 'actiu';
+      // PAS 30: data d'arribada al centre = el dia que es dona d'alta (si no s'ha escrit)
+      if ((modul === 'professorat' || modul === 'pas') && totsCamps.some((cm) => cm.clau === 'data_arribada_centre' && cm.actiu) && !nou.data_arribada_centre) nou.data_arribada_centre = ara.slice(0, 10);
       // Alumnat (també l'alta massiva per fitxer): sense nivell, el del grup; sense estat, «alumne extern»
       if (ETAPES[modul]) {
         if (!nou.nivell && nou.grup_actual) nou.nivell = ETAPES[modul].nivells.filter((x) => String(nou.grup_actual).indexOf(x) === 0)[0] || '';
@@ -604,6 +670,8 @@ function desa_(ctx, req) {
         });
       });
     }
+    const ab = ctx.abast ? ctx.abast(modul) : null, cg = campGrup_(modul);
+    if (ab && cg && (plans.some((p) => !dinsAbast_(ab, p.abans[cg]) || !dinsAbast_(ab, p.nou[cg])) || altesPlans.some((p) => !dinsAbast_(ab, p.nou[cg])))) return { ok: false, error: 'fora_abast' };
     if (errors.length) return { ok: false, error: 'validacio', errors: errors };
     if (conflictes.length) return { ok: false, error: 'conflicte', conflictes: conflictes };
     // 4) Equips: només els admins globals canvien qui és a cada equip
@@ -837,14 +905,14 @@ function equips_(ctx) {
   const perms = llegeix_(FULL.perm);
   // Persones que poden ser membres d'un equip: professorat i PAS (PAS 28)
   const pers = llegeix_(FULL.prof).map((p) => ({ id: p.id_professor, p: p, detall: p.especialitat || '' }))
-    .concat(llegeix_(FULL.pas).map((p) => ({ id: p.id_pas, p: p, detall: 'PAS' + (p.categoria ? ' · ' + p.categoria : '') })));
+    .concat(llegeix_(FULL.pas).map((p) => ({ id: p.id_pas, p: p, detall: 'PAS' })));
   const nomDe = (id) => { const x = pers.filter((y) => y.id === id)[0]; return x ? [x.p.nom, x.p.cognom1, x.p.cognom2].filter(Boolean).join(' ') : id; };
   return { ok: true, equips: llegeix_(FULL.eq).map((q) => ({ id_equip: q.id_equip, nom: q.nom, tipus: q.tipus || 'gestio', descripcio: q.descripcio || '',
-    actiu: norm_(q.actiu) === 'no' ? 'no' : 'si',
+    actiu: norm_(q.actiu) === 'no' ? 'no' : 'si', grups: llistaGrups_(q.grups),
     membres: membres.filter((m) => m.id_equip === q.id_equip).map((m) => nomDe(m.id_membre)),
     membres_ids: membres.filter((m) => m.id_equip === q.id_equip).map((m) => m.id_membre),
     permisos: perms.filter((p) => p.id_equip === q.id_equip).map((p) => ({ modul: p.id_modul, nivell: p.nivell })) })),
-    moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })),
+    moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })), grups: GRUPS_ESO.concat(GRUPS_1BAT, GRUPS_2BAT),
     // Per triar membres: professorat i PAS que no són de baixa (els de baixa que ja hi són també surten)
     persones: pers.filter((x) => !deBaixa_(x.p) || membres.some((m) => m.id_membre === x.id))
       .map((x) => ({ id: x.id, nom: [x.p.nom, x.p.cognom1, x.p.cognom2].filter(Boolean).join(' '), especialitat: x.detall, baixa: deBaixa_(x.p) }))
@@ -859,6 +927,8 @@ function equipsDesa_(ctx, req) {
     if (!/^EQ-[A-Z0-9-]{1,20}$/.test(id)) return { ok: false, error: 'id_equip_invalid', id_equip: id || '(buit)' };
     if (vist[id]) return { ok: false, error: 'id_equip_repetit', id_equip: id };
     if (!String(q.nom || '').trim()) return { ok: false, error: 'nom_buit', camp: id };
+    const tots = GRUPS_ESO.concat(GRUPS_1BAT, GRUPS_2BAT), dolent = llistaGrups_(q.grups).filter((g) => tots.indexOf(g) < 0)[0];
+    if (dolent) return { ok: false, error: 'grup_desconegut', id_equip: id, grup: dolent };
     vist[id] = 1;
   }
   const lock = LockService.getScriptLock();
@@ -870,7 +940,8 @@ function equipsDesa_(ctx, req) {
     const treuen = antics.filter((id) => !vist[id]);
     if (treuen.length) return { ok: false, error: 'equip_no_es_pot_treure', equips: treuen };
     const files = llista.map((q) => cap.map((k) => ({ id_equip: String(q.id_equip).trim().toUpperCase(), nom: String(q.nom).trim(),
-      tipus: q.tipus === 'docent' ? 'docent' : 'gestio', descripcio: String(q.descripcio || '').slice(0, 500), actiu: q.actiu === 'no' ? 'no' : 'si' })[k] || ''));
+      tipus: q.tipus === 'docent' ? 'docent' : 'gestio', descripcio: String(q.descripcio || '').slice(0, 500), actiu: q.actiu === 'no' ? 'no' : 'si',
+      grups: llistaGrups_(q.grups).join(', ') })[k] || ''));
     if (vals.length > 1) sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
     if (files.length) sh.getRange(2, 1, files.length, cap.length).setValues(files);
     historial_(ctx.email, 'equips', FULL.eq, '', JSON.stringify(llista.map((q) => q.id_equip + ':' + q.nom)).slice(0, 45000));
@@ -990,7 +1061,9 @@ function configura() {
   canviaModulsPAS29_();
   if (llegeix_(FULL.camps).some((c) => c.modul === 'alumnat')) { canviaCampsAlumnatPAS28_(); sincronitzaCamps_('alumnat', CAMPS_ALUMNAT, ['nivell', 'grup_anterior', 'grup_actual', 'estat']); }
   if (llegeix_(FULL.camps).some((c) => c.modul === 'batxillerat')) sincronitzaCamps_('batxillerat', CAMPS_BATXILLERAT, ['nivell', 'grup_anterior', 'grup_actual', 'estat']);
-  if (llegeix_(FULL.camps).some((c) => c.modul === 'professorat')) sincronitzaCamps_('professorat', CAMPS_PROFESSORAT, ['estat', 'situacio']);
+  canviaOrdreModulsPAS30_();
+  if (llegeix_(FULL.camps).some((c) => c.modul === 'professorat')) { sincronitzaCamps_('professorat', CAMPS_PROFESSORAT, ['estat', 'situacio']); canviaCampsProfessoratPAS30_(); }
+  if (llegeix_(FULL.camps).some((c) => c.modul === 'pas')) { sincronitzaCamps_('pas', CAMPS_PAS, ['estat']); arxivaCamps_('pas', PAS_ARXIVATS); }
   [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['batxillerat', CAMPS_BATXILLERAT], ['pas', CAMPS_PAS], ['control_entrada', CAMPS_CONTROL]].forEach((x) => {
     if (!llegeix_(FULL.camps).some((c) => c.modul === x[0])) {
       const sh = ss.getSheetByName(FULL.camps);
@@ -1131,7 +1204,7 @@ function ompleNivellPAS28_() {
 function tancaCurs_(ctx, req) {
   const modul = String(req.modul || 'alumnat'), M = MODULS[modul], E = ETAPES[modul];
   if (!M || !E) return { ok: false, error: 'peticio_invalida' };
-  if (!pot_(ctx, modul, 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!pot_(ctx, modul, 'edicio') || (ctx.abast && ctx.abast(modul))) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
   const curs = cursDe_(ctx.cfg, modul);
   if (!/^\d{4}-\d{4}$/.test(curs)) return { ok: false, error: 'curs_invalid' };
@@ -1236,13 +1309,37 @@ function desfes_(modul) {
 // sense tenir accés a la graella del professorat. Els camps i la validació són els del mòdul Professorat.
 function nouProfessor_(ctx) {
   if (!pot_(ctx, 'nou_professor', 'edicio')) return { ok: false, error: 'sense_permis' };
-  const camps = campsDe_('professorat', true).filter((c) => c.actiu && c.tipus !== 'calculat' && c.origen !== 'clickedu' && NIVELLS.indexOf(c.visible_des_de) <= NIVELLS.indexOf('edicio'));
-  return { ok: true, camps: camps, obert: obert_(ctx), curs: ctx.cfg.curs || '' };
+  const camps = campsNou_();
+  // Per a «Substitueix a»: el professorat que no és de baixa, amb el càrrec (en triar-lo, el càrrec del substitut s'omple sol)
+  const professorat = llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && p.nom)
+    .map((p) => ({ id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, carrec: p.carrec || '' }))
+    .sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca'));
+  return { ok: true, camps: camps, obert: obert_(ctx), curs: ctx.cfg.curs || '', professorat: professorat, provincies: PROVINCIES };
+}
+// Camps del formulari: els del professorat que es veuen des d'edició; obligatoris, els de NOU_OBLIGATORIS (PAS 30)
+function campsNou_() {
+  return campsDe_('professorat', true).filter((c) => c.actiu && c.tipus !== 'calculat' && c.origen !== 'clickedu' && NIVELLS.indexOf(c.visible_des_de) <= NIVELLS.indexOf('edicio'))
+    .map((c) => Object.assign({}, c, { obligatori: c.obligatori || NOU_OBLIGATORIS.indexOf(c.clau) >= 0 }));
 }
 function altaProfessor_(ctx, req) {
   if (!pot_(ctx, 'nou_professor', 'edicio')) return { ok: false, error: 'sense_permis' };
   const v = req.valors && typeof req.valors === 'object' ? req.valors : {};
   delete v.equips;
+  // PAS 30: obligatoris del formulari, «Substitueix a» si és substitut, codi postal i telèfon
+  const camps = campsNou_(), errs = [];
+  camps.forEach((c) => { if (c.obligatori && c.clau !== 'data_arribada_centre' && !String(v[c.clau] == null ? '' : v[c.clau]).trim()) errs.push({ id: 'nou', error: 'obligatori', camp: c.nom }); });
+  const nomDe = (k) => (camps.filter((c) => c.clau === k)[0] || { nom: k }).nom;
+  if (v.situacio === 'Substitut' && !String(v.substitueix || '').trim()) errs.push({ id: 'nou', error: 'obligatori', camp: nomDe('substitueix') });
+  if (String(v.codi_postal || '').trim() && !/^\d{5}$/.test(String(v.codi_postal).trim())) errs.push({ id: 'nou', error: 'cp_invalid', camp: nomDe('codi_postal') });
+  if (String(v.telefon || '').trim() && String(v.telefon).replace(/\D/g, '').length < 9) errs.push({ id: 'nou', error: 'telefon_invalid', camp: nomDe('telefon') });
+  if (errs.length) return { ok: false, error: 'validacio', errors: errs };
+  if (v.situacio !== 'Substitut') v.substitueix = '';
+  // El càrrec del substitut: el de la persona a qui substitueix (si no se n'ha escrit cap)
+  if (v.substitueix && !String(v.carrec || '').trim()) {
+    const s = llegeix_(FULL.prof).filter((p) => normNom_([p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom) === normNom_(v.substitueix))[0];
+    if (s) v.carrec = s.carrec || '';
+  }
+  delete v.data_arribada_centre;   // la posa el servidor: el dia que es desa
   // Mateix desat que la graella del professorat, amb nivell d'edició només per a aquesta alta
   const ctxAlta = Object.assign({}, ctx, { nivell: (m) => (m === 'professorat' ? 'edicio' : ctx.nivell(m)) });
   const r = desa_(ctxAlta, { modul: 'professorat', canvis: [], altes: [{ tmp: 'nou', valors: v }] });
@@ -1270,7 +1367,8 @@ function alumnesTots_() {
 }
 function entradaAlumnes_(ctx) {
   if (!pot_(ctx, 'control_entrada', 'edicio')) return { ok: false, error: 'sense_permis' };
-  return { ok: true, alumnes: alumnesTots_().map((a) => ({ id: a.id, nom: a.nom, nivell: a.nivell, grup: a.grup })) };
+  const ab = ctx.abast ? ctx.abast('control_entrada') : null;
+  return { ok: true, alumnes: alumnesTots_().filter((a) => dinsAbast_(ab, a.grup)).map((a) => ({ id: a.id, nom: a.nom, nivell: a.nivell, grup: a.grup })) };
 }
 // Registra l'entrada ara (data i hora de Madrid) amb el nom, el nivell i el grup que té l'alumne en aquest moment
 function entradaNova_(ctx, req) {
@@ -1278,6 +1376,7 @@ function entradaNova_(ctx, req) {
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
   const a = alumnesTots_().filter((x) => x.id === String(req.id_alumne || ''))[0];
   if (!a) return { ok: false, error: 'no_existeix' };
+  if (!dinsAbast_(ctx.abast ? ctx.abast('control_entrada') : null, a.grup)) return { ok: false, error: 'fora_abast' };
   const M = MODULS.control_entrada;
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
@@ -1293,6 +1392,19 @@ function entradaNova_(ctx, req) {
     marcaVersio_('control_entrada', ctx.email);
     return { ok: true, fila: Object.assign({ id: o[M.id] }, o) };
   } finally { lock.releaseLock(); }
+}
+// PAS 30 · Execució manual: esborra les entrades que es van importar (desat_per = importació) i torna a importar el full.
+// Les entrades fetes des del web («Nova entrada») no es toquen.
+function reimportaControlEntrada() {
+  const M = MODULS.control_entrada, sh = fullModul_(M, campsDe_('control_entrada', true));
+  const vals = sh.getDataRange().getDisplayValues(), cap = vals[0].map(norm_), j = cap.indexOf('desat_per');
+  const queden = vals.slice(1).filter((r) => String(r[j]) !== 'importació'), n = vals.length - 1 - queden.length;
+  if (n) {
+    sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
+    if (queden.length) sh.getRange(2, 1, queden.length, cap.length).setValues(queden);
+  }
+  Logger.log('Control d\'entrada: ' + n + ' entrades importades abans s\'han esborrat. Ara es tornen a importar.');
+  importaControlEntrada();
 }
 // Execució manual: importa el registre que es feia fins ara (config › font_control_entrada). Reconeix les columnes pel
 // nom (marca de temps o data i hora; alumne o nom i cognoms; grup; nivell) i busca cada alumne a l'alumnat per posar-hi
@@ -1313,18 +1425,27 @@ function importaControlEntrada() {
   let seguent = 1 + llegeixFull_(sh).reduce((m, r) => Math.max(m, Number(String(r[M.id]).replace(/\D/g, '')) || 0), 0);
   origen.getSheets().forEach((pest) => {
     const vals = pest.getDataRange().getDisplayValues();
-    const fc = vals.findIndex((r) => r.some((k) => /^(alumne|alumna|nom i cognoms|nom complet|cognoms i nom|cognoms nom|nom de l alumne)$/.test(normCap_(k))));
-    if (fc < 0) return;
+    // PAS 30: la capçalera és la primera fila amb una columna de data («Marca de temps», «Data»…). L'alumne i el grup es
+    // reconeixen pel nom de la columna o, si es diuen «Columna 1», «Columna 2»…, pel contingut («Cognoms, Nom» i «2n ESO A»).
+    const reTemps = /^(marca de temps|timestamp|marca temporal)$/, reData = /^(data|dia|fecha|data i hora)$/;
+    const fc = vals.findIndex((r) => r.some((k) => reTemps.test(normCap_(k)) || reData.test(normCap_(k))));
+    if (fc < 0) { Logger.log(origen.getName() + ' › ' + pest.getName() + ': sense columna de data; es salta.'); return; }
     const cap = vals[fc].map(normCap_), ci = (re) => cap.findIndex((k) => re.test(k));
-    const cTemps = ci(/^(marca de temps|timestamp|marca temporal)$/), cData = ci(/^(data|dia|fecha)$/), cHora = ci(/^(hora|hora d entrada|hora entrada)$/);
-    const cAlu = ci(/^(alumne|alumna|nom i cognoms|nom complet|cognoms i nom|cognoms nom|nom de l alumne)$/), cGrup = ci(/^(grup|grup classe|curs|classe)$/), cNiv = ci(/^nivell$/);
+    const cTemps = ci(reTemps), cData = ci(reData), cHora = ci(/^(hora|hora d entrada|hora entrada)$/), cNiv = ci(/^nivell$/);
+    const mostra = vals.slice(fc + 1).filter((r) => r.join('').trim()).slice(0, 200);
+    const perContingut = (re) => cap.findIndex((k, j) => j !== cTemps && j !== cData && mostra.length && mostra.filter((r) => String(r[j] || '').trim()).length > 0 &&
+      mostra.filter((r) => re.test(String(r[j] || '').trim())).length >= 0.7 * mostra.filter((r) => String(r[j] || '').trim()).length);
+    let cAlu = ci(/^(alumne|alumna|nom i cognoms|nom complet|cognoms i nom|cognoms nom|nom de l alumne)$/), cGrup = ci(/^(grup|grup classe|curs|classe)$/);
+    if (cGrup < 0) cGrup = perContingut(/^(1r|2n|3r|4t)\s*(eso|bat)/i);
+    if (cAlu < 0) cAlu = perContingut(/^[^,\d]+,\s*[^,\d]+$/);
+    if (cAlu < 0) { Logger.log(origen.getName() + ' › ' + pest.getName() + ': no trobo la columna de l\'alumne; es salta.'); return; }
     Logger.log(origen.getName() + ' › ' + pest.getName() + ': columnes ' + [cTemps >= 0 ? 'marca de temps' : '', cData >= 0 ? 'data' : '', cHora >= 0 ? 'hora' : '', 'alumne', cGrup >= 0 ? 'grup' : '', cNiv >= 0 ? 'nivell' : ''].filter(Boolean).join(', '));
     vals.slice(fc + 1).forEach((r) => {
       const nom = String(r[cAlu] || '').trim();
       if (!nom) return;
       files++;
       // Data i hora: «dd/mm/aaaa hh:mm(:ss)» (marca de temps), «dd/mm/aaaa» o «aaaa-mm-dd»
-      const brut = cTemps >= 0 ? String(r[cTemps]) : String(r[cData] || '') + ' ' + String(r[cHora] || '');
+      const brut = cTemps >= 0 ? String(r[cTemps]) : String(r[cData] || '') + ' ' + String(cHora >= 0 ? r[cHora] || '' : '');
       let m = /(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/.exec(brut), data = '';
       if (m) data = (m[3].length === 2 ? '20' + m[3] : m[3]) + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2);
       else if ((m = /(\d{4})-(\d{2})-(\d{2})/.exec(brut))) data = m[0];
@@ -1334,7 +1455,7 @@ function importaControlEntrada() {
       const a = perNom[normNom_(nom)];
       if (!a) noTrobats[nom] = (noTrobats[nom] || 0) + 1;
       const o = { alumne: a ? a.nom : nom, nivell: a ? a.nivell : (cNiv >= 0 ? String(r[cNiv] || '') : nivellDeGrup_(cGrup >= 0 ? r[cGrup] : '')),
-        grup: a ? a.grup : (cGrup >= 0 ? String(r[cGrup] || '') : ''), data: data, hora: hora, id_alumne: a ? a.id : '', desat_per: 'importació' };
+        grup: a ? a.grup : (cGrup >= 0 ? String(r[cGrup] || '').trim().replace(/\bbat\b/i, 'BAT') : ''), data: data, hora: hora, id_alumne: a ? a.id : '', desat_per: 'importació' };
       const clau = normNom_(o.alumne) + '|' + o.data + '|' + o.hora;
       if (vistes[clau]) { saltades++; return; }
       vistes[clau] = 1;
@@ -1350,6 +1471,116 @@ function importaControlEntrada() {
   Logger.log('Control d\'entrada: ' + files + ' files llegides · ' + n + ' entrades importades · ' + saltades + ' ja hi eren · ' + sense + ' sense data (no s\'importen).');
   if (nt.length) Logger.log('No trobats a l\'alumnat (' + nt.length + '; s\'importen amb el nom tal com era i sense codi d\'alumne): ' + nt.slice(0, 100).join('; '));
 }
+
+// ------------------------------------------------------------------ PAS 30 · equips docents per grup-classe
+// Execució manual: crea (o completa) un equip per grup-classe a partir d'EQUIPS_DOCENTS (EQ-1ESOA «Equip docent 1r ESO A»,
+// tipus docent, columna grups) amb el professorat que hi fa classe, i li dona consulta al mòdul d'alumnat del grup (ESO o
+// batxillerat), limitada al grup. No treu res: si es torna a executar, només afegeix el que falti.
+function creaEquipsDocents() {
+  const ss = SpreadsheetApp.getActive();
+  assegura_(FULL.eq);
+  const prof = llegeix_(FULL.prof);
+  const perNom = {}, perNomC1 = {};
+  prof.forEach((p) => { perNom[normNom_([p.nom, p.cognom1, p.cognom2].join(' '))] = p; const k = normNom_(p.nom + ' ' + p.cognom1); perNomC1[k] = perNomC1[k] ? 'repetit' : p; });
+  const troba = (t) => {
+    if (!Array.isArray(t)) return null;
+    return perNom[normNom_(t.join(' '))] || (perNomC1[normNom_(t[0] + ' ' + t[1])] !== 'repetit' ? perNomC1[normNom_(t[0] + ' ' + t[1])] : null) ||
+      prof.filter((p) => normNom_(p.cognom1 + ' ' + p.cognom2) === normNom_(t[1] + ' ' + t[2]))[0] || null;
+  };
+  const shE = ss.getSheetByName(FULL.eq), capE = shE.getRange(1, 1, 1, shE.getLastColumn()).getDisplayValues()[0].map(norm_);
+  const equips = llegeix_(FULL.eq), membres = llegeix_(FULL.memb), perms = llegeix_(FULL.perm);
+  let nousEq = 0, nousM = 0, nousP = 0;
+  const noTrobats = {};
+  Object.keys(EQUIPS_DOCENTS).forEach((grup) => {
+    const id = 'EQ-' + grup.replace(/^(\d)(r|n|t)\s+/, '$1').replace(/\s+/g, '').toUpperCase();
+    if (!equips.some((q) => q.id_equip === id)) {
+      const o = { id_equip: id, nom: 'Equip docent ' + grup, tipus: 'docent', descripcio: 'Professorat que fa classe al grup ' + grup + ' (consulta de l\'alumnat del grup)', actiu: 'si', grups: grup };
+      shE.appendRow(capE.map((k) => o[k] || '')); nousEq++;
+    }
+    EQUIPS_DOCENTS[grup].forEach((t) => {
+      const p = troba(t);
+      if (!p) { noTrobats[Array.isArray(t) ? t[0] + ' ' + t[1] : t] = 1; return; }
+      if (!membres.some((m) => m.id_equip === id && m.id_membre === p.id_professor)) { ss.getSheetByName(FULL.memb).appendRow([id, p.id_professor, '']); membres.push({ id_equip: id, id_membre: p.id_professor }); nousM++; }
+    });
+    const modul = /BAT/.test(grup) ? 'batxillerat' : 'alumnat';
+    if (!perms.some((r) => r.id_equip === id && r.id_modul === modul)) { ss.getSheetByName(FULL.perm).appendRow([id, modul, 'consulta']); perms.push({ id_equip: id, id_modul: modul }); nousP++; }
+  });
+  historial_('creaEquipsDocents', 'equips', FULL.eq, '', JSON.stringify({ equips: nousEq, membres: nousM, permisos: nousP }));
+  Logger.log('Equips docents: ' + nousEq + ' equips nous, ' + nousM + ' membres afegits, ' + nousP + ' permisos de consulta (limitats al grup).');
+  const nt = Object.keys(noTrobats);
+  if (nt.length) Logger.log('No trobats al professorat (afegiu-los a mà a Equips i permisos › Membres): ' + nt.join(', '));
+}
+
+// ------------------------------------------------------------------ PAS 30 · importacions de llistats de Clickedu
+// Font: un CSV pujat a Drive (separat per ; i en la codificació de Windows, com els exporta Clickedu) o un full de càlcul.
+function llegeixFont_(ref) {
+  const id = (String(ref || '').match(/[-\w]{25,}/) || [''])[0];
+  if (!id) throw new Error('Falta l\'URL del fitxer a config.');
+  try { return SpreadsheetApp.openById(id).getSheets()[0].getDataRange().getDisplayValues(); } catch (e) { /* no és un full de càlcul: CSV */ }
+  const blob = DriveApp.getFileById(id).getBlob();
+  let text = blob.getDataAsString('UTF-8');
+  if (text.indexOf('�') >= 0) text = blob.getDataAsString('windows-1252');
+  const primera = text.split(/\r?\n/)[0];
+  return Utilities.parseCsv(text, (primera.match(/;/g) || []).length >= (primera.match(/,/g) || []).length ? ';' : ',');
+}
+// Una fila del llistat de Clickedu → camps de GESTIO (dates a aaaa-mm-dd, telèfon sense «34-», província pel codi postal)
+function dadesPersona_(cap, r) {
+  const g = (k) => { const j = cap.indexOf(normCap_(k)); return j >= 0 ? String(r[j] == null ? '' : r[j]).trim() : ''; };
+  const iso = (x) => { const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(x); return m ? m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) : ''; };
+  const pais = g('País').split(',').map((x) => x.trim()).filter(Boolean);
+  let cp = g('Codi postal').replace(/\D/g, '');
+  if (!cp && /^\d{4,5}$/.test(pais[0] || '')) cp = pais[0];
+  if (cp.length === 4) cp = '0' + cp;
+  const poblacio = /^\d/.test(pais[0] || '') ? (pais[1] || '') : (pais[0] || '');
+  return { nom: g('Nom'), cognom1: g('Primer cognom'), cognom2: g('Segon cognom'), nif: g('DNI/NIF/NIE').toUpperCase().replace(/[\s.\-]/g, ''),
+    data_naixement: iso(g('Data de naixement')), nacionalitat: g('Nacionalitat'), adreca: g('Adreça'), poblacio: poblacio, codi_postal: cp,
+    provincia: PROVINCIES[cp.slice(0, 2)] || '', telefon: g('Telèfon mòbil').replace(/^\+?34[-\s]?/, '').replace(/[^\d+]/g, ''), data_arribada_centre: iso(g('Data d\'alta')) };
+}
+// Omple (sense esborrar res) les dades personals de les persones d'un full (professorat o PAS); crea les que no hi són si es demana
+function importaPersones_(modul, ref, camps, crea) {
+  const M = MODULS[modul], files = llegeixFont_(ref);
+  const fc = files.findIndex((r) => r.some((k) => normCap_(k) === 'primer cognom'));
+  if (fc < 0) throw new Error('El fitxer no té la capçalera de Clickedu («Primer cognom», «Nom»…).');
+  const cap = files[fc].map(normCap_);
+  const sh = fullModul_(M, campsDe_(modul, true));
+  const vals = sh.getDataRange().getDisplayValues(), capA = vals[0].map(norm_);
+  const col = (k) => capA.indexOf(k);
+  const persones = vals.slice(1).map((r, i) => ({ i: i + 1, r: r }));
+  const perNif = {}, perNom = {};
+  persones.forEach((x) => { const nif = String(x.r[col('nif')] || '').toUpperCase(); if (nif) perNif[nif] = x; perNom[normNom_([x.r[col('nom')], x.r[col('cognom1')], x.r[col('cognom2')]].join(' '))] = x; });
+  const ara = ara_(), noTrobats = [], fets = {}, noves = [];
+  let omplerts = 0;
+  let seguent = 1 + persones.reduce((m, x) => Math.max(m, Number(String(x.r[col(M.id)]).replace(/\D/g, '')) || 0), 0);
+  files.slice(fc + 1).forEach((r) => {
+    const d = dadesPersona_(cap, r);
+    if (!d.cognom1 && !d.nom) return;
+    const x = (d.nif && perNif[d.nif]) || perNom[normNom_([d.nom, d.cognom1, d.cognom2].join(' '))];
+    if (!x) {
+      if (!crea) { noTrobats.push([d.cognom1, d.cognom2].filter(Boolean).join(' ') + ', ' + d.nom); return; }
+      const o = Object.assign({ estat: 'actiu' }, d); o[M.id] = codi_(M, seguent++); o.data = ara; o.desat_per = 'importació';
+      noves.push(capA.map((k) => (k && o[k] !== undefined ? o[k] : ''))); return;
+    }
+    fets[x.i] = 1;
+    camps.forEach((k) => { if (col(k) >= 0 && d[k] && !String(x.r[col(k)] || '').trim()) { x.r[col(k)] = d[k]; omplerts++; x.canvi = 1; } });
+    if (x.canvi) { x.r[col('data')] = ara; x.r[col('desat_per')] = 'importació'; }
+  });
+  const canviades = persones.filter((x) => x.canvi);
+  canviades.forEach((x) => sh.getRange(x.i + 1, 1, 1, capA.length).setValues([x.r]));
+  if (noves.length) sh.getRange(sh.getLastRow() + 1, 1, noves.length, capA.length).setValues(noves);
+  // Qui encara té dades personals buides (persones que no són de baixa)
+  const faltes = vals.slice(1).concat(noves).filter((r) => !deBaixa_({ estat: r[col('estat')] }) && r[col('nom')]).map((r) => {
+    const f = camps.filter((k) => col(k) >= 0 && !String(r[col(k)] || '').trim());
+    return f.length ? [r[col('cognom1')], r[col('cognom2')]].filter(Boolean).join(' ') + ', ' + r[col('nom')] + ' (falta: ' + f.join(', ') + ')' : '';
+  }).filter(Boolean);
+  historial_('importació', 'dades_personals', M.full, '', JSON.stringify({ persones: canviades.length, camps: omplerts, noves: noves.length }));
+  marcaVersio_(modul, 'importació');
+  Logger.log(M.full + ': ' + canviades.length + ' persones completades (' + omplerts + ' dades)' + (noves.length ? ', ' + noves.length + ' persones noves' : '') + '.');
+  if (noTrobats.length) Logger.log('Al llistat però no a GESTIO (' + noTrobats.length + '): ' + noTrobats.join('; '));
+  if (faltes.length) Logger.log('Encara falten dades (' + faltes.length + '): ' + faltes.join('; '));
+}
+const DADES_PERSONALS = ['nif', 'data_naixement', 'nacionalitat', 'telefon', 'adreca', 'poblacio', 'codi_postal', 'provincia'];
+function importaDadesProfessorat() { importaPersones_('professorat', llegeixConfig_().font_dades_professorat, DADES_PERSONALS, false); }
+function importaPAS() { importaPersones_('pas', llegeixConfig_().font_pas, DADES_PERSONALS.concat(['data_arribada_centre']), true); }
 
 // ------------------------------------------------------------------ versió de cada mòdul (PAS 29)
 // Cada desada deixa «quan i qui» a les propietats de l'script. La pàgina ho pregunta cada minut (acció «versio»):
@@ -1401,6 +1632,56 @@ function sincronitzaCamps_(modul, def, ampliar) {
   historial_('configura', 'actualitzacio', FULL.camps, modul, 'afegits: ' + afegits.join(', ') + (ampliats.length ? ' · llistes ampliades: ' + ampliats.join(', ') : ''));
   Logger.log('Camps de ' + modul + ': afegits ' + (afegits.join(', ') || '—') + (ampliats.length ? '; llistes ampliades: ' + ampliats.join(', ') : '') + '.');
 }
+// PAS 30 · ordre de les targetes: Professorat, PAS, Alumnat ESO, Alumnat Batxillerat, Nou professor/a, Control d'entrada
+function canviaOrdreModulsPAS30_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.mod);
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+  const ordre = {}; MODULS_PER_DEFECTE.forEach((m) => { ordre[m[0]] = m[3]; });
+  if (vals.slice(1).some((r) => String(r[cap.indexOf('id_modul')]) === 'pas' && Number(r[cap.indexOf('ordre')]) === 2)) return;   // ja fet
+  for (let i = 1; i < vals.length; i++) { const id = String(vals[i][cap.indexOf('id_modul')]); if (ordre[id] !== undefined) sh.getRange(i + 1, cap.indexOf('ordre') + 1).setValues([[ordre[id]]]); }
+  Logger.log('Mòduls reordenats: Professorat, PAS, Alumnat ESO, Alumnat Batxillerat…');
+}
+// PAS 30 · professorat: especialitat passa a desplegable (els valors d'ara s'hi adapten si són clars) i «Anys» → «Anys docència»
+function canviaCampsProfessoratPAS30_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+  const iC = (k) => cap.indexOf(k);
+  let canvi = false;
+  for (let i = 1; i < vals.length; i++) {
+    if (String(vals[i][iC('modul')]) !== 'professorat') continue;
+    const k = String(vals[i][iC('clau')]);
+    if (k === 'especialitat' && norm_(vals[i][iC('tipus')]) === 'text') { sh.getRange(i + 1, iC('tipus') + 1).setValues([['llista']]); sh.getRange(i + 1, iC('valors') + 1).setValues([[ESPECIALITATS.join('|')]]); canvi = true; }
+    if (k === 'anys' && String(vals[i][iC('nom')]) === 'Anys') { sh.getRange(i + 1, iC('nom') + 1).setValues([['Anys docència']]); canvi = true; }
+  }
+  if (!canvi) return;
+  // Dades: especialitat d'ara → valor de la llista (les que no s'entenen es conserven i surten al registre)
+  const shP = SpreadsheetApp.getActive().getSheetByName(FULL.prof);
+  if (shP && shP.getLastRow() > 1) {
+    const c = shP.getRange(1, 1, 1, shP.getLastColumn()).getDisplayValues()[0].map(norm_), j = c.indexOf('especialitat');
+    if (j >= 0) {
+      const col = shP.getRange(2, j + 1, shP.getLastRow() - 1, 1).getDisplayValues(), dubtes = [];
+      const nou = col.map((r) => { const v = String(r[0]).trim(); if (!v || ESPECIALITATS.indexOf(v) >= 0) return [v]; const k = normCap_(v);
+        const e = ESPECIALITATS.filter((x) => normCap_(x) === k)[0] || ESPECIALITAT_ALIES[k]; if (!e) dubtes.push(v); return [e || v]; });
+      shP.getRange(2, j + 1, nou.length, 1).setValues(nou);
+      if (dubtes.length) Logger.log('Especialitats que no són a la llista (es conserven; corregiu-les des del web): ' + dubtes.join(', '));
+    }
+  }
+  historial_('configura', 'actualitzacio', FULL.camps, 'professorat', 'especialitat → llista; Anys → Anys docència');
+  Logger.log('Professorat: Especialitat és un desplegable i «Anys» passa a «Anys docència».');
+}
+// Arxiva camps (actiu = no, no obligatoris): les dades es conserven a la pestanya
+function arxivaCamps_(modul, claus) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+  const fets = [];
+  for (let i = 1; i < vals.length; i++) {
+    if (String(vals[i][cap.indexOf('modul')]) !== modul || claus.indexOf(String(vals[i][cap.indexOf('clau')])) < 0 || norm_(vals[i][cap.indexOf('actiu')]) === 'no') continue;
+    sh.getRange(i + 1, cap.indexOf('actiu') + 1).setValues([['no']]); sh.getRange(i + 1, cap.indexOf('obligatori') + 1).setValues([['no']]);
+    fets.push(String(vals[i][cap.indexOf('clau')]));
+  }
+  if (fets.length) { historial_('configura', 'actualitzacio', FULL.camps, modul, 'arxivats: ' + fets.join(', ')); Logger.log('Camps arxivats a ' + modul + ': ' + fets.join(', ') + ' (les dades es conserven).'); }
+}
+
 // PAS 29 · el mòdul «Alumnat» passa a dir-se «Alumnat ESO» (si encara té el nom i la descripció de sempre)
 function canviaModulsPAS29_() {
   const sh = SpreadsheetApp.getActive().getSheetByName(FULL.mod);

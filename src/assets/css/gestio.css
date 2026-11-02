@@ -62,7 +62,11 @@
 .gs-estat--baixa{ background: #EEF0F6; color: #6B7280; }
 .gs-estat--promociona{ background: #E7F6EC; color: #1E7B3E; }
 .gs-estat--alumne-extern{ background: #E7F1FB; color: #1D4F91; }
-.gs-estat--repeteix-1r, .gs-estat--repeteix-2n{ background: #FFF4E5; color: #B54708; }
+/* PAS 30: cada estat de l'alumnat amb el seu color */
+.gs-estat--repeteix-1r, .gs-estat--repeteix-1r-BAT{ background: #FEF7C3; color: #854D0E; }
+.gs-estat--repeteix-2n, .gs-estat--repeteix-2n-BAT{ background: #FFEAD5; color: #B54708; }
+.gs-estat--repeteix-3r{ background: #FEE4E2; color: #B42318; }
+.gs-estat--repeteix-4t{ background: #FCE7F6; color: #9E165F; }
 /* Alumnat de 1r: els camps que només són de 2n queden en gris i no s'editen */
 .gs-taula .tabulator-row.gs-n1 .tabulator-cell.gs-nomes2n{ background: repeating-linear-gradient(135deg, #F6F7FA 0 6px, #EEF0F5 6px 12px); }
 
@@ -195,6 +199,12 @@
 .gs-nou__ok{ margin: 0 auto 0 0; font-size: 14px; color: #1E7B3E; }
 .gs-info, .gs-info-mostra{ position: relative; display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; border-radius: 50%; background: #EAE7FB; color: var(--color-blue); font: italic 700 11px Georgia, serif; cursor: help; flex: none; }
 .gs-info:hover::after, .gs-info:focus::after{ content: attr(data-info); position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%); z-index: 50; width: 260px; padding: 9px 11px; border-radius: 8px; background: #1E1E2A; color: #fff; font: 400 12.5px/1.45 var(--font-main); font-style: normal; box-shadow: 0 10px 24px rgba(20,20,60,.25); white-space: normal; }
+.gs-info:hover::after, .gs-info:focus::after{ max-width: min(260px, 80vw); }
+/* PAS 30: si la icona és a prop d'una vora, el requadre s'obre cap a dins (el JS hi posa la classe) */
+.gs-info--esq:hover::after, .gs-info--esq:focus::after{ left: -4px; transform: none; }
+.gs-info--dre:hover::after, .gs-info--dre:focus::after{ left: auto; right: -4px; transform: none; }
+.gs-nou__auto{ grid-column: 1 / -1; margin: 0; font-size: 13px; color: var(--color-text); }
+.gs-nou__camp[hidden]{ display: none; }
 .gs-info:focus{ outline: 2px solid var(--color-blue); outline-offset: 2px; }
 
 /* PAS 29 · ajuda: botons de la capçalera del mòdul i panell lateral amb cerca */
@@ -232,3 +242,12 @@
 .gs-ent-llista{ width: 100%; min-height: 260px; border: 1px solid #D5D9E6; border-radius: 8px; font: 400 14px var(--font-main); padding: 4px; }
 .gs-estat--permís{ background: #EDE9FE; color: #5B21B6; }
 .gs-form-fila input{ height: 36px; border: 1px solid #D5D9E6; border-radius: 6px; padding: 0 8px; font: 400 14px var(--font-main); }
+
+/* PAS 30 · selector de nivell (Alumnat ESO i Batxillerat) */
+.gs-nivells{ display: inline-flex; flex-wrap: wrap; border: 1px solid #D5D9E6; border-radius: 9px; overflow: hidden; background: #fff; }
+.gs-nivells__btn{ border: 0; border-right: 1px solid #E1E5EE; background: transparent; padding: 6px 12px; font: 600 13px var(--font-main); color: var(--color-blue); cursor: pointer; }
+.gs-nivells__btn:last-child{ border-right: 0; }
+.gs-nivells__btn:hover{ background: #F1F0FD; }
+.gs-nivells__btn.is-actiu{ background: var(--color-blue); color: #fff; }
+.gs-nivells__btn:focus-visible{ outline: 2px solid var(--color-orange, #E8600C); outline-offset: -2px; }
+.gs-gris{ color: #8A90A2; font-size: 12px; }
