@@ -1,0 +1,437 @@
+{
+  "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
+  "versio": "PAS 29 · 2 de novembre de 2026",
+  "comu": {
+    "titol": "Funcionament comú de les graelles",
+    "temes": [
+      {
+        "id": "acces",
+        "titol": "Entrar i sortir",
+        "claus": "accés google compte sessió sortir permisos nivell",
+        "text": [
+          "S'entra a **institutjoanmiro.netlify.app/gestio** amb el compte de Google **@institutjoanmiro.cat**. Cada persona veu només els mòduls que té assignats algun dels seus equips.",
+          "El nivell es veu a dalt a la dreta de cada mòdul:",
+          "- **Consulta**: veure, filtrar i exportar.",
+          "- **Edició**: a més, alta, baixa i modificació de files.",
+          "- **Administració**: a més, «Gestió camps» del mòdul.",
+          "La sessió dura 8 hores. **Surt** tanca la sessió en aquest navegador."
+        ]
+      },
+      {
+        "id": "pantalla",
+        "titol": "La pantalla del mòdul",
+        "claus": "pantalla scroll capçalera tornar portada gestió",
+        "text": [
+          "Dins d'un mòdul (a l'ordinador) s'amaguen el menú i la foto del web: la graella ocupa tota la finestra i només fa scroll ella.",
+          "Per tornar a la portada de GESTIO, cliqueu **Gestió** a dalt a l'esquerra.",
+          "Les dades d'un mòdul es llegeixen la primera vegada que s'obre. **Actualitza** les torna a llegir del full (p. ex. si algú altre hi ha fet canvis)."
+        ]
+      },
+      {
+        "id": "filtres",
+        "titol": "Filtrar",
+        "claus": "filtre embut cercar buscar valors diversos tots cap baixes comptador nombre files",
+        "text": [
+          "Sota cada capçalera hi ha dos filtres:",
+          "- La **casella**: escriviu-hi un tros del valor (filtre ràpid).",
+          "- L'**embut**: obre una caixa amb tots els valors de la columna per marcar-ne **diversos** (botons *Tots*, *Cap*, *Cancel·la* i *Accepta*). Si n'hi ha molts, té una cerca a dalt. Quan l'embut filtra, es veu en blau.",
+          "Damunt de cada camp amb un filtre actiu surt, en taronja, quantes files compleixen la condició d'aquell filtre (al batxillerat, les matèries ja tenen el seu comptador fix).",
+          "Es poden combinar filtres de columnes diferents. El nombre de files que es veuen surt a dalt («12 de 30 files»).",
+          "Les files de **baixa** no surten si no es marca **Mostra també les baixes** o es filtra la columna Estat per «baixa»."
+        ]
+      },
+      {
+        "id": "editar",
+        "titol": "Modificar dades",
+        "claus": "editar modificar cel·la canviar taronja vermell error validar",
+        "text": [
+          "Cliqueu la cel·la, escriviu o trieu el valor i premeu Enter (o Tab per passar a la següent).",
+          "Les cel·les canviades queden en **taronja** fins que es desa. Si un valor no té el format correcte (correu, NIF, data, valor d'una llista…), la cel·la queda en **vermell** i surt un avís.",
+          "Les cel·les **ratllades** no s'omplen per a aquella fila (p. ex. un camp que no és del nivell de l'alumne)."
+        ]
+      },
+      {
+        "id": "desar",
+        "titol": "Desar o descartar",
+        "claus": "desar guardar descartar barra canvis sense desar",
+        "text": [
+          "Amb canvis pendents surt la barra **Canvis sense desar** damunt la graella:",
+          "- **Desa els canvis**: ho comprova tot i ho desa. Si alguna dada no és vàlida, no es desa res i les cel·les queden en vermell.",
+          "- **Descarta els canvis**: deixa la graella com a l'última desada (sense llegir res del full).",
+          "Si sortiu del mòdul o tanqueu la pestanya amb canvis pendents, el navegador us ho pregunta."
+        ]
+      },
+      {
+        "id": "dues-persones",
+        "titol": "Dues persones alhora",
+        "claus": "conflicte dues persones alhora combinar altre usuari concurrència perdre canvis",
+        "text": [
+          "Cada minut, GESTIO comprova si algú altre ha desat el mateix mòdul. Si és així, surt un avís amb el nom i l'hora i el botó **Actualitza**. Els vostres canvis sense desar no es toquen.",
+          "En desar, si l'altra persona ha canviat alguna de les mateixes files:",
+          "- Si heu tocat **camps diferents**, es combinen sols (es queden els seus i els vostres) i es desa.",
+          "- Si heu tocat **el mateix camp**, surt una taula amb els dos valors i trieu **Mantén els meus** o **Accepta els seus**.",
+          "Tot queda a l'historial del full."
+        ]
+      },
+      {
+        "id": "alta-baixa",
+        "titol": "Alta, baixa i esborrat",
+        "claus": "alta afegir nou baixa reactivar recuperar esborrar paperera",
+        "text": [
+          "**+ Afegeix** crea una fila nova (verda, a dalt de tot). El codi intern es posa en desar.",
+          "**Baixa** posa l'estat «baixa» (la fila s'amaga, però es conserva). Per recuperar-la: marqueu «Mostra també les baixes», premeu **Reactiva** (o canvieu l'estat) i deseu.",
+          "La **paperera** esborra la fila del tot (només administració; queda a l'historial)."
+        ]
+      },
+      {
+        "id": "seleccio",
+        "titol": "Selecció: el mateix valor a moltes files",
+        "claus": "selecció seleccionar casella aplica a la selecció massiu grup sencer",
+        "text": [
+          "La primera columna té una casella per fila; la de la capçalera marca totes les files que es veuen amb els filtres.",
+          "Amb files marcades surt **Aplica a la selecció**: trieu un camp (de llista o sí/no) i un valor, i es posa a totes les files marcades com a canvi sense desar. **Treu la selecció** les desmarca.",
+          "Exemple: filtreu el grup 2n ESO B, marqueu-lo sencer i poseu Decisió final = promociona."
+        ]
+      },
+      {
+        "id": "importa",
+        "titol": "Importa fitxer (alta massiva)",
+        "claus": "importar fitxer excel csv plantilla alta massiva matrícula preinscripció",
+        "text": [
+          "1. **Importa fitxer** › **Baixa la plantilla**: un Excel amb les columnes del mòdul, una pestanya amb els valors permesos i les instruccions.",
+          "2. Ompliu-la (o copieu-hi les dades de la preinscripció o la matrícula). També s'entén una columna «Cognoms, Nom».",
+          "3. Pugeu-la (xlsx, xls o csv). Abans d'afegir res es mostren les columnes reconegudes, les files que ja hi són (mateix nom i cognoms) i les dades per corregir.",
+          "4. Les files entren a dalt de la graella **sense desar**: reviseu-les (les incorrectes en vermell) i **Desa els canvis**."
+        ]
+      },
+      {
+        "id": "columnes",
+        "titol": "Visualització camps",
+        "claus": "columnes amagar mostrar ordre visualització camps",
+        "text": [
+          "**Visualització camps** permet amagar i mostrar columnes (botons **Cap** i **Totes**). Es recorda en aquest navegador.",
+          "L'ordre de les columnes es canvia arrossegant-ne la capçalera. Nom i 1r cognom queden fixats a l'esquerra."
+        ]
+      },
+      {
+        "id": "exporta",
+        "titol": "Exportar a Excel o PDF",
+        "claus": "exportar excel pdf imprimir descarregar llistat",
+        "text": [
+          "Els botons **Excel** i **PDF** (a la dreta) descarreguen el que es veu: les files filtrades i les columnes visibles. Es pot fer des del nivell consulta."
+        ]
+      },
+      {
+        "id": "gestio-camps",
+        "titol": "Gestió camps (administració)",
+        "claus": "gestió camps columna nova tipus llista obligatori arxivar",
+        "text": [
+          "Permet afegir columnes, canviar-ne el nom, el tipus (text, número, data, llista, sí/no, correu, NIF/NIE, calculat), els valors d'una llista, si és obligatòria o única i des de quin nivell es veu.",
+          "Una columna no s'esborra: s'arxiva desmarcant «Actiu» (les dades es conserven). L'Estat és un camp de sistema."
+        ]
+      },
+      {
+        "id": "mobil",
+        "titol": "Al mòbil",
+        "claus": "mòbil tauleta fitxes",
+        "text": [
+          "Al mòbil es mostren fitxes de consulta. Per editar, feu servir un ordinador."
+        ]
+      }
+    ]
+  },
+  "moduls": {
+    "professorat": {
+      "titol": "Professorat",
+      "graella": true,
+      "intro": "Dades administratives de cada docent: estat, especialitat, correus, jornada, situació laboral, càrrec i equips.",
+      "temes": [
+        {
+          "id": "prof-camps",
+          "titol": "Camps del professorat",
+          "claus": "estat actiu substitut baixa laboral situació jornada nif correu xtec permís",
+          "text": [
+            "- **Estat** (obligatori): actiu, baixa laboral, permís, substitut o baixa.",
+            "- **Situació laboral**: definitiu, comissió de serveis, provisional, interí o substitut. **Jornada**: sencera, 1/2 o ⅔.",
+            "- Formats: correu XTEC acabat en @xtec.cat; correu del centre acabat en @institutjoanmiro.cat (obligatori i únic); NIF/NIE amb la lletra correcta.",
+            "El nivell consulta només veu nom, cognoms, especialitat, correus i càrrec."
+          ]
+        },
+        {
+          "id": "prof-equips",
+          "titol": "Equips d'un docent",
+          "claus": "equips columna membres",
+          "text": [
+            "La columna **Equips** (des d'edició) diu a quins equips és cada docent. Només la direcció la pot canviar; també es pot fer des del mòdul Equips i permisos › Membres.",
+            "Un docent amb estat «baixa» ja no pot entrar a GESTIO."
+          ]
+        },
+        {
+          "id": "prof-llistat",
+          "titol": "Llistat per signar (reunions)",
+          "claus": "llistat signatures reunió claustre pdf full de signatures",
+          "text": [
+            "El botó **Llistat** (des d'edició) genera un PDF per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
+            "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament, filtreu abans per especialitat."
+          ]
+        },
+        {
+          "id": "prof-nou",
+          "titol": "Alta des de secretaria",
+          "claus": "nou professor alta secretaria formulari",
+          "text": [
+            "Secretaria pot donar d'alta un docent amb el mòdul **Nou professor/a** (formulari i PDF per signar), sense accés a aquesta graella."
+          ]
+        }
+      ]
+    },
+    "alumnat": {
+      "titol": "Alumnat ESO",
+      "graella": true,
+      "intro": "Dades acadèmiques de l'alumnat de 1r a 4t d'ESO: grups, estat, decisió final, pendents, optatives, 4t (itinerari i franges), diversitat i autoritzacions.",
+      "temes": [
+        {
+          "id": "eso-nivell",
+          "titol": "Nivell, grups i estat",
+          "claus": "nivell grup anterior actual estat promociona repeteix extern uec",
+          "text": [
+            "- **Nivell** (obligatori): 1r, 2n, 3r o 4t ESO. El **grup actual** ha de ser del nivell (3r ESO → 3r ESO A…, també 3r ESO UEC i 4t ESO UEC). Pot quedar buit (per assignar) després del tancament de curs.",
+            "- **Estat** (obligatori): com ha arribat l'alumne al curs actual: promociona, repeteix (només el mateix nivell: «repeteix 3r» a 3r…), alumne extern o baixa. A 1r no hi ha «promociona».",
+            "- A 1r, el **grup anterior** només l'omple qui repeteix 1r."
+          ]
+        },
+        {
+          "id": "eso-camps-nivell",
+          "titol": "Camps de cada nivell",
+          "claus": "optativa itinerari franja mates català castellà 4t ratllat pendents",
+          "text": [
+            "Alguns camps només s'omplen en alguns nivells (a la resta surten ratllats):",
+            "- Optativa 2n: des de 2n. Optativa 3r: des de 3r.",
+            "- Només a 4t: Itinerari, Franja 1, 2 i 3, Orientació mates, Mates (pares), Català 4t i Castellà 4t (A, B o DIV).",
+            "**Pendents**: text amb els codis de les matèries pendents (p. ex. «MA2, FQ2»). **Observacions**: text lliure."
+          ]
+        },
+        {
+          "id": "eso-aut",
+          "titol": "Diversitat i autoritzacions",
+          "claus": "diversitat nese nee pi psp nouvingut autorització imatge metge 1a 6a medicaments dies especials",
+          "text": [
+            "Diversitats, Nouvingut, PI/PSP, NESE-A, NESE-B i NEE: sí o buit.",
+            "Autoritzacions (imatge, dies especials, medicaments, sortida amb el metge, sortida a 1a/6a hora): sí, no o buit (= sense resposta).",
+            "Data d'arribada: es pot escriure 15/09/2026; es comprova que la data existeixi."
+          ]
+        },
+        {
+          "id": "eso-totals",
+          "titol": "Nombres totals",
+          "claus": "nombres totals quants alumnes per grup nivell pdf",
+          "text": [
+            "**Nombres totals** mostra quants alumnes (sense les baixes) hi ha a cada grup-classe, el total de cada nivell i el total de l'ESO. Es pot descarregar en PDF."
+          ]
+        },
+        {
+          "id": "eso-analisi",
+          "titol": "Anàlisi d'un nivell",
+          "claus": "anàlisi comptadors optatives diversitat nese itinerari franges pdf",
+          "text": [
+            "**Anàlisi** demana el nivell (1r a 4t d'ESO) i mostra els comptadors per grup-classe i el total del nivell. Es pot descarregar en PDF.",
+            "- 1r, 2n i 3r: optatives del nivell, Div. mates, Div. català, Div. castellà, Nouvingut, PI/PSP, NESE-A i NESE-B.",
+            "- 4t: itinerari, franges 1, 2 i 3, orientació mates, mates (pares), català, castellà, nouvingut, PI, NEE, NESE-A i NESE-B."
+          ]
+        },
+        {
+          "id": "eso-tancament",
+          "titol": "Tancament de curs",
+          "claus": "tancament curs final de curs decisió final promoció repetició desfer",
+          "text": [
+            "Ho fa qui té edició del mòdul (coordinacions de nivell).",
+            "1. Poseu la **Decisió final** a tots els alumnes que no són de baixa (promociona, repeteix o baixa). Feu servir la selecció per anar de pressa.",
+            "2. **Tancament de curs**: resum per grup. Si queda cap pendent o hi ha canvis sense desar, no deixa continuar.",
+            "3. Marqueu la casella de revisió i **Tanca el curs**: es fa una còpia de la pestanya; promociona → nivell següent (4t acaba l'etapa: baixa); repeteix → mateix nivell; el grup actual passa a anterior i el nou queda per assignar; el curs avança.",
+            "4. Assigneu els grups nous (selecció) i doneu d'alta l'alumnat nou amb **Importa fitxer**.",
+            "Si s'ha fet per error: a l'Apps Script, executeu **desfesTancament**."
+          ]
+        }
+      ]
+    },
+    "batxillerat": {
+      "titol": "Alumnat Batxillerat",
+      "graella": true,
+      "intro": "Dades acadèmiques de l'alumnat de 1r i 2n de batxillerat: grups, estat, decisió final, itinerari, matèries, pendents, matèries soltes, PI i autoritzacions.",
+      "temes": [
+        {
+          "id": "bat-nivell",
+          "titol": "Nivell, grups i estat",
+          "claus": "nivell grup estat promociona repeteix extern baixa itinerari",
+          "text": [
+            "- **Nivell** (obligatori): 1r BAT o 2n BAT. El grup actual ha de ser del nivell (1r BAT A, B, C…).",
+            "- **Estat**: promociona, repeteix 1r BAT / repeteix 2n BAT (només el mateix nivell), alumne extern o baixa. Qui ve del nostre 4t d'ESO és «promociona».",
+            "- **Itinerari**: tecnològic, científic, social o humanístic."
+          ]
+        },
+        {
+          "id": "bat-materies",
+          "titol": "Matèries i recomptes",
+          "claus": "matèries columnes verticals recompte nombre alumnes grup g1 g2",
+          "text": [
+            "Cada matèria és una columna estreta amb el nom en **vertical**; quan hi ha més d'un grup d'una matèria, una columna per grup (G1, G2…). A sota del nom hi ha el **nombre d'alumnes** que la cursen entre les files que es veuen: filtreu (p. ex. per grup o itinerari) i els recomptes canvien.",
+            "Les matèries de 1r només s'omplen a 1r BAT i les de 2n només a 2n BAT (a l'altre nivell surten ratllades).",
+            "Per marcar o treure una matèria a molts alumnes: selecció i **Aplica a la selecció**."
+          ]
+        },
+        {
+          "id": "bat-totals",
+          "titol": "Nombres totals",
+          "claus": "nombres totals quants alumnes grup itinerari tipologia pdf",
+          "text": [
+            "**Nombres totals** mostra quants alumnes (sense les baixes) hi ha a cada grup-classe, repartits per tipologia de batxillerat (itinerari), amb el total de cada nivell i del batxillerat. Es pot descarregar en PDF."
+          ]
+        },
+        {
+          "id": "bat-analisi",
+          "titol": "Anàlisi d'un nivell",
+          "claus": "anàlisi comptadors itinerari tipologia matèries pdf",
+          "text": [
+            "**Anàlisi** demana el nivell (1r o 2n BAT) i mostra, per grup-classe i total del nivell, quants alumnes hi ha de cada tipologia de batxillerat i quants cursen cada matèria. Es pot descarregar en PDF."
+          ]
+        },
+        {
+          "id": "bat-pendents",
+          "titol": "Pendents i matèries soltes",
+          "claus": "pendents soltes repetidor codis",
+          "text": [
+            "**Pendents**: text amb els codis de les matèries pendents de 1r (p. ex. «LC, MP»).",
+            "**Matèries soltes** (només 2n): text amb els codis de les matèries que cursa qui repeteix amb matèries soltes. Per defecte, buit."
+          ]
+        },
+        {
+          "id": "bat-tancament",
+          "titol": "Tancament de curs",
+          "claus": "tancament curs final decisió promoció repetició desfer",
+          "text": [
+            "Com a l'ESO, però amb curs propi (es pot tancar en un altre moment): 1r BAT que promociona → 2n BAT (les matèries de 1r es buiden; la còpia les conserva); 2n BAT que promociona acaba l'etapa (estat baixa).",
+            "Si s'ha fet per error: a l'Apps Script, executeu **desfesTancamentBatxillerat**."
+          ]
+        },
+        {
+          "id": "bat-aut",
+          "titol": "PI i autoritzacions",
+          "claus": "pi autorització metge 1a 6a medicaments dies especials imatge",
+          "text": [
+            "PI: sí o buit. Autoritzacions (imatge, dies especials, medicaments, sortida amb el metge, sortida a 1a/6a hora): sí, no o buit."
+          ]
+        }
+      ]
+    },
+    "pas": {
+      "titol": "PAS",
+      "graella": true,
+      "intro": "Personal d'administració i serveis (administració, consergeria…). Es gestiona com el professorat; l'alta es fa a mà.",
+      "temes": [
+        {
+          "id": "pas-camps",
+          "titol": "Camps del PAS",
+          "claus": "estat àmbit administració consergeria correu telèfon horari",
+          "text": [
+            "Nom, cognoms, **Estat** (actiu, baixa laboral, substitut, baixa), **Àmbit** (Administració, Consergeria, Altres), NIF, correu del centre, telèfon, jornada, horari i càrrec.",
+            "El nivell consulta veu nom, cognoms, àmbit, correu, horari i càrrec."
+          ]
+        },
+        {
+          "id": "pas-equips",
+          "titol": "Accés del PAS a GESTIO",
+          "claus": "equips accés administratives conserges permisos",
+          "text": [
+            "Les persones del PAS poden entrar a GESTIO si són membres d'algun equip amb permisos (p. ex. EQ-ADM Administració, EQ-CON Consergeria). La direcció ho fa a **Equips i permisos**."
+          ]
+        }
+      ]
+    },
+    "nou_professor": {
+      "titol": "Nou professor/a",
+      "graella": false,
+      "intro": "Formulari perquè secretaria doni d'alta un docent nou al professorat i en generi el PDF per signar.",
+      "temes": [
+        {
+          "id": "nou-omplir",
+          "titol": "Omplir el formulari",
+          "claus": "formulari camps obligatoris informació i validar",
+          "text": [
+            "Els camps amb * són obligatoris (nom, 1r cognom, estat i correu del centre). Passeu el ratolí (o el focus) per la **i** de cada camp per veure què cal posar-hi.",
+            "Cada camp es comprova en sortir-ne: correu XTEC acabat en @xtec.cat, correu del centre acabat en @institutjoanmiro.cat (no repetit), NIF/NIE amb la lletra correcta, valors de les llistes."
+          ]
+        },
+        {
+          "id": "nou-desar",
+          "titol": "Desar, cancel·lar i PDF",
+          "claus": "desar cancel·lar pdf signatura data imprimir",
+          "text": [
+            "- **Desa**: dona d'alta el docent al professorat (es torna a comprovar tot; si el correu o el NIF ja hi són, no es desa). Es mostra el codi intern (PRO-…).",
+            "- **Cancel·la**: buida el formulari (pregunta si hi havia dades). Després de desar, el botó es diu **Nova alta**.",
+            "- **PDF per signar**: document amb la capçalera del centre, totes les dades i les caselles de **signatura** i **data** per signar a mà."
+          ]
+        }
+      ]
+    },
+    "equips": {
+      "titol": "Equips i permisos",
+      "graella": false,
+      "intro": "Equips de gestió i docents, els seus membres (professorat i PAS) i què pot fer cada equip a cada mòdul. Només direcció.",
+      "temes": [
+        {
+          "id": "eq-equips",
+          "titol": "Equips i membres",
+          "claus": "equip nou membres afegir treure inactiu gestió docent",
+          "text": [
+            "Pestanya **Equips i membres**: + Afegeix equip (codi EQ-…), nom, tipus (gestió o docent: només serveix per classificar) i actiu. Un equip no s'esborra: es marca com a inactiu.",
+            "Cliqueu la cel·la **Membres** per afegir-ne o treure'n (professorat i PAS, amb cercador). Una persona pot ser a diversos equips."
+          ]
+        },
+        {
+          "id": "eq-permisos",
+          "titol": "Permisos",
+          "claus": "permisos matriu nivell consulta edició administració tots els mòduls",
+          "text": [
+            "Pestanya **Permisos**: una fila per equip i una columna per mòdul (i «Tots els mòduls»). A cada casella: —, Consulta, Edició o Administració. Si una persona és a diversos equips, val el nivell més alt.",
+            "L'administració global de l'equip directiu no es pot treure des del web."
+          ]
+        }
+      ]
+    },
+    "control_entrada": {
+      "titol": "Control d'entrada",
+      "graella": true,
+      "intro": "Registre de les entrades amb retard de l'alumnat (ESO i batxillerat): qui, nivell, grup-classe, data i hora, i anàlisi per alumne.",
+      "temes": [
+        {
+          "id": "ce-consulta",
+          "titol": "Consultar les entrades",
+          "claus": "entrades retards llistat graella consulta filtrar",
+          "text": [
+            "La graella mostra totes les entrades, de la més recent a la més antiga: alumne, nivell, grup-classe, data i hora. Es pot filtrar per qualsevol camp i exportar a Excel o PDF.",
+            "Les entrades no es modifiquen a la cel·la."
+          ]
+        },
+        {
+          "id": "ce-nova",
+          "titol": "Nova entrada",
+          "claus": "nova entrada registrar retard alumne triar",
+          "text": [
+            "Des d'edició, **+ Nova entrada** obre una finestra amb tot l'alumnat (ESO i batxillerat, sense les baixes) per ordre de 1r i 2n cognom. Escriviu un cognom o el grup per trobar-lo; el primer resultat queda triat i **Enter** desa.",
+            "En desar es registra el nom complet, el nivell i el grup-classe que té l'alumne en aquell moment, i la data i l'hora d'ara.",
+            "Una entrada feta per error s'esborra amb la **paperera** de la fila (queda a l'historial)."
+          ]
+        },
+        {
+          "id": "ce-analisi",
+          "titol": "Anàlisi per alumne",
+          "claus": "anàlisi informe vegades alumne nivell grup data pdf",
+          "text": [
+            "**Anàlisi** permet triar el nivell, el grup-classe i una data (en blanc = tot el període). Mostra, per ordre alfabètic, quantes vegades s'ha registrat cada alumne. Amb una data, només es compten les entrades d'aquella data en endavant.",
+            "L'informe es pot descarregar en PDF."
+          ]
+        }
+      ]
+    }
+  }
+}

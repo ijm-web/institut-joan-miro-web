@@ -62,14 +62,17 @@
     nivell_no_existeix: 'Hi ha alumnes que promocionen a un nivell que encara no és al mòdul.',
     sense_nivell: 'Hi ha alumnes sense nivell.',
     curs_canviat: 'Algú altre ja ha tancat el curs. Actualitzeu les dades.',
-    curs_invalid: 'El curs de config › curs no té el format aaaa-aaaa.'
+    curs_invalid: 'El curs de config › curs no té el format aaaa-aaaa.',
+    no_existeix: 'Aquest alumne ja no és a la base de dades. Actualitzeu la llista.'
   };
   var ERRORS_CAMP = {
     obligatori: 'és obligatori', massa_llarg: 'és massa llarg', numero_invalid: 'ha de ser un número', data_invalida: 'ha de ser una data',
     si_no_invalid: 'ha de ser sí o no', correu_invalid: 'no és un correu vàlid', correu_domini: 'ha de ser un correu ', valor_no_permes: 'no és un dels valors de la llista',
     repetit: 'està repetit (ja el té una altra persona)', no_existeix: 'aquesta fila ja no existeix',
     nif_invalid: 'no és un DNI o NIE vàlid (8 xifres i lletra, o X/Y/Z, 7 xifres i lletra)',
-    no_aplica_1r: 'no s’omple a 1r d’ESO (el grup anterior, només si repeteix 1r)', grup_nivell: 'no és del nivell de l’alumne (p. ex. 2n ESO → 2n ESO A…)', estat_nivell: 'no és possible per al nivell del grup (1r: alumne extern, repeteix 1r o baixa; 2n: promociona, repeteix 2n, alumne extern o baixa)'
+    no_aplica_1r: 'no s’omple a 1r d’ESO (el grup anterior, només si repeteix 1r)', grup_nivell: 'no és del nivell de l’alumne (p. ex. 2n ESO → 2n ESO A…)',
+    estat_nivell: 'no és possible per al nivell (només es pot repetir el mateix nivell; a 1r d’ESO no hi ha «promociona»)',
+    no_aplica_nivell: 'no s’omple en aquest nivell (p. ex. camps de 4t, optatives de cursos superiors o matèries de l’altre curs de batxillerat)'
   };
   var text = function (c) { return MISSATGES[c] || MISSATGES.error_servidor; };
   var PAPERERA = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
@@ -90,27 +93,54 @@
     var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
     return d.getUTCFullYear() === +m[1] && d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3];
   }
-  // Regles entre camps (les mateixes que l'Apps Script). ALUMNAT: camp «nivell» (si és buit, el del grup actual).
-  var NIVELLS_ESO = ['1r ESO', '2n ESO', '3r ESO', '4t ESO'];
-  var nivellDeGrup = function (g) { g = String(g || ''); for (var i = 0; i < NIVELLS_ESO.length; i++) if (g.indexOf(NIVELLS_ESO[i]) === 0) return NIVELLS_ESO[i]; return ''; };
-  var nivellAlumne = function (d) { return NIVELLS_ESO.indexOf(nivellDeGrup(d.nivell || d.grup_actual)) + 1; };
-  var ESTATS_NIVELL = { 1: ['alumne extern', 'repeteix 1r', 'baixa'], 2: ['promociona', 'repeteix 2n', 'alumne extern', 'baixa'] };
-  var NOMES_2N = ['optativa_2n'];   // camps que no s'omplen a 1r d'ESO (i el grup anterior, si no repeteix)
-  var senseGrupAnterior = function (d) { return nivellAlumne(d) === 1 && d.estat !== 'repeteix 1r'; };
-  var REGLES = {
-    alumnat: function (d) {
-      var n = nivellAlumne(d);
-      if (d.nivell && String(d.grup_actual || '').trim() && String(d.grup_actual).indexOf(d.nivell) !== 0) return { error: 'grup_nivell', camp: 'grup_actual' };
-      if (n === 1) {
-        if (String(d.grup_anterior || '').trim() && d.estat !== 'repeteix 1r') return { error: 'no_aplica_1r', camp: 'grup_anterior' };
-        for (var i = 0; i < NOMES_2N.length; i++) if (String(d[NOMES_2N[i]] || '').trim()) return { error: 'no_aplica_1r', camp: NOMES_2N[i] };
-        if (d.estat && ESTATS_NIVELL[1].indexOf(d.estat) < 0) return { error: 'estat_nivell', camp: 'estat' };
-      }
-      if (n === 2 && d.estat === 'repeteix 1r') return { error: 'estat_nivell', camp: 'estat' };
-      return null;
-    }
+  // Regles entre camps (les mateixes que l'Apps Script). ALUMNAT ESO i BATXILLERAT (PAS 29): camp «nivell» (si és
+  // buit, el del grup actual), camps que només s'omplen en alguns nivells i «repeteix» del mateix nivell.
+  var ETAPES = {
+    alumnat: { nivells: ['1r ESO', '2n ESO', '3r ESO', '4t ESO'], repeteix: function (n) { return 'repeteix ' + String(n).split(' ')[0]; }, primerSensePromocio: true },
+    batxillerat: { nivells: ['1r BAT', '2n BAT'], repeteix: function (n) { return 'repeteix ' + n; }, primerSensePromocio: false }
   };
-  var regla = function (d) { return S.modul && REGLES[S.modul.id] ? REGLES[S.modul.id](d) : null; };
+  var QUART_ESO = ['itinerari', 'franja1', 'franja2', 'franja3', 'mates_orientacio', 'mates_pares', 'catala_4t', 'castella_4t'];
+  function aplica(modul, clau, n) {
+    if (!n) return true;
+    if (modul === 'alumnat') {
+      if (clau === 'optativa_2n') return n >= 2;
+      if (clau === 'optativa_3r') return n >= 3;
+      if (QUART_ESO.indexOf(clau) >= 0) return n === 4;
+    }
+    if (modul === 'batxillerat') {
+      if (/^m1_/.test(clau)) return n === 1;
+      if (/^m2_/.test(clau) || clau === 'materies_soltes') return n === 2;
+    }
+    return true;
+  }
+  var esAlumnat = function () { return !!(S.modul && ETAPES[S.modul.id]); };
+  var esRegistre = function () { return !!(S.modul && S.modul.id === 'control_entrada'); };
+  var etapa = function () { return ETAPES[S.modul.id]; };
+  var nivellDeGrup = function (g) { g = String(g || '').toUpperCase(); if (!esAlumnat()) return ''; var N = etapa().nivells; for (var i = 0; i < N.length; i++) if (g.indexOf(N[i].toUpperCase()) === 0) return N[i]; return ''; };
+  var nivellAlumne = function (d) { return esAlumnat() ? etapa().nivells.indexOf(nivellDeGrup(d.nivell || d.grup_actual)) + 1 : 0; };
+  var senseGrupAnterior = function (d) { var E = esAlumnat() && etapa(); return !!E && E.primerSensePromocio && nivellAlumne(d) === 1 && d.estat !== E.repeteix(E.nivells[0]); };
+  var noAplica = function (clau, d) { return esAlumnat() && !aplica(S.modul.id, clau, nivellAlumne(d)); };
+  var restringit = function (clau) { return esAlumnat() && etapa().nivells.some(function (x, i) { return !aplica(S.modul.id, clau, i + 1); }); };
+  var esMateria = function (clau) { return S.modul && S.modul.id === 'batxillerat' && /^m[12]_/.test(clau); };
+  // Estats que té sentit triar per al nivell de la fila
+  function estatsPossibles(d, ops) {
+    var E = etapa(), n = nivellAlumne(d), niv = E.nivells[n - 1];
+    if (!niv) return ops;
+    return ops.filter(function (o) { if (/^repeteix /.test(o)) return o === E.repeteix(niv); return !(o === 'promociona' && E.primerSensePromocio && n === 1); });
+  }
+  function reglaAlumnat(d) {
+    var E = etapa(), n = nivellAlumne(d), niv = E.nivells[n - 1] || '';
+    if (d.nivell && String(d.grup_actual || '').trim() && String(d.grup_actual).indexOf(d.nivell) !== 0) return { error: 'grup_nivell', camp: 'grup_actual' };
+    var fora = Object.keys(d).filter(function (k) { return k.charAt(0) !== '_' && !Array.isArray(d[k]) && String(d[k] == null ? '' : d[k]).trim() && !aplica(S.modul.id, k, n); })[0];
+    if (fora) return { error: 'no_aplica_nivell', camp: fora };
+    if (E.primerSensePromocio && n === 1 && String(d.grup_anterior || '').trim() && d.estat !== E.repeteix(niv)) return { error: 'no_aplica_1r', camp: 'grup_anterior' };
+    if (d.estat && niv) {
+      if (/^repeteix /.test(d.estat) && d.estat !== E.repeteix(niv)) return { error: 'estat_nivell', camp: 'estat' };
+      if (E.primerSensePromocio && n === 1 && d.estat === 'promociona') return { error: 'estat_nivell', camp: 'estat' };
+    }
+    return null;
+  }
+  var regla = function (d) { return esAlumnat() ? reglaAlumnat(d) : null; };
   function errorCel(c, v) {
     var x = String(v == null ? '' : v).trim();
     if (c.obligatori && !x) return 'obligatori';
@@ -221,6 +251,8 @@
   var ICONES = {
     professorat: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="16" r="6"/><path d="M6 38c0-7 5-12 12-12s12 5 12 12"/><rect x="30" y="18" width="13" height="18" rx="2"/><path class="prog-apartat__acc" d="M33 24h7M33 29h7M33 34h4"/></svg>',
     alumnat: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 24 9l20 9-20 9z"/><path d="M12 22v9c0 3 5 6 12 6s12-3 12-6v-9"/><path class="prog-apartat__acc" d="M44 18v11"/></svg>',
+    batxillerat: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h22l6 6v26H10z"/><path d="M32 8v6h6"/><path class="prog-apartat__acc" d="M16 22h16M16 28h16M16 34h10"/></svg>',
+    nou_professor: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="19" cy="16" r="6"/><path d="M7 38c0-7 5-12 12-12 4 0 7 1.5 9 4"/><path class="prog-apartat__acc" d="M36 26v12M30 32h12"/></svg>',
     pas: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="15" r="6"/><path d="M5 38c0-7 5-12 12-12s12 5 12 12"/><path d="M30 24h13v14H30z"/><path class="prog-apartat__acc" d="M34 24v-3h5v3M30 30h13"/></svg>',
     equips: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="17" r="5"/><circle cx="32" cy="17" r="5"/><path d="M6 36c0-6 4-10 10-10s10 4 10 10"/><path d="M22 36c0-6 4-10 10-10s10 4 10 10"/><path class="prog-apartat__acc" d="M24 6v6M21 9h6"/></svg>'
   };
@@ -250,7 +282,7 @@
     $('gsInici').hidden = true; $('gsModul').hidden = true; $('gsCrumbModul').hidden = true;
     var m = S.sessio.moduls.filter(function (x) { return x.id === h; })[0];
     document.body.classList.toggle('gs-en-modul', !!m);
-    if (m) { window.scrollTo(0, 0); obreModul(m); } else { $('gsInici').hidden = false; if (h) history.replaceState(null, '', location.pathname); window.scrollTo({ top: $('gsApp').offsetTop - 90, behavior: 'smooth' }); }
+    if (m) { window.scrollTo(0, 0); obreModul(m); } else { clearInterval(vigila.t); tancaAjuda(); $('gsInici').hidden = false; if (h) history.replaceState(null, '', location.pathname); window.scrollTo({ top: $('gsApp').offsetTop - 90, behavior: 'smooth' }); }
   }
   $('gsCrumbInici').addEventListener('click', function (e) { e.preventDefault(); location.hash = ''; });
 
@@ -266,6 +298,7 @@
     var h = alcada();
     if (S.taula) { try { S.taula.setHeight(h); } catch (e) { /* encara no construïda */ } }
     var mx = document.querySelector('.gs-matriu'); if (mx) mx.style.maxHeight = h;
+    var fn = document.querySelector('#gsTaula.gs-nou'); if (fn) fn.style.maxHeight = h;
   }
   var tempsResize = 0;
   window.addEventListener('resize', function () { clearTimeout(tempsResize); tempsResize = setTimeout(ajustaAlcada, 120); });
@@ -281,9 +314,12 @@
     $('gsModul').hidden = false; $('gsCrumbModul').hidden = false; $('gsCrumbModulNom').textContent = m.nom;
     $('gsModulKicker').textContent = 'Mòdul'; $('gsModulTitol').textContent = m.nom.toUpperCase();
     $('gsNivell').innerHTML = 'El vostre nivell: <span class="gs-tag gs-tag--' + esc(m.nivell) + '">' + esc(NOM_NIVELL[m.nivell]) + '</span>';
+    $('gsManual').href = '/assets/docs/gestio/manual-' + m.id.replace(/_/g, '-') + '.pdf';
+    tancaAjuda();
     $('gsAvis').hidden = true; $('gsEines').innerHTML = ''; $('gsTaula').innerHTML = ''; $('gsMobil').hidden = true; $('gsBarra').hidden = true;
-    destrueixTaula();
+    destrueixTaula(); clearInterval(vigila.t); amagaAvisCanvis();
     if (m.id === 'equips') return carregaEquips();
+    if (m.id === 'nou_professor') return carregaNouProfessor();
     // Les dades ja llegides en aquesta pàgina es reutilitzen: tornar al mòdul no torna a cridar el full
     if (S.cache[m.id]) return mostraDades(S.cache[m.id]);
     carregaDades();
@@ -297,40 +333,78 @@
       mostraDades(d);
     });
   }
+  // PAS 29 · Cada minut es pregunta qui ha desat l'últim aquest mòdul. Si és una altra persona, un avís ho diu
+  // (amb «Actualitza»); els canvis propis sense desar no es toquen i, en desar, es combinen (vegeu combina).
+  var vigila = { t: 0 };
+  function vigilaCanvis() {
+    clearInterval(vigila.t);
+    if (!S.d || !S.d.versio || !S.modul) return;
+    var modul = S.modul.id;
+    vigila.t = setInterval(function () { if (!document.hidden) comprovaVersio(modul); }, 60000);
+  }
+  function comprovaVersio(modul) {
+    if (!S.modul || S.modul.id !== modul) return Promise.resolve();
+    return api('versio', { modul: modul }).then(function (r) {
+      if (!r.ok || !r.versio || !S.d || !S.d.versio || S.modul.id !== modul) return;
+      if (r.versio.data && r.versio.data !== S.d.versio.data && String(r.versio.per).toLowerCase() !== String(S.sessio.email).toLowerCase()) avisCanvis(r.versio);
+    });
+  }
+  function avisCanvis(v) {
+    var a = $('gsCanvisAltres');
+    if (!a) { a = document.createElement('p'); a.id = 'gsCanvisAltres'; a.className = 'prog-avis gs-avis-canvis'; a.setAttribute('role', 'status'); $('gsEines').parentNode.insertBefore(a, $('gsEines')); }
+    a.innerHTML = '<strong>' + esc(v.per) + '</strong> ha desat canvis en aquest mòdul (' + esc(String(v.data).slice(11, 16)) + '). ' +
+      (S.brut ? 'Els vostres canvis sense desar es conserven: en desar, es combinaran amb els seus.' : '') + ' <button type="button" class="prog-btn prog-btn--sm" data-accio="recarrega">Actualitza</button>';
+    a.hidden = false; ajustaAlcada();
+  }
+  function amagaAvisCanvis() { var a = $('gsCanvisAltres'); if (a && !a.hidden) { a.hidden = true; ajustaAlcada(); } }
   function mostraDades(d) {
     destrueixTaula();
     S.d = d; S.canvis = {}; S.altes = {}; marcaBrut(false);
-    $('gsAvis').hidden = true;
+    $('gsAvis').hidden = true; amagaAvisCanvis(); vigilaCanvis();
     if (!d.obert && nivellIdx(d.nivell) >= 1) { $('gsAvis').textContent = text('tancat'); $('gsAvis').hidden = false; }
     pintaEines(); pintaTaula();
   }
   var potEditar = function () { return S.d && nivellIdx(S.d.nivell) >= 1 && S.d.obert; };
   var esAdmin = function () { return S.d && S.d.nivell === 'admin'; };
-  var editable = function (c) { return potEditar() && c.tipus !== 'calculat' && c.origen !== 'clickedu'; };
-  // Per fila: a l'alumnat de 1r no s'editen els camps que només són de 2n
+  var editable = function (c) { return potEditar() && !esRegistre() && c.tipus !== 'calculat' && c.origen !== 'clickedu'; };
+  // Per fila: a l'alumnat no s'editen els camps que no són del nivell de l'alumne (surten ratllats)
   var editableFila = function (c, d) {
     if (!editable(c)) return false;
-    if (S.modul.id !== 'alumnat') return true;
-    if (nivellAlumne(d) === 1 && NOMES_2N.indexOf(c.clau) >= 0) return false;
+    if (!esAlumnat()) return true;
+    if (noAplica(c.clau, d)) return false;
     return !(c.clau === 'grup_anterior' && senseGrupAnterior(d));
   };
 
   function pintaEines() {
-    var ed = potEditar();
+    var ed = potEditar(), ambEstat = S.d.camps.some(function (c) { return c.clau === 'estat'; });
+    if (esRegistre()) {
+      // CONTROL D'ENTRADA: «Nova entrada» (edició) i «Anàlisi» (consulta); les entrades no s'editen a la cel·la
+      $('gsEines').innerHTML = '<span class="gs-compte" id="gsCompte"></span><span class="gs-espai"></span>' +
+        (ed ? '<button type="button" class="prog-btn" data-accio="entrada-nova">+ Nova entrada</button>' : '') +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-accio="entrada-analisi">Anàlisi</button>' +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
+        (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="camps">Gestió camps</button>' : '') +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-accio="recarrega" title="Torna a llegir les dades del full">Actualitza</button>' +
+        '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Excel</button>' +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">PDF</button></span>';
+      return;
+    }
     $('gsEines').innerHTML =
-      '<label class="gs-check"><input type="checkbox" id="gsBaixes"' + (S.baixes ? ' checked' : '') + '> Mostra també les baixes</label>' +
+      (ambEstat ? '<label class="gs-check"><input type="checkbox" id="gsBaixes"' + (S.baixes ? ' checked' : '') + '> Mostra també les baixes</label>' : '') +
       '<span class="gs-compte" id="gsCompte"></span>' +
       (ed ? '<span class="gs-seleccio" id="gsSeleccio" hidden><span id="gsSelN"></span> <button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-accio="aplica-seleccio">Aplica a la selecció…</button> <button type="button" class="gs-enllac" data-accio="treu-seleccio">Treu la selecció</button></span>' : '') +
       '<span class="gs-espai"></span>' +
       (ed ? '<button type="button" class="prog-btn" data-accio="alta">+ Afegeix ' + esc(S.d.nom_fila || 'fila') + '</button>' : '') +
       (ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="importa" title="Alta massiva a partir d’un fitxer Excel o CSV">Importa fitxer</button>' : '') +
-      (ed && S.modul.id === 'alumnat' && S.d.camps.some(function (c) { return c.clau === 'decisio_final'; }) ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="tancament" title="Promocions, repeticions i baixes de final de curs">Tancament de curs</button>' : '') +
+      (esAlumnat() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="totals" title="Alumnes per nivell i grup">Nombres totals</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="analisi" title="Comptadors per grup d’un nivell">Anàlisi</button>' : '') +
+      (S.modul.id === 'professorat' && ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="llistat" title="PDF per recollir signatures en una reunió">Llistat</button>' : '') +
+      (ed && esAlumnat() && S.d.camps.some(function (c) { return c.clau === 'decisio_final'; }) ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="tancament" title="Promocions, repeticions i baixes de final de curs">Tancament de curs</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
       (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="camps">Gestió camps</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="recarrega" title="Torna a llegir les dades del full">Actualitza</button>' +
       '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Excel</button>' +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">PDF</button></span>';
-    $('gsBaixes').addEventListener('change', function () { S.baixes = this.checked; aplicaFiltre(); });
+    if ($('gsBaixes')) $('gsBaixes').addEventListener('change', function () { S.baixes = this.checked; aplicaFiltre(); });
   }
 
   // Valors calculats (els mateixos que fa l'Apps Script en desar): «nom cognom1 cognom2», «cognom1 cognom2, nom»
@@ -355,13 +429,13 @@
     (S.taula ? S.taula.getData() : S.d.files).forEach(function (d) { var v = d[camp] == null ? '' : String(d[camp]).trim(); if (v === '') buit = true; else vist[v] = 1; });
     return Object.keys(vist).sort(function (a, b) { return a.localeCompare(b, 'ca', { numeric: true }); }).map(function (x) { return { v: x, t: x }; }).concat(buit ? [BUIT] : []);
   }
-  function filtreDe(c) {
+  function filtreDe(c, compacte) {
     var opts = c.tipus === 'si_no' ? function () { return [{ v: 'sí', t: 'sí' }, { v: '', t: 'no' }]; }
       : c.tipus === 'llista' ? function () { return c.valors.split('|').map(function (x) { x = x.trim(); return { v: x, t: x }; }).concat([BUIT]); }
       : function () { return valorsDiferents(c.clau); };
     var norm = function (v) { v = v == null ? '' : String(v).trim(); return c.tipus === 'si_no' ? (v === 'sí' ? 'sí' : '') : v; };
     return {
-      headerFilter: function (cell, onRendered, success) { return filtreMultiple(c.nom, opts, success, cell.getValue()); },
+      headerFilter: function (cell, onRendered, success) { var el = filtreMultiple(c.nom, opts, success, cell.getValue()); if (compacte) el.classList.add('gs-filtre--compacte'); return el; },
       headerFilterLiveFilter: false,   // si no, Tabulator escolta el keyup del contenidor i esborra el filtre ràpid
       headerFilterFunc: function (f, v) {
         if (f.s && f.s.indexOf(norm(v)) < 0) return false;
@@ -440,11 +514,15 @@
   function nomEquip(id) { var e = (S.d.equips || []).filter(function (x) { return x.id === id; })[0]; return e ? e.nom : id; }
   function columnes() {
     var ed = potEditar(), adm = esAdmin();
+    S.filtreFn = {};
     var cols = [];
     // Selecció de files (casella) per aplicar un mateix valor a moltes files: p. ex. «Decisió final» d'un grup sencer
-    if (ed) cols.push({ formatter: 'rowSelection', titleFormatter: 'rowSelection', titleFormatterParams: { rowRange: 'active' }, field: '_sel', frozen: true,
+    if (ed && !esRegistre()) cols.push({ formatter: 'rowSelection', titleFormatter: 'rowSelection', titleFormatterParams: { rowRange: 'active' }, field: '_sel', frozen: true,
       headerSort: false, download: false, width: 44, minWidth: 44, resizable: false, hozAlign: 'center', headerHozAlign: 'center', cssClass: 'gs-sel', cellClick: function (e, cell) { if (e.target.tagName !== 'INPUT') cell.getRow().toggleSelect(); } });
-    if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: adm ? 118 : 92, cssClass: 'gs-accions',
+    if (ed && esRegistre()) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: 44, cssClass: 'gs-accions',
+      formatter: function () { return '<span class="gs-acc"><button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra aquesta entrada (feta per error)" aria-label="Esborra l’entrada">' + PAPERERA + '</button></span>'; },
+      cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
+    else if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: adm ? 118 : 92, cssClass: 'gs-accions',
       formatter: function (cell) {
         var r = cell.getRow().getData();
         return '<span class="gs-acc">' + (deBaixa(r) ? '<button type="button" data-a="reactiva">Reactiva</button>' : '<button type="button" data-a="baixa">Baixa</button>') +
@@ -457,17 +535,23 @@
       var col = Object.assign({ title: c.nom + (c.obligatori && editable(c) ? ' *' : ''), field: c.clau, minWidth: 90, maxWidth: 360,
         editable: editable(c), cssClass: c.tipus === 'calculat' ? 'gs-calc' : (c.origen === 'clickedu' ? 'gs-ck' : ''),
         tooltip: c.tipus === 'calculat' ? 'Es calcula sol' : (c.origen === 'clickedu' ? 'Ve de Clickedu: no s’edita aquí' : false) }, filtreDe(c));
+      S.filtreFn[c.clau] = col.headerFilterFunc;
       if (FIXADES.indexOf(c.clau) >= 0) col.frozen = true;
       if (editable(c)) {
         Object.assign(col, editorDe(c));
         col.editable = function (cell) { return editableFila(c, cell.getRow().getData()); };
         // Estat de l'alumnat: només els valors possibles per al nivell del grup
-        if (S.modul.id === 'alumnat' && c.clau === 'estat') col.editorParams = function (cell) { var n = nivellAlumne(cell.getRow().getData()); var ops = c.valors.split('|').map(function (x) { return x.trim(); }); return { values: n ? ops.filter(function (o) { return ESTATS_NIVELL[n].indexOf(o) >= 0 || ESTATS_NIVELL[1].concat(ESTATS_NIVELL[2]).indexOf(o) < 0; }) : ops }; };
-        if (S.modul.id === 'alumnat' && NOMES_2N.indexOf(c.clau) >= 0) col.cssClass = 'gs-nomes2n';
-        if (S.modul.id === 'alumnat' && c.clau === 'grup_anterior') col.cssClass = 'gs-ant';
+        if (esAlumnat() && c.clau === 'estat') col.editorParams = function (cell) { var ops = c.valors.split('|').map(function (x) { return x.trim(); }); return { values: estatsPossibles(cell.getRow().getData(), ops) }; };
+        if (esAlumnat() && c.clau === 'grup_anterior') col.cssClass = 'gs-ant';
       }
       if (c.clau === 'estat') col.formatter = function (cell) { var v = cell.getValue() || ''; return v ? '<span class="gs-estat gs-estat--' + esc(v.replace(/\s+/g, '-')) + '">' + esc(v) + '</span>' : ''; };
       if (c.tipus === 'si_no') col.formatter = function (cell) { return cell.getValue() === 'sí' ? '<span class="gs-si">sí</span>' : ''; };
+      // Batxillerat (PAS 29): matèries en columnes estretes, nom en vertical i el nombre d'alumnes (de les files filtrades) a dalt
+      if (esMateria(c.clau)) {
+        Object.assign(col, { width: 40, minWidth: 36, maxWidth: 60, hozAlign: 'center', headerHozAlign: 'center', headerSort: false, cssClass: 'gs-mat',
+          titleFormatter: function () { return '<span class="gs-vt" title="' + esc(c.nom) + '">' + esc(c.nom) + '</span><span class="gs-recompte" data-camp="' + esc(c.clau) + '" title="Alumnes amb ' + esc(c.nom) + ' (files filtrades)"></span>'; },
+          formatter: function (cell) { return cell.getValue() === 'sí' ? '<span class="gs-si" aria-label="sí">✓</span>' : ''; } }, filtreDe(c, true));
+      }
       if (c.tipus === 'numero') { col.hozAlign = 'right'; col.sorter = 'number'; }
       cols.push(col);
     });
@@ -475,6 +559,7 @@
       formatter: function (cell) { return (cell.getValue() || []).map(function (id) { return '<span class="gs-pill" title="' + esc(nomEquip(id)) + '">' + esc(id.replace(/^EQ-/, '')) + '</span>'; }).join(''); },
       accessorDownload: function (v) { return (v || []).join(', '); },
       editable: ed && S.d.admin_global, editor: 'list', editorParams: { values: (S.d.equips || []).reduce(function (o, e) { o[e.id] = e.nom; return o; }, {}), multiselect: true } }, filtreEquips()));
+    if (S.d.amb_equips) S.filtreFn.equips = cols[cols.length - 1].headerFilterFunc;
     return cols;
   }
   function pintaTaula() {
@@ -484,16 +569,47 @@
     if (Array.isArray(visibles)) cols.forEach(function (c) { if (c.field && c.field.charAt(0) !== '_' && c.field !== 'id' && visibles.indexOf(c.field) < 0) c.visible = false; });
     $('gsTaula').hidden = mobil;
     S.taula = new Tabulator('#gsTaula', {
-      data: S.d.files.slice().sort(S.modul.id === 'alumnat' ? function (a, b) { return nivellAlumne(a) - nivellAlumne(b) || String(a.grup_actual || '').localeCompare(String(b.grup_actual || ''), 'ca') || ordenaCognoms(a, b); } : ordenaCognoms).map(copia),
+      data: S.d.files.slice().sort(esRegistre() ? function (a, b) { return String(b.data + ' ' + b.hora).localeCompare(String(a.data + ' ' + a.hora)); } : esAlumnat() ? function (a, b) { return nivellAlumne(a) - nivellAlumne(b) || String(a.grup_actual || '').localeCompare(String(b.grup_actual || ''), 'ca') || ordenaCognoms(a, b); } : ordenaCognoms).map(copia),
       index: 'id', columns: cols, layout: 'fitDataStretch', height: alcada(), movableColumns: true, selectableRows: potEditar() ? 'highlight' : false,
       placeholder: 'No hi ha cap fila amb aquests filtres.', columnHeaderVertAlign: 'bottom',
-      rowFormatter: function (row) { var d = row.getData(); var el = row.getElement(); el.classList.toggle('gs-baixa', deBaixa(d)); el.classList.toggle('gs-nova', String(d.id).indexOf('nou-') === 0); el.classList.toggle('gs-n1', S.modul.id === 'alumnat' && nivellAlumne(d) === 1); el.classList.toggle('gs-sense-ant', S.modul.id === 'alumnat' && senseGrupAnterior(d)); }
+      rowFormatter: function (row) {
+        var d = row.getData(); var el = row.getElement(); el.classList.toggle('gs-baixa', deBaixa(d)); el.classList.toggle('gs-nova', String(d.id).indexOf('nou-') === 0);
+        el.classList.toggle('gs-sense-ant', esAlumnat() && senseGrupAnterior(d));
+        // Cel·les dels camps que no són del nivell de l'alumne: ratllades (no s'editen)
+        if (esAlumnat()) row.getCells().forEach(function (ce) { var f = ce.getField(); if (f && restringit(f)) ce.getElement().classList.toggle('gs-na', noAplica(f, d)); });
+      }
     });
     S.taula.on('rowSelectionChanged', function (data) { var b = $('gsSeleccio'); if (!b) return; var abans = b.hidden; b.hidden = !data.length; if (abans !== b.hidden) setTimeout(ajustaAlcada, 0); $('gsSelN').textContent = data.length + (data.length === 1 ? ' fila seleccionada' : ' files seleccionades'); });
     S.taula.on('tableBuilt', function () { aplicaFiltre(); ajustaAlcada(); });
-    S.taula.on('dataFiltered', function (f, rows) { var c = $('gsCompte'); if (c) c.textContent = rows.length + ' de ' + S.taula.getDataCount() + ' files'; });
+    S.taula.on('dataFiltered', function (f, rows) { var c = $('gsCompte'); if (c) c.textContent = rows.length + ' de ' + S.taula.getDataCount() + ' files'; setTimeout(function () { recomptes(); comptesFiltre(); }, 0); });
+    S.taula.on('columnMoved', function () { setTimeout(recomptes, 0); });
     S.taula.on('cellEdited', celEditada);
     if (mobil) pintaMobil();
+  }
+  // PAS 29 · Damunt de cada camp amb un filtre actiu: quantes files compleixen la condició d'aquell filtre
+  // (entre les files que es poden veure: sense les baixes, si no es mostren). Les matèries del batxillerat ja tenen el seu comptador.
+  function comptesFiltre() {
+    if (!S.taula) return;
+    var base = S.taula.getData().filter(function (d) { return S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat(); });
+    var actius = {};
+    S.taula.getHeaderFilters().forEach(function (f) { actius[f.field] = f.value; });
+    S.taula.getColumns().forEach(function (col) {
+      var camp = col.getField(); if (!camp || camp.charAt(0) === '_') return;
+      var tit = col.getElement(); if (!tit) return;
+      var b = tit.querySelector(':scope > .gs-nfiltre');
+      var f = actius[camp], fn = S.filtreFn && S.filtreFn[camp];
+      var buit = !f || (typeof f === 'object' && !f.t && !f.s);
+      if (buit || !fn || esMateria(camp)) { if (b) b.remove(); return; }
+      var n = base.filter(function (d) { return fn(f, d[camp], d); }).length;
+      if (!b) { b = document.createElement('span'); b.className = 'gs-nfiltre'; tit.appendChild(b); }
+      b.textContent = n + (n === 1 ? ' fila' : ' files'); b.title = n + ' files compleixen el filtre d’aquest camp';
+    });
+  }
+  // Batxillerat: nombre d'alumnes de cada matèria entre les files que es veuen (amb els filtres)
+  function recomptes() {
+    if (!S.taula || !S.modul || S.modul.id !== 'batxillerat') return;
+    var rows = S.taula.getData('active');
+    document.querySelectorAll('#gsTaula .gs-recompte').forEach(function (sp) { var k = sp.dataset.camp; sp.textContent = rows.filter(function (r) { return r[k] === 'sí'; }).length; });
   }
   // Si es filtra la columna Estat per «baixa» (casella o embut), les baixes no s'amaguen
   function filtreEstat() { try { var f = S.taula && S.taula.getColumn('estat') && S.taula.getHeaderFilterValue('estat'); return !!(f && ((f.s && f.s.indexOf('baixa') >= 0) || (f.t && 'baixa'.indexOf(f.t.toLowerCase()) === 0))); } catch (e) { return false; } }
@@ -528,15 +644,16 @@
     if (!err && $('gsToast').classList.contains('prog-toast--error')) $('gsToast').hidden = true;
     if (err) toast((nomComplet(d) ? nomComplet(d) + ': ' : '') + cdef.nom + ' ' + (ERRORS_CAMP[err] || err) + (err === 'correu_domini' ? cdef.valors : '') + '.', true);
     // Alumnat: sense nivell, el grup actual el posa (2n ESO B → 2n ESO)
-    if (S.modul.id === 'alumnat' && camp === 'grup_actual' && v && !d.nivell && nivellDeGrup(v)) { row.update({ nivell: nivellDeGrup(v) }); registra(d.id, 'nivell', nivellDeGrup(v)); }
-    if (S.modul.id === 'alumnat' && ['nivell', 'grup_actual', 'estat'].indexOf(camp) >= 0) { row.reformat(); var cg = row.getCell(camp); if (cg && cg.getElement()) cg.getElement().classList.add('gs-canviat'); }   // camps de 2n, grup anterior i opcions d'estat
+    if (esAlumnat() && camp === 'grup_actual' && v && !d.nivell && nivellDeGrup(v)) { row.update({ nivell: nivellDeGrup(v) }); registra(d.id, 'nivell', nivellDeGrup(v)); }
+    if (esMateria(camp)) recomptes();
+    if (esAlumnat() && ['nivell', 'grup_actual', 'estat'].indexOf(camp) >= 0) { row.reformat(); var cg = row.getCell(camp); if (cg && cg.getElement()) cg.getElement().classList.add('gs-canviat'); }   // camps de 2n, grup anterior i opcions d'estat
     // Regles entre camps de la fila (p. ex. alumnat de 1r amb grup 25-26)
     var rg = !err && regla(d);
     if (rg) {
       var cr = row.getCell(rg.camp); if (cr) cr.getElement().classList.add('gs-error');
       var cn = S.d.camps.filter(function (c) { return c.clau === rg.camp; })[0];
       toast((nomComplet(d) ? nomComplet(d) + ': ' : '') + (cn ? cn.nom : rg.camp) + ' ' + ERRORS_CAMP[rg.error] + '.', true);
-    } else if (!err) row.getCells().forEach(function (ce) { var cf = ce.getField(); if ((['estat', 'grup_actual', 'grup_anterior'].indexOf(cf) >= 0 || NOMES_2N.indexOf(cf) >= 0) && !errorCel(S.d.camps.filter(function (c) { return c.clau === cf; })[0] || {}, ce.getValue())) ce.getElement().classList.remove('gs-error'); });
+    } else if (!err) row.getCells().forEach(function (ce) { var cf = ce.getField(); if ((['estat', 'grup_actual', 'grup_anterior'].indexOf(cf) >= 0 || restringit(cf)) && !errorCel(S.d.camps.filter(function (c) { return c.clau === cf; })[0] || {}, ce.getValue())) ce.getElement().classList.remove('gs-error'); });
     // Recalcula els camps calculats a la mateixa fila
     var calc = {};
     S.d.camps.filter(function (c) { return c.tipus === 'calculat'; }).forEach(function (c) { calc[c.clau] = calcula(c, Object.assign({}, d)); });
@@ -571,6 +688,14 @@
     }
     if (a === 'esborra') {
       if (String(d.id).indexOf('nou-') === 0) { delete S.altes[d.id]; row.delete(); marcaBrut(Object.keys(S.canvis).length + Object.keys(S.altes).length > 0); return; }
+      if (esRegistre()) return pregunta('Esborrar l’entrada', '<p>S’esborrarà l’entrada de <strong>' + esc(d.alumne) + '</strong> del ' + esc(dataCat(d.data)) + ' a les ' + esc(d.hora) + ' (queda una còpia a l’historial).</p>',
+        [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Esborra', valor: 1, tipus: 'danger' }]).then(function (v) {
+        if (!v) return;
+        api('esborra', { modul: S.modul.id, ids: [d.id] }, 'Esborrant…').then(function (r) {
+          if (!r.ok) return toast(text(r.error), true);
+          row.delete(); S.d.files = S.d.files.filter(function (f) { return f.id !== d.id; }); toast('Entrada esborrada.');
+        });
+      });
       pregunta('Esborrar del tot', '<p>S’esborrarà <strong>' + esc(nomComplet(d) || d.id) + '</strong> de la base de dades (queda una còpia a la pestanya «historial»).</p><p>Per a una persona que ja no és al centre, és millor <strong>donar-la de baixa</strong>: es conserva i es pot reactivar.</p>',
         [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Esborra del tot', valor: 1, tipus: 'danger' }]).then(function (v) {
         if (!v) return;
@@ -650,19 +775,19 @@
       });
     }
     pregunta('Tancament de curs ' + cursTxt, '<p>Es faran aquests canvis a <strong>' + vius.length + '</strong> alumnes (les baixes no es toquen):</p>' + taula +
-      '<ul class="gs-ajuda"><li><strong>Promociona</strong> → nivell següent, estat «promociona». 4t d’ESO acaba l’etapa: estat «baixa».</li><li><strong>Repeteix</strong> → mateix nivell, estat «repeteix…».</li><li><strong>Baixa</strong> → estat «baixa».</li>' +
+      '<ul class="gs-ajuda"><li><strong>Promociona</strong> → nivell següent, estat «promociona». ' + (S.modul.id === 'batxillerat' ? '2n de batxillerat' : '4t d’ESO') + ' acaba l’etapa: estat «baixa».' + (S.modul.id === 'batxillerat' ? ' Les matèries de 1r es buiden en passar a 2n (la còpia les conserva).' : '') + '</li><li><strong>Repeteix</strong> → mateix nivell, estat «repeteix…».</li><li><strong>Baixa</strong> → estat «baixa».</li>' +
       '<li>A tots: el grup actual passa a <strong>grup anterior</strong> i el grup del curs vinent queda <strong>per assignar</strong>; la decisió final es buida.</li>' +
-      '<li>El curs passa a ' + esc(a0 ? (a0 + 1) + '-' + any(a0 + 2) : 'el següent') + '. Abans de canviar res es fa una <strong>còpia</strong> de la pestanya alumnes (es pot desfer des de l’Apps Script amb <code>desfesTancament</code>).</li></ul>' +
+      '<li>El curs passa a ' + esc(a0 ? (a0 + 1) + '-' + any(a0 + 2) : 'el següent') + '. Abans de canviar res es fa una <strong>còpia</strong> de la pestanya (es pot desfer des de l’Apps Script amb <code>' + (S.modul.id === 'batxillerat' ? 'desfesTancamentBatxillerat' : 'desfesTancament') + '</code>).</li></ul>' +
       '<label class="gs-check"><input type="checkbox" id="gsTancaOk"> He revisat les decisions de tots els grups</label>',
       [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Tanca el curs', valor: 1, tipus: 'danger', abans: function () { if (!$('gsTancaOk').checked) { toast('Marqueu la casella de revisió.', true); return false; } } }], false).then(function (v) {
       if (!v) return;
-      api('tanca_curs', { modul: 'alumnat', curs: S.d.curs }, 'Tancant el curs…').then(function (r) {
+      api('tanca_curs', { modul: S.modul.id, curs: S.d.curs }, 'Tancant el curs…').then(function (r) {
         if (!r.ok) {
           var det = r.error === 'nivell_no_existeix' ? ' ' + (r.nivells || []).map(function (n) { return n.alumnes + ' alumnes a ' + n.nivell; }).join(', ') + '. Afegiu el nivell al mòdul (Gestió camps) o canvieu-ne la decisió.' :
             r.error === 'pendents' ? ' (' + r.total + ')' : '';
           return pregunta('No s’ha tancat el curs', '<p>' + esc(text(r.error) + det) + '</p>', [{ t: 'Entesos', valor: 1 }]);
         }
-        delete S.cache.alumnat;
+        delete S.cache[S.modul.id];
         pregunta('Curs tancat', '<p>Ara el curs és <strong>' + esc(r.curs) + '</strong>. Còpia de seguretat: pestanya <code>' + esc(r.copia) + '</code> d’ijm_alumnat_db.</p><ul>' +
           Object.keys(r.resum || {}).map(function (k) { return '<li>' + esc(k) + ': ' + r.resum[k] + '</li>'; }).join('') + '</ul><p>Ara cal assignar el grup del curs vinent i fer l’alta de l’alumnat nou (botó «Importa fitxer»).</p>', [{ t: 'Entesos', valor: 1 }]);
         carregaDades();
@@ -726,7 +851,7 @@
         var id = 'nou-' + (++S.nTmp), fila = { id: id };
         if (S.d.amb_equips) fila.equips = [];
         S.d.camps.forEach(function (c) { fila[c.clau] = f.v[c.clau] || ''; });
-        if (S.modul.id === 'alumnat') { if (!fila.nivell) fila.nivell = nivellDeGrup(fila.grup_actual); if (!fila.estat) fila.estat = 'alumne extern'; }
+        if (esAlumnat()) { if (!fila.nivell) fila.nivell = nivellDeGrup(fila.grup_actual); if (!fila.estat) fila.estat = 'alumne extern'; }
         else if (S.d.camps.some(function (c) { return c.clau === 'estat'; }) && !fila.estat) fila.estat = 'actiu';
         S.altes[id] = { tmp: id, valors: {} };
         S.d.camps.forEach(function (c) { if (fila[c.clau] && editable(c)) S.altes[id].valors[c.clau] = fila[c.clau]; });
@@ -764,10 +889,10 @@
       if (!r.some(function (x) { return String(x).trim(); })) return;
       var v = {};
       mapa.forEach(function (k, i) { if (k === '_complet') Object.assign(v, separaNom(r[i])); else if (k) { var c = camps.filter(function (x) { return x.clau === k; })[0]; v[k] = valorDe(c, r[i]); } });
-      if (S.modul.id === 'alumnat') { if (!v.nivell) v.nivell = nivellDeGrup(v.grup_actual); if (!v.estat) v.estat = 'alumne extern'; }
+      if (esAlumnat()) { if (!v.nivell) v.nivell = nivellDeGrup(v.grup_actual); if (!v.estat) v.estat = 'alumne extern'; }
       var clau = normTxt([v.cognom1, v.cognom2, v.nom].join(' '));
       var errs = camps.map(function (c) { var e = errorCel(c, v[c.clau]); return e ? c.nom + ' ' + (ERRORS_CAMP[e] || e) : ''; }).filter(Boolean);
-      var rg = S.modul.id === 'alumnat' ? REGLES.alumnat(v) : null; if (rg) { var cn = camps.filter(function (c) { return c.clau === rg.camp; })[0]; errs.push((cn ? cn.nom : rg.camp) + ' ' + ERRORS_CAMP[rg.error]); }
+      var rg = regla(v); if (rg) { var cn = camps.filter(function (c) { return c.clau === rg.camp; })[0]; errs.push((cn ? cn.nom : rg.camp) + ' ' + ERRORS_CAMP[rg.error]); }
       files.push({ v: v, dup: !!(clau && (existents[clau] || vistos[clau])), errs: errs, nom: [v.nom, v.cognom1, v.cognom2].filter(Boolean).join(' ') || '(sense nom)' });
       vistos[clau] = 1;
     });
@@ -780,6 +905,47 @@
       (!dups.length && !amb.length ? '<p>Tot correcte.</p>' : '');
   }
 
+  // PAS 29 · Dues persones alhora. Si algú altre ha desat alguna de les mateixes files mentre editàveu, es llegeixen les
+  // dades noves: els camps que només ha canviat l'altra persona s'hi incorporen i els vostres es mantenen. Si tots dos
+  // heu canviat el mateix camp d'una fila, es pregunta quin valor es queda. No es perd cap canvi sense desar.
+  function combina(conflictes) {
+    api('dades', { modul: S.modul.id }, 'Comprovant els canvis de l’altra persona…').then(function (d) {
+      if (!d.ok) return toast(text(d.error), true);
+      var nous = {}; d.files.forEach(function (f) { nous[f.id] = f; });
+      var xocs = [], combinades = 0, desaparegudes = [];
+      conflictes.forEach(function (c) {
+        var meu = S.canvis[c.id]; if (!meu) return;
+        var abans = S.d.files.filter(function (f) { return f.id === c.id; })[0] || {}, ara = nous[c.id];
+        if (!ara) { desaparegudes.push(c.id); return; }
+        var seus = Object.keys(ara).filter(function (k) { return k !== 'data' && k !== 'desat_per' && JSON.stringify(ara[k] == null ? '' : ara[k]) !== JSON.stringify(abans[k] == null ? '' : abans[k]); });
+        var comuns = seus.filter(function (k) { return Object.prototype.hasOwnProperty.call(meu.valors, k) && JSON.stringify(meu.valors[k]) !== JSON.stringify(ara[k]); });
+        // La fila «desada» passa a ser la nova; a la graella, els camps de l'altra persona; els meus es mantenen
+        meu.data_anterior = ara.data || '';
+        S.d.files = S.d.files.map(function (f) { return f.id === c.id ? copia(ara) : f; });
+        var row = S.taula.getRow(c.id), upd = {};
+        seus.forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(meu.valors, k)) upd[k] = ara[k]; });
+        if (row && Object.keys(upd).length) row.update(upd);
+        if (comuns.length) xocs.push({ id: c.id, qui: c.desat_per, nom: nomComplet(ara), camps: comuns.map(function (k) { return { k: k, seu: ara[k], meu: meu.valors[k] }; }) });
+        else combinades++;
+      });
+      if (desaparegudes.length) desaparegudes.forEach(function (id) { delete S.canvis[id]; });
+      if (!xocs.length) { toast('S’han combinat els canvis de l’altra persona (' + combinades + (combinades === 1 ? ' fila' : ' files') + '). Desant…'); return desa(false); }
+      var nomCamp = function (k) { var c = S.d.camps.filter(function (x) { return x.clau === k; })[0]; return c ? c.nom : k; };
+      var html = '<p>Mentre editàveu, una altra persona ha canviat <strong>els mateixos camps</strong> d’aquestes files. Els altres canvis ja s’han combinat. Trieu quin valor es queda:</p>' +
+        '<table class="gs-form-taula"><thead><tr><th>Fila</th><th>Camp</th><th>L’altra persona</th><th>Vosaltres</th></tr></thead><tbody>' +
+        xocs.map(function (x) { return x.camps.map(function (c, i) { return '<tr>' + (i ? '<td></td>' : '<td><strong>' + esc(x.nom || x.id) + '</strong>' + (x.qui ? '<br><small>' + esc(x.qui) + '</small>' : '') + '</td>') + '<td>' + esc(nomCamp(c.k)) + '</td><td>' + esc(c.seu || '—') + '</td><td>' + esc(c.meu || '—') + '</td></tr>'; }).join(''); }).join('') +
+        '</tbody></table>';
+      pregunta('Canvis al mateix camp', html, [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Accepta els seus', valor: 'seus' }, { t: 'Mantén els meus', valor: 'meus' }], false).then(function (v) {
+        if (v === 'seus') xocs.forEach(function (x) {
+          var row = S.taula.getRow(x.id), upd = {};
+          x.camps.forEach(function (c) { delete S.canvis[x.id].valors[c.k]; upd[c.k] = c.seu; if (row && row.getCell(c.k)) row.getCell(c.k).getElement().classList.remove('gs-canviat'); });
+          if (row) row.update(upd);
+          if (!Object.keys(S.canvis[x.id].valors).length) delete S.canvis[x.id];
+        });
+        if (v) desa(false); else marcaBrut(true);
+      });
+    });
+  }
   function desa(forca) {
     var canvis = Object.keys(S.canvis).map(function (k) { return S.canvis[k]; });
     var altes = Object.keys(S.altes).map(function (k) { return S.altes[k]; });
@@ -794,6 +960,7 @@
           else { var rw = S.taula.getRow(f.id); if (rw) rw.update(copia(dades)); S.d.files = S.d.files.map(function (x) { return x.id === f.id ? copia(dades) : x; }); }
         });
         S.canvis = {}; S.altes = {}; marcaBrut(false);
+        if (r.versio) { S.d.versio = r.versio; amagaAvisCanvis(); }
         document.querySelectorAll('#gsTaula .gs-canviat').forEach(function (el) { el.classList.remove('gs-canviat'); });
         S.taula.getRows().forEach(function (rw) { rw.reformat(); });
         aplicaFiltre();
@@ -810,12 +977,7 @@
         });
         return pregunta('No s’ha desat res', '<p>' + esc(text('validacio')) + ' Corregiu les cel·les marcades en vermell i torneu a desar:</p><ul class="gs-errors">' + items.join('') + '</ul>', [{ t: 'Entesos', valor: 1 }]);
       }
-      if (r.error === 'conflicte') {
-        var qui2 = (r.conflictes || []).map(function (c) { return esc(c.id) + (c.desat_per ? ' (desat per ' + esc(c.desat_per) + ')' : ''); }).join(', ');
-        return pregunta('Algú altre ha desat aquestes files', '<p>' + qui2 + '</p><p>Podeu tornar a carregar les dades (perdreu els vostres canvis) o desar la vostra versió (substituirà la seva; l’anterior queda a l’historial).</p>',
-          [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Torna a carregar', valor: 'recarrega' }, { t: 'Desa la meva versió', valor: 'forca', tipus: 'danger' }])
-          .then(function (v) { if (v === 'forca') desa(true); if (v === 'recarrega') carregaDades(); });
-      }
+      if (r.error === 'conflicte') return combina(r.conflictes || []);
       toast(text(r.error), true);
     });
   }
@@ -935,6 +1097,328 @@
     pinta();
   }
 
+  // ------------------------------------------------------------------ informes en una finestra, amb PDF (PAS 29)
+  // files: arrays de cel·les o { s: 'Títol de secció' } o { t: [cel·les] } (fila de total, en negreta)
+  var dataCat = function (x) { var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(x || '')); return m ? m[3] + '/' + m[2] + '/' + m[1] : String(x || ''); };
+  function informe(titol, subtitol, cap, files, nomFitxer) {
+    // Columnes numèriques (totes les cel·les són xifres): alineades a la dreta, aquí i al PDF
+    var nums = cap.map(function (c, j) { return j > 0 && files.every(function (f) { var r = f.s ? null : (f.t || f); return !r || /^\d*$/.test(String(r[j] == null ? '' : r[j])); }); });
+    var cel = function (x, j) { return '<td' + (nums[j] ? ' class="gs-num"' : '') + '>' + esc(x) + '</td>'; };
+    var html = '<p class="gs-ajuda">' + esc(subtitol) + '</p><div class="gs-informe"><table class="gs-form-taula gs-informe__taula"><thead><tr>' +
+      cap.map(function (c, j) { return '<th' + (nums[j] ? ' class="gs-num"' : '') + '>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
+      files.map(function (f) {
+        if (f.s) return '<tr class="gs-informe__seccio"><td colspan="' + cap.length + '">' + esc(f.s) + '</td></tr>';
+        if (f.t) return '<tr class="gs-informe__total">' + f.t.map(cel).join('') + '</tr>';
+        return '<tr>' + f.map(cel).join('') + '</tr>';
+      }).join('') + '</tbody></table></div>';
+    var colPdf = {}; nums.forEach(function (n, j) { if (n) colPdf[j] = { halign: 'right' }; });
+    return pregunta(titol, html, [{ t: 'PDF', valor: 0, tipus: 'ghost', abans: function () { pdfInforme(titol, subtitol, cap, files, nomFitxer, { esquerra: true, columnes: colPdf }); return false; } }, { t: 'Tanca', valor: 1 }], false);
+  }
+  // El mateix disseny que l'exportació a PDF de la graella
+  function pdfInforme(titol, subtitol, cap, files, nom, opcions) {
+    opcions = opcions || {};
+    var crida = carregaScript(LIBS.jspdf).then(function () { return carregaScript(LIBS.autotable); }).then(function () {
+      var doc = new window.jspdf.jsPDF({ orientation: opcions.vertical || cap.length <= 7 ? 'portrait' : 'landscape', unit: 'mm', format: 'a4' });
+      var W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 12;
+      var data = new Date().toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+      var cos = files.map(function (f) {
+        if (f.s) return [{ content: f.s, colSpan: cap.length, styles: { fillColor: [238, 240, 255], textColor: [28, 12, 188], fontStyle: 'bold' } }];
+        if (f.t) return f.t.map(function (x) { return { content: x, styles: { fontStyle: 'bold', fillColor: [246, 247, 252] } }; });
+        return f;
+      });
+      var y0 = opcions.capcalera ? opcions.capcalera(doc, M, W) : 24;
+      var colEst = {}; cap.forEach(function (c, j) { if (j && !opcions.esquerra) colEst[j] = { halign: 'right' }; });
+      Object.assign(colEst, opcions.columnes || {});
+      doc.autoTable({
+        head: [cap], body: cos, startY: y0, margin: { top: 24, left: M, right: M, bottom: 12 }, columnStyles: colEst,
+        styles: Object.assign({ font: 'helvetica', fontSize: 8.5, cellPadding: 1.6, overflow: 'linebreak', valign: 'middle', lineColor: [225, 229, 238], lineWidth: 0.1 }, opcions.estils || {}),
+        headStyles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold' }, alternateRowStyles: opcions.sensAlternes ? { fillColor: [255, 255, 255] } : { fillColor: [247, 248, 252] },
+        didDrawPage: function () {
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(13); doc.setTextColor(28, 12, 188);
+          doc.text(titol.toUpperCase() + ' · Institut Joan Miró', M, 12);
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90, 96, 120);
+          doc.text(doc.splitTextToSize(data + ' · ' + subtitol, W - 2 * M)[0], M, 17);
+          doc.text('Pàgina ' + doc.internal.getNumberOfPages(), W - M, H - 6, { align: 'right' });
+        }
+      });
+      doc.save(nom + '-' + new Date().toISOString().slice(0, 10) + '.pdf');
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
+  }
+  var viusAlumnat = function () { return S.d.files.filter(function (f) { return !deBaixa(f); }); };
+  var ordreGrup = function (a, b) { return String(a).localeCompare(String(b), 'ca', { numeric: true }); };
+  // Nombres totals: alumnes (sense baixes) per nivell i grup; al batxillerat, també per itinerari
+  function nombresTotals() {
+    var E = etapa(), bat = S.modul.id === 'batxillerat', vius = viusAlumnat();
+    var its = bat ? ((S.d.camps.filter(function (c) { return c.clau === 'itinerari'; })[0] || {}).valors || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean) : [];
+    var cap = ['Grup-Classe'].concat(its, bat ? ['Sense itinerari'] : [], ['Alumnes']), files = [], total = 0;
+    E.nivells.forEach(function (niv) {
+      var del = vius.filter(function (f) { return f.nivell === niv; }); if (!del.length) return;
+      files.push({ s: niv });
+      var grups = {}; del.forEach(function (f) { var g = f.grup_actual || '(per assignar)'; (grups[g] = grups[g] || []).push(f); });
+      var fila = function (llista) { return its.map(function (it) { return llista.filter(function (f) { return f.itinerari === it; }).length; }).concat(bat ? [llista.filter(function (f) { return its.indexOf(f.itinerari) < 0; }).length] : [], [llista.length]); };
+      Object.keys(grups).sort(ordreGrup).forEach(function (g) { files.push([g].concat(fila(grups[g]))); });
+      files.push({ t: ['Total ' + niv].concat(fila(del)) }); total += del.length;
+    });
+    if (bat || E.nivells.length > 1) files.push({ t: ['TOTAL'].concat(fila2(vius, its, bat)) });
+    function fila2(llista) { return its.map(function (it) { return llista.filter(function (f) { return f.itinerari === it; }).length; }).concat(bat ? [llista.filter(function (f) { return its.indexOf(f.itinerari) < 0; }).length] : [], [llista.length]); }
+    informe('Nombres totals · ' + S.modul.nom, 'Alumnes per nivell i grup-classe' + (bat ? ' i itinerari' : '') + ' (sense les baixes). Curs ' + (S.d.curs || '') + '.', cap, files, 'nombres-totals-' + S.modul.id);
+  }
+  // Anàlisi d'un nivell: comptadors per grup-classe i total del nivell
+  function analisiAlumnat() {
+    var E = etapa();
+    pregunta('Anàlisi · ' + S.modul.nom, '<label class="gs-form-fila">Nivell <select id="gsAnNivell">' + E.nivells.map(function (n) { return '<option>' + esc(n) + '</option>'; }).join('') + '</select></label>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Mostra l’anàlisi', valor: 1, abans: function () { analisiAlumnat.niv = $('gsAnNivell').value; } }]).then(function (v) { if (v) mostraAnalisi(analisiAlumnat.niv); });
+  }
+  function seccionsAnalisi(niv) {
+    var camp = function (k) { return S.d.camps.filter(function (c) { return c.clau === k; })[0]; };
+    var V = function (k, titol) { var c = camp(k); return c ? { titol: titol || c.nom, camp: k, valors: (c.valors || '').split('|').map(function (x) { return x.trim(); }).filter(Boolean) } : null; };
+    var SI = function (titol, claus) { return { titol: titol, si: claus.filter(camp) }; };
+    if (S.modul.id === 'batxillerat') {
+      var pre = niv === '1r BAT' ? 'm1_' : 'm2_';
+      return [V('itinerari', 'Tipologia de batxillerat (itinerari)'), SI('Matèries', S.d.camps.filter(function (c) { return c.clau.indexOf(pre) === 0; }).map(function (c) { return c.clau; }))];
+    }
+    if (niv === '4t ESO') return [V('itinerari'), V('franja1'), V('franja2'), V('franja3'), V('mates_orientacio'), V('mates_pares'), V('catala_4t', 'Català'), V('castella_4t', 'Castellà'),
+      SI('Diversitat i NESE', ['nouvingut', 'pi_psp', 'nee', 'nese_a', 'nese_b'])];
+    var opt = { '1r ESO': 'optativa_1r', '2n ESO': 'optativa_2n', '3r ESO': 'optativa_3r' }[niv];
+    return [V(opt, 'Optatives'), SI('Diversitat i NESE', ['div_mates', 'div_catala', 'div_castella', 'nouvingut', 'pi_psp', 'nese_a', 'nese_b'])];
+  }
+  function mostraAnalisi(niv) {
+    var del = viusAlumnat().filter(function (f) { return f.nivell === niv; });
+    if (!del.length) return toast('No hi ha alumnes de ' + niv + '.', true);
+    var grups = []; del.forEach(function (f) { var g = f.grup_actual || '(per assignar)'; if (grups.indexOf(g) < 0) grups.push(g); }); grups.sort(ordreGrup);
+    var perGrup = function (pred) { return grups.map(function (g) { return del.filter(function (f) { return (f.grup_actual || '(per assignar)') === g && pred(f); }).length; }).concat([del.filter(pred).length]); };
+    var nomCamp = function (k) { var c = S.d.camps.filter(function (x) { return x.clau === k; })[0]; return c ? c.nom : k; };
+    var files = [{ t: ['Alumnes'].concat(perGrup(function () { return true; })) }];
+    seccionsAnalisi(niv).filter(Boolean).forEach(function (sec) {
+      files.push({ s: sec.titol });
+      if (sec.camp) {
+        var vals = sec.valors.slice(); del.forEach(function (f) { var v = f[sec.camp]; if (v && vals.indexOf(v) < 0) vals.push(v); });
+        vals.forEach(function (v) { files.push([v].concat(perGrup(function (f) { return f[sec.camp] === v; }))); });
+        files.push([ '(sense valor)'].concat(perGrup(function (f) { return !f[sec.camp]; })));
+      } else sec.si.forEach(function (k) { files.push([nomCamp(k)].concat(perGrup(function (f) { return f[k] === 'sí'; }))); });
+    });
+    informe('Anàlisi ' + niv, S.modul.nom + ' · ' + del.length + ' alumnes de ' + niv + ' (sense les baixes), per grup-classe i total. Curs ' + (S.d.curs || '') + '.', ['Indicador'].concat(grups, ['Total']), files, 'analisi-' + niv.replace(/\s+/g, '-').toLowerCase());
+  }
+  // PROFESSORAT · LLISTAT: PDF per recollir signatures (les persones que es veuen ara, sense les baixes)
+  function llistatSignatures() {
+    var gent = S.taula.getData('active').filter(function (d) { return !deBaixa(d) && String(d.id).indexOf('nou-') !== 0; }).sort(ordenaCognoms);
+    var avui = new Date(), iso = avui.getFullYear() + '-' + ('0' + (avui.getMonth() + 1)).slice(-2) + '-' + ('0' + avui.getDate()).slice(-2);
+    pregunta('Llistat per signar', '<p class="gs-ajuda">PDF amb <strong>' + gent.length + '</strong> persones: les que es veuen ara a la graella (amb els filtres), sense les baixes, per ordre de cognoms.</p>' +
+      '<div class="gs-form-fila"><label>Data <input type="date" id="gsLlData" value="' + iso + '"></label></div>' +
+      '<label class="gs-form-fila gs-form-fila--ample">Descripció <textarea id="gsLlDesc" rows="3" placeholder="P. ex. Claustre ordinari"></textarea></label>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Genera el PDF', valor: 1, abans: function () { llistatSignatures.o = { data: $('gsLlData').value, desc: $('gsLlDesc').value.trim() }; } }], false).then(function (v) {
+      if (!v) return;
+      var o = llistatSignatures.o;
+      var cognoms = function (d) { return [d.cognom1, d.cognom2].filter(Boolean).join(' ') + (d.nom ? ', ' + d.nom : ''); };
+      pdfInforme('Professorat', gent.length + ' persones', ['', 'Professor/a', 'Signatura'], gent.map(function (d, i) { return [String(i + 1), cognoms(d), '']; }), 'llistat-professorat', {
+        vertical: true, esquerra: true, sensAlternes: true,
+        estils: { fontSize: 10, minCellHeight: 10, cellPadding: 2 },
+        columnes: { 0: { cellWidth: 12, halign: 'right' }, 1: { cellWidth: 95 }, 2: { cellWidth: 'auto' } },
+        capcalera: function (doc, M, W) {
+          doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(30, 30, 42);
+          doc.text('Data:', M, 28); doc.setFont('helvetica', 'normal'); doc.text(o.data ? dataCat(o.data) : '____ / ____ / ________', M + 13, 28);
+          doc.setFont('helvetica', 'bold'); doc.text('Descripció:', M, 35); doc.setFont('helvetica', 'normal');
+          var ll = doc.splitTextToSize(o.desc || '', W - 2 * M - 24); if (!ll.length) ll = [''];
+          ll.forEach(function (l, i) { doc.text(l, M + 24, 35 + i * 5); });
+          if (!o.desc) { doc.setDrawColor(185, 192, 208); doc.line(M + 24, 36, W - M, 36); }
+          return 41 + (ll.length - 1) * 5;
+        }
+      });
+    });
+  }
+  // CONTROL D'ENTRADA · Nova entrada: triar un alumne (ESO i batxillerat) i desar (data i hora d'ara)
+  function novaEntrada() {
+    var obre = function (llista) {
+      var opcions = function (q) { q = senseAccents(q); return llista.filter(function (a) { return !q || senseAccents(a.nom + ' ' + a.grup).indexOf(q) >= 0; }).map(function (a) { return '<option value="' + esc(a.id) + '">' + esc(a.nom) + ' — ' + esc(a.grup || a.nivell || '') + '</option>'; }).join(''); };
+      pregunta('Nova entrada', '<p class="gs-ajuda">Trieu l’alumne (per 1r i 2n cognom). En desar es registra amb la data i l’hora d’ara, el nivell i el grup.</p>' +
+        '<input type="search" id="gsEntCerca" class="gs-cerca" placeholder="Escriviu un cognom o el grup…" style="max-width:none;width:100%;margin-bottom:8px" autocomplete="off">' +
+        '<select id="gsEntAlumne" size="12" class="gs-ent-llista" aria-label="Alumne">' + opcions('') + '</select>',
+        [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa l’entrada', valor: 1, abans: function () { novaEntrada.id = $('gsEntAlumne').value; if (!novaEntrada.id) { toast('Trieu un alumne de la llista.', true); return false; } } }], false).then(function (v) {
+        if (!v) return;
+        api('entrada_nova', { id_alumne: novaEntrada.id }, 'Desant l’entrada…').then(function (r) {
+          if (!r.ok) return toast(text(r.error), true);
+          var f = r.fila; S.d.files.push(copia(f)); S.taula.addRow(copia(f), true).then(aplicaFiltre); if (S.d.versio && r.fila) S.d.versio = { data: f.data + ' ' + f.hora, per: S.sessio.email };
+          toast('Entrada registrada: ' + f.alumne + ' · ' + f.hora + '.');
+        });
+      });
+      var c = $('gsEntCerca'), sel = $('gsEntAlumne');
+      // En cercar, queda triat el primer resultat: Enter desa; amb les fletxes es tria un altre
+      c.addEventListener('input', function () { sel.innerHTML = opcions(c.value); if (c.value.trim() && sel.options.length) sel.selectedIndex = 0; });
+      c.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') { e.preventDefault(); sel.focus(); if (sel.selectedIndex < 0 && sel.options.length) sel.selectedIndex = 0; }
+        if (e.key === 'Enter' && sel.value) { e.preventDefault(); $('gsModalBtns').lastChild.click(); }
+      });
+      sel.addEventListener('keydown', function (e) { if (e.key === 'Enter' && sel.value) { e.preventDefault(); $('gsModalBtns').lastChild.click(); } });
+      sel.addEventListener('dblclick', function () { if (sel.value) $('gsModalBtns').lastChild.click(); });
+      setTimeout(function () { c.focus(); }, 0);
+    };
+    if (S.alumnesEntrada) return obre(S.alumnesEntrada);
+    api('entrada_alumnes', {}, 'Carregant l’alumnat…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.alumnesEntrada = r.alumnes; obre(r.alumnes); });
+  }
+  // CONTROL D'ENTRADA · Anàlisi: entrades per alumne (nivell, grup i data a partir de la qual es compta)
+  function analisiEntrades() {
+    var files = S.d.files, nivells = [], grups = {};
+    files.forEach(function (f) { if (f.nivell && nivells.indexOf(f.nivell) < 0) nivells.push(f.nivell); if (f.grup) (grups[f.nivell || ''] = grups[f.nivell || ''] || []).indexOf(f.grup) < 0 && grups[f.nivell || ''].push(f.grup); });
+    var ordre = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT']; nivells.sort(function (a, b) { return ordre.indexOf(a) - ordre.indexOf(b); });
+    var opGrups = function (n) { var g = n ? (grups[n] || []) : Object.keys(grups).reduce(function (t, k) { return t.concat(grups[k]); }, []); return '<option value="">Tots</option>' + g.slice().sort(ordreGrup).map(function (x) { return '<option>' + esc(x) + '</option>'; }).join(''); };
+    pregunta('Anàlisi del control d’entrada', '<div class="gs-form-fila"><label>Nivell <select id="gsAnEnNiv"><option value="">Tots</option>' + nivells.map(function (n) { return '<option>' + esc(n) + '</option>'; }).join('') + '</select></label>' +
+      '<label>Grup-Classe <select id="gsAnEnGrup">' + opGrups('') + '</select></label>' +
+      '<label>A partir del <input type="date" id="gsAnEnData"></label></div><p class="gs-ajuda">Sense data, es compta tot el període.</p>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Mostra l’anàlisi', valor: 1, abans: function () { analisiEntrades.o = { niv: $('gsAnEnNiv').value, grup: $('gsAnEnGrup').value, data: $('gsAnEnData').value }; } }], false).then(function (v) {
+      if (!v) return;
+      var o = analisiEntrades.o;
+      var sel = files.filter(function (f) { return (!o.niv || f.nivell === o.niv) && (!o.grup || f.grup === o.grup) && (!o.data || String(f.data) >= o.data); });
+      var per = {}; sel.forEach(function (f) { var k = f.id_alumne || f.alumne; var x = per[k] = per[k] || { alumne: f.alumne, nivell: f.nivell, grup: f.grup, n: 0, ultima: '' }; x.n++; var t = f.data + ' ' + f.hora; if (t > x.ultima) { x.ultima = t; x.grup = f.grup || x.grup; x.nivell = f.nivell || x.nivell; } });
+      var llista = Object.keys(per).map(function (k) { return per[k]; }).sort(function (a, b) { return senseAccents(a.alumne).localeCompare(senseAccents(b.alumne), 'ca'); });
+      var filtre = [o.niv || 'tots els nivells', o.grup || 'tots els grups', o.data ? 'a partir del ' + dataCat(o.data) : 'tot el període'].join(' · ');
+      informe('Control d’entrada · anàlisi', filtre + ' · ' + sel.length + ' entrades de ' + llista.length + ' alumnes.', ['', 'Alumne', 'Nivell', 'Grup-Classe', 'Entrades'],
+        llista.map(function (a, i) { return [String(i + 1), a.alumne, a.nivell || '', a.grup || '', String(a.n)]; }).concat(llista.length ? [{ t: ['', 'Total', '', '', String(sel.length)] }] : []), 'control-entrada-analisi');
+    });
+    $('gsAnEnNiv').addEventListener('change', function () { $('gsAnEnGrup').innerHTML = opGrups(this.value); });
+  }
+
+  // ------------------------------------------------------------------ mòdul NOU PROFESSOR/A (PAS 29)
+  // Formulari d'alta d'un docent (secretaria). Camps i validació: els del mòdul Professorat. Desa, Cancel·la i PDF per signar.
+  var INFO_PROF = {
+    nom: 'Nom de pila, tal com consta al DNI o NIE.',
+    cognom1: 'Primer cognom, tal com consta al DNI o NIE.',
+    cognom2: 'Segon cognom, si en té.',
+    estat: 'Situació al claustre: actiu (forma part del claustre d’aquest curs), substitut (temporalment), baixa laboral o baixa (ja no és al centre). Per a una alta, normalment «actiu» o «substitut».',
+    nif: 'DNI (8 xifres i la lletra) o NIE (X, Y o Z, 7 xifres i la lletra). Es comprova que la lletra sigui correcta.',
+    especialitat: 'Especialitat docent amb què s’incorpora (p. ex. Matemàtiques, Llengua catalana, Tecnologia).',
+    email_xtec: 'Correu del Departament d’Educació. Ha d’acabar en @xtec.cat.',
+    email: 'Correu del centre, acabat en @institutjoanmiro.cat. És el que farà servir per entrar a GESTIO i a les altres eines del centre. No pot estar repetit.',
+    jornada: 'Jornada al centre: sencera, mitja jornada (1/2) o dos terços (⅔).',
+    situacio: 'Situació administrativa: definitiu, comissió de serveis, provisional o interí.',
+    anys: 'Anys que fa que treballa al centre (un número; 0 si s’incorpora ara).',
+    catala: 'Nivell de català acreditat (p. ex. C1, C2).',
+    carrec: 'Càrrec al centre, si en té (tutor/a, cap de departament, coordinació…).'
+  };
+  function carregaNouProfessor() {
+    api('nou_professor', {}, 'Preparant el formulari…').then(function (r) {
+      if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
+      S.d = { nivell: S.modul.nivell, obert: r.obert, camps: r.camps, curs: r.curs, files: [] };
+      pintaNouProfessor();
+    });
+  }
+  function pintaNouProfessor(desat) {
+    var camps = S.d.camps, ed = S.d.obert;
+    $('gsEines').innerHTML = '<p class="gs-ajuda" style="flex:1 1 100%;margin:0">Alta d’un docent nou al professorat. Els camps amb <strong>*</strong> són obligatoris. Passeu el ratolí per la <span class="gs-info-mostra" aria-hidden="true">i</span> de cada camp per veure què cal posar-hi. Després de desar, genereu el PDF perquè el signi.</p>';
+    var t = $('gsTaula'); t.className = 'gs-nou';
+    t.innerHTML = '<form id="gsNouForm" class="gs-nou__form" novalidate>' + camps.map(function (c) {
+      var id = 'gsNou_' + c.clau, info = INFO_PROF[c.clau] || c.nom;
+      var camp;
+      if (c.tipus === 'llista') camp = '<select id="' + id + '" name="' + esc(c.clau) + '">' + ['<option value="">—</option>'].concat(c.valors.split('|').map(function (o) { o = o.trim(); return '<option' + (c.clau === 'estat' && o === 'actiu' ? ' selected' : '') + '>' + esc(o) + '</option>'; })).join('') + '</select>';
+      else if (c.tipus === 'si_no') camp = '<select id="' + id + '" name="' + esc(c.clau) + '"><option value="">no</option><option>sí</option></select>';
+      else camp = '<input id="' + id + '" name="' + esc(c.clau) + '" type="' + (c.tipus === 'numero' ? 'number' : c.tipus === 'data' ? 'date' : c.tipus === 'correu' ? 'email' : 'text') + '"' +
+        (c.tipus === 'correu' && c.valors ? ' placeholder="nom' + esc(c.valors) + '"' : '') + (c.tipus === 'nif' ? ' style="text-transform:uppercase" placeholder="12345678Z"' : '') + ' autocomplete="off">';
+      return '<div class="gs-nou__camp' + (c.clau === 'cognom2' || c.clau === 'carrec' ? '' : '') + '"><label for="' + id + '">' + esc(c.nom) + (c.obligatori ? ' <span class="gs-oblig" title="Obligatori">*</span>' : '') +
+        ' <span class="gs-info" tabindex="0" role="note" aria-label="' + esc(info) + '" data-info="' + esc(info) + '">i</span></label>' + camp + '<p class="gs-nou__err" id="' + id + '_err" aria-live="polite"></p></div>';
+    }).join('') + '</form>' +
+      '<div class="gs-nou__btns">' + (desat ? '<p class="gs-nou__ok">Desat al professorat amb el codi <strong>' + esc(desat) + '</strong>.</p>' : '') +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="nou-cancel">' + (desat ? 'Nova alta' : 'Cancel·la') + '</button>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="nou-pdf">PDF per signar</button>' +
+      (ed && !desat ? '<button type="button" class="prog-btn" data-accio="nou-desa">Desa</button>' : '') + '</div>';
+    S.nouCodi = desat || '';
+    var form = $('gsNouForm');
+    form.addEventListener('input', function () { if (!S.nouCodi) S.brut = true; });
+    camps.forEach(function (c) { var el = $('gsNou_' + c.clau); el.addEventListener('blur', function () { validaCampNou(c); }); el.addEventListener('change', function () { validaCampNou(c); }); });
+    if (desat) form.querySelectorAll('input,select').forEach(function (el) { el.disabled = true; });
+    ajustaAlcada();
+  }
+  function valorsNou() {
+    var v = {};
+    S.d.camps.forEach(function (c) { var el = $('gsNou_' + c.clau); var x = el ? String(el.value || '').trim() : ''; if (c.tipus === 'nif') x = x.toUpperCase().replace(/[\s.\-]/g, ''); if (c.tipus === 'correu') x = x.toLowerCase(); v[c.clau] = x; });
+    return v;
+  }
+  function validaCampNou(c, missatge) {
+    var v = valorsNou()[c.clau], err = missatge || errorCel(c, v);
+    var p = $('gsNou_' + c.clau + '_err'), el = $('gsNou_' + c.clau);
+    // L'espai del missatge sempre hi és: si desaparegués en sortir del camp, els botons es mourien i el clic es perdria
+    p.textContent = err ? c.nom + ' ' + (ERRORS_CAMP[err] || err) + (err === 'correu_domini' ? c.valors : '') + '.' : '';
+    el.classList.toggle('is-error', !!err); el.setAttribute('aria-invalid', err ? 'true' : 'false');
+    return !err;
+  }
+  function desaNouProfessor() {
+    var bons = S.d.camps.map(function (c) { return validaCampNou(c); });
+    if (bons.indexOf(false) >= 0) { var primer = document.querySelector('#gsNouForm .is-error'); if (primer) primer.focus(); return toast('Reviseu els camps marcats en vermell.', true); }
+    api('alta_professor', { valors: valorsNou() }, 'Desant el docent nou…').then(function (r) {
+      if (r.ok) { S.brut = false; delete S.cache.professorat; toast('Docent desat: ' + r.id + '.'); var v = valorsNou(); pintaNouProfessor(r.id); S.d.camps.forEach(function (c) { var el = $('gsNou_' + c.clau); if (el) el.value = v[c.clau] || ''; }); return; }
+      if (r.error === 'validacio') {
+        var perNom = {}; S.d.camps.forEach(function (c) { perNom[c.nom] = c; });
+        (r.errors || []).forEach(function (e) { var c = perNom[e.camp]; if (c) validaCampNou(c, e.error); });
+        return toast('No s’ha desat: ' + (r.errors || []).map(function (e) { return e.camp + ' ' + (ERRORS_CAMP[e.error] || e.error); }).join('; ') + '.', true);
+      }
+      toast(text(r.error), true);
+    });
+  }
+  function cancelaNouProfessor() {
+    var fes = function () { S.brut = false; pintaNouProfessor(); };
+    if (!S.brut) return fes();
+    pregunta('Descartar el formulari', '<p>Es buidaran les dades escrites. Voleu continuar?</p>', [{ t: 'Continua editant', valor: 0, tipus: 'ghost' }, { t: 'Buida el formulari', valor: 1, tipus: 'danger' }]).then(function (v) { if (v) fes(); });
+  }
+  // PDF amb el mateix aspecte que els altres documents del centre (Montserrat, logo, línia blava) i caselles de signatura i data
+  var recursosPdf = null;
+  function base64(url) {
+    return fetch(url).then(function (r) { if (!r.ok) throw new Error(url); return r.arrayBuffer(); }).then(function (buf) {
+      var b = new Uint8Array(buf), t = '', pas = 0x8000; for (var i = 0; i < b.length; i += pas) t += String.fromCharCode.apply(null, b.subarray(i, i + pas)); return btoa(t);
+    });
+  }
+  function preparaPdf() {
+    if (!recursosPdf) recursosPdf = carregaScript(LIBS.jspdf).then(function () { return carregaScript(LIBS.autotable); }).then(function () {
+      return Promise.all(['/assets/programacions/Montserrat-400.ttf', '/assets/programacions/Montserrat-600.ttf', '/assets/programacions/logo-ijm.png'].map(base64));
+    }).then(function (r) { return { regular: r[0], negreta: r[1], logo: 'data:image/png;base64,' + r[2] }; });
+    recursosPdf.catch(function () { recursosPdf = null; });
+    return recursosPdf;
+  }
+  function pdfNouProfessor() {
+    var bons = S.d.camps.map(function (c) { return validaCampNou(c); });
+    if (bons.indexOf(false) >= 0) return toast('Abans de generar el PDF, reviseu els camps marcats en vermell.', true);
+    var v = valorsNou();
+    var crida = preparaPdf().then(function (R) {
+      var BLAU = [28, 12, 188], TARONJA = [232, 96, 12], GRIS = [90, 96, 112], TEXT = [30, 30, 42], VORA = [214, 218, 230];
+      var doc = new window.jspdf.jsPDF({ unit: 'mm', format: 'a4' }), W = 210, H = 297, MX = 18;
+      doc.addFileToVFS('Montserrat-400.ttf', R.regular); doc.addFont('Montserrat-400.ttf', 'Montserrat', 'normal');
+      doc.addFileToVFS('Montserrat-600.ttf', R.negreta); doc.addFont('Montserrat-600.ttf', 'Montserrat', 'bold');
+      doc.addImage(R.logo, 'PNG', MX, 10, 30, 30 * 432 / 1100);
+      doc.setFont('Montserrat', 'bold'); doc.setFontSize(7); doc.setTextColor.apply(doc, TARONJA);
+      doc.text('GESTIO · ALTA DE PROFESSORAT', W - MX, 13.5, { align: 'right' });
+      doc.setFont('Montserrat', 'normal'); doc.setFontSize(7.5); doc.setTextColor.apply(doc, GRIS);
+      doc.text('Institut Joan Miró · Curs ' + (S.d.curs || ''), W - MX, 18, { align: 'right' });
+      doc.setDrawColor.apply(doc, BLAU); doc.setLineWidth(0.6); doc.line(MX, 24, W - MX, 24);
+      doc.setFont('Montserrat', 'normal'); doc.setFontSize(20); doc.setTextColor.apply(doc, BLAU);
+      doc.text('Alta de nou professor/a', MX, 38);
+      doc.setFontSize(9.5); doc.setTextColor.apply(doc, GRIS);
+      doc.text((S.nouCodi ? 'Codi intern ' + S.nouCodi + ' · ' : 'Pendent de desar · ') + 'Dades per a l’expedient del centre', MX, 45);
+      doc.autoTable({
+        startY: 51, margin: { left: MX, right: MX }, theme: 'grid',
+        body: S.d.camps.map(function (c) { return [c.nom + (c.obligatori ? ' *' : ''), v[c.clau] || '']; }),
+        styles: { font: 'Montserrat', fontSize: 9.5, cellPadding: 2.6, textColor: TEXT, lineColor: VORA, lineWidth: 0.2 },
+        columnStyles: { 0: { cellWidth: 58, fontStyle: 'bold', textColor: BLAU, fillColor: [246, 247, 252] } }
+      });
+      var y = doc.lastAutoTable.finalY + 10;
+      doc.setFont('Montserrat', 'normal'); doc.setFontSize(8.5); doc.setTextColor.apply(doc, TEXT);
+      doc.splitTextToSize('Declaro que les dades d’aquest document són correctes i autoritzo el centre a fer-les servir per a la gestió interna del professorat.', W - 2 * MX).forEach(function (l) { doc.text(l, MX, y); y += 4.4; });
+      y += 4;
+      var ampleSig = (W - 2 * MX) * 0.62, ampleData = (W - 2 * MX) - ampleSig - 6, alt = 34;
+      if (y + alt + 12 > H - 16) { doc.addPage(); y = 30; }
+      doc.setDrawColor.apply(doc, VORA); doc.setLineWidth(0.4);
+      doc.roundedRect(MX, y, ampleSig, alt, 2, 2); doc.roundedRect(MX + ampleSig + 6, y, ampleData, alt, 2, 2);
+      doc.setFont('Montserrat', 'bold'); doc.setFontSize(8); doc.setTextColor.apply(doc, BLAU);
+      doc.text('Signatura de la persona interessada', MX + 3, y + 5);
+      doc.text('Data', MX + ampleSig + 9, y + 5);
+      doc.setFont('Montserrat', 'normal'); doc.setTextColor.apply(doc, GRIS);
+      doc.text(nomComplet(v), MX + 3, y + alt - 3);
+      doc.text('____ / ____ / ________', MX + ampleSig + 9, y + alt / 2 + 3);
+      doc.setFontSize(7); doc.setTextColor.apply(doc, GRIS);
+      doc.text('Document generat des de GESTIO el ' + new Date().toLocaleDateString('ca-ES') + '. Els camps amb * són obligatoris.', MX, H - 10);
+      doc.save('alta-professor-' + (normNomFitxer(nomComplet(v)) || 'nou') + '.pdf');
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
+  }
+  var normNomFitxer = function (s) { return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''); };
+
   // ------------------------------------------------------------------ mòdul EQUIPS I PERMISOS (admins globals)
   // Dues vistes: «Equips» (alta, nom, tipus, actiu, membres) i «Permisos» (matriu equips × mòduls, nivell a cada casella)
   function carregaEquips() {
@@ -1053,12 +1537,59 @@
     toast('Canvis descartats.');
   }
 
+  // ------------------------------------------------------------------ ajuda interactiva (PAS 29)
+  // Temes del mòdul obert i, als mòduls amb graella, els temes comuns. Cerca sense accents a títol, text i paraules clau.
+  var AJUDA = (function () { try { return JSON.parse($('gsAjudaDades').textContent); } catch (e) { return null; } })();
+  var senseAccents = function (x) { return String(x || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, ''); };
+  var negretes = function (t) { return esc(t).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>'); };
+  function temesAjuda() {
+    if (!AJUDA || !S.modul) return [];
+    var m = AJUDA.moduls[S.modul.id] || { titol: S.modul.nom, temes: [], graella: true };
+    return m.temes.map(function (t) { return Object.assign({ grup: m.titol }, t); })
+      .concat(m.graella ? AJUDA.comu.temes.map(function (t) { return Object.assign({ grup: AJUDA.comu.titol }, t); }) : []);
+  }
+  function pintaAjuda() {
+    var q = senseAccents($('gsAjudaCerca').value.trim()), temes = temesAjuda(), grup = '';
+    var bons = temes.filter(function (t) { return !q || q.split(/\s+/).every(function (p) { return senseAccents(t.titol + ' ' + t.claus + ' ' + t.text.join(' ')).indexOf(p) >= 0; }); });
+    var m = AJUDA && AJUDA.moduls[S.modul.id];
+    $('gsAjudaLlista').innerHTML = (m && !q ? '<p class="gs-ajuda-panell__intro">' + negretes(m.intro) + '</p>' : '') + (bons.length ? bons.map(function (t) {
+      var cap = t.grup !== grup ? '<h4 class="gs-ajuda-panell__grup">' + esc(t.grup) + '</h4>' : ''; grup = t.grup;
+      var cos = '', llista = false;
+      t.text.forEach(function (l) {
+        var item = /^- /.test(l);
+        if (item && !llista) { cos += '<ul>'; llista = true; } if (!item && llista) { cos += '</ul>'; llista = false; }
+        cos += item ? '<li>' + negretes(l.slice(2)) + '</li>' : '<p>' + negretes(l) + '</p>';
+      });
+      if (llista) cos += '</ul>';
+      return cap + '<details class="gs-ajuda-panell__tema"' + (q ? ' open' : '') + '><summary>' + esc(t.titol) + '</summary>' + cos + '</details>';
+    }).join('') : '<p class="gs-ajuda-panell__res">No hi ha cap tema amb «' + esc($('gsAjudaCerca').value) + '». Proveu una altra paraula o obriu el manual en PDF.</p>');
+  }
+  function obreAjuda() {
+    $('gsAjudaTitol').textContent = 'Ajuda · ' + (S.modul ? S.modul.nom : 'GESTIO');
+    $('gsAjuda').hidden = false; $('gsAjudaBtn').setAttribute('aria-expanded', 'true');
+    pintaAjuda(); $('gsAjudaCerca').focus();
+  }
+  function tancaAjuda() { if ($('gsAjuda')) { $('gsAjuda').hidden = true; $('gsAjudaBtn').setAttribute('aria-expanded', 'false'); } }
+  $('gsAjudaBtn').addEventListener('click', function () { if ($('gsAjuda').hidden) obreAjuda(); else tancaAjuda(); });
+  $('gsAjudaTanca').addEventListener('click', tancaAjuda);
+  $('gsAjudaCerca').addEventListener('input', pintaAjuda);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !$('gsAjuda').hidden && !document.querySelector('.gs-popover')) tancaAjuda(); });
+
   // ------------------------------------------------------------------ esdeveniments
-  $('gsEines').addEventListener('click', function (e) {
-    var b = e.target.closest('[data-accio]'); if (!b) return;
+  // Botons de la barra d'eines, de l'avís de canvis i del formulari Nou professor/a (la barra de desar va a part)
+  $('gsModul').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-accio]'); if (!b || b.closest('#gsBarra')) return;
     switch (b.dataset.accio) {
       case 'alta': alta(); break;
       case 'importa': importaFitxer(); break;
+      case 'nou-desa': desaNouProfessor(); break;
+      case 'totals': nombresTotals(); break;
+      case 'analisi': analisiAlumnat(); break;
+      case 'llistat': llistatSignatures(); break;
+      case 'entrada-nova': novaEntrada(); break;
+      case 'entrada-analisi': analisiEntrades(); break;
+      case 'nou-cancel': cancelaNouProfessor(); break;
+      case 'nou-pdf': pdfNouProfessor(); break;
       case 'tancament': tancamentCurs(); break;
       case 'aplica-seleccio': aplicaSeleccio(); break;
       case 'treu-seleccio': if (S.taula) S.taula.deselectRow(); break;
@@ -1079,6 +1610,6 @@
     if (b.dataset.accio === 'descarta') descarta();
   });
 
-  window.GestioApp = { S: S };   // per a les proves
+  window.GestioApp = { S: S, comprovaVersio: comprovaVersio };   // per a les proves
   comprova();
 })();

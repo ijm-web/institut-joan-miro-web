@@ -165,3 +165,70 @@
 .gs-resum td, .gs-resum th{ text-align: center; }
 .gs-resum td:first-child, .gs-resum th:first-child{ text-align: left; }
 .gs-pendent{ color: #B42318; font-weight: 700; }
+
+/* PAS 29 · cel·les de camps que no són del nivell de l'alumne (ESO i batxillerat): ratllades */
+.gs-taula .tabulator-row .tabulator-cell.gs-na{ background: repeating-linear-gradient(135deg, #F6F7FA 0 6px, #EEF0F5 6px 12px); color: transparent; }
+/* PAS 29 · batxillerat: matèries amb el nom en vertical i el nombre d'alumnes a dalt */
+.gs-taula .tabulator-col.gs-mat .tabulator-col-content{ padding: 6px 2px; }
+.gs-taula .tabulator-col.gs-mat .tabulator-col-title{ display: flex; flex-direction: column; align-items: center; gap: 4px; white-space: normal; }
+.gs-taula .gs-vt{ writing-mode: vertical-rl; transform: rotate(180deg); white-space: nowrap; max-height: 130px; overflow: hidden; text-overflow: ellipsis; font-size: 11px; font-weight: 600; line-height: 1.1; }
+.gs-taula .gs-recompte{ display: inline-block; min-width: 22px; padding: 1px 4px; border-radius: 999px; background: var(--color-blue); color: #fff; font-size: 10.5px; font-weight: 700; text-align: center; }
+.gs-taula .gs-recompte:empty{ display: none; }
+.gs-taula .tabulator-cell.gs-mat{ padding-left: 2px; padding-right: 2px; }
+.gs-filtre--compacte input{ display: none; }
+.gs-filtre--compacte{ justify-content: center; }
+
+/* PAS 29 · avís: algú altre ha desat canvis en aquest mòdul */
+.gs-avis-canvis{ display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; margin: 0 0 10px; }
+
+/* PAS 29 · formulari NOU PROFESSOR/A */
+#gsTaula.gs-nou{ overflow: auto; padding: 2px 2px 12px; }
+.gs-nou__form{ display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px 22px; max-width: 1100px; padding: 18px 20px; background: #fff; border: 1px solid #E1E5EE; border-radius: 12px; }
+.gs-nou__camp label{ display: flex; align-items: center; gap: 6px; margin-bottom: 5px; font-size: 13px; font-weight: 600; color: var(--color-blue); }
+.gs-nou__camp input, .gs-nou__camp select{ width: 100%; box-sizing: border-box; height: 40px; padding: 0 12px; border: 1px solid #D5D9E6; border-radius: 8px; font: 400 14px var(--font-main); background: #fff; }
+.gs-nou__camp input:focus, .gs-nou__camp select:focus{ outline: 2px solid var(--color-blue); outline-offset: 1px; }
+.gs-nou__camp .is-error{ border-color: #B42318; background: #FDECEA; }
+.gs-nou__camp input:disabled, .gs-nou__camp select:disabled{ background: #F6F7FA; color: var(--color-text); }
+.gs-nou__err{ margin: 4px 0 0; min-height: 17px; font-size: 12px; line-height: 1.4; color: #B42318; }
+.gs-oblig{ color: #B42318; }
+.gs-nou__btns{ display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 10px; max-width: 1100px; margin-top: 14px; }
+.gs-nou__ok{ margin: 0 auto 0 0; font-size: 14px; color: #1E7B3E; }
+.gs-info, .gs-info-mostra{ position: relative; display: inline-flex; align-items: center; justify-content: center; width: 17px; height: 17px; border-radius: 50%; background: #EAE7FB; color: var(--color-blue); font: italic 700 11px Georgia, serif; cursor: help; flex: none; }
+.gs-info:hover::after, .gs-info:focus::after{ content: attr(data-info); position: absolute; left: 50%; top: calc(100% + 8px); transform: translateX(-50%); z-index: 50; width: 260px; padding: 9px 11px; border-radius: 8px; background: #1E1E2A; color: #fff; font: 400 12.5px/1.45 var(--font-main); font-style: normal; box-shadow: 0 10px 24px rgba(20,20,60,.25); white-space: normal; }
+.gs-info:focus{ outline: 2px solid var(--color-blue); outline-offset: 2px; }
+
+/* PAS 29 · ajuda: botons de la capçalera del mòdul i panell lateral amb cerca */
+.gs-head__dreta{ display: flex; align-items: center; gap: 10px; flex-wrap: wrap; justify-content: flex-end; }
+.gs-ajuda-btn{ width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--color-blue); background: #fff; color: var(--color-blue); font: 700 16px var(--font-main); cursor: pointer; }
+.gs-ajuda-btn:hover, .gs-ajuda-btn[aria-expanded="true"]{ background: var(--color-blue); color: #fff; }
+.gs-ajuda-panell{ position: fixed; top: 0; right: 0; bottom: 0; z-index: 1200; width: min(420px, 100vw); display: flex; flex-direction: column; background: #fff; border-left: 1px solid #DDE1EC; box-shadow: -14px 0 36px rgba(20, 20, 60, .16); font-family: var(--font-main); }
+.gs-ajuda-panell[hidden]{ display: none; }
+.gs-ajuda-panell__cap{ display: flex; align-items: center; justify-content: space-between; padding: 16px 18px 8px; }
+.gs-ajuda-panell__cap h3{ margin: 0; font-size: 18px; color: var(--color-blue); }
+.gs-ajuda-panell__tanca{ border: 0; background: none; font-size: 26px; line-height: 1; color: var(--color-text-muted); cursor: pointer; }
+.gs-ajuda-panell__cerca{ margin: 0 18px 10px; height: 40px; padding: 0 12px; border: 1px solid #D5D9E6; border-radius: 8px; font: 400 14px var(--font-main); }
+.gs-ajuda-panell__llista{ flex: 1; overflow: auto; padding: 0 18px 24px; font-size: 13.5px; line-height: 1.5; color: var(--color-text); }
+.gs-ajuda-panell__intro{ margin: 2px 0 10px; color: var(--color-text-muted); }
+.gs-ajuda-panell__grup{ margin: 16px 0 6px; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--color-orange); }
+.gs-ajuda-panell__tema{ border-bottom: 1px solid #EEF0F6; padding: 8px 0; }
+.gs-ajuda-panell__tema summary{ cursor: pointer; font-weight: 600; color: var(--color-blue); }
+.gs-ajuda-panell__tema p{ margin: 6px 0; } .gs-ajuda-panell__tema ul{ margin: 6px 0; padding-left: 18px; }
+.gs-ajuda-panell__res{ color: var(--color-text-muted); }
+
+/* PAS 29 · comptador damunt dels camps amb filtre actiu */
+#gsTaula .tabulator-header .tabulator-col{ position: relative; }
+#gsTaula .tabulator-header .tabulator-col:not(.gs-mat):not(.gs-sel):not(.gs-accions) .tabulator-col-content{ padding-top: 22px; }   /* lloc per al comptador */
+.gs-taula .gs-nfiltre{ position: absolute; top: 4px; left: 8px; z-index: 2; padding: 1px 7px; border-radius: 999px; background: #FFF1E6; color: #B2470A; font-size: 10.5px; font-weight: 700; line-height: 14px; white-space: nowrap; pointer-events: none; }
+/* PAS 29 · informes (nombres totals, anàlisi) */
+.gs-informe{ max-height: 62vh; overflow: auto; border: 1px solid #E1E5EE; border-radius: 8px; }
+.gs-informe__taula{ width: 100%; margin: 0; }
+.gs-informe__taula th{ position: sticky; top: 0; background: #F4F5FA; z-index: 1; }
+.gs-informe__taula .gs-num{ text-align: right; font-variant-numeric: tabular-nums; }
+.gs-informe__seccio td{ background: #EEF0FF; color: var(--color-blue); font-weight: 700; }
+.gs-informe__total td{ font-weight: 700; background: #F6F7FC; }
+/* PAS 29 · llistat i control d'entrada */
+.gs-form-fila--ample{ display: flex; flex-direction: column; gap: 4px; margin-top: 10px; }
+.gs-form-fila--ample textarea{ width: 100%; box-sizing: border-box; padding: 8px 10px; border: 1px solid #D5D9E6; border-radius: 8px; font: 400 14px var(--font-main); }
+.gs-ent-llista{ width: 100%; min-height: 260px; border: 1px solid #D5D9E6; border-radius: 8px; font: 400 14px var(--font-main); padding: 4px; }
+.gs-estat--permís{ background: #EDE9FE; color: #5B21B6; }
+.gs-form-fila input{ height: 36px; border: 1px solid #D5D9E6; border-radius: 6px; padding: 0 8px; font: 400 14px var(--font-main); }

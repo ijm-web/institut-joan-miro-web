@@ -2,7 +2,9 @@
 
 Àrea privada de gestió del centre a **/gestio**: s'hi entra amb el compte de Google de l'escola i cada persona veu només els mòduls que té assignats algun dels seus equips. Disseny i decisions: document «GESTIO - Proposta de disseny» (carpeta local `docs`, al costat de la carpeta del projecte).
 
-Mòduls: **Professorat**, **Alumnat** (1r i 2n d'ESO), **PAS** (personal d'administració i serveis, PAS 28) i **Equips i permisos** (només direcció).
+Mòduls: **Professorat**, **Alumnat ESO** (1r a 4t), **Alumnat Batxillerat**, **PAS** (personal d'administració i serveis), **Nou professor/a** (alta des de secretaria), **Control d'entrada** (retards) i **Equips i permisos** (només direcció).
+
+**Ajuda**: dins de cada mòdul, el botó **?** obre l'ajuda interactiva (amb cerca) i **Manual (PDF)** el manual del mòdul (`src/assets/docs/gestio/manual-<mòdul>.pdf`). Tots dos surten del mateix fitxer, **`src/_data/gestioAjuda.json`**: quan canviï el funcionament d'un mòdul, s'edita aquest fitxer i es torna a fer el PDF amb `python3 lib/gestio/manual.py`.
 
 ## Peces
 
@@ -51,7 +53,7 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
 1. A la carpeta de treball, crea un full de càlcul nou que es digui **ijm_alumnat_db** (buit). Compte que hi haurà dades d'alumnes menors: no el comparteixis.
 2. A ijm_nucli_db, pestanya `config`:
    - **db_alumnat**: l'URL d'ijm_alumnat_db.
-   - **font_alumnat**: els URL dels fulls de registre de 1r i de 2n d'ESO, separats per una coma.
+   - **font_alumnat**: els URL dels fulls de registre (1r, 2n, 3r i 4t d'ESO, 1r i 2n de batxillerat), separats per comes. L'ordre no importa: cada alumne va al mòdul del seu nivell (ESO → pestanya `alumnes`; batxillerat → `alumnes_bat`).
    - **font_alumnat_pestanya**: `Dades` (ja hi és).
 3. Executa **configura** (crea la pestanya `alumnes` a ijm_alumnat_db) i després **importaAlumnat**. Google demanarà permís per obrir els altres fulls: accepta-ho.
 4. Mira el registre d'execució:
@@ -59,10 +61,22 @@ Els permisos es donen a **equips** (pestanya `permisos`), mai a persones. Un doc
    - «noms separats automàticament»: els alumnes que no eren a la pestanya `Noms` del full de registre. Els cognoms s'han separat per la coma i pels espais; revisa els cognoms compostos;
    - «Cal revisar»: valors que no són a les llistes (p. ex. una optativa antiga) o observacions que no ha entès. Es conserven tal com eren: corregeix-los des del web.
    - Les files de títol dins del full (p. ex. «REPETIDORS DE 1r») se salten. «Cons_Mates» s'entén com a Taller de matemàtiques i «FALSE» en una data, com a buit.
-5. Si la tornes a executar, no duplica (salta els alumnes amb el mateix nom i cognoms).
+5. Si la tornes a executar, no duplica (salta els alumnes amb el mateix nom i cognoms). Per afegir 3r, 4t i batxillerat a una instal·lació que ja tenia 1r i 2n, n'hi ha prou d'afegir els URL nous a `font_alumnat` i tornar-la a executar.
+6. PAS 29 · el que fa amb cada full (decisions de Romà):
+   - La capçalera pot ser a la primera o a la segona fila («Cognoms i nom» o «Cognoms, Nom»). Les files de totals se salten.
+   - 3r: només l'optativa assignada (no les preferències OPCIÓ 1–5); «NO Aut. Imatge» marcat → Aut. imatge «no», desmarcat → «sí». «UEC» a Observacions → grup **3r ESO UEC** (o 4t ESO UEC). Un «Repetidor 2n» a 3r és història: es desa a **Observacions**.
+   - 4t: itinerari, franges 1–3, orientació mates, mates (pares), català i castellà 4t (A/B/DIV). Les columnes sense títol i les preferències de franges no s'importen (són temporals).
+   - Autoritzacions a tots els nivells: imatge, dies especials, medicaments, **sortida metge** i **sortida 1a/6a**. L'ANS i el RALC no s'importen.
+   - Batxillerat: itinerari (columna «Batxillerat»), una columna sí/no per matèria i grup (G1, G2…), **Pendents** i **Matèries soltes** (text amb els codis), PI.
+   - Els codis `ALU-` són únics entre l'ESO i el batxillerat.
 
-### Actualitzar una instal·lació anterior (PAS 21 a 27)
+### 2b. Control d'entrada (PAS 29)
+1. `configura` crea la pestanya **`entrades`** a ijm_alumnat_db i el mòdul **Control d'entrada**.
+2. Per importar el registre que es feia fins ara: a `config › font_control_entrada`, l'URL del full; després executa **importaControlEntrada**. Reconeix les columnes pel nom («Marca de temps» o «Data» i «Hora»; «Alumne», «Nom i cognoms» o «Cognoms i nom»; «Grup»; «Nivell») i busca cada alumne a l'alumnat per posar-hi el codi, el nivell i el grup. Al registre: quantes entrades ha importat, les que ja hi eren i els alumnes que no ha trobat (s'importen amb el nom tal com era). Si es torna a executar, no duplica.
+
+### Actualitzar una instal·lació anterior (PAS 21 a 28)
 1. Apps Script: enganxa el `Code.gs` nou, desa i executa **configura**. Al registre surt què ha canviat:
+   - PAS 29: el mòdul Alumnat passa a dir-se **Alumnat ESO** i té els camps nous de 3r i 4t (pendents, optativa 3r, itinerari, franges, mates, català i castellà 4t, sortida metge, sortida 1a/6a, observacions) i les llistes ampliades (nivells 3r i 4t, grups de 3r i 4t amb UEC, «repeteix 3r/4t»); apareixen els mòduls **Alumnat Batxillerat** (pestanya `alumnes_bat`), **Nou professor/a** i **Control d'entrada** (pestanya `entrades`); al professorat, l'estat «permís» i la situació «Substitut»; a `config`, `curs_batxillerat`, `copia_tancament_batxillerat` i `font_control_entrada`. No esborra res.
    - PAS 28: es crea la pestanya **`pas`** i el mòdul **PAS** (amb els seus camps); a `membres`, la columna `id_professor` passa a **`id_membre`**; a l'alumnat, els camps `grup_2526` / `grup_2627` passen a **`grup_anterior`** / **`grup_actual`** (també les capçaleres de la pestanya `alumnes`), s'hi afegeixen **Nivell** (s'omple sol a partir del grup actual) i **Decisió final**, i a `config` apareixen **curs** (`2026-2027`) i `copia_tancament`. Els títols «Grup-Classe 25-26 / 26-27» surten de `config › curs`.
    - La pestanya `persones` passa a dir-se **`professorat`**, i la columna `id_persona` passa a **`id_professor`** (també a `membres`).
    - Els camps Estat, NIF, Jornada, Situació laboral, Anys i Català passen a ser visibles només des d'edició (el nivell consulta veu Nom, cognoms, Especialitat, correus i Càrrec). Només es fa una vegada: si després en tornes a fer visible algun, es respecta.
@@ -104,14 +118,16 @@ Comú a Professorat i Alumnat:
 - **Baixa**: botó «Baixa» de la fila (posa l'estat «baixa»). La **paperera** esborra del tot (només admin; queda a l'historial).
 - **Descarta**: torna a deixar la graella com estava en l'última desada, sense tornar a llegir res del full.
 - **Errors**: si alguna dada no és vàlida, no es desa res i les cel·les queden en vermell.
-- **Dues persones alhora**: si algú altre ha desat la mateixa fila, avisa i deixa triar entre tornar a carregar o desar la teva versió.
+- **Dues persones alhora** (PAS 29): cada minut, la pàgina comprova si algú altre ha desat el mateix mòdul i, si és així, ho avisa damunt la graella (amb **Actualitza**); els canvis propis sense desar no es toquen. En desar, si l'altra persona ha canviat alguna de les mateixes files: si són **camps diferents**, es combinen sols i es desa; si és **el mateix camp**, surt una taula amb els dos valors i es tria *Mantén els meus* o *Accepta els seus*. Cap canvi pendent no es perd.
+- **Comptador de filtre** (PAS 29): damunt de cada camp amb un filtre actiu surt quantes files compleixen la condició d'aquell filtre.
 - **Visualització camps**: amagar/mostrar amb els botons **Cap** i **Totes** (es recorda en aquest navegador) i arrossegar per canviar l'ordre.
 - **Excel / PDF** (a la dreta, des del nivell consulta): el que es veu (filtres i columnes visibles).
 - **Gestió camps** (admin): afegir columnes, canviar-ne el nom, el tipus (text, número, data, llista, sí/no, correu amb domini, NIF/NIE, calculat), els valors, si és obligatòria o única, des de quin nivell es veu i si ve de Clickedu (no s'edita). Una columna no s'esborra: s'arxiva (desmarcar «Actiu»). L'**Estat** és un camp de sistema: sempre és una llista obligatòria i sempre té el valor «baixa».
 - **Mòbil**: fitxes de consulta; per editar, ordinador.
 
 ### Professorat
-- **Estat** (obligatori): actiu, baixa laboral, substitut o baixa. **Situació laboral**: Definitiu, Comissió de serveis, Provisional o Interí. **Jornada**: Sencera, 1/2 o ⅔.
+- **Estat** (obligatori): actiu, baixa laboral, permís, substitut o baixa. **Situació laboral**: Definitiu, Comissió de serveis, Provisional, Interí o Substitut. **Jornada**: Sencera, 1/2 o ⅔.
+- **Llistat** (des d'edició): PDF per recollir signatures d'una reunió (data, descripció i taula Professor/a · Signatura) amb les persones que es veuen a la graella (filtres), sense baixes, per ordre de cognoms.
 - Formats: correu XTEC acabat en `@xtec.cat`, correu institutjoanmiro acabat en `@institutjoanmiro.cat`, NIF/NIE amb la lletra correcta.
 - **Equips**: columna que només veu qui té edició; només la direcció la pot canviar.
 
@@ -119,8 +135,18 @@ Comú a Professorat i Alumnat:
 - Es gestiona com el Professorat (alta a mà: són poques persones). Camps: nom, cognoms, **Estat** (actiu, baixa laboral, substitut, baixa), **Àmbit** (Administració, Consergeria, Altres), NIF, correu institutjoanmiro, telèfon, jornada, horari i càrrec. Codis interns `PAS-001`…
 - El nivell consulta veu nom, cognoms, àmbit, correu, horari i càrrec. La columna **Equips** (edició) diu a quins equips és cada persona.
 
-### Alumnat
-- Camps, per aquest ordre: nom, cognoms, **Nivell** (obligatori: 1r ESO, 2n ESO), Grup-Classe anterior, Grup-Classe actual, **Estat** (obligatori), **Decisió final**, Optativa 1r, Optativa 2n, Div. mates / català / castellà, Nouvingut, Data arribada, PI/PSP, NESE-A, NESE-B, NEE, Aut. imatge, Aut. dies especials, Aut. medicaments. Els títols dels grups canvien sols cada curs (`config › curs`).
+### Nou professor/a (PAS 29)
+- Formulari per a secretaria (qui hi tingui edició): dona d'alta un docent al professorat **sense** accés a la graella del professorat. Camps i validació: els del Professorat (obligatoris amb *; icona **i** amb l'explicació de cada camp).
+- **Desa** (es torna a comprovar al servidor: correu i NIF no repetits), **Cancel·la** / **Nova alta**, **PDF per signar** (capçalera del centre, dades, caselles de signatura i data).
+
+### Control d'entrada (PAS 29)
+- Consulta: graella de les entrades amb retard (alumne, nivell, grup-classe, data, hora), la més recent primer; filtres, Excel i PDF. **Anàlisi**: nivell, grup-classe i data «a partir del» (buit = tot el període) → nombre d'entrades per alumne (per ordre alfabètic), amb PDF.
+- Edició: **+ Nova entrada** (tot l'alumnat d'ESO i batxillerat sense baixes, per cognoms, amb cerca; Enter desa) → es registra amb la data i l'hora d'ara i el nivell i el grup de l'alumne. La paperera esborra una entrada feta per error. Les entrades no s'editen a la cel·la.
+
+### Alumnat ESO i Alumnat Batxillerat
+- **Nombres totals**: alumnes per nivell i grup-classe (al batxillerat, també per itinerari), amb PDF. **Anàlisi**: tria un nivell → comptadors per grup-classe i total del nivell (ESO 1r–3r: optatives, diversitats, nouvingut, PI/PSP, NESE; 4t: itinerari, franges, mates, català, castellà, nouvingut, PI, NEE, NESE; batxillerat: itinerari i matèries), amb PDF.
+- Batxillerat: matèries en columnes estretes amb el nom en vertical i el nombre d'alumnes (de les files filtrades) a sota; les de 1r només a 1r BAT i les de 2n només a 2n BAT. Tancament de curs propi (`config › curs_batxillerat`; desfer: **desfesTancamentBatxillerat**).
+- Camps de l'ESO, per aquest ordre: nom, cognoms, **Nivell** (obligatori: 1r a 4t ESO), Grup-Classe anterior, Grup-Classe actual, **Estat** (obligatori), **Decisió final**, Pendents, Optativa 1r, 2n i 3r, (4t) Itinerari, Franges 1–3, Orientació mates, Mates (pares), Català 4t, Castellà 4t, Div. mates / català / castellà, Nouvingut, Data arribada, PI/PSP, NESE-A, NESE-B, NEE, Aut. imatge, dies especials, medicaments, sortida metge, sortida 1a/6a, Observacions. Els camps que no són del nivell de l'alumne surten ratllats. Els títols dels grups canvien sols cada curs (`config › curs`).
 - El grup actual ha de ser del nivell (2n ESO → 2n ESO A…). Pot quedar **buit** (per assignar), com passa després del tancament de curs.
   - **1r d'ESO**: Optativa 2n no s'omple (ratllada); el grup anterior només l'omple qui repeteix 1r; Estat: alumne extern, repeteix 1r o baixa.
   - **2n d'ESO**: Estat: promociona, repeteix 2n, alumne extern o baixa.
@@ -137,7 +163,7 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
    - **promociona** → nivell següent, Estat «promociona» (4t ESO → acaba l'etapa: Estat «baixa»); **repeteix** → mateix nivell, Estat «repeteix 1r/2n…»; **baixa** → Estat «baixa»;
    - a tothom: el grup actual passa a grup anterior i el grup actual queda **buit, per assignar**; la Decisió final es buida;
    - el curs avança (`config › curs`: 2026-2027 → 2027-2028) i els títols dels grups canvien (Grup-Classe 26-27 / 27-28); queda a l'historial.
-   - Si algun alumne promociona a un nivell que encara no és al mòdul (ara, 2n → 3r ESO), **no tanca** i diu quants són: primer cal tenir el nivell al mòdul (vegeu la proposta d'importació de 3r, 4t i batxillerat al document de disseny).
+   - Si algun alumne promociona a un nivell que no és a la llista de nivells del mòdul, **no tanca** i diu quants són. Al batxillerat, 1r → 2n buida les matèries de 1r (la còpia les conserva) i 2n que promociona acaba l'etapa.
 4. Després: assignar els grups del curs vinent (selecció + *Aplica a la selecció* › Grup) i fer l'alta de l'alumnat nou amb **Importa fitxer** (Estat «alumne extern»).
 - **Desfer** (si s'ha fet per error): a l'editor d'Apps Script, executar **desfesTancament**. Torna a posar la pestanya `alumnes` com era abans del darrer tancament (la de després es conserva com a `desfet_<data>`), el curs anterior i els títols. Els canvis fets després del tancament es perden.
 - Si dues persones ho intenten alhora, la segona rep «el curs ja s'ha tancat» (no es tanca dues vegades).

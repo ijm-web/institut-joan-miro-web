@@ -65,7 +65,11 @@ extraCss:
           <p class="prog-kicker" id="gsModulKicker"></p>
           <h2 class="prog-title prog-title--sm" id="gsModulTitol"></h2>
         </div>
-        <p class="gs-nivell" id="gsNivell"></p>
+        <div class="gs-head__dreta">
+          <p class="gs-nivell" id="gsNivell"></p>
+          <a class="prog-btn prog-btn--ghost prog-btn--sm" id="gsManual" href="#" target="_blank" rel="noopener" title="Manual del mòdul en PDF (s'obre en una pestanya nova)">Manual (PDF)</a>
+          <button type="button" class="gs-ajuda-btn" id="gsAjudaBtn" aria-haspopup="dialog" aria-controls="gsAjuda" title="Ajuda d'aquest mòdul">?</button>
+        </div>
       </header>
       <p class="prog-avis" id="gsAvis" hidden></p>
       <div class="gs-eines" id="gsEines"></div>
@@ -90,6 +94,17 @@ extraCss:
   </div>
 </div>
 <div class="prog-toast" id="gsToast" role="status" aria-live="polite" hidden></div>
+
+{#- PAS 29 · ajuda interactiva de cada mòdul (font: src/_data/gestioAjuda.json; el mateix text fa el manual en PDF) -#}
+<aside class="gs-ajuda-panell" id="gsAjuda" role="dialog" aria-modal="false" aria-labelledby="gsAjudaTitol" hidden>
+  <div class="gs-ajuda-panell__cap">
+    <h3 id="gsAjudaTitol">Ajuda</h3>
+    <button type="button" class="gs-ajuda-panell__tanca" id="gsAjudaTanca" aria-label="Tanca l'ajuda">×</button>
+  </div>
+  <input type="search" id="gsAjudaCerca" class="gs-ajuda-panell__cerca" placeholder="Busqueu: filtrar, desar, tancament, PDF…" aria-label="Busca a l'ajuda">
+  <div id="gsAjudaLlista" class="gs-ajuda-panell__llista"></div>
+</aside>
+<script type="application/json" id="gsAjudaDades">{{ gestioAjuda | dump | safe }}</script>
 
 <script src="/assets/js/progres.js" defer></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tabulator/6.3.1/js/tabulator.min.js" defer></script>
