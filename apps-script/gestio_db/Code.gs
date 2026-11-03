@@ -700,6 +700,13 @@ function desa_(ctx, req) {
         .concat(altesPlans.filter((p) => p.equips).map((p) => ({ id: p.nou[M.id], equips: p.equips })));
       desaMembres_(canviEquips, usuari);
     }
+    // PAS 31: qui passa a estat «baixa» surt de tots els equips (i, per tant, perd tots els permisos)
+    if (M.equips) {
+      const baixes = plans.filter((p) => deBaixa_(p.nou) && !deBaixa_(p.abans)).map((p) => String(p.abans[M.id]))
+        .concat(altesPlans.filter((p) => deBaixa_(p.nou)).map((p) => p.nou[M.id]));
+      const amb = baixes.filter((id) => llegeix_(FULL.memb).some((m) => m.id_membre === id));
+      if (amb.length) desaMembres_(amb.map((id) => ({ id: id, equips: [] })), usuari);
+    }
     marcaVersio_(modul, usuari);
     const ambEquips = M.equips && pot_(ctx, modul, 'edicio');
     const membres = ambEquips ? llegeix_(FULL.memb) : [];
@@ -733,6 +740,17 @@ function difer_(a, b) {
   const d = {};
   Object.keys(b).forEach((k) => { if (k !== 'data' && k !== 'desat_per' && String(a[k] == null ? '' : a[k]) !== String(b[k] == null ? '' : b[k])) d[k] = [a[k], b[k]]; });
   return JSON.stringify(d).slice(0, 45000);
+}
+// PAS 31: neteja (a configura) les persones de baixa que encara eren membres d'algun equip
+function treuMembresDeBaixa_() {
+  const baixa = {};
+  llegeix_(FULL.prof).forEach((p) => { if (deBaixa_(p)) baixa[p.id_professor] = 1; });
+  llegeix_(FULL.pas).forEach((p) => { if (deBaixa_(p)) baixa[p.id_pas] = 1; });
+  const ids = {}; llegeix_(FULL.memb).forEach((m) => { if (baixa[m.id_membre]) ids[m.id_membre] = 1; });
+  const llista = Object.keys(ids);
+  if (!llista.length) return;
+  desaMembres_(llista.map((id) => ({ id: id, equips: [] })), 'configura');
+  Logger.log('Persones de baixa que s\'han tret dels equips: ' + llista.join(', '));
 }
 function desaMembres_(canvis, usuari) {
   const sh = SpreadsheetApp.getActive().getSheetByName(FULL.memb);
@@ -1062,6 +1080,7 @@ function configura() {
   if (llegeix_(FULL.camps).some((c) => c.modul === 'alumnat')) { canviaCampsAlumnatPAS28_(); sincronitzaCamps_('alumnat', CAMPS_ALUMNAT, ['nivell', 'grup_anterior', 'grup_actual', 'estat']); }
   if (llegeix_(FULL.camps).some((c) => c.modul === 'batxillerat')) sincronitzaCamps_('batxillerat', CAMPS_BATXILLERAT, ['nivell', 'grup_anterior', 'grup_actual', 'estat']);
   canviaOrdreModulsPAS30_();
+  treuMembresDeBaixa_();
   if (llegeix_(FULL.camps).some((c) => c.modul === 'professorat')) { sincronitzaCamps_('professorat', CAMPS_PROFESSORAT, ['estat', 'situacio']); canviaCampsProfessoratPAS30_(); }
   if (llegeix_(FULL.camps).some((c) => c.modul === 'pas')) { sincronitzaCamps_('pas', CAMPS_PAS, ['estat']); arxivaCamps_('pas', PAS_ARXIVATS); }
   [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['batxillerat', CAMPS_BATXILLERAT], ['pas', CAMPS_PAS], ['control_entrada', CAMPS_CONTROL]].forEach((x) => {

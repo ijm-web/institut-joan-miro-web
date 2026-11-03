@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 30 · 2 de novembre de 2026",
+  "versio": "PAS 31 · 3 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -37,7 +37,10 @@
           "- L'**embut**: obre una caixa amb tots els valors de la columna per marcar-ne **diversos** (botons *Tots*, *Cap*, *Cancel·la* i *Accepta*). Si n'hi ha molts, té una cerca a dalt. Quan l'embut filtra, es veu en blau.",
           "Damunt de cada camp amb un filtre actiu surt, en taronja, quantes files compleixen la condició d'aquell filtre (al batxillerat, les matèries ja tenen el seu comptador fix).",
           "Es poden combinar filtres de columnes diferents. El nombre de files que es veuen surt a dalt («12 de 30 files»).",
-          "Les files de **baixa** no surten si no es marca **Mostra també les baixes** o es filtra la columna Estat per «baixa»."
+          "Les files de **baixa** no surten si no es marca **Mostra també les baixes** o es filtra la columna Estat per «baixa».",
+          "Els filtres i les cerques **no distingeixen majúscules ni accents** (p. ex. «tecniques» troba «Tècniques d'estudi»).",
+          "A l'embut, en escriure a **Cerca un valor**, queden marcats només els valors que hi coincideixen; **Enter** o **Accepta** aplica el filtre.",
+          "Les dates es mostren **dd/mm/aaaa**; al filtre ràpid es poden escriure així (p. ex. 15/09)."
         ]
       },
       {
@@ -47,7 +50,8 @@
         "text": [
           "Cliqueu la cel·la, escriviu o trieu el valor i premeu Enter (o Tab per passar a la següent).",
           "Les cel·les canviades queden en **taronja** fins que es desa. Si un valor no té el format correcte (correu, NIF, data, valor d'una llista…), la cel·la queda en **vermell** i surt un avís.",
-          "Les cel·les **ratllades** no s'omplen per a aquella fila (p. ex. un camp que no és del nivell de l'alumne)."
+          "Les cel·les **ratllades** no s'omplen per a aquella fila (p. ex. un camp que no és del nivell de l'alumne).",
+          "En fer el primer canvi apareix a dalt la barra «Canvis sense desar»; la graella es queda a la mateixa fila perquè pugueu continuar canviant-ne camps."
         ]
       },
       {
@@ -155,7 +159,8 @@
             "Nom, cognoms, estat, NIF, **data de naixement, nacionalitat, telèfon i adreça** (carrer i número, població, codi postal i província), **especialitat** (desplegable), correus, jornada, situació laboral, **substitueix a** (si és substitut), **anys docència** (anys com a docent, no només al centre), català, càrrec i **data d'arribada al centre**.",
             "Les dades personals (NIF, naixement, nacionalitat, telèfon, adreça) i la data d'arribada només les veu el nivell edició o administració. El nivell consulta veu nom, cognoms, especialitat, correus i càrrec.",
             "Si la situació laboral és «Substitut», cal omplir **Substitueix a**.",
-            "La data d'arribada al centre es posa sola quan es dona d'alta un docent (des de la graella o des de Nou professor/a)."
+            "La data d'arribada al centre es posa sola quan es dona d'alta un docent (des de la graella o des de Nou professor/a).",
+            "Si un docent passa a estat **baixa**, en desar surt automàticament de tots els equips i, per tant, ja no té cap permís a GESTIO."
           ]
         },
         {
@@ -173,7 +178,8 @@
           "claus": "llistat signatures reunió claustre pdf full de signatures",
           "text": [
             "El botó **Llistat** (des d'edició) genera un PDF amb el logo del centre per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
-            "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament, filtreu abans per especialitat."
+            "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament, filtreu abans per especialitat.",
+            "El PDF ocupa **dues cares** d'un full A4: la meitat de la llista a cada cara, amb la mida de la lletra ajustada."
           ]
         },
         {
@@ -413,8 +419,8 @@
           "titol": "Omplir el formulari",
           "claus": "formulari camps obligatoris informació validar especialitat província codi postal",
           "text": [
-            "Els camps amb * són obligatoris: nom, 1r cognom, estat, NIF, data de naixement, nacionalitat, telèfon, adreça (carrer i número, població, codi postal i província), especialitat, correu del centre, jornada i situació laboral. La resta són opcionals.",
-            "Passeu el ratolí (o el focus) per la **i** de cada camp per veure què cal posar-hi. El requadre s'obre sempre dins de la pantalla.",
+            "Els camps s'agrupen per tipologia: **Dades personals**, **Adreça**, **Contacte** i **Dades professionals**. Els camps amb * són obligatoris: nom, 1r cognom, estat, NIF, data de naixement, nacionalitat, telèfon, adreça (carrer i número, població, codi postal i província), especialitat, correu del centre, jornada i situació laboral.",
+            "Passeu el ratolí per la **i** de cada camp per veure què cal posar-hi. Amb el **tabulador** es passa d'un camp al següent (la i no s'atura).",
             "**Especialitat** es tria d'una llista. En escriure el **codi postal** (5 xifres), la **província** s'omple sola. El telèfon ha de tenir com a mínim 9 xifres.",
             "**Anys docència** són els anys que fa que treballa com a docent (en total, no només al centre).",
             "Cada camp es comprova en sortir-ne: correu XTEC acabat en @xtec.cat, correu del centre acabat en @institutjoanmiro.cat (no repetit), NIF/NIE amb la lletra correcta, valors de les llistes."
@@ -438,7 +444,7 @@
             "- **Desa**: dona d'alta el docent al professorat (es torna a comprovar tot; si el correu o el NIF ja hi són, no es desa). Es mostra el codi intern (PRO-…).",
             "- La **data d'arribada al centre** no s'escriu: la posa GESTIO, el dia que es desa.",
             "- **Cancel·la**: buida el formulari (pregunta si hi havia dades). Després de desar, el botó es diu **Nova alta**.",
-            "- **PDF per signar**: document amb el logo del centre, totes les dades i una sola casella per a la **signatura i la data**."
+            "- **PDF per signar**: genera el full **en blanc** (un sol full A4, amb el logo del centre i les dades agrupades) perquè el docent l'ompli a mà i el signi a la casella de signatura i data. Després, secretaria copia les dades al formulari i desa."
           ]
         }
       ]
@@ -465,7 +471,8 @@
           "claus": "permisos matriu nivell consulta edició administració tots els mòduls",
           "text": [
             "Pestanya **Permisos**: una fila per equip i una columna per mòdul (i «Tots els mòduls»). A cada casella: —, Consulta, Edició o Administració. Si una persona és a diversos equips, val el nivell més alt.",
-            "L'administració global de l'equip directiu no es pot treure des del web."
+            "L'administració global de l'equip directiu no es pot treure des del web.",
+            "A la matriu de permisos, la capçalera amb els noms dels mòduls queda fixa en fer scroll."
           ]
         }
       ]
@@ -481,7 +488,8 @@
           "claus": "entrades retards llistat graella consulta filtrar",
           "text": [
             "La graella mostra totes les entrades, de la més recent a la més antiga: alumne, nivell, grup-classe, data i hora. Es pot filtrar per qualsevol camp i exportar a Excel o PDF.",
-            "Les entrades no es modifiquen a la cel·la."
+            "Les entrades no es modifiquen a la cel·la.",
+            "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne)."
           ]
         },
         {

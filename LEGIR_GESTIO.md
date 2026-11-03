@@ -180,6 +180,14 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Desfer** (si s'ha fet per error): a l'editor d'Apps Script, executar **desfesTancament**. Torna a posar la pestanya `alumnes` com era abans del darrer tancament (la de després es conserva com a `desfet_<data>`), el curs anterior i els títols. Els canvis fets després del tancament es perden.
 - Si dues persones ho intenten alhora, la segona rep «el curs ja s'ha tancat» (no es tanca dues vegades).
 
+## PAS 31
+- **Baixes**: quan un docent o una persona del PAS passa a estat «baixa», en desar surt de tots els equips (i perd tots els permisos). `configura` neteja també les baixes que encara eren a algun equip.
+- **Nou professor/a**: camps agrupats (Dades personals, Adreça, Contacte, Dades professionals); el tabulador va de camp a camp; **PDF per signar** = plantilla en blanc d'un sol full A4.
+- **Llistat** (professorat): PDF a dues cares, mida de lletra ajustada.
+- **Filtres**: sense distingir majúscules ni accents; la cerca de l'embut marca els valors que hi coincideixen. **Dates** en format dd/mm/aaaa (al full es desen aaaa-mm-dd).
+- **Control d'entrada**: el codi intern de l'alumne no es mostra. **Permisos**: capçalera fixa.
+- En editar la graella, la fila es queda al mateix lloc encara que aparegui la barra de desar.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
