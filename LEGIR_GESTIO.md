@@ -188,6 +188,10 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Control d'entrada**: el codi intern de l'alumne no es mostra. **Permisos**: capçalera fixa.
 - En editar la graella, la fila es queda al mateix lloc encara que aparegui la barra de desar.
 
+## PAS 32
+- **Membres d'un equip**: dues llistes (no membres / membres) per ordre del 1r cognom, amb botons per passar-les d'una a l'altra (o doble clic) i cerca a cada llista.
+- **Llistat** (professorat): només l'estat «actiu»; repartiment entre les dues cares que aprofita al màxim l'espai.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

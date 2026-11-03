@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 31 · 3 de novembre de 2026",
+  "versio": "PAS 32 · 3 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -179,7 +179,7 @@
           "text": [
             "El botó **Llistat** (des d'edició) genera un PDF amb el logo del centre per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
             "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament, filtreu abans per especialitat.",
-            "El PDF ocupa **dues cares** d'un full A4: la meitat de la llista a cada cara, amb la mida de la lletra ajustada."
+            "Només hi surt el professorat amb estat **actiu** (ni baixes, ni baixes laborals, ni permisos). El PDF ocupa **dues cares** d'un full A4: el professorat es reparteix entre les dues cares i l'alçada de les files i la lletra s'ajusten perquè l'espai quedi ben aprofitat."
           ]
         },
         {
@@ -462,7 +462,8 @@
             "Pestanya **Equips i membres**: + Afegeix equip (codi EQ-…), nom, tipus (gestió o docent: només serveix per classificar) i actiu. Un equip no s'esborra: es marca com a inactiu.",
             "Cliqueu la cel·la **Membres** per afegir-ne o treure'n (professorat i PAS, amb cercador). Una persona pot ser a diversos equips.",
             "**Grups**: si un equip té grups (p. ex. «1r ESO A»), els seus membres només veuen l'alumnat d'aquests grups als mòduls d'alumnat i al control d'entrada. Buit vol dir tots els grups.",
-            "Hi ha un equip docent per grup-classe (EQ-1ESOA, EQ-1ESOGR, EQ-1BATA…), creat a partir del document d'equips docents, amb permís de consulta."
+            "Hi ha un equip docent per grup-classe (EQ-1ESOA, EQ-1ESOGR, EQ-1BATA…), creat a partir del document d'equips docents, amb permís de consulta.",
+            "**Membres** d'un equip: a l'esquerra, les persones que no en són membres; a la dreta, les que sí, totes per ordre del 1r cognom. Seleccioneu-ne una o diverses (Ctrl o Maj + clic) i passeu-les amb **Afegeix →** o **← Treu** (o amb doble clic). Cada llista té la seva cerca. Al final, **Desa els membres**."
           ]
         },
         {

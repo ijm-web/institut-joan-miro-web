@@ -179,6 +179,7 @@
     return new Promise(function (resol) {
       $('gsModalTitol').textContent = titol; $('gsModalText').innerHTML = html;
       $('gsModal').querySelector('.gs-modal__box').classList.toggle('gs-modal--petita', petita !== false);
+      $('gsModal').querySelector('.gs-modal__box').classList.remove('gs-modal--ample');
       var caixa = $('gsModalBtns'); caixa.innerHTML = '';
       function tanca(v) { $('gsModal').hidden = true; document.removeEventListener('keydown', tecla); resol(v); }
       function tecla(e) { if (e.key === 'Escape') tanca(null); }
@@ -1205,9 +1206,12 @@
       // PAS 31 · dues cares: la meitat de les files a cada full, amb l'alçada i la lletra ajustades perquè hi càpiguen
       var trossos = [cos], estils = opcions.estils || {};
       if (opcions.duesCares && cos.length > 1) {
-        var r1 = Math.ceil(cos.length / 2), r2 = cos.length - r1, capT = 8;
-        var alt = Math.min(12, (H - 12 - y0 - capT) / r1, (H - 12 - Y_TAULA - capT) / r2) - 0.15;
-        estils = Object.assign({}, estils, { minCellHeight: alt, fontSize: Math.max(6.5, Math.min(10, alt * 1.25)), cellPadding: { top: 0.4, bottom: 0.4, left: 2, right: 2 } });
+        // PAS 32: la capçalera de la taula fa la mateixa alçada que una fila; es tria el repartiment (files a la 1a cara) que
+        // dona les files més altes, de manera que les dues cares quedin plenes (la 1a té menys lloc per la data i la descripció)
+        var h1 = H - 12 - y0, h2 = H - 12 - Y_TAULA, n = cos.length, r1 = 1, alt = 0;
+        for (var k = 1; k < n; k++) { var a = Math.min(h1 / (k + 1), h2 / (n - k + 1)); if (a > alt) { alt = a; r1 = k; } }
+        alt = Math.min(16, alt) - 0.2;
+        estils = Object.assign({}, estils, { minCellHeight: alt, fontSize: Math.max(6.5, Math.min(12, alt * 1.3)), cellPadding: { top: 0.3, bottom: 0.3, left: 2, right: 2 } });
         trossos = [cos.slice(0, r1), cos.slice(r1)];
       }
       trossos.forEach(function (tros, ti) {
@@ -1284,9 +1288,10 @@
   }
   // PROFESSORAT · LLISTAT: PDF per recollir signatures (les persones que es veuen ara, sense les baixes)
   function llistatSignatures() {
-    var gent = S.taula.getData('active').filter(function (d) { return !deBaixa(d) && String(d.id).indexOf('nou-') !== 0; }).sort(ordenaCognoms);
+    // PAS 32: només el professorat amb estat «actiu» (ni baixes, ni baixes laborals, ni permisos)
+    var gent = S.taula.getData('active').filter(function (d) { return String(d.estat || '').trim().toLowerCase() === 'actiu' && String(d.id).indexOf('nou-') !== 0; }).sort(ordenaCognoms);
     var avui = new Date(), iso = avui.getFullYear() + '-' + ('0' + (avui.getMonth() + 1)).slice(-2) + '-' + ('0' + avui.getDate()).slice(-2);
-    pregunta('Llistat per signar', '<p class="gs-ajuda">PDF amb <strong>' + gent.length + '</strong> persones: les que es veuen ara a la graella (amb els filtres), sense les baixes, per ordre de cognoms.</p>' +
+    pregunta('Llistat per signar', '<p class="gs-ajuda">PDF amb <strong>' + gent.length + '</strong> persones: el professorat <strong>en actiu</strong> que es veu ara a la graella (amb els filtres), per ordre de cognoms, repartit entre les dues cares d’un full.</p>' +
       '<div class="gs-form-fila"><label>Data <input type="date" id="gsLlData" value="' + iso + '"></label></div>' +
       '<label class="gs-form-fila gs-form-fila--ample">Descripció <textarea id="gsLlDesc" rows="3" placeholder="P. ex. Claustre ordinari"></textarea></label>',
       [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Genera el PDF', valor: 1, abans: function () { llistatSignatures.o = { data: $('gsLlData').value, desc: $('gsLlDesc').value.trim() }; } }], false).then(function (v) {
@@ -1650,18 +1655,43 @@
     });
   }
   // Membres d'un equip: llista del professorat amb cercador; es desa de cop (membres_desa)
+  // PAS 32 · Membres d'un equip: dues llistes (a l'esquerra qui NO és membre, a la dreta qui SÍ que ho és), per ordre del
+  // 1r cognom, amb botons al mig per passar persones d'una a l'altra (també doble clic). Cada llista té la seva cerca.
   function editaMembres(q, prof) {
     var sel = (q.membres_ids || []).slice();
-    var html = '<p class="gs-ajuda">Marqueu les persones (professorat i PAS) que formen part de <strong>' + esc(q.nom) + '</strong> (' + esc(q.id_equip) + '). Una persona pot ser a diversos equips.</p>' +
-      '<input type="search" class="gs-cerca" id="gsMembresCerca" placeholder="Cerca una persona (nom, especialitat o PAS)…" style="max-width:none;width:100%;margin-bottom:8px">' +
-      '<p class="gs-compte" id="gsMembresCompte"></p><div class="gs-cols gs-membres__llista">' + prof.map(function (p) {
-        return '<label data-nom="' + esc(plega(p.nom + ' ' + p.especialitat)) + '"><input type="checkbox" value="' + esc(p.id) + '"' + (sel.indexOf(p.id) >= 0 ? ' checked' : '') + '> ' + esc(p.nom) +
-          (p.especialitat ? ' <small>· ' + esc(p.especialitat) + '</small>' : '') + (p.baixa ? ' <small>(de baixa)</small>' : '') + '</label>';
-      }).join('') + '</div>';
-    var compta = function () { var n = $('gsModalText').querySelectorAll('.gs-membres__llista input:checked').length; $('gsMembresCompte').textContent = n + (n === 1 ? ' membre' : ' membres'); };
+    var ordre = function (a, b) { return plega(a.nom).localeCompare(plega(b.nom), 'ca'); };
+    prof = prof.slice().sort(ordre);
+    var opcio = function (p) { return '<option value="' + esc(p.id) + '" data-t="' + esc(plega(p.nom + ' ' + p.especialitat)) + '">' + esc(p.nom) + (p.especialitat ? ' · ' + esc(p.especialitat) : '') + (p.baixa ? ' (de baixa)' : '') + '</option>'; };
+    var html = '<p class="gs-ajuda">Persones (professorat i PAS) de <strong>' + esc(q.nom) + '</strong> (' + esc(q.id_equip) + '). Seleccioneu-ne una o diverses (Ctrl o Maj + clic) i passeu-les amb els botons del mig, o feu doble clic. Una persona pot ser a diversos equips.</p>' +
+      '<div class="gs-transfer">' +
+        '<div class="gs-transfer__col"><label class="gs-transfer__tit" for="gsMemFora">No membres <span id="gsMemNFora"></span></label>' +
+          '<input type="search" class="gs-cerca gs-transfer__cerca" id="gsMemCercaFora" placeholder="Cerca…" aria-label="Cerca entre els no membres">' +
+          '<select multiple id="gsMemFora" class="gs-transfer__llista"></select></div>' +
+        '<div class="gs-transfer__btns">' +
+          '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" id="gsMemAfegeix" title="Fes membres les persones seleccionades" aria-label="Afegeix a l’equip">Afegeix →</button>' +
+          '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" id="gsMemTreu" title="Treu de l’equip les persones seleccionades" aria-label="Treu de l’equip">← Treu</button></div>' +
+        '<div class="gs-transfer__col"><label class="gs-transfer__tit" for="gsMemDins">Membres <span id="gsMemNDins"></span></label>' +
+          '<input type="search" class="gs-cerca gs-transfer__cerca" id="gsMemCercaDins" placeholder="Cerca…" aria-label="Cerca entre els membres">' +
+          '<select multiple id="gsMemDins" class="gs-transfer__llista"></select></div>' +
+      '</div>';
+    var pinta = function () {
+      var fora = prof.filter(function (p) { return sel.indexOf(p.id) < 0; }), dins = prof.filter(function (p) { return sel.indexOf(p.id) >= 0; });
+      // Membres que ja no surten a la llista de persones (p. ex. esborrats): es mantenen
+      sel.forEach(function (id) { if (!prof.some(function (p) { return p.id === id; })) dins.push({ id: id, nom: id, especialitat: '' }); });
+      $('gsMemFora').innerHTML = fora.map(opcio).join(''); $('gsMemDins').innerHTML = dins.map(opcio).join('');
+      $('gsMemNFora').textContent = '(' + fora.length + ')'; $('gsMemNDins').textContent = '(' + dins.length + ')';
+      filtra('gsMemCercaFora', 'gsMemFora'); filtra('gsMemCercaDins', 'gsMemDins');
+    };
+    var filtra = function (idCerca, idLlista) { var t = plega($(idCerca).value.trim()); [].forEach.call($(idLlista).options, function (o) { o.hidden = !!t && o.dataset.t.indexOf(t) < 0; }); };
+    var passa = function (dEsquerra) {
+      var llista = $(dEsquerra ? 'gsMemFora' : 'gsMemDins');
+      var ids = [].filter.call(llista.options, function (o) { return o.selected && !o.hidden; }).map(function (o) { return o.value; });
+      if (!ids.length) return toast('Seleccioneu primer alguna persona de la llista ' + (dEsquerra ? 'de l’esquerra.' : 'de la dreta.'), true);
+      sel = dEsquerra ? sel.concat(ids.filter(function (x) { return sel.indexOf(x) < 0; })) : sel.filter(function (x) { return ids.indexOf(x) < 0; });
+      pinta();
+    };
     pregunta('Membres · ' + q.nom, html, [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa els membres', valor: 1, abans: function () {
-      var n = $('gsModalText').querySelectorAll('.gs-membres__llista input:checked').length;
-      if (q.id_equip === 'EQ-DIR' && n < 2 && !confirmaDir) { confirmaDir = true; toast('Recomanació: almenys dues persones a l’equip directiu, perquè ningú no es quedi sense accés. Torneu a prémer «Desa els membres» per desar igualment.', true); return false; }
+      if (q.id_equip === 'EQ-DIR' && sel.length < 2 && !confirmaDir) { confirmaDir = true; toast('Recomanació: almenys dues persones a l’equip directiu, perquè ningú no es quedi sense accés. Torneu a prémer «Desa els membres» per desar igualment.', true); return false; }
     } }], false).then(function (v) {
       confirmaDir = false;
       if (!v) return;
@@ -1672,9 +1702,14 @@
       });
     });
     var confirmaDir = false;
-    compta();
-    $('gsModalText').querySelectorAll('.gs-membres__llista input').forEach(function (i) { i.addEventListener('change', function () { if (i.checked) { if (sel.indexOf(i.value) < 0) sel.push(i.value); } else sel = sel.filter(function (x) { return x !== i.value; }); compta(); }); });
-    $('gsMembresCerca').addEventListener('input', function () { var t = plega(this.value.trim()); $('gsModalText').querySelectorAll('.gs-membres__llista label').forEach(function (l) { l.hidden = t && l.dataset.nom.indexOf(t) < 0; }); });
+    $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample');
+    pinta();
+    $('gsMemAfegeix').addEventListener('click', function () { passa(true); });
+    $('gsMemTreu').addEventListener('click', function () { passa(false); });
+    $('gsMemFora').addEventListener('dblclick', function () { passa(true); });
+    $('gsMemDins').addEventListener('dblclick', function () { passa(false); });
+    $('gsMemCercaFora').addEventListener('input', function () { filtra('gsMemCercaFora', 'gsMemFora'); });
+    $('gsMemCercaDins').addEventListener('input', function () { filtra('gsMemCercaDins', 'gsMemDins'); });
   }
   function desaEquips() {
     var equips = S.taula.getData().map(function (q) { return { id_equip: q.id_equip, nom: q.nom, tipus: q.tipus, descripcio: q.descripcio, actiu: q.actiu, grups: Array.isArray(q.grups) ? q.grups : String(q.grups || '').split(',').filter(Boolean) }; });

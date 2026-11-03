@@ -933,8 +933,10 @@ function equips_(ctx) {
     moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })), grups: GRUPS_ESO.concat(GRUPS_1BAT, GRUPS_2BAT),
     // Per triar membres: professorat i PAS que no són de baixa (els de baixa que ja hi són també surten)
     persones: pers.filter((x) => !deBaixa_(x.p) || membres.some((m) => m.id_membre === x.id))
-      .map((x) => ({ id: x.id, nom: [x.p.nom, x.p.cognom1, x.p.cognom2].filter(Boolean).join(' '), especialitat: x.detall, baixa: deBaixa_(x.p) }))
-      .sort((a, b) => a.nom.localeCompare(b.nom, 'ca')) };
+      // PAS 32: «Cognoms, Nom», per ordre alfabètic del 1r cognom
+      .map((x) => ({ id: x.id, nom: [x.p.cognom1, x.p.cognom2].filter(Boolean).join(' ') + (x.p.nom ? ', ' + x.p.nom : ''), especialitat: x.detall, baixa: deBaixa_(x.p),
+        ordre: normNom_([x.p.cognom1, x.p.cognom2, x.p.nom].join(' ')) }))
+      .sort((a, b) => a.ordre.localeCompare(b.ordre, 'ca')) };
 }
 function equipsDesa_(ctx, req) {
   if (!ctx.global) return { ok: false, error: 'sense_permis' };
