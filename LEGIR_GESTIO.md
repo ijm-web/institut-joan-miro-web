@@ -192,6 +192,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Membres d'un equip**: dues llistes (no membres / membres) per ordre del 1r cognom, amb botons per passar-les d'una a l'altra (o doble clic) i cerca a cada llista.
 - **Llistat** (professorat): només l'estat «actiu»; repartiment entre les dues cares que aprofita al màxim l'espai.
 
+## PAS 33
+- **Dades incompletes** (professorat i PAS): botó «⚠ N fitxes amb dades buides» que filtra les fitxes amb camps obligatoris buits (sense baixes ni proves) i marca els camps.
+- **Historial d'una fila** (botó del rellotge, des d'edició): canvis fets des del web (pestanya `historial`).
+- **Avís de retards** (control d'entrada): `config › retards_quantitat` (3–20, per defecte 5) i `retards_periode` (1 setmana, 2 setmanes, 3 setmanes, 1 mes). Es canvia des del web (admin del mòdul).
+- **Còpia de seguretat**: executa **activaCopiaSetmanal** una vegada (demana permisos): fa una còpia ara i cada dilluns cap a les 3 h de ijm_nucli_db i ijm_alumnat_db a la carpeta de `config › carpeta_copies` (si és buida, es crea «GESTIO · còpies de seguretat»). Es guarden les 8 darreres de cada fitxer. **copiaSeguretat** en fa una a mà.
+- **Fitxes de prova**: camp «Fitxa de prova» (professorat i PAS). `configura` marca una vegada «Test, Profe», «Test, Tutor» i «Test, Coord». No s'esborren.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

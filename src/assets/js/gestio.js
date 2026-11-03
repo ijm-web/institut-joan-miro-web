@@ -78,6 +78,7 @@
     no_aplica_nivell: 'no s’omple en aquest nivell (p. ex. camps de 4t, optatives de cursos superiors o matèries de l’altre curs de batxillerat)'
   };
   var text = function (c) { return MISSATGES[c] || MISSATGES.error_servidor; };
+  var RELLOTGE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   var PAPERERA = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
   var FIXADES = ['nom', 'cognom1'];   // columnes bloquejades a l'esquerra per defecte
   var copia = function (f) { var o = Object.assign({}, f); if (Array.isArray(o.equips)) o.equips = o.equips.slice(); return o; };
@@ -85,6 +86,10 @@
   var nomComplet = function (d) { return [d.nom, d.cognom1, d.cognom2].filter(Boolean).join(' '); };
   // PAS 31: tots els filtres i cerques sense distingir majúscules ni accents
   var plega = function (x) { return String(x == null ? '' : x).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, ''); };
+  var esProva = function (d) { return d && (d.prova === 'sí' || d.prova === 'si'); };
+  // PAS 33: fitxa incompleta = no és de baixa ni de prova i té buit algun dels camps de S.d.completesa
+  var buitsDe = function (d) { return (S.d && S.d.completesa || []).filter(function (k) { return !String(d[k] == null ? '' : d[k]).trim(); }); };
+  var incompleta = function (d) { return !deBaixa(d) && !esProva(d) && String(d.id).indexOf('nou-') !== 0 && buitsDe(d).length > 0; };
   var conte = function (v, t) { return plega(v).indexOf(plega(t)) >= 0; };
   // PAS 31: les dates es desen aaaa-mm-dd (ordenen bé) i es mostren dd/mm/aaaa
   var dataVista = function (x) { var m = /^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})/.exec(String(x == null ? '' : x).trim()); return m ? ('0' + m[3]).slice(-2) + '/' + ('0' + m[2]).slice(-2) + '/' + m[1] : String(x == null ? '' : x); };
@@ -389,6 +394,7 @@
     if (esRegistre()) {
       // CONTROL D'ENTRADA: «Nova entrada» (edició) i «Anàlisi» (consulta); les entrades no s'editen a la cel·la
       $('gsEines').innerHTML = '<span class="gs-compte" id="gsCompte"></span><span class="gs-espai"></span>' +
+        (S.d.retards ? '<span class="gs-retards" id="gsRetards"></span>' : '') +
         (ed ? '<button type="button" class="prog-btn" data-accio="entrada-nova">+ Nova entrada</button>' : '') +
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="entrada-analisi">Anàlisi</button>' +
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
@@ -396,6 +402,7 @@
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="recarrega" title="Torna a llegir les dades del full">Actualitza</button>' +
         '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Excel</button>' +
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">PDF</button></span>';
+      pintaRetards();
       return;
     }
     var nivells = esAlumnat() ? (S.d.nivells || etapa().nivells) : [], sel = nivellTriat();
@@ -405,6 +412,7 @@
       }).join('') + '</span>' : '') +
       (ambEstat ? '<label class="gs-check"><input type="checkbox" id="gsBaixes"' + (S.baixes ? ' checked' : '') + '> Mostra també les baixes</label>' : '') +
       '<span class="gs-compte" id="gsCompte"></span>' +
+      ((S.d.completesa || []).length && ed ? '<button type="button" class="gs-incomplet' + (S.nomesIncompletes ? ' is-actiu' : '') + '" id="gsIncomplet" data-accio="incompletes" aria-pressed="' + !!S.nomesIncompletes + '" title="Fitxes (sense baixes ni proves) amb algun camp obligatori buit. Cliqueu per veure només aquestes."></button>' : '') +
       (ed ? '<span class="gs-seleccio" id="gsSeleccio" hidden><span id="gsSelN"></span> <button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-accio="aplica-seleccio">Aplica a la selecció…</button> <button type="button" class="gs-enllac" data-accio="treu-seleccio">Treu la selecció</button></span>' : '') +
       '<span class="gs-espai"></span>' +
       (ed ? '<button type="button" class="prog-btn" data-accio="alta">+ Afegeix ' + esc(S.d.nom_fila || 'fila') + '</button>' : '') +
@@ -545,10 +553,11 @@
     if (ed && esRegistre()) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: 44, cssClass: 'gs-accions',
       formatter: function () { return '<span class="gs-acc"><button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra aquesta entrada (feta per error)" aria-label="Esborra l’entrada">' + PAPERERA + '</button></span>'; },
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
-    else if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: adm ? 118 : 92, cssClass: 'gs-accions',
+    else if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: (adm ? 118 : 92) + (S.d.pot_historial ? 30 : 0), cssClass: 'gs-accions',
       formatter: function (cell) {
         var r = cell.getRow().getData();
-        return '<span class="gs-acc">' + (deBaixa(r) ? '<button type="button" data-a="reactiva">Reactiva</button>' : '<button type="button" data-a="baixa">Baixa</button>') +
+        return '<span class="gs-acc">' + (S.d.pot_historial && String(r.id).indexOf('nou-') !== 0 ? '<button type="button" class="gs-hist" data-a="historial" title="Historial de canvis d’aquesta fila" aria-label="Historial de canvis">' + RELLOTGE + '</button>' : '') +
+          (deBaixa(r) ? '<button type="button" data-a="reactiva">Reactiva</button>' : '<button type="button" data-a="baixa">Baixa</button>') +
           (adm || String(r.id).indexOf('nou-') === 0 ? '<button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra del tot" aria-label="Esborra del tot">' + PAPERERA + '</button>' : '') + '</span>';
       },
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
@@ -569,6 +578,10 @@
       }
       if (c.clau === 'estat') col.formatter = function (cell) { var v = cell.getValue() || ''; return v ? '<span class="gs-estat gs-estat--' + esc(v.replace(/\s+/g, '-')) + '">' + esc(v) + '</span>' : ''; };
       if (c.tipus === 'si_no') col.formatter = function (cell) { return cell.getValue() === 'sí' ? '<span class="gs-si">sí</span>' : ''; };
+      if (esRegistre() && c.clau === 'alumne' && S.d.retards) col.formatter = function (cell) {
+        var d = cell.getRow().getData(), k = d.id_alumne || plega(d.alumne), av = (S.avisRetards || {})[k];
+        return esc(cell.getValue()) + (av ? ' <span class="gs-avis-ret" title="' + av + ' retards en ' + esc(S.d.retards.periode) + '">⚠ ' + av + '</span>' : '');
+      };
       // Batxillerat (PAS 29): matèries en columnes estretes, nom en vertical i el nombre d'alumnes (de les files filtrades) a dalt
       if (esMateria(c.clau)) {
         Object.assign(col, { width: 40, minWidth: 36, maxWidth: 60, hozAlign: 'center', headerHozAlign: 'center', headerSort: false, cssClass: 'gs-mat',
@@ -601,19 +614,30 @@
       rowFormatter: function (row) {
         var d = row.getData(); var el = row.getElement(); el.classList.toggle('gs-baixa', deBaixa(d)); el.classList.toggle('gs-nova', String(d.id).indexOf('nou-') === 0);
         el.classList.toggle('gs-sense-ant', esAlumnat() && senseGrupAnterior(d));
+        el.classList.toggle('gs-prova', esProva(d));
+        // PAS 33: amb el filtre d'incompletes, els camps buits es marquen
+        if (S.nomesIncompletes) { var buits = buitsDe(d); row.getCells().forEach(function (ce) { ce.getElement().classList.toggle('gs-buit', buits.indexOf(ce.getField()) >= 0 && incompleta(d)); }); }
+        else row.getCells().forEach(function (ce) { ce.getElement().classList.remove('gs-buit'); });
         // Cel·les dels camps que no són del nivell de l'alumne: ratllades (no s'editen)
         if (esAlumnat()) row.getCells().forEach(function (ce) { var f = ce.getField(); if (f && restringit(f)) ce.getElement().classList.toggle('gs-na', noAplica(f, d)); });
       }
     });
     S.taula.on('rowSelectionChanged', function (data) { var b = $('gsSeleccio'); if (!b) return; var abans = b.hidden; b.hidden = !data.length; if (abans !== b.hidden) setTimeout(ajustaAlcada, 0); $('gsSelN').textContent = data.length + (data.length === 1 ? ' fila seleccionada' : ' files seleccionades'); });
     S.taula.on('tableBuilt', function () { aplicaFiltre(); ajustaAlcada(); });
-    S.taula.on('dataFiltered', function (f, rows) { var c = $('gsCompte'); if (c) c.textContent = rows.length + ' de ' + S.taula.getDataCount() + ' files'; setTimeout(function () { recomptes(); comptesFiltre(); }, 0); });
+    S.taula.on('dataFiltered', function (f, rows) { var c = $('gsCompte'); if (c) c.textContent = rows.length + ' de ' + S.taula.getDataCount() + ' files'; setTimeout(function () { recomptes(); comptesFiltre(); compteIncompletes(); }, 0); });
     S.taula.on('columnMoved', function () { setTimeout(recomptes, 0); });
     S.taula.on('cellEdited', celEditada);
     if (mobil) pintaMobil();
   }
   // PAS 29 · Damunt de cada camp amb un filtre actiu: quantes files compleixen la condició d'aquell filtre
   // (entre les files que es poden veure: sense les baixes, si no es mostren). Les matèries del batxillerat ja tenen el seu comptador.
+  // PAS 33 · Avís de dades incompletes (professorat i PAS)
+  function compteIncompletes() {
+    var b = $('gsIncomplet'); if (!b || !S.taula) return;
+    var n = S.taula.getData().filter(incompleta).length;
+    b.hidden = !n && !S.nomesIncompletes;
+    b.innerHTML = '<span aria-hidden="true">⚠</span> ' + (S.nomesIncompletes ? 'Mostra totes les fitxes' : n + (n === 1 ? ' fitxa amb dades buides' : ' fitxes amb dades buides'));
+  }
   function comptesFiltre() {
     if (!S.taula) return;
     var base = S.taula.getData().filter(function (d) { return (S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat()) && delNivell(d); });
@@ -665,7 +689,7 @@
     if (!S.taula) return;
     S.taula.setFilter(function (d) {
       // Les baixes s'amaguen si no es marca «Mostra també les baixes»… excepte si es filtra per la columna Estat
-      return (S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat()) && delNivell(d);
+      return (S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat()) && delNivell(d) && (!S.nomesIncompletes || incompleta(d) || !!S.canvis[d.id]);
     });
     columnesNivell();
     if (window.matchMedia('(max-width: 760px)').matches) pintaMobil();
@@ -717,6 +741,20 @@
     }
     marcaBrut(true);
   }
+  // PAS 33 · Historial d'una fila: qui ha canviat què i quan (del més recent al més antic)
+  var ACCIONS_HIST = { alta: 'Alta', modificacio: 'Modificació', baixa: 'Baixa', reactivacio: 'Reactivació', equips: 'Equips', alta_nou_professor: 'Alta (Nou professor/a)', esborra: 'Esborrat' };
+  function historialFila(d) {
+    api('historial_fila', { modul: S.modul.id, id: d.id }, 'Llegint l’historial…').then(function (r) {
+      if (!r.ok) return toast(text(r.error), true);
+      var dataHora = function (x) { var m = /^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2})/.exec(String(x || '')); return m ? dataVista(m[1]) + ' ' + m[2] : esc(x); };
+      var html = '<p class="gs-ajuda">' + esc(nomComplet(d) || d.id) + ' · ' + r.files.length + (r.files.length === 1 ? ' canvi' : ' canvis') + ' (el més recent primer).</p>' +
+        (r.files.length ? '<div class="gs-informe"><table class="gs-form-taula gs-informe__taula"><thead><tr><th>Data</th><th>Qui</th><th>Què</th></tr></thead><tbody>' + r.files.map(function (h) {
+          var que = h.canvis ? (h.canvis.length ? '<ul class="gs-hist__llista">' + h.canvis.map(function (c) { return '<li><strong>' + esc(c.camp) + '</strong>: ' + (c.abans ? esc(c.abans) : '<em>buit</em>') + ' → ' + (c.ara ? esc(c.ara) : '<em>buit</em>') + '</li>'; }).join('') + '</ul>' : '') : esc(h.detall);
+          return '<tr><td style="white-space:nowrap">' + dataHora(h.data) + '</td><td>' + esc(h.usuari) + '</td><td><strong>' + esc(ACCIONS_HIST[h.accio] || h.accio) + '</strong>' + (que ? '<br>' + que : '') + '</td></tr>';
+        }).join('') + '</tbody></table></div>' : '<p>No hi ha cap canvi registrat d’aquesta fila des del web (les importacions i els canvis fets directament al full no hi surten).</p>');
+      pregunta('Historial · ' + (nomComplet(d) || d.id), html, [{ t: 'Tanca', valor: 1 }], false);
+    });
+  }
   function marcaBrut(b) {
     S.brut = b;
     var n = Object.keys(S.canvis).length, a = Object.keys(S.altes).length;
@@ -737,6 +775,7 @@
   }
   function accioFila(a, row) {
     var d = row.getData();
+    if (a === 'historial') return historialFila(d);
     if (a === 'baixa' || a === 'reactiva') {
       var nou = a === 'baixa' ? 'baixa' : (esAlumnat() ? '' : 'actiu');   // alumnat: cal triar l'estat (promociona, repeteix…)
       if (String(d.id).indexOf('nou-') === 0) return;
@@ -1289,7 +1328,7 @@
   // PROFESSORAT · LLISTAT: PDF per recollir signatures (les persones que es veuen ara, sense les baixes)
   function llistatSignatures() {
     // PAS 32: només el professorat amb estat «actiu» (ni baixes, ni baixes laborals, ni permisos)
-    var gent = S.taula.getData('active').filter(function (d) { return String(d.estat || '').trim().toLowerCase() === 'actiu' && String(d.id).indexOf('nou-') !== 0; }).sort(ordenaCognoms);
+    var gent = S.taula.getData('active').filter(function (d) { return String(d.estat || '').trim().toLowerCase() === 'actiu' && !esProva(d) && String(d.id).indexOf('nou-') !== 0; }).sort(ordenaCognoms);
     var avui = new Date(), iso = avui.getFullYear() + '-' + ('0' + (avui.getMonth() + 1)).slice(-2) + '-' + ('0' + avui.getDate()).slice(-2);
     pregunta('Llistat per signar', '<p class="gs-ajuda">PDF amb <strong>' + gent.length + '</strong> persones: el professorat <strong>en actiu</strong> que es veu ara a la graella (amb els filtres), per ordre de cognoms, repartit entre les dues cares d’un full.</p>' +
       '<div class="gs-form-fila"><label>Data <input type="date" id="gsLlData" value="' + iso + '"></label></div>' +
@@ -1314,6 +1353,40 @@
       });
     });
   }
+  // PAS 33 · CONTROL D'ENTRADA · Avís de retards: alumnes amb «quantitat» entrades o més dins del període (comptat fins avui)
+  function alumnesAmbRetards() {
+    var R = S.d.retards; if (!R || !S.d.files) return [];
+    var lim = new Date(); lim.setHours(0, 0, 0, 0); lim.setDate(lim.getDate() - R.dies + 1);
+    var limIso = lim.getFullYear() + '-' + ('0' + (lim.getMonth() + 1)).slice(-2) + '-' + ('0' + lim.getDate()).slice(-2);
+    var per = {};
+    S.d.files.forEach(function (f) {
+      if (String(f.data) < limIso) return;
+      var k = f.id_alumne || plega(f.alumne), x = per[k] = per[k] || { alumne: f.alumne, nivell: f.nivell, grup: f.grup, n: 0, ultima: '' };
+      x.n++; var t = f.data + ' ' + f.hora; if (t > x.ultima) { x.ultima = t; x.grup = f.grup || x.grup; x.nivell = f.nivell || x.nivell; }
+    });
+    return Object.keys(per).filter(function (k) { return per[k].n >= R.quantitat; }).map(function (k) { return Object.assign({ clau: k }, per[k]); })
+      .sort(function (a, b) { return b.n - a.n || plega(a.alumne).localeCompare(plega(b.alumne), 'ca'); });
+  }
+  function pintaRetards() {
+    var R = S.d.retards, el = $('gsRetards'); if (!R || !el) return;
+    var llista = alumnesAmbRetards();
+    S.avisRetards = {}; llista.forEach(function (a) { S.avisRetards[a.clau] = a.n; });
+    var sel = function (id, ops, v) { return '<select id="' + id + '"' + (R.pot_canviar ? '' : ' disabled') + '>' + ops.map(function (o) { return '<option' + (String(o) === String(v) ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>'; };
+    var q = []; for (var i = 3; i <= 20; i++) q.push(i);
+    el.innerHTML = '<span class="gs-retards__regla" title="' + (R.pot_canviar ? 'Podeu canviar el criteri: val per a tothom.' : 'El criteri el fixa qui administra el mòdul.') + '">Avís a partir de ' + sel('gsRetQ', q, R.quantitat) + ' retards en ' + sel('gsRetP', R.periodes, R.periode) + '</span>' +
+      '<button type="button" class="gs-incomplet' + (llista.length ? '' : ' is-cap') + '" data-accio="retards-llista"><span aria-hidden="true">⚠</span> ' + llista.length + (llista.length === 1 ? ' alumne' : ' alumnes') + '</button>';
+    if (R.pot_canviar) ['gsRetQ', 'gsRetP'].forEach(function (id) { $(id).addEventListener('change', function () {
+      api('retards_desa', { quantitat: Number($('gsRetQ').value), periode: $('gsRetP').value }, 'Desant el criteri…').then(function (r) {
+        if (!r.ok) return toast(text(r.error), true);
+        S.d.retards = Object.assign(r.retards, { pot_canviar: true }); toast('Criteri desat: ' + r.retards.quantitat + ' retards en ' + r.retards.periode + '.'); pintaRetards(); if (S.taula) S.taula.redraw(true);
+      });
+    }); });
+  }
+  function llistaRetards() {
+    var R = S.d.retards, llista = alumnesAmbRetards();
+    informe('Avís de retards', 'Alumnes amb ' + R.quantitat + ' retards o més en ' + R.periode + ' (fins avui). ' + llista.length + (llista.length === 1 ? ' alumne.' : ' alumnes.'), ['', 'Alumne', 'Nivell', 'Grup-Classe', 'Retards', 'Darrer'],
+      llista.map(function (a, i) { return [String(i + 1), a.alumne, a.nivell || '', a.grup || '', String(a.n), dataVista(a.ultima.slice(0, 10)) + ' ' + a.ultima.slice(11, 16)]; }), 'avis-retards');
+  }
   // CONTROL D'ENTRADA · Nova entrada: triar un alumne (ESO i batxillerat) i desar (data i hora d'ara)
   function novaEntrada() {
     var obre = function (llista) {
@@ -1325,7 +1398,11 @@
         if (!v) return;
         api('entrada_nova', { id_alumne: novaEntrada.id }, 'Desant l’entrada…').then(function (r) {
           if (!r.ok) return toast(text(r.error), true);
-          var f = r.fila; S.d.files.push(copia(f)); S.taula.addRow(copia(f), true).then(aplicaFiltre); if (S.d.versio && r.fila) S.d.versio = { data: f.data + ' ' + f.hora, per: S.sessio.email };
+          var f = r.fila; S.d.files.push(copia(f));
+          pintaRetards();
+          var av = (S.avisRetards || {})[f.id_alumne || plega(f.alumne)];
+          if (av) setTimeout(function () { toast('Avís: ' + f.alumne + ' ja té ' + av + ' retards en ' + S.d.retards.periode + '.', true); }, 400);
+          S.taula.addRow(copia(f), true).then(aplicaFiltre); if (S.d.versio && r.fila) S.d.versio = { data: f.data + ' ' + f.hora, per: S.sessio.email };
           toast('Entrada registrada: ' + f.alumne + ' · ' + f.hora + '.');
         });
       });
@@ -1784,6 +1861,8 @@
       case 'nou-desa': desaNouProfessor(); break;
       case 'totals': nombresTotals(); break;
       case 'nivell': triaNivell(b.dataset.nivell || ''); break;
+      case 'incompletes': S.nomesIncompletes = !S.nomesIncompletes; b.classList.toggle('is-actiu', S.nomesIncompletes); b.setAttribute('aria-pressed', String(S.nomesIncompletes)); aplicaFiltre(); S.taula.redraw(true); compteIncompletes(); break;
+      case 'retards-llista': llistaRetards(); break;
       case 'analisi': analisiAlumnat(); break;
       case 'llistat': llistatSignatures(); break;
       case 'entrada-nova': novaEntrada(); break;

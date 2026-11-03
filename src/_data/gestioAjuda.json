@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 32 · 3 de novembre de 2026",
+  "versio": "PAS 33 · 3 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -51,7 +51,8 @@
           "Cliqueu la cel·la, escriviu o trieu el valor i premeu Enter (o Tab per passar a la següent).",
           "Les cel·les canviades queden en **taronja** fins que es desa. Si un valor no té el format correcte (correu, NIF, data, valor d'una llista…), la cel·la queda en **vermell** i surt un avís.",
           "Les cel·les **ratllades** no s'omplen per a aquella fila (p. ex. un camp que no és del nivell de l'alumne).",
-          "En fer el primer canvi apareix a dalt la barra «Canvis sense desar»; la graella es queda a la mateixa fila perquè pugueu continuar canviant-ne camps."
+          "En fer el primer canvi apareix a dalt la barra «Canvis sense desar»; la graella es queda a la mateixa fila perquè pugueu continuar canviant-ne camps.",
+          "**Historial**: el botó del rellotge de cada fila (des d'edició) mostra qui ha canviat què i quan, del canvi més recent al més antic (valor d'abans → valor nou). Hi surten els canvis fets des del web."
         ]
       },
       {
@@ -188,6 +189,23 @@
           "claus": "nou professor alta secretaria formulari",
           "text": [
             "Secretaria pot donar d'alta un docent amb el mòdul **Nou professor/a** (formulari i PDF per signar), sense accés a aquesta graella."
+          ]
+        },
+        {
+          "id": "prof-incompletes",
+          "titol": "Fitxes amb dades buides",
+          "claus": "incompletes dades buides avís falta obligatori",
+          "text": [
+            "Al costat del comptador de files hi ha l'avís **⚠ N fitxes amb dades buides**: les fitxes (sense baixes ni fitxes de prova) que tenen algun camp obligatori buit (NIF, data de naixement, nacionalitat, telèfon, adreça, especialitat, jornada, situació…).",
+            "Cliqueu-lo per veure només aquestes fitxes, amb els camps buits marcats en taronja. Torneu-lo a clicar (**Mostra totes les fitxes**) per tornar a la llista sencera."
+          ]
+        },
+        {
+          "id": "prof-prova",
+          "titol": "Fitxes de prova",
+          "claus": "prova test fitxa de prova",
+          "text": [
+            "El camp **Fitxa de prova** marca les fitxes que només serveixen per fer proves (p. ex. «Test, Profe»). Surten en gris i en cursiva, i no compten al Llistat, a l'avís de dades buides ni a «Substitueix a». No s'esborren soles."
           ]
         }
       ]
@@ -406,6 +424,23 @@
           "text": [
             "Les persones del PAS poden entrar a GESTIO si són membres d'algun equip amb permisos (p. ex. EQ-ADM Administració, EQ-CON Consergeria). La direcció ho fa a **Equips i permisos**."
           ]
+        },
+        {
+          "id": "pas-incompletes",
+          "titol": "Fitxes amb dades buides",
+          "claus": "incompletes dades buides avís falta obligatori",
+          "text": [
+            "Al costat del comptador de files hi ha l'avís **⚠ N fitxes amb dades buides**: les fitxes (sense baixes ni fitxes de prova) que tenen algun camp obligatori buit (NIF, data de naixement, nacionalitat, telèfon, adreça, especialitat, jornada, situació…).",
+            "Cliqueu-lo per veure només aquestes fitxes, amb els camps buits marcats en taronja. Torneu-lo a clicar (**Mostra totes les fitxes**) per tornar a la llista sencera."
+          ]
+        },
+        {
+          "id": "pas-prova",
+          "titol": "Fitxes de prova",
+          "claus": "prova test fitxa de prova",
+          "text": [
+            "El camp **Fitxa de prova** marca les fitxes que només serveixen per fer proves (p. ex. «Test, Profe»). Surten en gris i en cursiva, i no compten al Llistat, a l'avís de dades buides ni a «Substitueix a». No s'esborren soles."
+          ]
         }
       ]
     },
@@ -510,6 +545,16 @@
           "text": [
             "**Anàlisi** permet triar el nivell, el grup-classe i una data (en blanc = tot el període). Mostra, per ordre alfabètic, quantes vegades s'ha registrat cada alumne. Amb una data, només es compten les entrades d'aquella data en endavant.",
             "L'informe es pot descarregar en PDF."
+          ]
+        },
+        {
+          "id": "ce-retards",
+          "titol": "Avís de retards",
+          "claus": "avís retards quantitat període setmana mes alerta",
+          "text": [
+            "A dalt de la graella: **Avís a partir de N retards en un període** (per defecte, 5 en 1 mes). La quantitat va de 3 a 20 i el període pot ser 1, 2 o 3 setmanes o 1 mes, comptat fins avui. Només qui administra el mòdul pot canviar el criteri, que val per a tothom.",
+            "El botó **⚠ N alumnes** obre la llista dels alumnes que arriben al criteri (amb el nombre de retards i el darrer), amb PDF. A la graella, al costat del nom d'aquests alumnes surt **⚠** i el nombre de retards.",
+            "En registrar una **Nova entrada**, si l'alumne arriba al criteri, surt un avís."
           ]
         }
       ]

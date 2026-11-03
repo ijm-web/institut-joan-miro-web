@@ -61,6 +61,9 @@ const CONFIG_PER_DEFECTE = [
   ['curs_batxillerat', '', 'Curs actual del mòdul Alumnat Batxillerat (aaaa-aaaa; en blanc = el mateix que «curs»). El fa avançar el tancament de curs del batxillerat.'],
   ['font_dades_professorat', '', 'Per a importaDadesProfessorat: URL del llistat del professorat de Clickedu (CSV pujat a Drive o full de càlcul) amb DNI, data de naixement, nacionalitat, adreça i telèfon.'],
   ['font_pas', '', 'Per a importaPAS: URL del llistat del PAS de Clickedu (CSV pujat a Drive o full de càlcul).'],
+  ['retards_quantitat', '5', 'Control d\'entrada: nombre de retards (de 3 a 20) que activa l\'avís, dins del període de retards_periode.'],
+  ['retards_periode', '1 mes', 'Control d\'entrada: període de l\'avís de retards (1 setmana, 2 setmanes, 3 setmanes o 1 mes).'],
+  ['carpeta_copies', '', 'Per a copiaSeguretat: URL de la carpeta de Drive on es desen les còpies (en blanc = es crea «GESTIO · còpies de seguretat»).'],
   ['font_control_entrada', '', 'Per a importaControlEntrada: URL del full amb el registre d\'entrades amb retard que es feia fins ara.'],
   ['copia_tancament_batxillerat', '', 'La posa el tancament de curs del batxillerat (per a desfesTancamentBatxillerat).'],
 ];
@@ -107,6 +110,7 @@ const CAMPS_PROFESSORAT = [
   ['catala', 'Català', 'text', '', 'no', 'no', 'edicio', 'gestio'],
   ['carrec', 'Càrrec', 'text', '', 'no', 'no', 'consulta', 'gestio'],
   ['data_arribada_centre', 'Data arribada al centre', 'data', '', 'no', 'no', 'edicio', 'gestio'],
+  ['prova', 'Fitxa de prova', 'si_no', '', 'no', 'no', 'edicio', 'gestio'],
 ];
 // PAS 30: al formulari Nou professor/a són obligatoris aquests camps (a la graella no, per no bloquejar les fitxes antigues)
 const NOU_OBLIGATORIS = ['nom', 'cognom1', 'estat', 'nif', 'especialitat', 'data_naixement', 'nacionalitat', 'email', 'telefon', 'adreca', 'poblacio', 'codi_postal',
@@ -137,7 +141,15 @@ const CAMPS_PAS = [
   ['jornada', 'Jornada', 'llista', 'Sencera|1/2|⅔', 'no', 'no', 'edicio', 'gestio'],
   ['situacio', 'Situació laboral', 'llista', 'Definitiu|Comissió de serveis|Provisional|Interí|Substitut', 'no', 'no', 'edicio', 'gestio'],
   ['data_arribada_centre', 'Data arribada al centre', 'data', '', 'no', 'no', 'edicio', 'gestio'],
+  ['prova', 'Fitxa de prova', 'si_no', '', 'no', 'no', 'edicio', 'gestio'],
 ];
+// PAS 33: camps que han d'estar plens a cada fitxa (avís de dades incompletes a la graella)
+const COMPLETESA = {
+  professorat: ['nom', 'cognom1', 'estat', 'nif', 'especialitat', 'data_naixement', 'nacionalitat', 'email', 'telefon', 'adreca', 'poblacio', 'codi_postal', 'provincia', 'jornada', 'situacio'],
+  pas: ['nom', 'cognom1', 'estat', 'nif', 'data_naixement', 'nacionalitat', 'email', 'telefon', 'adreca', 'poblacio', 'codi_postal', 'provincia', 'jornada', 'situacio']
+};
+const PERIODES_RETARDS = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30 };
+const esProva_ = (r) => norm_(r.prova) === 'sí' || norm_(r.prova) === 'si';
 const PAS_ARXIVATS = ['categoria', 'horari', 'carrec'];
 // PAS 30: equips docents de cada grup-classe (document «Equips docents 26-27»): [nom, 1r cognom, 2n cognom] o el nom tal com era
 // si no s'ha trobat al llistat del professorat. creaEquipsDocents() en fa un equip per grup (EQ-1ESOA…) amb els membres.
@@ -445,6 +457,8 @@ function doPost(e) {
       case 'entrada_alumnes': return json_(entradaAlumnes_(ctx));
       case 'entrada_nova':   return json_(entradaNova_(ctx, req));
       case 'alta_professor': return json_(altaProfessor_(ctx, req));
+      case 'historial_fila': return json_(historialFila_(ctx, req));
+      case 'retards_desa':   return json_(retardsDesa_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -543,6 +557,9 @@ function dades_(ctx, modul) {
     curs: ETAPES[modul] ? cursDe_(ctx.cfg, modul) : (ctx.cfg.curs || ''), nivells: ETAPES[modul] ? ETAPES[modul].nivells : undefined,
     abast: ab && cg ? ab : undefined,
     versio: versio_(modul),
+    completesa: COMPLETESA[modul] ? COMPLETESA[modul].filter((k) => camps.some((c) => c.clau === k)) : undefined,
+    retards: M.registre ? Object.assign(retardsCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
+    pot_historial: !M.registre && pot_(ctx, modul, 'edicio'),
     camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips };
 }
 
@@ -741,6 +758,99 @@ function difer_(a, b) {
   Object.keys(b).forEach((k) => { if (k !== 'data' && k !== 'desat_per' && String(a[k] == null ? '' : a[k]) !== String(b[k] == null ? '' : b[k])) d[k] = [a[k], b[k]]; });
   return JSON.stringify(d).slice(0, 45000);
 }
+// PAS 33: les fitxes de prova («Test, Profe», «Test, Tutor», «Test, Coord») es marquen com a prova una sola vegada (no s'esborren:
+// ho fa Romà). Les fitxes de prova no surten al Llistat, a l'avís de dades incompletes ni a «Substitueix a».
+function marcaFitxesProva_() {
+  const props = PropertiesService.getScriptProperties();
+  if (props.getProperty('PAS33_PROVA')) return;
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.prof);
+  if (!sh || sh.getLastRow() < 2) return;
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), jp = cap.indexOf('prova'), jn = cap.indexOf('nom'), jc = cap.indexOf('cognom1');
+  if (jp < 0) return;
+  const fetes = [];
+  for (let i = 1; i < vals.length; i++) {
+    if (norm_(vals[i][jc]) === 'test' && ['profe', 'tutor', 'coord'].indexOf(norm_(vals[i][jn])) >= 0 && !String(vals[i][jp]).trim()) { sh.getRange(i + 1, jp + 1).setValues([['sí']]); fetes.push(vals[i][jc] + ', ' + vals[i][jn]); }
+  }
+  props.setProperty('PAS33_PROVA', '1');
+  if (fetes.length) { historial_('configura', 'actualitzacio', FULL.prof, '', 'fitxes de prova: ' + fetes.join('; ')); Logger.log('Fitxes marcades com a prova: ' + fetes.join('; ')); }
+}
+
+// PAS 33 · Historial d'una fila: qui ha canviat què i quan (pestanya historial), del més recent al més antic
+function historialFila_(ctx, req) {
+  const modul = String(req.modul || ''), M = MODULS[modul], id = String(req.id || '');
+  if (!M || M.registre) return { ok: false, error: 'modul_desconegut' };
+  if (!pot_(ctx, modul, 'edicio')) return { ok: false, error: 'sense_permis' };
+  const noms = {}; campsDe_(modul, true).forEach((c) => { noms[c.clau] = c.nom; });
+  // Només els camps que la persona pot veure
+  const veu = {}; visibles_(ctx, modul, campsDe_(modul, true)).forEach((c) => { veu[c.clau] = 1; });
+  const files = llegeix_(FULL.hist).filter((h) => String(h.id) === id && (h.taula === M.full || (M.equips && h.taula === FULL.memb)))
+    .map((h) => {
+      let canvis = null;
+      if (/^(modificacio|baixa|reactivacio)$/.test(h.accio)) {
+        try { const d = JSON.parse(h.detall || '{}'); canvis = Object.keys(d).filter((k) => veu[k]).map((k) => ({ camp: noms[k] || k, abans: d[k][0] == null ? '' : String(d[k][0]), ara: d[k][1] == null ? '' : String(d[k][1]) })); } catch (e) { canvis = []; }
+      }
+      return { data: h.data, usuari: h.usuari, accio: h.accio, canvis: canvis, detall: canvis ? '' : (h.accio === 'equips' ? 'Equips: ' + (function () { try { return JSON.parse(h.detall).join(', ') || '(cap)'; } catch (e) { return h.detall; } })() : String(h.detall || '').slice(0, 300)) };
+    })
+    .filter((h) => !h.canvis || h.canvis.length || h.accio !== 'modificacio')
+    .reverse().slice(0, 200);
+  return { ok: true, id: id, files: files };
+}
+
+// PAS 33 · Avís de retards (control d'entrada): quantitat (3–20) i període
+function retardsCfg_(cfg) {
+  const q = Math.max(3, Math.min(20, Number(cfg.retards_quantitat) || 5));
+  const p = PERIODES_RETARDS[String(cfg.retards_periode || '').trim()] ? String(cfg.retards_periode).trim() : '1 mes';
+  return { quantitat: q, periode: p, dies: PERIODES_RETARDS[p], periodes: Object.keys(PERIODES_RETARDS), pot_canviar: false };
+}
+function retardsDesa_(ctx, req) {
+  if (!pot_(ctx, 'control_entrada', 'admin')) return { ok: false, error: 'sense_permis' };
+  const q = Number(req.quantitat), p = String(req.periode || '');
+  if (!(q >= 3 && q <= 20 && Math.round(q) === q) || !PERIODES_RETARDS[p]) return { ok: false, error: 'peticio_invalida' };
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.conf), vals = sh.getDataRange().getValues();
+  [['retards_quantitat', String(q)], ['retards_periode', p]].forEach((kv) => {
+    const i = vals.findIndex((r) => r[0] === kv[0]);
+    if (i >= 1) sh.getRange(i + 1, 2).setValues([[kv[1]]]); else sh.appendRow([kv[0], kv[1], '']);
+  });
+  historial_(ctx.email, 'config', FULL.conf, 'retards', q + ' en ' + p);
+  return { ok: true, retards: retardsCfg_({ retards_quantitat: q, retards_periode: p }) };
+}
+
+// PAS 33 · Còpia de seguretat de ijm_nucli_db i ijm_alumnat_db a una carpeta de Drive (es guarden les 8 darreres de cada)
+function copiaSeguretat() {
+  const cfg = llegeixConfig_();
+  let carpeta;
+  const idC = (String(cfg.carpeta_copies || '').match(/[-\w]{25,}/) || [''])[0];
+  if (idC) carpeta = DriveApp.getFolderById(idC);
+  else {
+    const it = DriveApp.getFoldersByName('GESTIO · còpies de seguretat');
+    carpeta = it.hasNext() ? it.next() : DriveApp.createFolder('GESTIO · còpies de seguretat');
+    const sh = SpreadsheetApp.getActive().getSheetByName(FULL.conf), vals = sh.getDataRange().getValues(), i = vals.findIndex((r) => r[0] === 'carpeta_copies');
+    if (i >= 1) sh.getRange(i + 1, 2).setValues([[carpeta.getUrl()]]);
+  }
+  const avui = Utilities.formatDate(new Date(), 'Europe/Madrid', 'yyyy-MM-dd HH.mm');
+  const fitxers = [SpreadsheetApp.getActive().getId()];
+  const idA = (String(cfg.db_alumnat || '').match(/[-\w]{25,}/) || [''])[0];
+  if (idA) fitxers.push(idA);
+  const fetes = [];
+  fitxers.forEach((id) => {
+    const f = DriveApp.getFileById(id), base = f.getName();
+    f.makeCopy(base + ' · còpia ' + avui, carpeta); fetes.push(base);
+    // Només les 8 darreres còpies d'aquest fitxer
+    const copies = [], it = carpeta.getFiles();
+    while (it.hasNext()) { const c = it.next(); if (c.getName().indexOf(base + ' · còpia ') === 0) copies.push(c); }
+    copies.sort((a, b) => b.getName().localeCompare(a.getName())).slice(8).forEach((c) => c.setTrashed(true));
+  });
+  historial_('copiaSeguretat', 'copia', '', '', fetes.join(', ') + ' → ' + carpeta.getName());
+  Logger.log('Còpia de seguretat feta (' + fetes.join(', ') + ') a la carpeta «' + carpeta.getName() + '»: ' + carpeta.getUrl());
+}
+// Execució manual, una sola vegada: programa copiaSeguretat cada dilluns a les 3 de la matinada
+function activaCopiaSetmanal() {
+  ScriptApp.getProjectTriggers().filter((t) => t.getHandlerFunction() === 'copiaSeguretat').forEach((t) => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('copiaSeguretat').timeBased().onWeekDay(ScriptApp.WeekDay.MONDAY).atHour(3).inTimezone('Europe/Madrid').create();
+  Logger.log('Còpia setmanal activada: cada dilluns cap a les 3 h. Ara se\'n fa una per comprovar que funciona.');
+  copiaSeguretat();
+}
+
 // PAS 31: neteja (a configura) les persones de baixa que encara eren membres d'algun equip
 function treuMembresDeBaixa_() {
   const baixa = {};
@@ -1083,6 +1193,7 @@ function configura() {
   if (llegeix_(FULL.camps).some((c) => c.modul === 'batxillerat')) sincronitzaCamps_('batxillerat', CAMPS_BATXILLERAT, ['nivell', 'grup_anterior', 'grup_actual', 'estat']);
   canviaOrdreModulsPAS30_();
   treuMembresDeBaixa_();
+  marcaFitxesProva_();
   if (llegeix_(FULL.camps).some((c) => c.modul === 'professorat')) { sincronitzaCamps_('professorat', CAMPS_PROFESSORAT, ['estat', 'situacio']); canviaCampsProfessoratPAS30_(); }
   if (llegeix_(FULL.camps).some((c) => c.modul === 'pas')) { sincronitzaCamps_('pas', CAMPS_PAS, ['estat']); arxivaCamps_('pas', PAS_ARXIVATS); }
   [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['batxillerat', CAMPS_BATXILLERAT], ['pas', CAMPS_PAS], ['control_entrada', CAMPS_CONTROL]].forEach((x) => {
@@ -1332,14 +1443,14 @@ function nouProfessor_(ctx) {
   if (!pot_(ctx, 'nou_professor', 'edicio')) return { ok: false, error: 'sense_permis' };
   const camps = campsNou_();
   // Per a «Substitueix a»: el professorat que no és de baixa, amb el càrrec (en triar-lo, el càrrec del substitut s'omple sol)
-  const professorat = llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && p.nom)
+  const professorat = llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && !esProva_(p) && p.nom)
     .map((p) => ({ id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, carrec: p.carrec || '' }))
     .sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca'));
   return { ok: true, camps: camps, obert: obert_(ctx), curs: ctx.cfg.curs || '', professorat: professorat, provincies: PROVINCIES };
 }
 // Camps del formulari: els del professorat que es veuen des d'edició; obligatoris, els de NOU_OBLIGATORIS (PAS 30)
 function campsNou_() {
-  return campsDe_('professorat', true).filter((c) => c.actiu && c.tipus !== 'calculat' && c.origen !== 'clickedu' && NIVELLS.indexOf(c.visible_des_de) <= NIVELLS.indexOf('edicio'))
+  return campsDe_('professorat', true).filter((c) => c.actiu && c.tipus !== 'calculat' && c.origen !== 'clickedu' && c.clau !== 'prova' && NIVELLS.indexOf(c.visible_des_de) <= NIVELLS.indexOf('edicio'))
     .map((c) => Object.assign({}, c, { obligatori: c.obligatori || NOU_OBLIGATORIS.indexOf(c.clau) >= 0 }));
 }
 function altaProfessor_(ctx, req) {
@@ -1597,7 +1708,7 @@ function importaPersones_(modul, ref, camps, crea) {
   canviades.forEach((x) => sh.getRange(x.i + 1, 1, 1, capA.length).setValues([x.r]));
   if (noves.length) sh.getRange(sh.getLastRow() + 1, 1, noves.length, capA.length).setValues(noves);
   // Qui encara té dades personals buides (persones que no són de baixa)
-  const faltes = vals.slice(1).concat(noves).filter((r) => !deBaixa_({ estat: r[col('estat')] }) && r[col('nom')]).map((r) => {
+  const faltes = vals.slice(1).concat(noves).filter((r) => !deBaixa_({ estat: r[col('estat')] }) && !esProva_({ prova: col('prova') >= 0 ? r[col('prova')] : '' }) && r[col('nom')]).map((r) => {
     const f = camps.filter((k) => col(k) >= 0 && !String(r[col(k)] || '').trim());
     return f.length ? [r[col('cognom1')], r[col('cognom2')]].filter(Boolean).join(' ') + ', ' + r[col('nom')] + ' (falta: ' + f.join(', ') + ')' : '';
   }).filter(Boolean);
