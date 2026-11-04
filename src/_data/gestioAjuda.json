@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 33 · 3 de novembre de 2026",
+  "versio": "PAS 34 · 4 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -494,11 +494,22 @@
           "titol": "Equips i membres",
           "claus": "equip nou membres afegir treure inactiu gestió docent",
           "text": [
-            "Pestanya **Equips i membres**: + Afegeix equip (codi EQ-…), nom, tipus (gestió o docent: només serveix per classificar) i actiu. Un equip no s'esborra: es marca com a inactiu.",
+            "Pestanya **Equips i membres**: una fila per equip amb el codi, el nom, el tipus, la descripció, si és actiu, els grups, els membres i els permisos.",
             "Cliqueu la cel·la **Membres** per afegir-ne o treure'n (professorat i PAS, amb cercador). Una persona pot ser a diversos equips.",
             "**Grups**: si un equip té grups (p. ex. «1r ESO A»), els seus membres només veuen l'alumnat d'aquests grups als mòduls d'alumnat i al control d'entrada. Buit vol dir tots els grups.",
             "Hi ha un equip docent per grup-classe (EQ-1ESOA, EQ-1ESOGR, EQ-1BATA…), creat a partir del document d'equips docents, amb permís de consulta.",
             "**Membres** d'un equip: a l'esquerra, les persones que no en són membres; a la dreta, les que sí, totes per ordre del 1r cognom. Seleccioneu-ne una o diverses (Ctrl o Maj + clic) i passeu-les amb **Afegeix →** o **← Treu** (o amb doble clic). Cada llista té la seva cerca. Al final, **Desa els membres**."
+          ]
+        },
+        {
+          "id": "eq-nou",
+          "titol": "Crear, modificar i esborrar un equip",
+          "claus": "nou equip crear codi modificar canviar esborrar eliminar paperera inactiu",
+          "text": [
+            "**Crear**: botó **+ Afegeix equip** → s'obre una finestra. El **codi** comença per EQ- i només cal escriure la resta amb lletres i xifres, sense espais ni accents (p. ex. ADM → EQ-ADM). No es pot repetir ni canviar després. Escriviu el nom, trieu el tipus i **Crea l'equip**. Després hi afegiu els membres i, a la pestanya Permisos, l'accés als mòduls.",
+            "**Tipus**: **Gestió** per als equips de direcció, coordinació, secretaria, administració o consergeria (p. ex. les administratives i els conserges); **Docent** per als equips de nivell o de grup i els departaments. Només serveix per classificar i filtrar: tots dos funcionen igual.",
+            "**Modificar**: cliqueu la cel·la que voleu canviar (nom, tipus, descripció, actiu o grups) i deseu amb **Desa els canvis** a la barra de dalt. El codi no es pot canviar.",
+            "**Esborrar**: la **paperera** de la fila. S'esborren l'equip, els seus membres i els seus permisos (les persones no). No es pot desfer. Si el voleu conservar sense que doni accés, poseu **Actiu = no**. L'equip directiu (EQ-DIR) no es pot esborrar."
           ]
         },
         {

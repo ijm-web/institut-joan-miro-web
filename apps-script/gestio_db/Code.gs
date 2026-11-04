@@ -450,6 +450,7 @@ function doPost(e) {
       case 'equips':       return json_(equips_(ctx));
       case 'equips_desa':  return json_(equipsDesa_(ctx, req));
       case 'membres_desa': return json_(membresDesa_(ctx, req));
+      case 'equip_esborra': return json_(equipEsborra_(ctx, req));
       case 'permisos_matriu_desa': return json_(permisosMatriuDesa_(ctx, req));
       case 'tanca_curs':   return json_(tancaCurs_(ctx, req));
       case 'versio':       return json_(MODULS[req.modul] && pot_(ctx, req.modul, 'consulta') ? { ok: true, versio: versio_(req.modul) } : { ok: false, error: 'sense_permis' });
@@ -1053,7 +1054,9 @@ function equipsDesa_(ctx, req) {
   const llista = Array.isArray(req.equips) ? req.equips : [];
   const vist = {};
   for (const q of llista) {
-    const id = String(q.id_equip || '').trim().toUpperCase();
+    // PAS 34: el codi es normalitza (majúscules, sense accents ni espais) abans de comprovar-lo
+    q.id_equip = codiEquip_(q.id_equip);
+    const id = q.id_equip;
     if (!/^EQ-[A-Z0-9-]{1,20}$/.test(id)) return { ok: false, error: 'id_equip_invalid', id_equip: id || '(buit)' };
     if (vist[id]) return { ok: false, error: 'id_equip_repetit', id_equip: id };
     if (!String(q.nom || '').trim()) return { ok: false, error: 'nom_buit', camp: id };
@@ -1079,6 +1082,34 @@ function equipsDesa_(ctx, req) {
   } finally { lock.releaseLock(); }
 }
 
+const codiEquip_ = (x) => {
+  let c = String(x || '').trim().toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_.·]+/g, '-').replace(/[^A-Z0-9-]/g, '').replace(/-+/g, '-').replace(/-$/, '');
+  if (c && !/^EQ-/.test(c)) c = 'EQ-' + c.replace(/^EQ/, '');
+  return c;
+};
+// PAS 34 · Esborrar un equip (només admins globals; mai l'equip directiu): treu l'equip, els seus membres i els seus permisos
+function equipEsborra_(ctx, req) {
+  if (!ctx.global) return { ok: false, error: 'sense_permis' };
+  const id = String(req.id_equip || '');
+  if (id === 'EQ-DIR') return { ok: false, error: 'eq_dir_protegit' };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const ss = SpreadsheetApp.getActive();
+    const treu = (nom) => {
+      const sh = ss.getSheetByName(nom); if (!sh || sh.getLastRow() < 2) return 0;
+      const vals = sh.getDataRange().getValues(), j = vals[0].map(norm_).indexOf('id_equip');
+      const queden = vals.slice(1).filter((r) => String(r[j]) !== id && r.join('') !== ''), n = vals.length - 1 - queden.length;
+      if (n) { sh.getRange(2, 1, vals.length - 1, vals[0].length).clearContent(); if (queden.length) sh.getRange(2, 1, queden.length, vals[0].length).setValues(queden); }
+      return n;
+    };
+    if (!llegeix_(FULL.eq).some((q) => q.id_equip === id)) return { ok: false, error: 'id_equip_invalid', id_equip: id };
+    const membres = treu(FULL.memb), permisos = treu(FULL.perm);
+    treu(FULL.eq);
+    historial_(ctx.email, 'esborra_equip', FULL.eq, id, JSON.stringify({ membres: membres, permisos: permisos }));
+    return { ok: true, id_equip: id, membres: membres, permisos: permisos };
+  } finally { lock.releaseLock(); }
+}
 // Membres d'un equip (des del mòdul Equips): substitueix la llista de membres d'aquell equip. Només admins globals.
 function membresDesa_(ctx, req) {
   if (!ctx.global) return { ok: false, error: 'sense_permis' };

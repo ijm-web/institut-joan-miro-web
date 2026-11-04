@@ -199,6 +199,11 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Còpia de seguretat**: executa **activaCopiaSetmanal** una vegada (demana permisos): fa una còpia ara i cada dilluns cap a les 3 h de ijm_nucli_db i ijm_alumnat_db a la carpeta de `config › carpeta_copies` (si és buida, es crea «GESTIO · còpies de seguretat»). Es guarden les 8 darreres de cada fitxer. **copiaSeguretat** en fa una a mà.
 - **Fitxes de prova**: camp «Fitxa de prova» (professorat i PAS). `configura` marca una vegada «Test, Profe», «Test, Tutor» i «Test, Coord». No s'esborren.
 
+## PAS 34
+- **Equip nou**: finestra amb el codi (EQ- + lletres o xifres; es normalitza: majúscules, sense accents ni espais), nom, tipus i descripció; es desa en acceptar. Abans, la fila nova quedava amb el codi «EQ-» si l'editor no s'obria, i en desar sortia «codi no vàlid».
+- **Esborrar un equip**: paperera de la fila (acció `equip_esborra`): treu l'equip, els seus membres i permisos. EQ-DIR no.
+- Tipus: **gestió** per a administració i consergeria; **docent** per a equips de nivell/grup i departaments.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

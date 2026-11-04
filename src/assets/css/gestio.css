@@ -287,3 +287,8 @@
 .gs-retards select{ height: 30px; border: 1px solid #D5D9E6; border-radius: 6px; padding: 0 6px; font: 600 13px var(--font-main); color: var(--color-blue); background: #fff; }
 .gs-retards select:disabled{ color: var(--color-text); background: #F6F7FA; }
 .gs-avis-ret{ display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 999px; background: #FEE4E2; color: #B42318; font: 700 11px var(--font-main); }
+
+/* PAS 34 · equip nou */
+.gs-codi-eq{ display: inline-flex; align-items: center; border: 1px solid #D5D9E6; border-radius: 8px; overflow: hidden; background: #fff; }
+.gs-codi-eq span{ padding: 0 8px; font: 700 14px var(--font-main); color: var(--color-blue); background: #F1F0FD; align-self: stretch; display: flex; align-items: center; }
+.gs-codi-eq input{ border: 0 !important; outline: none; height: 36px; padding: 0 10px; text-transform: uppercase; font: 600 14px var(--font-main); width: 160px; }

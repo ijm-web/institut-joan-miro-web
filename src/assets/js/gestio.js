@@ -48,7 +48,8 @@
     clau_repetida: 'Hi ha dos camps amb la mateixa clau.',
     nom_buit: 'Cal un nom.',
     nivell_no_permes: 'No podeu donar ni treure aquest nivell a aquest equip.',
-    id_equip_invalid: 'El codi d’un equip ha de ser EQ- i lletres o xifres (p. ex. EQ-1ESO).',
+    id_equip_invalid: 'El codi d’un equip ha de ser EQ- seguit de lletres o xifres, sense espais ni accents (p. ex. EQ-ADM). Si heu afegit una fila i no hi heu escrit el codi, queda «EQ-» i no és vàlid.',
+    eq_dir_protegit: 'L’equip directiu (EQ-DIR) no es pot esborrar ni perdre l’administració.',
     id_equip_repetit: 'Hi ha dos equips amb el mateix codi.',
     equip_no_es_pot_treure: 'Un equip no es pot treure: marqueu-lo com a inactiu.',
     massa_canvis: 'Hi ha massa canvis per desar d’una vegada (màxim 500).',
@@ -1669,7 +1670,7 @@
         '<button type="button" role="tab" data-accio="vista-equips" aria-selected="' + !perm + '">Equips i membres</button>' +
         '<button type="button" role="tab" data-accio="vista-permisos" aria-selected="' + perm + '">Permisos</button></div>' +
       (perm ? '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Nivell de cada equip a cada mòdul: <strong>Consulta</strong> (veure i exportar), <strong>Edició</strong> (alta, baixa i modificació) o <strong>Administració</strong> (a més, camps i permisos del mòdul). «Tots els mòduls» dona el nivell a tots alhora. Si un docent és a diversos equips, val el nivell més alt. L’administració global de l’equip directiu no es pot treure des d’aquí.</p>'
-        : '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Equips de <strong>gestió</strong> (direcció, coordinacions, secretaria…) i <strong>docents</strong> (equips de nivell, departaments…). El tipus només serveix per classificar-los i filtrar-los: tots dos funcionen igual. Els membres poden ser professorat o PAS, i una persona pot ser a diversos equips. <strong>Membres</strong>: cliqueu la cel·la per afegir-ne o treure’n. Els permisos, a la pestanya <strong>Permisos</strong>. Un equip no s’esborra: es marca com a inactiu.</p>' +
+        : '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Equips de <strong>gestió</strong> (direcció, coordinacions, secretaria…) i <strong>docents</strong> (equips de nivell, departaments…). El tipus només serveix per classificar-los i filtrar-los: tots dos funcionen igual. Els membres poden ser professorat o PAS, i una persona pot ser a diversos equips. <strong>Membres</strong>: cliqueu la cel·la per afegir-ne o treure’n. Els permisos, a la pestanya <strong>Permisos</strong>. Per <strong>modificar</strong> un equip, cliqueu la cel·la (nom, tipus, descripció, actiu, grups) i deseu; el codi no es pot canviar. Per <strong>esborrar-lo</strong>, la paperera (o, per conservar-lo, Actiu = no).</p>' +
           '<span class="gs-espai"></span><button type="button" class="prog-btn" data-accio="nou-equip">+ Afegeix equip</button>');
     return perm ? pintaMatriuPermisos(r) : pintaEquips(r);
   }
@@ -1680,6 +1681,9 @@
     S.taula = new Tabulator('#gsTaula', {
       data: dadesEquips(), index: 'id_equip', layout: 'fitDataStretch', height: alcada(),
       columns: [
+        { title: '', field: '_acc', width: 46, headerSort: false, hozAlign: 'center', cssClass: 'gs-accions',
+          formatter: function (c) { return c.getRow().getData().id_equip === 'EQ-DIR' ? '' : '<span class="gs-acc"><button type="button" class="gs-perill gs-paperera" title="Esborra l’equip" aria-label="Esborra l’equip">' + PAPERERA + '</button></span>'; },
+          cellClick: function (e, cell) { if (e.target.closest('button')) esborraEquip(cell.getRow()); } },
         { title: 'Codi', field: 'id_equip', width: 130, editable: function (cell) { return cell.getRow().getData()._nou; }, editor: 'input', headerFilter: 'input', headerFilterFunc: function (f, v) { return conte(v, f); } },
         { title: 'Nom', field: 'nom', editor: 'input', minWidth: 200, headerFilter: 'input', headerFilterFunc: function (f, v) { return conte(v, f); } },
         { title: 'Tipus', field: 'tipus', editor: 'list', editorParams: { values: { gestio: 'Gestió', docent: 'Docent' } }, formatter: function (c) { return c.getValue() === 'docent' ? 'Docent' : 'Gestió'; }, headerFilter: 'list', headerFilterParams: { values: { gestio: 'Gestió', docent: 'Docent' }, clearable: true } },
@@ -1788,6 +1792,49 @@
     $('gsMemCercaFora').addEventListener('input', function () { filtra('gsMemCercaFora', 'gsMemFora'); });
     $('gsMemCercaDins').addEventListener('input', function () { filtra('gsMemCercaDins', 'gsMemDins'); });
   }
+  // PAS 34 · Equip nou: finestra amb el codi (EQ- + lletres o xifres), el nom, el tipus i la descripció; es desa en acceptar
+  function nouEquip() {
+    if (S.brut) return toast('Primer deseu o descarteu els canvis dels equips.', true);
+    var html = '<div class="gs-form-fila"><label>Codi <span class="gs-codi-eq"><span>EQ-</span><input id="gsEqCodi" maxlength="20" autocomplete="off" placeholder="ADM"></span></label></div>' +
+      '<p class="gs-ajuda" id="gsEqCodiAj">Lletres i xifres, sense espais ni accents (p. ex. ADM, CON, 1ESOA). No es podrà canviar.</p>' +
+      '<div class="gs-form-fila"><label>Nom <input id="gsEqNom" maxlength="80" autocomplete="off" placeholder="Administratives"></label></div>' +
+      '<div class="gs-form-fila"><label>Tipus <select id="gsEqTipus"><option value="gestio">Gestió (direcció, secretaria, administració, consergeria…)</option><option value="docent">Docent (equips de nivell o de grup, departaments…)</option></select></label></div>' +
+      '<div class="gs-form-fila"><label>Descripció <input id="gsEqDesc" maxlength="200" autocomplete="off"></label></div>' +
+      '<p class="prog-avis" id="gsEqErr" hidden></p>';
+    var codi = function () { return 'EQ-' + String($('gsEqCodi').value || '').toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[\s_.·]+/g, '-').replace(/[^A-Z0-9-]/g, ''); };
+    pregunta('Equip nou', html, [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Crea l’equip', valor: 1, abans: function () {
+      var c = codi(), err = '';
+      if (!/^EQ-[A-Z0-9][A-Z0-9-]{0,19}$/.test(c)) err = 'Escriviu el codi després d’EQ- (lletres o xifres).';
+      else if (S.taula.getData().some(function (q) { return q.id_equip === c; })) err = 'Ja hi ha un equip amb el codi ' + c + '.';
+      else if (!$('gsEqNom').value.trim()) err = 'Escriviu el nom de l’equip.';
+      if (err) { $('gsEqErr').textContent = err; $('gsEqErr').hidden = false; return false; }
+      nouEquip.dades = { id_equip: c, nom: $('gsEqNom').value.trim(), tipus: $('gsEqTipus').value, descripcio: $('gsEqDesc').value.trim(), actiu: 'si', grups: [] };
+    } }]).then(function (v) {
+      if (!v) return;
+      var equips = S.taula.getData().map(function (q) { return { id_equip: q.id_equip, nom: q.nom, tipus: q.tipus, descripcio: q.descripcio, actiu: q.actiu, grups: Array.isArray(q.grups) ? q.grups : String(q.grups || '').split(',').filter(Boolean) }; }).concat([nouEquip.dades]);
+      api('equips_desa', { equips: equips }, 'Creant l’equip…').then(function (r) {
+        if (!r.ok) return toast(text(r.error) + (r.id_equip ? ' (' + r.id_equip + ')' : '') + (r.camp ? ' (' + r.camp + ')' : ''), true);
+        toast('Equip ' + nouEquip.dades.id_equip + ' creat. Ara podeu afegir-hi membres i, a la pestanya Permisos, donar-li accés als mòduls.'); obreModul(S.modul);
+      });
+    });
+    $('gsEqCodi').addEventListener('input', function () { $('gsEqCodiAj').textContent = 'Codi: ' + codi() + ' · lletres i xifres, sense espais ni accents. No es podrà canviar.'; });
+    $('gsEqCodi').focus();
+  }
+  // PAS 34 · Esborrar un equip: també els seus membres i permisos (no es pot desfer). L'equip directiu no.
+  function esborraEquip(row) {
+    var q = row.getData();
+    if (S.brut) return toast('Primer deseu o descarteu els canvis dels equips.', true);
+    var nm = (q.membres_ids || []).length, np = (q.permisos || []).length;
+    pregunta('Esborrar l’equip', '<p>S’esborrarà l’equip <strong>' + esc(q.nom || q.id_equip) + '</strong> (' + esc(q.id_equip) + ')' + (nm || np ? ', amb ' + nm + (nm === 1 ? ' membre' : ' membres') + ' i ' + np + (np === 1 ? ' permís' : ' permisos') : '') + '. Les persones no s’esborren, però perden els permisos que tenien per aquest equip. <strong>No es pot desfer.</strong></p><p class="gs-ajuda">Si el voleu conservar però sense que doni accés, poseu-lo com a inactiu (Actiu = no).</p>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Esborra l’equip', valor: 1, tipus: 'danger' }]).then(function (v) {
+      if (!v) return;
+      api('equip_esborra', { id_equip: q.id_equip }, 'Esborrant l’equip…').then(function (r) {
+        if (!r.ok) return toast(text(r.error), true);
+        delete S.cache.professorat; delete S.cache.pas;
+        toast('Equip ' + r.id_equip + ' esborrat (' + r.membres + ' membres i ' + r.permisos + ' permisos).'); obreModul(S.modul);
+      });
+    });
+  }
   function desaEquips() {
     var equips = S.taula.getData().map(function (q) { return { id_equip: q.id_equip, nom: q.nom, tipus: q.tipus, descripcio: q.descripcio, actiu: q.actiu, grups: Array.isArray(q.grups) ? q.grups : String(q.grups || '').split(',').filter(Boolean) }; });
     api('equips_desa', { equips: equips }, 'Desant els equips…').then(function (r) {
@@ -1880,7 +1927,7 @@
       case 'vista-equips': case 'vista-permisos':
         if (S.brut) { toast('Primer deseu o descarteu els canvis.', true); break; }
         S.vistaEquips = b.dataset.accio === 'vista-permisos' ? 'permisos' : 'equips'; pintaVistaEquips(); break;
-      case 'nou-equip': S.taula.addRow({ _nou: true, id_equip: 'EQ-', nom: '', tipus: 'gestio', descripcio: '', actiu: 'si', grups: [], membres: [], permisos: [] }, true).then(function (row) { row.getCell('id_equip').edit(); }); marcaBrut(true); break;
+      case 'nou-equip': nouEquip(); break;
     }
   });
   $('gsBarra').addEventListener('click', function (e) {
