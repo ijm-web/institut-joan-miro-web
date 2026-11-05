@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 35 · 5 de novembre de 2026",
+  "versio": "PAS 36 · 5 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -64,7 +64,8 @@
           "Amb canvis pendents surt la barra **Canvis sense desar** damunt la graella:",
           "- **Desa els canvis**: ho comprova tot i ho desa. Si alguna dada no és vàlida, no es desa res i les cel·les queden en vermell.",
           "- **Descarta els canvis**: deixa la graella com a l'última desada (sense llegir res del full).",
-          "Si sortiu del mòdul o tanqueu la pestanya amb canvis pendents, el navegador us ho pregunta."
+          "Si sortiu del mòdul o tanqueu la pestanya amb canvis pendents, el navegador us ho pregunta.",
+          "En desar, la graella no es torna a carregar: les files desades s'actualitzen al moment i continueu treballant al mateix lloc (també a Equips i permisos, Nou professor/a, Control d'entrada i Amonestacions). Només es torna a llegir tot després de canviar els camps (Gestió camps) o de tancar el curs, perquè canvia l'estructura o totes les files."
         ]
       },
       {
@@ -603,8 +604,9 @@
           "titol": "Qui hi entra i què veu",
           "claus": "permisos professorat veure pròpies coordinació tutor",
           "text": [
-            "**Tot el professorat** hi entra, encara que el seu equip no tingui cap permís: pot redactar amonestacions i veu **les seves** (les que porten el seu nom com a professor/a).",
-            "Els equips amb permís al mòdul veuen més: **consulta** (p. ex. un equip docent amb grups) veu les dels seus grups; **edició** (coordinació) i **administració** (direcció) les veuen totes. Des d'edició es pot redactar en nom d'un altre docent i esborrar."
+            "**Tot el professorat** pot redactar amonestacions, sigui quin sigui el seu nivell al mòdul.",
+            "Amb nivell **consulta** (el de tot el professorat per defecte, encara que el seu equip tingui permís de consulta) es veuen **només les pròpies**: les que porten el seu nom com a professor/a.",
+            "Amb **edició** (coordinació) i **administració** (direcció) es veuen totes, es pot redactar en nom d'un altre docent i esborrar."
           ]
         },
         {
@@ -632,13 +634,14 @@
           "titol": "Nova amonestació",
           "claus": "nova redactar alumne professor data fets validar pdf nofc",
           "text": [
-            "**+ Nova amonestació** obre el formulari. Cada camp té una **i** amb l'explicació:",
-            "- **Alumne/a**: escriviu un cognom o el grup i trieu-lo de la llista (ESO i batxillerat, sense baixes).",
+            "**+ Nova amonestació** obre el formulari a l'instant (les dades ja arriben amb el mòdul). Cada camp té una **i** amb l'explicació:",
+            "- **Alumne/a**: escriviu un cognom, el nom o el grup (p. ex. «garcia 2n eso b»); surt un desplegable amb els resultats. Trieu-lo amb el ratolí o amb les fletxes i Enter.",
             "- **Grup-classe**: es posa sol.",
             "- **Data dels fets**: amb el calendari; no pot ser posterior a avui ni d'un altre curs.",
-            "- **Professor/a**: el vostre nom (des d'edició es pot triar un altre docent).",
             "- **Fets i circumstàncies**: text lliure i objectiu, entre 20 i 3.000 caràcters.",
-            "La data i l'hora de redacció i el curs es posen sols. **Desa** comprova les dades, desa l'amonestació i fa el **PDF** (logo del centre, referència a les NOFC 5.3 i a la Llei 12/2009, dades, fets i signatures) a la carpeta de Drive configurada. Si el PDF no es pot fer, l'amonestació queda desada i el podeu tornar a fer des del visor.",
+            "- **Professor/a**: el vostre nom (des d'edició es pot triar un altre docent).",
+            "La data i l'hora de redacció i el curs es posen sols. **Desa** comprova les dades i desa l'amonestació a l'instant. El **PDF** (logo del centre, NOFC 5.3, Llei 12/2009, dades, fets i signatures) es fa **en segon pla**: mentre es fa, la columna PDF mostra un cercle que gira i, quan acaba, surt l'enllaç i un missatge. Podeu continuar treballant.",
+            "Si el PDF no es pot fer (o tanqueu la pàgina abans que acabi), l'amonestació queda desada sense PDF: es fa des del visor (doble clic a la fila) o automàticament amb **fesPdfsPendents**.",
             "Si es prem Desa dues vegades seguides, no es duplica."
           ]
         },
@@ -665,7 +668,8 @@
           "claus": "configuració carpeta drive pdf avís criteri",
           "text": [
             "**Configuració**: la **carpeta de Drive** on es desen els PDF (ha de ser accessible per al compte que executa GESTIO; els admins hi poden editar els PDF) i el **criteri de l'avís** (ESO, batxillerat i període).",
-            "Les amonestacions del formulari de Google que es feia servir s'importen una vegada amb **importaAmonestacions** (a l'editor d'Apps Script). Si es torna a executar, no duplica."
+            "Les amonestacions del formulari de Google que es feia servir s'importen una vegada amb **importaAmonestacions** (a l'editor d'Apps Script). Si es torna a executar, no duplica.",
+            "**activaPdfsPendents** (a l'editor d'Apps Script, una vegada) crea un activador que cada hora fa el PDF de les amonestacions que se n'hagin quedat sense."
           ]
         }
       ]

@@ -319,3 +319,16 @@
 @media (max-width: 640px){ .gs-amon__form{ grid-template-columns: 1fr; } }
 .gs-informe:has(.gs-informe__taula--compacta){ width: fit-content; max-width: 100%; }
 #gsAmAlumne{ height: 140px; min-height: 0; }
+
+/* PAS 36 · cercador d'alumne amb desplegable compacte i PDF en segon pla */
+.gs-combo{ position: relative; }
+.gs-combo__llista{ position: absolute; left: 0; right: 0; top: 100%; z-index: 60; margin: 2px 0 0; padding: 4px; list-style: none; max-height: 220px; overflow: auto; background: #fff; border: 1px solid #D5D9E6; border-radius: 8px; box-shadow: 0 10px 24px rgba(20,20,60,.16); }
+.gs-combo__llista[hidden]{ display: none; }
+.gs-combo__llista li{ padding: 6px 10px; border-radius: 6px; cursor: pointer; font-size: 14px; }
+.gs-combo__llista li small{ color: #5A6070; margin-left: 6px; }
+.gs-combo__llista li.is-actiu, .gs-combo__llista li:hover{ background: #F1F0FD; color: var(--color-blue); }
+.gs-combo__cap{ color: #5A6070; cursor: default !important; }
+.gs-pdf-fent{ display: inline-block; width: 16px; height: 16px; border: 2px solid #D5D9E6; border-top-color: var(--color-blue); border-radius: 50%; animation: gsGira .8s linear infinite; vertical-align: middle; }
+@keyframes gsGira{ to { transform: rotate(360deg); } }
+/* El cercador general és flex 1 1 260px: dins d'una columna flex, aquesta base es convertia en 260 px d'alçada */
+.gs-amon__camp .gs-cerca{ flex: none; height: 38px; min-width: 0; }

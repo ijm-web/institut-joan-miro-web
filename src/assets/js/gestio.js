@@ -618,7 +618,9 @@
           formatter: function (cell) { return cell.getValue() ? '<button type="button" class="gs-ico-btn" title="Mostra els fets" aria-label="Mostra els fets">' + ICONA_TEXT + '</button>' : ''; },
           cellClick: function (e, cell) { if (e.target.closest('button')) mostraFets(cell.getRow().getData()); } });
         if (c.clau === 'pdf') Object.assign(col, { title: 'PDF', width: 60, minWidth: 54, hozAlign: 'center', headerSort: false, headerFilter: false, pdfExclou: true,
-          formatter: function (cell) { var u = cell.getValue(); return u ? '<a class="gs-ico-btn" href="' + esc(u) + '" target="_blank" rel="noopener" title="Obre el PDF (pestanya nova)" aria-label="Obre el PDF">' + ICONA_PDF + '</a>' : '<span class="gs-gris">—</span>'; } });
+          formatter: function (cell) { var u = cell.getValue(), est = cell.getRow().getData()._pdf;
+            if (u) return '<a class="gs-ico-btn" href="' + esc(u) + '" target="_blank" rel="noopener" title="Obre el PDF (pestanya nova)" aria-label="Obre el PDF">' + ICONA_PDF + '</a>';
+            return est === 'fent' ? '<span class="gs-pdf-fent" title="El PDF s’està fent en segon pla" aria-label="PDF en preparació"></span>' : '<span class="gs-gris" title="Sense PDF: feu-lo des del visor (doble clic)">—</span>'; } });
       }
       cols.push(col);
     });
@@ -1467,7 +1469,7 @@
         [['Alumne/a', d.alumne], ['Grup-Classe', d.grup + (d.nivell ? ' (' + d.nivell + ')' : '')], ['Data dels fets', dataVista(d.data_fets)], ['Professor/a', d.professor], ['Curs', d.curs], ['Redactada el', dataVista(String(d.redactat_el).slice(0, 10)) + ' ' + String(d.redactat_el).slice(11, 16)], ['Codi', d.id]]
           .map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1] || '—') + '</dd>'; }).join('') + '</dl>' +
         '<p class="gs-amon__tit">Fets i circumstàncies</p><div class="gs-amon__fets">' + esc(d.fets).replace(/\n/g, '<br>') + '</div>' +
-        '<p class="gs-amon__nav">' + (d.pdf ? '<a class="prog-btn prog-btn--ghost prog-btn--sm" href="' + esc(d.pdf) + '" target="_blank" rel="noopener">Obre el PDF</a>' : '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-amon-pdf="' + esc(d.id) + '">Fes el PDF</button>') + '</p>';
+        '<p class="gs-amon__nav">' + (d.pdf ? '<a class="prog-btn prog-btn--ghost prog-btn--sm" href="' + esc(d.pdf) + '" target="_blank" rel="noopener">Obre el PDF</a>' : d._pdf === 'fent' ? '<span class="gs-gris"><span class="gs-pdf-fent"></span> El PDF s’està fent en segon pla…</span>' : '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-amon-pdf="' + esc(d.id) + '">Fes el PDF</button>') + '</p>';
       $('gsVisAnt').disabled = i === 0; $('gsVisSeg').disabled = i === files.length - 1;
       var b = $('gsModalText').querySelector('[data-amon-pdf]'); if (b) b.addEventListener('click', function () { fesPdfAmon(d, pinta); });
     };
@@ -1526,56 +1528,98 @@
     professor: 'Docent que redacta l’amonestació (qui imparteix classe a l’alumne/a o ha estat testimoni dels fets, NOFC 5.3.3).',
     fets: 'Descripció objectiva dels fets i les circumstàncies (què, on, quan), sense valoracions personals. Entre 20 i 3.000 caràcters. Aquest text surt al PDF que rep la família.'
   };
+  // PAS 36 · Nova amonestació: el formulari arriba amb les dades del mòdul (sense espera); l'alumne es tria amb un cercador
+  // amb desplegable compacte; el professor/a va després dels fets; en desar, el PDF es fa en segon pla.
   function novaAmon(previ) {
     var obre = function (F) {
       previ = previ || {};
       var lab = function (id, t, k, oblig) { return '<label for="' + id + '">' + t + (oblig ? ' <span class="gs-oblig">*</span>' : '') + ' <span class="gs-info" aria-hidden="true" data-info="' + esc(INFO_AMON[k]) + '">i</span></label>'; };
-      var opcions = function (q) { q = plega(q); return F.alumnes.filter(function (a) { return !q || plega(a.nom + ' ' + a.grup).indexOf(q) >= 0; }).slice(0, 300).map(function (a) { return '<option value="' + esc(a.id) + '"' + (a.id === previ.id_alumne ? ' selected' : '') + '>' + esc(a.nom) + ' — ' + esc(a.grup || a.nivell || '') + '</option>'; }).join(''); };
+      var triat = F.alumnes.filter(function (a) { return a.id === previ.id_alumne; })[0] || null;
+      var etiqueta = function (a) { return a.nom + ' — ' + (a.grup || a.nivell || ''); };
       var html = '<div class="gs-amon__form">' +
-        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmCerca', 'Alumne/a', 'alumne', true) + '<input type="search" id="gsAmCerca" class="gs-cerca" placeholder="Escriviu un cognom o el grup…" autocomplete="off" aria-describedby="gsAmInfoAlu"><span class="gs-sr" id="gsAmInfoAlu">' + esc(INFO_AMON.alumne) + '</span>' +
-          '<select id="gsAmAlumne" size="6" class="gs-ent-llista" aria-label="Alumne/a">' + opcions('') + '</select></div>' +
-        '<div class="gs-amon__camp">' + lab('gsAmGrup', 'Grup-classe', 'grup') + '<input id="gsAmGrup" readonly tabindex="-1" placeholder="(es posa sol)"></div>' +
+        '<div class="gs-amon__camp gs-amon__camp--ample gs-combo">' + lab('gsAmCerca', 'Alumne/a', 'alumne', true) +
+          '<input type="search" id="gsAmCerca" class="gs-cerca" placeholder="Escriviu un cognom, el nom o el grup…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="gsAmLlista" aria-autocomplete="list" aria-describedby="gsAmInfoAlu" value="' + esc(triat ? etiqueta(triat) : '') + '">' +
+          '<span class="gs-sr" id="gsAmInfoAlu">' + esc(INFO_AMON.alumne) + '</span>' +
+          '<ul id="gsAmLlista" class="gs-combo__llista" role="listbox" hidden></ul></div>' +
+        '<div class="gs-amon__camp">' + lab('gsAmGrup', 'Grup-classe', 'grup') + '<input id="gsAmGrup" readonly tabindex="-1" placeholder="(es posa sol)" value="' + esc(triat ? triat.grup || triat.nivell || '' : '') + '"></div>' +
         '<div class="gs-amon__camp">' + lab('gsAmData', 'Data dels fets', 'data', true) + '<input type="date" id="gsAmData" max="' + esc(F.avui) + '" min="' + esc(String(F.curs).slice(0, 4) + '-09-01') + '" value="' + esc(previ.data_fets || F.avui) + '"></div>' +
+        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmFets', 'Fets i circumstàncies', 'fets', true) + '<textarea id="gsAmFets" rows="7" maxlength="3000" placeholder="Descriviu els fets de manera objectiva…">' + esc(previ.fets || '') + '</textarea><small class="gs-gris" id="gsAmCompte"></small></div>' +
         '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmProf', 'Professor/a', 'professor', true) + '<select id="gsAmProf"' + (F.triar_professor ? '' : ' disabled') + '>' + (F.triar_professor ? '<option value="">— Trieu el professor/a —</option>' : '') +
           F.professorat.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === (previ.id_professor || F.jo) ? ' selected' : '') + '>' + esc(p.nom) + '</option>'; }).join('') + '</select></div>' +
-        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmFets', 'Fets i circumstàncies', 'fets', true) + '<textarea id="gsAmFets" rows="7" maxlength="3000" placeholder="Descriviu els fets de manera objectiva…">' + esc(previ.fets || '') + '</textarea><small class="gs-gris" id="gsAmCompte"></small></div>' +
-        '<p class="gs-ajuda gs-amon__camp--ample">La data i l’hora de redacció i el curs escolar es posen sols. En desar es fa el PDF per a la família (amb el logo del centre i la referència a les NOFC) i es desa a la carpeta de Drive de les amonestacions.</p>' +
+        '<p class="gs-ajuda gs-amon__camp--ample">La data i l’hora de redacció i el curs escolar es posen sols. En desar, el PDF per a la família (amb el logo del centre i la referència a les NOFC) es fa en segon pla i es desa a la carpeta de Drive de les amonestacions.</p>' +
         '<p class="prog-avis gs-amon__camp--ample" id="gsAmErr"' + (previ.error ? '' : ' hidden') + '>' + esc(previ.error || '') + '</p></div>';
       var err = function (t, el) { $('gsAmErr').textContent = t; $('gsAmErr').hidden = false; if (el) el.focus(); return false; };
       pregunta('Nova amonestació', html, [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa', valor: 1, abans: function () {
-        var v = { id_alumne: $('gsAmAlumne').value, id_professor: $('gsAmProf').value, data_fets: $('gsAmData').value, fets: $('gsAmFets').value.trim() };
+        var v = { id_alumne: triat ? triat.id : '', id_professor: $('gsAmProf').value, data_fets: $('gsAmData').value, fets: $('gsAmFets').value.trim(), pdf_despres: true };
         if (!v.id_alumne) return err(text('alumne_invalid'), $('gsAmCerca'));
         if (!v.data_fets || !/^\d{4}-\d{2}-\d{2}$/.test(v.data_fets)) return err('Trieu la data dels fets.', $('gsAmData'));
         if (v.data_fets > F.avui) return err(text('data_futura'), $('gsAmData'));
-        if (!v.id_professor) return err(text('professor_invalid'), $('gsAmProf'));
         if (v.fets.length < 20) return err(text('fets_curts'), $('gsAmFets'));
         if (!/[A-Za-zÀ-ÿ]{3,}/.test(v.fets)) return err(text('fets_invalids'), $('gsAmFets'));
+        if (!v.id_professor) return err(text('professor_invalid'), $('gsAmProf'));
         novaAmon.v = v;
       } }], false).then(function (ok) {
         if (!ok) return;
         var v = novaAmon.v;
-        api('amonestacio_nova', v, 'Desant l’amonestació i fent el PDF…').then(function (r) {
+        api('amonestacio_nova', v, 'Desant l’amonestació…').then(function (r) {
           if (!r.ok) { v.error = text(r.error); return novaAmon(v); }
-          var f = r.fila; S.d.files.push(copia(f)); S.taula.addRow(copia(f), true).then(aplicaFiltre); pintaAvisAmon();
+          var f = r.fila;
+          if (!f.pdf && !r.repetida) f._pdf = 'fent';
+          S.d.files.push(copia(f)); S.taula.addRow(copia(f), true).then(aplicaFiltre); pintaAvisAmon();
           if (S.d.versio) S.d.versio = { data: f.redactat_el, per: S.sessio.email };
           var av = (S.avisAmon || {})[f.id_alumne || plega(f.alumne)];
-          pregunta('Amonestació desada', '<p>' + (r.repetida ? 'Aquesta amonestació ja s’havia desat fa un moment: no s’ha duplicat.' : 'Amonestació de <strong>' + esc(f.alumne) + '</strong> (' + esc(f.grup) + ') desada amb el codi <strong>' + esc(f.id) + '</strong>.') + '</p>' +
-            (f.pdf ? '<p><a class="prog-btn" href="' + esc(f.pdf) + '" target="_blank" rel="noopener">Obre el PDF</a></p>' : '<p class="prog-avis">No s’ha pogut fer el PDF' + (r.error_pdf ? ' (' + esc(r.error_pdf) + ')' : '') + '. L’amonestació està desada: el podeu tornar a provar des del visor (doble clic a la fila).</p>') +
-            (av ? '<p class="prog-avis">Avís: ' + esc(f.alumne) + ' ja té ' + av + ' amonestacions ' + esc(textPeriodeAmon()) + '.</p>' : ''), [{ t: 'Tanca', valor: 1 }]);
+          toast(r.repetida ? 'Aquesta amonestació ja s’havia desat fa un moment: no s’ha duplicat.' : 'Amonestació ' + f.id + ' desada (' + f.alumne + '). El PDF es fa en segon pla.');
+          if (av) pregunta('Avís d’amonestacions', '<p class="prog-avis">' + esc(f.alumne) + ' ja té ' + av + ' amonestacions ' + esc(textPeriodeAmon()) + '.</p>', [{ t: 'Entesos', valor: 1 }]);
+          if (f._pdf === 'fent') pdfEnSegonPla(f);
         });
       });
-      var c = $('gsAmCerca'), sel = $('gsAmAlumne');
-      var posaGrup = function () { var a = F.alumnes.filter(function (x) { return x.id === sel.value; })[0]; $('gsAmGrup').value = a ? a.grup || a.nivell || '' : ''; };
-      c.addEventListener('input', function () { sel.innerHTML = opcions(c.value); if (c.value.trim() && sel.options.length) sel.selectedIndex = 0; posaGrup(); });
-      c.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); sel.focus(); if (sel.selectedIndex < 0 && sel.options.length) sel.selectedIndex = 0; } });
-      sel.addEventListener('change', posaGrup); posaGrup();
-      ['gsAmCerca', 'gsAmData', 'gsAmProf', 'gsAmFets'].forEach(function (id) { $(id).addEventListener('input', function () { $('gsAmErr').hidden = true; }); });
+      // Cercador amb desplegable: com a màxim 50 resultats, fletxes per moure's, Enter o clic per triar
+      var c = $('gsAmCerca'), ll = $('gsAmLlista'), res = [], act = -1;
+      var tanca = function () { ll.hidden = true; c.setAttribute('aria-expanded', 'false'); };
+      var marca = function (i) { act = i; [].forEach.call(ll.children, function (li, j) { li.classList.toggle('is-actiu', j === i); li.setAttribute('aria-selected', j === i ? 'true' : 'false'); if (j === i) li.scrollIntoView({ block: 'nearest' }); }); };
+      var tria = function (a) { triat = a; c.value = a ? etiqueta(a) : ''; $('gsAmGrup').value = a ? a.grup || a.nivell || '' : ''; tanca(); $('gsAmErr').hidden = true; };
+      var cerca = function () {
+        var q = plega(c.value.trim()); triat = null; $('gsAmGrup').value = '';
+        if (!q) { tanca(); return; }
+        var mots = q.split(/\s+/);
+        res = F.alumnes.filter(function (a) { var t = plega(a.nom + ' ' + (a.grup || '')); return mots.every(function (m) { return t.indexOf(m) >= 0; }); }).slice(0, 50);
+        ll.innerHTML = res.length ? res.map(function (a, i) { return '<li role="option" id="gsAmOp' + i + '" data-i="' + i + '">' + esc(a.nom) + ' <small>' + esc(a.grup || a.nivell || '') + '</small></li>'; }).join('') : '<li class="gs-combo__cap">Cap alumne amb aquest text</li>';
+        ll.hidden = false; c.setAttribute('aria-expanded', 'true'); marca(res.length ? 0 : -1);
+      };
+      c.addEventListener('input', cerca);
+      c.addEventListener('keydown', function (e) {
+        if (ll.hidden) { if (e.key === 'ArrowDown' && c.value) { e.preventDefault(); cerca(); } return; }
+        if (e.key === 'ArrowDown') { e.preventDefault(); marca(Math.min(act + 1, res.length - 1)); }
+        else if (e.key === 'ArrowUp') { e.preventDefault(); marca(Math.max(act - 1, 0)); }
+        else if (e.key === 'Enter') { e.preventDefault(); e.stopPropagation(); if (res[act]) { tria(res[act]); $('gsAmData').focus(); } }
+        else if (e.key === 'Escape') { e.stopPropagation(); tanca(); }
+      });
+      ll.addEventListener('mousedown', function (e) { var li = e.target.closest('li[data-i]'); if (!li) return; e.preventDefault(); tria(res[Number(li.dataset.i)]); $('gsAmData').focus(); });
+      c.addEventListener('blur', function () { setTimeout(tanca, 120); });
+      ['gsAmData', 'gsAmProf', 'gsAmFets'].forEach(function (id) { $(id).addEventListener('input', function () { $('gsAmErr').hidden = true; }); });
       var compta = function () { var n = $('gsAmFets').value.trim().length; $('gsAmCompte').textContent = n + ' / 3.000 caràcters' + (n && n < 20 ? ' (mínim 20)' : ''); };
       $('gsAmFets').addEventListener('input', compta); compta();
       setTimeout(function () { (previ.id_alumne ? $('gsAmFets') : c).focus(); }, 0);
     };
-    if (S.formAmon) return obre(S.formAmon);
+    var F = S.formAmon || (S.d && S.d.form);
+    if (F) { S.formAmon = F; return obre(F); }
     api('amonestacio_form', {}, 'Preparant el formulari…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.formAmon = r; obre(r); });
+  }
+  // PAS 36 · PDF en segon pla: la fila ja és desada; la icona del PDF mostra «en preparació» fins que arriba l'enllaç.
+  // Si falla (o es tanca la pàgina abans), la fila queda sense PDF i es pot fer des del visor; fesPdfsPendents també els fa.
+  function pdfEnSegonPla(f, intent) {
+    intent = intent || 1;
+    api('amonestacio_pdf', { id: f.id }).then(function (r) {
+      var posa = function (canvis) {
+        var row = S.taula && esAmon() ? S.taula.getRow(f.id) : null; if (row) row.update(canvis);
+        var x = S.d && S.d.files ? S.d.files.filter(function (y) { return y.id === f.id; })[0] : null; if (x) Object.assign(x, canvis);
+        var c = S.cache.amonestacions; if (c && c !== S.d) { var y = c.files.filter(function (z) { return z.id === f.id; })[0]; if (y) Object.assign(y, canvis); }
+      };
+      if (r.ok) { posa({ pdf: r.pdf, _pdf: '' }); toast('PDF de l’amonestació ' + f.id + ' fet.'); return; }
+      if (intent < 2 && r.error === 'error_servidor') return setTimeout(function () { pdfEnSegonPla(f, intent + 1); }, 3000);
+      posa({ _pdf: 'error' });
+      toast('No s’ha pogut fer el PDF de l’amonestació ' + f.id + '. Està desada: el podeu fer des del visor (doble clic a la fila).', true);
+    });
   }
 
   // PAS 33 · CONTROL D'ENTRADA · Avís de retards: alumnes amb «quantitat» entrades o més dins del període (comptat fins avui)
@@ -1791,7 +1835,9 @@
     if (bons.indexOf(false) >= 0) { var primer = document.querySelector('#gsNouForm .is-error'); if (primer) primer.focus(); return toast('Reviseu els camps marcats en vermell.', true); }
     api('alta_professor', { valors: valorsNou() }, 'Desant el docent nou…').then(function (r) {
       if (r.ok) {
-        S.brut = false; delete S.cache.professorat; toast('Docent desat: ' + r.id + '.'); var v = valorsNou();
+        // PAS 36: el docent nou s'afegeix al professorat ja carregat (sense tornar-lo a llegir)
+        S.brut = false; if (S.cache.professorat && r.valors) S.cache.professorat.files.push(Object.assign({ id: r.id, data: r.data || '', desat_per: S.sessio.email, equips: [] }, r.valors));
+        toast('Docent desat: ' + r.id + '.'); var v = valorsNou();
         S.nouArribada = (r.valors && r.valors.data_arribada_centre) || new Date().toISOString().slice(0, 10);
         pintaNouProfessor(r.id); campsForm().forEach(function (c) { var el = $('gsNou_' + c.clau); if (el) el.value = v[c.clau] || ''; });
         if (r.valors && r.valors.carrec && $('gsNou_carrec')) $('gsNou_carrec').value = r.valors.carrec;
@@ -1965,7 +2011,7 @@
     if (!canvis.length) return marcaBrut(false);
     api('permisos_matriu_desa', { canvis: canvis }, 'Desant els permisos…').then(function (r) {
       if (!r.ok) return toast(text(r.error) + (r.id_equip ? ' (' + r.id_equip + ')' : ''), true);
-      S.cache = {};   // els nivells poden haver canviat a qualsevol mòdul
+      // PAS 36: qui desa els permisos és administrador global (nivell admin a tot arreu): els seus mòduls ja carregats no canvien
       // PAS 35: sense tornar a carregar: s'actualitzen les dades del navegador
       canvis.forEach(function (c) {
         var q = S.d.r.equips.filter(function (x) { return x.id_equip === c.id_equip; })[0]; if (!q) return;
@@ -2018,7 +2064,9 @@
       if (!v) return;
       api('membres_desa', { id_equip: q.id_equip, membres: sel }, 'Desant els membres…').then(function (r2) {
         if (!r2.ok) return toast(text(r2.error), true);
-        delete S.cache.professorat; delete S.cache.pas;   // la columna Equips del professorat ha canviat
+        // PAS 36: la columna Equips del professorat i del PAS ja carregats s'actualitza aquí (sense tornar-los a llegir)
+        ['professorat', 'pas'].forEach(function (m) { var c = S.cache[m]; if (!c) return; c.files.forEach(function (f) {
+          var e = (f.equips || []).filter(function (x) { return x !== q.id_equip; }); if (sel.indexOf(f.id) >= 0) e.push(q.id_equip); f.equips = e; }); });
         // PAS 35: sense tornar a carregar: s'actualitza la fila de l'equip
         var noms = sel.map(function (id) { var p = prof.filter(function (x) { return x.id === id; })[0]; return p ? p.nom : id; });
         var o = S.d.r.equips.filter(function (x) { return x.id_equip === q.id_equip; })[0]; if (o) { o.membres = noms; o.membres_ids = sel.slice(); }
@@ -2076,7 +2124,7 @@
       if (!v) return;
       api('equip_esborra', { id_equip: q.id_equip }, 'Esborrant l’equip…').then(function (r) {
         if (!r.ok) return toast(text(r.error), true);
-        delete S.cache.professorat; delete S.cache.pas;
+        ['professorat', 'pas'].forEach(function (m) { var c = S.cache[m]; if (c) c.files.forEach(function (f) { f.equips = (f.equips || []).filter(function (x) { return x !== r.id_equip; }); }); });
         S.d.r.equips = S.d.r.equips.filter(function (x) { return x.id_equip !== r.id_equip; }); row.delete();
         toast('Equip ' + r.id_equip + ' esborrat (' + r.membres + ' membres i ' + r.permisos + ' permisos).');
       });
@@ -2145,7 +2193,7 @@
   // PAS 30: el requadre de la (i) s'obre cap a dins si la icona és a prop de la vora de la zona visible
   var posaInfo = function (e) {
     var i = e.target && e.target.closest && e.target.closest('.gs-info'); if (!i) return;
-    var r = i.getBoundingClientRect(), cont = i.closest('#gsTaula') || document.body, rc = cont.getBoundingClientRect();
+    var r = i.getBoundingClientRect(), cont = i.closest('#gsTaula, .prog-modal__box') || document.body, rc = cont.getBoundingClientRect();
     var w = Math.min(260, window.innerWidth * 0.8), mig = r.left + r.width / 2, esq = Math.max(0, rc.left), dre = Math.min(window.innerWidth, rc.right);
     i.classList.toggle('gs-info--esq', mig - w / 2 < esq + 8);
     i.classList.toggle('gs-info--dre', !(mig - w / 2 < esq + 8) && mig + w / 2 > dre - 8);

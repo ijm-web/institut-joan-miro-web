@@ -220,6 +220,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
   - Graella: període (curs actual / tots / data a data), fets amb icona, PDF amb icona, doble clic → visor amb navegació, Anàlisi per alumne/grup/nivell/professor, Excel/PDF de les files visibles. Sense «Visualització camps» ni «Gestió camps».
   - Requereix autoritzar permisos nous (UrlFetch per al logo, Drive per crear PDF).
 
+## PAS 36
+- **Sense recàrregues en desar**: desa (tots els mòduls), equips, membres, permisos, nou professor/a, control d'entrada i amonestacions actualitzen les dades del navegador. Permisos ja no buida la memòria dels altres mòduls (qui els desa és admin global); membres i esborrar equip actualitzen la columna Equips del professorat i del PAS carregats; el docent nou s'afegeix al professorat carregat. Es torna a llegir només després de «Gestió camps» i del tancament de curs.
+- **Amonestacions · formulari**: `dades` porta `form` (alumnes, professorat, avui, curs): obrir-lo no fa cap crida. Cercador d'alumne amb desplegable compacte (màx. 50 resultats; fletxes + Enter). Professor/a després dels fets. La (i) s'obre cap a dins també als formularis en finestra. Corregit: el cercador general (`.gs-cerca`, flex 1 1 260px) feia 260 px d'alçada dins d'una columna flex.
+- **PDF en segon pla**: `amonestacio_nova` amb `pdf_despres` desa sense fer el PDF; el web crida tot seguit `amonestacio_pdf` sense finestra de progrés (icona que gira a la columna PDF). **fesPdfsPendents** fa els que faltin (màx. 25 per execució; no els importats) i **activaPdfsPendents** el programa cada hora.
+- **Permisos**: consulta = només les pròpies (també si l'equip té permís de consulta amb grups); edició/admin = totes. Tot el professorat (PRO-) pot redactar, sigui quin sigui el nivell.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

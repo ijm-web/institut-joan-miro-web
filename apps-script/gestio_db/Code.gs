@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 35;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 36;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -525,8 +525,9 @@ function context_(email) {
     if (n < 0 && modul === 'amonestacions' && p && /^PRO-/.test(String(p.id))) return 'consulta';
     return n >= 0 ? NIVELLS[n] : '';
   };
-  // Amonestacions: qui no hi té cap permís d'equip (nivell implícit) només veu les que ha redactat
-  const nomesPropies = (modul) => modul === 'amonestacions' && !global && !perms.some((r) => r.id_modul === modul || r.id_modul === '*');
+  // Amonestacions (PAS 36): amb nivell consulta (el de tot el professorat) només es veuen les pròpies; des d'edició
+  // (coordinació) i administració, totes
+  const nomesPropies = (modul) => modul === 'amonestacions' && NIVELLS.indexOf(nivell(modul)) < NIVELLS.indexOf('edicio');
   // PAS 30: si tots els permisos d'un mòdul venen d'equips amb «grups» (p. ex. l'equip docent de 1r ESO A), la persona
   // només veu les files d'aquests grups. Qui té algun permís sense grups (coordinació, direcció) ho veu tot.
   const abast = (modul) => {
@@ -575,7 +576,7 @@ function dades_(ctx, modul) {
   const files = llegeixFull_(fullModul_(M, tots))
     // Qui no pot veure l'estat (p. ex. consulta del professorat) només veu les files que no són de baixa
     .filter((r) => veuEstat || !deBaixa_(r))
-    // PAS 30: equips docents → només els seus grups (PAS 35: i, a les amonestacions, també les que ha redactat)
+    // PAS 30: equips docents → només els seus grups (a les amonestacions, també les pròpies)
     .filter((r) => !ab || !cg || dinsAbast_(ab, r[cg]) || propiaAmon_(ctx, modul, r))
     // PAS 35: amonestacions amb el nivell implícit del professorat → només les que ha redactat
     .filter((r) => !(ctx.nomesPropies && ctx.nomesPropies(modul)) || propiaAmon_(ctx, modul, r))
@@ -596,6 +597,8 @@ function dades_(ctx, modul) {
     avis_amon: modul === 'amonestacions' ? Object.assign(avisAmonCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
     nomes_propies: ctx.nomesPropies ? ctx.nomesPropies(modul) : false,
     pot_crear: modul === 'amonestacions' ? potRedactar_(ctx) : undefined,
+    // PAS 36: el formulari de «Nova amonestació» arriba amb les dades: obrir-lo no fa cap altra crida
+    form: modul === 'amonestacions' && potRedactar_(ctx) ? amonestacioForm_(ctx) : undefined,
     pot_historial: !M.registre && pot_(ctx, modul, 'edicio'),
     camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips };
 }
@@ -836,9 +839,10 @@ function historialFila_(ctx, req) {
 // ------------------------------------------------------------------ PAS 35 · AMONESTACIONS
 // Qui pot redactar: tot el professorat (actiu) i qui té edició al mòdul. Qui té edició pot triar el professor/a; la resta, ell mateix.
 const propiaAmon_ = (ctx, modul, r) => modul === 'amonestacions' && ((ctx.persona && String(r.id_professor) === String(ctx.persona.id)) || String(r.desat_per).toLowerCase() === ctx.email);
+// PAS 36: tot el professorat pot redactar, sigui quin sigui el seu nivell al mòdul
 function potRedactar_(ctx) {
   if (pot_(ctx, 'amonestacions', 'edicio')) return true;
-  return !!(ctx.persona && /^PRO-/.test(String(ctx.persona.id)) && pot_(ctx, 'amonestacions', 'consulta'));
+  return !!(ctx.persona && /^PRO-/.test(String(ctx.persona.id)));
 }
 const cursDeData_ = (iso) => { const m = /^(\d{4})-(\d{2})/.exec(String(iso || '')); if (!m) return ''; const y = Number(m[1]); return Number(m[2]) >= 9 ? y + '-' + (y + 1) : (y - 1) + '-' + y; };
 function avisAmonCfg_(cfg) {
@@ -902,6 +906,8 @@ function amonestacioNova_(ctx, req) {
     historial_(ctx.email, 'amonestacio', M.full, o[M.id], a.id + ' · ' + data);
     marcaVersio_('amonestacions', ctx.email);
   } finally { lock.releaseLock(); }
+  // PAS 36: el web demana el PDF a part (pdf_despres), en segon pla, perquè desar sigui immediat
+  if (req.pdf_despres) return { ok: true, fila: Object.assign({ id: o[M.id] }, o), pdf_pendent: true };
   // El PDF es fa després de desar: si no es pot fer (carpeta sense accés…), l'amonestació queda desada igualment
   let errPdf = '';
   try { o.pdf = creaPdfAmonestacio_(o, ctx.cfg); posaCampAmon_(o[M.id], 'pdf', o.pdf); } catch (e) { errPdf = String(e && e.message || e); Logger.log('PDF amonestació ' + o[M.id] + ': ' + errPdf); }
@@ -923,6 +929,21 @@ function amonestacioPdf_(ctx, req) {
   if (r.pdf && !req.refes) return { ok: true, pdf: r.pdf };
   try { const url = creaPdfAmonestacio_(r, ctx.cfg); posaCampAmon_(id, 'pdf', url); marcaVersio_('amonestacions', ctx.email); return { ok: true, pdf: url }; }
   catch (e) { return { ok: false, error: 'pdf_error', detall: String(e && e.message || e).slice(0, 200) }; }
+}
+// PAS 36 · Execució manual (o activador cada hora amb activaPdfsPendents): fa el PDF de les amonestacions que no en tenen
+// (p. ex. si es va tancar la pàgina abans que s'acabés de fer en segon pla). Com a màxim 25 per execució.
+function fesPdfsPendents() {
+  const cfg = llegeixConfig_(), M = MODULS.amonestacions;
+  const pendents = llegeixFull_(fullModul_(M, campsDe_('amonestacions', true))).filter((r) => !r.pdf && r.id_alumne && r.desat_per !== 'importació').slice(0, 25);
+  let fets = 0;
+  pendents.forEach((r) => { try { posaCampAmon_(String(r[M.id]), 'pdf', creaPdfAmonestacio_(r, cfg)); fets++; } catch (e) { Logger.log('PDF ' + r[M.id] + ': ' + (e && e.message || e)); } });
+  if (fets) marcaVersio_('amonestacions', 'pdf automàtic');
+  Logger.log('PDF pendents: ' + pendents.length + ' · fets: ' + fets);
+}
+function activaPdfsPendents() {
+  ScriptApp.getProjectTriggers().filter((t) => t.getHandlerFunction() === 'fesPdfsPendents').forEach((t) => ScriptApp.deleteTrigger(t));
+  ScriptApp.newTrigger('fesPdfsPendents').timeBased().everyHours(1).create();
+  Logger.log('Activador creat: fesPdfsPendents cada hora.');
 }
 // Configuració (admin del mòdul): carpeta dels PDF i avís
 function amonestacionsConfig_(ctx, req) {
