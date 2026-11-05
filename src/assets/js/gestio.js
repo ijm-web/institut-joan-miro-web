@@ -645,6 +645,7 @@
         var d = row.getData(); var el = row.getElement(); el.classList.toggle('gs-baixa', deBaixa(d)); el.classList.toggle('gs-nova', String(d.id).indexOf('nou-') === 0);
         el.classList.toggle('gs-sense-ant', esAlumnat() && senseGrupAnterior(d));
         el.classList.toggle('gs-prova', esProva(d));
+        el.classList.toggle('gs-desant', !!d._desant);
         // PAS 33: amb el filtre d'incompletes, els camps buits es marquen
         if (S.nomesIncompletes) { var buits = buitsDe(d); row.getCells().forEach(function (ce) { ce.getElement().classList.toggle('gs-buit', buits.indexOf(ce.getField()) >= 0 && incompleta(d)); }); }
         else row.getCells().forEach(function (ce) { ce.getElement().classList.remove('gs-buit'); });
@@ -1682,13 +1683,22 @@
         '<select id="gsEntAlumne" size="12" class="gs-ent-llista" aria-label="Alumne">' + opcions('') + '</select>',
         [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa l’entrada', valor: 1, abans: function () { novaEntrada.id = $('gsEntAlumne').value; if (!novaEntrada.id) { toast('Trieu un alumne de la llista.', true); return false; } } }], false).then(function (v) {
         if (!v) return;
-        api('entrada_nova', { id_alumne: novaEntrada.id }, 'Desant l’entrada…').then(function (r) {
-          if (!r.ok) return toast(text(r.error), true);
+        // PAS 37: la fila surt a l'instant (provisional, en gris) i es confirma quan respon el servidor, sense finestra d'espera:
+        // es poden registrar diversos alumnes seguits. Si el servidor diu que no, la fila provisional es treu i surt l'error.
+        var a = llista.filter(function (x) { return x.id === novaEntrada.id; })[0] || {}, ara = new Date();
+        var tmp = 'desant-' + Date.now() + '-' + Math.random().toString(36).slice(2, 6);
+        var prov = { id: tmp, _desant: true, alumne: a.nom, nivell: a.nivell, grup: a.grup, id_alumne: a.id, data: isoDe(ara), hora: ('0' + ara.getHours()).slice(-2) + ':' + ('0' + ara.getMinutes()).slice(-2) };
+        S.taula.addRow(copia(prov), true).then(aplicaFiltre);
+        toast('Desant l’entrada de ' + a.nom + '…');
+        api('entrada_nova', { id_alumne: novaEntrada.id }).then(function (r) {
+          var rp = S.taula && S.modul.id === 'control_entrada' ? S.taula.getRow(tmp) : null;
+          if (!r.ok) { if (rp) rp.delete(); return toast('No s’ha desat l’entrada de ' + a.nom + ': ' + text(r.error), true); }
           var f = r.fila; S.d.files.push(copia(f));
+          if (rp) { rp.delete(); S.taula.addRow(copia(f), true).then(aplicaFiltre); }
           pintaRetards();
           var av = (S.avisRetards || {})[f.id_alumne || plega(f.alumne)];
           if (av) setTimeout(function () { toast('Avís: ' + f.alumne + ' ja té ' + av + ' retards en ' + S.d.retards.periode + '.', true); }, 400);
-          S.taula.addRow(copia(f), true).then(aplicaFiltre); if (S.d.versio && r.fila) S.d.versio = { data: f.data + ' ' + f.hora, per: S.sessio.email };
+          if (S.d.versio && r.fila) S.d.versio = { data: f.data + ' ' + f.hora, per: S.sessio.email };
           toast('Entrada registrada: ' + f.alumne + ' · ' + f.hora + '.');
         });
       });
@@ -1703,6 +1713,7 @@
       sel.addEventListener('dblclick', function () { if (sel.value) $('gsModalBtns').lastChild.click(); });
       setTimeout(function () { c.focus(); }, 0);
     };
+    if (!S.alumnesEntrada && S.d && S.d.alumnes_entrada) S.alumnesEntrada = S.d.alumnes_entrada;
     if (S.alumnesEntrada) return obre(S.alumnesEntrada);
     api('entrada_alumnes', {}, 'Carregant l’alumnat…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.alumnesEntrada = r.alumnes; obre(r.alumnes); });
   }

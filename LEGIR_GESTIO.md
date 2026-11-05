@@ -230,6 +230,8 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Amonestacions · professor/a**: es posa sol (qui ha entrat a GESTIO) en un camp de només lectura amb l'explicació. Només l'**administració** del mòdul pot triar un altre docent (abans, també edició); el servidor ignora `id_professor` si no és admin.
 - **Corregit**: el desplegable del professor/a quedava buit per a les fitxes de prova («Test, Profe»), perquè la llista excloïa les proves; ara qui redacta sempre hi surt.
 
+- **Control d'entrada · velocitat**: `dades` porta `alumnes_entrada` (obrir «Nova entrada» no fa cap crida). Desar és optimista: la fila surt provisional (`gs-desant`) i `entrada_nova` va sense finestra de progrés. Al servidor, `entradaNova_` busca només l'alumne (`alumnePerId_`, TextFinder a la columna del codi) en lloc de llegir tot l'alumnat, no revisa les columnes de la pestanya a cada entrada, i `ssAlumnat_` obre ijm_alumnat_db una sola vegada per petició (millora també la resta de mòduls).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

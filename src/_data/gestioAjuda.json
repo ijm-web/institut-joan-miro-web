@@ -568,8 +568,9 @@
           "titol": "Nova entrada",
           "claus": "nova entrada registrar retard alumne triar",
           "text": [
-            "Des d'edició, **+ Nova entrada** obre una finestra amb tot l'alumnat (ESO i batxillerat, sense les baixes) per ordre de 1r i 2n cognom. Escriviu un cognom o el grup per trobar-lo; el primer resultat queda triat i **Enter** desa.",
-            "En desar es registra el nom complet, el nivell i el grup-classe que té l'alumne en aquell moment, i la data i l'hora d'ara.",
+            "Des d'edició, **+ Nova entrada** s'obre a l'instant (l'alumnat ja arriba amb el mòdul): tot l'alumnat (ESO i batxillerat, sense les baixes) per ordre de 1r i 2n cognom. Escriviu un cognom o el grup per trobar-lo; el primer resultat queda triat i **Enter** desa.",
+            "En desar, la finestra es tanca de seguida i l'entrada surt a dalt de la graella **en gris** mentre es desa; quan el servidor la confirma, queda normal i surt «Entrada registrada». Podeu registrar diversos alumnes seguits sense esperar. Si no s'ha pogut desar, la fila provisional desapareix i surt el motiu.",
+            "Es registra el nom complet, el nivell i el grup-classe que té l'alumne en aquell moment, i la data i l'hora del servidor.",
             "Una entrada feta per error s'esborra amb la **paperera** de la fila (queda a l'historial)."
           ]
         },

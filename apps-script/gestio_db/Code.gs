@@ -386,10 +386,12 @@ const MODULS = {
   control_entrada: { full: FULL.ent, id: 'id_entrada', prefix: 'ENT-', xifres: 6, equips: false, nom: 'entrada', registre: true, ss: () => ssAlumnat_() },
   amonestacions: { full: FULL.amo, id: 'id_amonestacio', prefix: 'AMO-', xifres: 5, equips: false, nom: 'amonestació', registre: true, ss: () => ssAlumnat_() },
 };
+// PAS 37: el fitxer s'obre una sola vegada per petició (abans, cada lectura d'alumnat el tornava a obrir)
+const SS_OBERTS_ = {};
 function ssAlumnat_() {
   const id = (String(llegeixConfig_().db_alumnat || '').match(/[-\w]{25,}/) || [''])[0];
   if (!id) throw new Error('db_alumnat_no_configurat');
-  return SpreadsheetApp.openById(id);
+  return SS_OBERTS_[id] || (SS_OBERTS_[id] = SpreadsheetApp.openById(id));
 }
 // Nivell d'un alumne: 1 (1r ESO) … 4 (4t ESO); el camp «nivell» i, si és buit, el grup actual
 const nivellAlumne_ = (v) => nivellIdx_('alumnat', v);
@@ -593,6 +595,8 @@ function dades_(ctx, modul) {
     abast: ab && cg ? ab : undefined,
     versio: versio_(modul),
     completesa: COMPLETESA[modul] ? COMPLETESA[modul].filter((k) => camps.some((c) => c.clau === k)) : undefined,
+    // PAS 37: l'alumnat de «Nova entrada» arriba amb les dades (obrir la finestra no fa cap altra crida)
+    alumnes_entrada: modul === 'control_entrada' && pot_(ctx, modul, 'edicio') ? entradaAlumnes_(ctx).alumnes : undefined,
     retards: modul === 'control_entrada' ? Object.assign(retardsCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
     avis_amon: modul === 'amonestacions' ? Object.assign(avisAmonCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
     nomes_propies: ctx.nomesPropies ? ctx.nomesPropies(modul) : false,
@@ -1796,6 +1800,27 @@ function alumnesTots_() {
   const k = (a) => normNom_([a.c1, a.c2, a.n].join(' '));
   return tots.sort((a, b) => k(a).localeCompare(k(b), 'ca'));
 }
+// PAS 37 · Un sol alumne pel codi (ESO o batxillerat, sense baixes): cerca la cel·la del codi i llegeix només aquella fila
+function alumnePerId_(id) {
+  if (!id) return null;
+  for (const modul of ['alumnat', 'batxillerat']) {
+    const M = MODULS[modul], sh = M.ss().getSheetByName(M.full);
+    if (!sh || sh.getLastRow() < 2) continue;
+    const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_), ci = cap.indexOf(M.id);
+    if (ci < 0) continue;
+    let fila = 0;
+    const col = sh.getRange(2, ci + 1, sh.getLastRow() - 1, 1);
+    if (typeof col.createTextFinder === 'function') { const c = col.createTextFinder(id).matchEntireCell(true).findNext(); if (c) fila = c.getRow(); }
+    else { const v = col.getDisplayValues(); const i = v.findIndex((r) => String(r[0]).trim() === id); if (i >= 0) fila = i + 2; }
+    if (!fila) continue;
+    const vals = sh.getRange(fila, 1, 1, cap.length).getDisplayValues()[0], r = {};
+    cap.forEach((k, j) => { if (k) r[k] = String(vals[j] == null ? '' : vals[j]).trim(); });
+    if (deBaixa_(r)) return null;
+    return { id: r[M.id], nom: [String(r.cognom1 || '').trim(), String(r.cognom2 || '').trim()].filter(Boolean).join(' ') + ', ' + String(r.nom || '').trim(),
+      nivell: r.nivell || nivellDeGrup_(r.grup_actual), grup: r.grup_actual || '' };
+  }
+  return null;
+}
 function entradaAlumnes_(ctx) {
   if (!pot_(ctx, 'control_entrada', 'edicio')) return { ok: false, error: 'sense_permis' };
   const ab = ctx.abast ? ctx.abast('control_entrada') : null;
@@ -1805,14 +1830,16 @@ function entradaAlumnes_(ctx) {
 function entradaNova_(ctx, req) {
   if (!pot_(ctx, 'control_entrada', 'edicio')) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
-  const a = alumnesTots_().filter((x) => x.id === String(req.id_alumne || ''))[0];
+  // PAS 37: es busca només aquest alumne (abans es llegia tot l'alumnat d'ESO i de batxillerat)
+  const a = alumnePerId_(String(req.id_alumne || ''));
   if (!a) return { ok: false, error: 'no_existeix' };
   if (!dinsAbast_(ctx.abast ? ctx.abast('control_entrada') : null, a.grup)) return { ok: false, error: 'fora_abast' };
   const M = MODULS.control_entrada;
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    const sh = fullModul_(M, campsDe_('control_entrada', true));
+    // PAS 37: la pestanya ja existeix (configura): no cal llegir els camps ni revisar-ne les columnes a cada entrada
+    const sh = M.ss().getSheetByName(M.full) || fullModul_(M, campsDe_('control_entrada', true));
     const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
     const ids = sh.getLastRow() > 1 ? sh.getRange(2, cap.indexOf(M.id) + 1, sh.getLastRow() - 1, 1).getDisplayValues().map((r) => Number(String(r[0]).replace(/\D/g, '')) || 0) : [];
     const ara = ara_();
