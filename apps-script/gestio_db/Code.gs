@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 36;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 37;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -856,12 +856,15 @@ function amonestacioForm_(ctx) {
   if (!potRedactar_(ctx)) return { ok: false, error: 'sense_permis' };
   const ab = ctx.abast ? ctx.abast('amonestacions') : null;
   const alumnes = alumnesTots_().map((a) => ({ id: a.id, nom: a.nom, nivell: a.nivell, grup: a.grup }));
-  const prof = llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && !esProva_(p) && p.nom)
+  // PAS 37: qui redacta sempre hi surt, encara que sigui una fitxa de prova (abans, «Test, Profe» es quedava sense professor/a)
+  const jo = ctx.persona && /^PRO-/.test(String(ctx.persona.id)) ? String(ctx.persona.id) : '';
+  const prof = llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && p.nom && (!esProva_(p) || String(p.id_professor) === jo))
     .map((p) => ({ id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom }))
     .sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca'));
-  const triar = pot_(ctx, 'amonestacions', 'edicio');
+  // PAS 37: el professor/a és qui ha entrat a GESTIO; només l'administració del mòdul en pot triar un altre
+  const triar = pot_(ctx, 'amonestacions', 'admin');
   return { ok: true, alumnes: alumnes, professorat: triar ? prof : prof.filter((p) => ctx.persona && p.id === ctx.persona.id),
-    jo: ctx.persona && /^PRO-/.test(String(ctx.persona.id)) ? ctx.persona.id : '', triar_professor: triar, curs: ctx.cfg.curs || '', avui: ara_().slice(0, 10), abast: ab || undefined };
+    jo: jo, triar_professor: triar, curs: ctx.cfg.curs || '', avui: ara_().slice(0, 10), abast: ab || undefined };
 }
 // Validació del text dels fets: entre 20 i 3.000 caràcters, sense caràcters de control, amb lletres
 function netejaFets_(t) {
@@ -877,7 +880,7 @@ function amonestacioNova_(ctx, req) {
   const a = alumnesTots_().filter((x) => x.id === String(req.id_alumne || ''))[0];
   if (!a) return { ok: false, error: 'alumne_invalid' };
   // Qualsevol docent pot amonestar qualsevol alumne (també fora dels grups que veu a la graella)
-  const triar = pot_(ctx, 'amonestacions', 'edicio');
+  const triar = pot_(ctx, 'amonestacions', 'admin');
   const idProf = triar ? String(req.id_professor || '') : (ctx.persona ? String(ctx.persona.id) : '');
   const p = llegeix_(FULL.prof).filter((x) => x.id_professor === idProf && !deBaixa_(x))[0];
   if (!p) return { ok: false, error: 'professor_invalid' };

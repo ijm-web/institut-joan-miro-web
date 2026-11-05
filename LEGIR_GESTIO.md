@@ -226,6 +226,10 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **PDF en segon pla**: `amonestacio_nova` amb `pdf_despres` desa sense fer el PDF; el web crida tot seguit `amonestacio_pdf` sense finestra de progrés (icona que gira a la columna PDF). **fesPdfsPendents** fa els que faltin (màx. 25 per execució; no els importats) i **activaPdfsPendents** el programa cada hora.
 - **Permisos**: consulta = només les pròpies (també si l'equip té permís de consulta amb grups); edició/admin = totes. Tot el professorat (PRO-) pot redactar, sigui quin sigui el nivell.
 
+## PAS 37
+- **Amonestacions · professor/a**: es posa sol (qui ha entrat a GESTIO) en un camp de només lectura amb l'explicació. Només l'**administració** del mòdul pot triar un altre docent (abans, també edició); el servidor ignora `id_professor` si no és admin.
+- **Corregit**: el desplegable del professor/a quedava buit per a les fitxes de prova («Test, Profe»), perquè la llista excloïa les proves; ara qui redacta sempre hi surt.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

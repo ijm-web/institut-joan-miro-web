@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 36 · 5 de novembre de 2026",
+  "versio": "PAS 37 · 5 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -606,7 +606,7 @@
           "text": [
             "**Tot el professorat** pot redactar amonestacions, sigui quin sigui el seu nivell al mòdul.",
             "Amb nivell **consulta** (el de tot el professorat per defecte, encara que el seu equip tingui permís de consulta) es veuen **només les pròpies**: les que porten el seu nom com a professor/a.",
-            "Amb **edició** (coordinació) i **administració** (direcció) es veuen totes, es pot redactar en nom d'un altre docent i esborrar."
+            "Amb **edició** (coordinació) i **administració** (direcció) es veuen totes i es poden esborrar. Només l'**administració** del mòdul pot redactar en nom d'un altre docent."
           ]
         },
         {
@@ -639,7 +639,7 @@
             "- **Grup-classe**: es posa sol.",
             "- **Data dels fets**: amb el calendari; no pot ser posterior a avui ni d'un altre curs.",
             "- **Fets i circumstàncies**: text lliure i objectiu, entre 20 i 3.000 caràcters.",
-            "- **Professor/a**: el vostre nom (des d'edició es pot triar un altre docent).",
+            "- **Professor/a**: es posa sol i no es pot canviar: és el nom de qui ha entrat a GESTIO. Només l'administració del mòdul pot triar un altre docent (desplegable).",
             "La data i l'hora de redacció i el curs es posen sols. **Desa** comprova les dades i desa l'amonestació a l'instant. El **PDF** (logo del centre, NOFC 5.3, Llei 12/2009, dades, fets i signatures) es fa **en segon pla**: mentre es fa, la columna PDF mostra un cercle que gira i, quan acaba, surt l'enllaç i un missatge. Podeu continuar treballant.",
             "Si el PDF no es pot fer (o tanqueu la pàgina abans que acabi), l'amonestació queda desada sense PDF: es fa des del visor (doble clic a la fila) o automàticament amb **fesPdfsPendents**.",
             "Si es prem Desa dues vegades seguides, no es duplica."

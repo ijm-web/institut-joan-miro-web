@@ -1525,7 +1525,7 @@
     alumne: 'Alumne/a que ha comès els fets. Escriviu un cognom (o el grup) per trobar-lo a la llista.',
     grup: 'Es posa sol: el grup-classe actual de l’alumne/a.',
     data: 'Dia que van passar els fets (no pot ser posterior a avui ni d’un altre curs).',
-    professor: 'Docent que redacta l’amonestació (qui imparteix classe a l’alumne/a o ha estat testimoni dels fets, NOFC 5.3.3).',
+    professor: 'Docent que redacta l’amonestació (qui imparteix classe a l’alumne/a o ha estat testimoni dels fets, NOFC 5.3.3). Es posa sol: és qui ha entrat a GESTIO. Només l’administració del mòdul pot triar un altre docent.',
     fets: 'Descripció objectiva dels fets i les circumstàncies (què, on, quan), sense valoracions personals. Entre 20 i 3.000 caràcters. Aquest text surt al PDF que rep la família.'
   };
   // PAS 36 · Nova amonestació: el formulari arriba amb les dades del mòdul (sense espera); l'alumne es tria amb un cercador
@@ -1535,6 +1535,7 @@
       previ = previ || {};
       var lab = function (id, t, k, oblig) { return '<label for="' + id + '">' + t + (oblig ? ' <span class="gs-oblig">*</span>' : '') + ' <span class="gs-info" aria-hidden="true" data-info="' + esc(INFO_AMON[k]) + '">i</span></label>'; };
       var triat = F.alumnes.filter(function (a) { return a.id === previ.id_alumne; })[0] || null;
+      var jo = F.professorat.filter(function (p) { return p.id === F.jo; })[0] || null;
       var etiqueta = function (a) { return a.nom + ' — ' + (a.grup || a.nivell || ''); };
       var html = '<div class="gs-amon__form">' +
         '<div class="gs-amon__camp gs-amon__camp--ample gs-combo">' + lab('gsAmCerca', 'Alumne/a', 'alumne', true) +
@@ -1544,8 +1545,14 @@
         '<div class="gs-amon__camp">' + lab('gsAmGrup', 'Grup-classe', 'grup') + '<input id="gsAmGrup" readonly tabindex="-1" placeholder="(es posa sol)" value="' + esc(triat ? triat.grup || triat.nivell || '' : '') + '"></div>' +
         '<div class="gs-amon__camp">' + lab('gsAmData', 'Data dels fets', 'data', true) + '<input type="date" id="gsAmData" max="' + esc(F.avui) + '" min="' + esc(String(F.curs).slice(0, 4) + '-09-01') + '" value="' + esc(previ.data_fets || F.avui) + '"></div>' +
         '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmFets', 'Fets i circumstàncies', 'fets', true) + '<textarea id="gsAmFets" rows="7" maxlength="3000" placeholder="Descriviu els fets de manera objectiva…">' + esc(previ.fets || '') + '</textarea><small class="gs-gris" id="gsAmCompte"></small></div>' +
-        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmProf', 'Professor/a', 'professor', true) + '<select id="gsAmProf"' + (F.triar_professor ? '' : ' disabled') + '>' + (F.triar_professor ? '<option value="">— Trieu el professor/a —</option>' : '') +
-          F.professorat.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === (previ.id_professor || F.jo) ? ' selected' : '') + '>' + esc(p.nom) + '</option>'; }).join('') + '</select></div>' +
+        // PAS 37: el professor/a es posa sol (qui ha entrat a GESTIO); només l'administració del mòdul pot triar-ne un altre
+        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmProf', 'Professor/a', 'professor', true) + (F.triar_professor ?
+          '<select id="gsAmProf"><option value="">— Trieu el professor/a —</option>' +
+            F.professorat.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === (previ.id_professor || F.jo) ? ' selected' : '') + '>' + esc(p.nom) + '</option>'; }).join('') + '</select>' +
+            '<small class="gs-gris">Per defecte, vosaltres. Com a administració del mòdul, podeu triar un altre docent.</small>' :
+          (jo ? '<input id="gsAmProfNom" readonly tabindex="-1" value="' + esc(jo.nom) + '"><input type="hidden" id="gsAmProf" value="' + esc(jo.id) + '">' +
+            '<small class="gs-gris">Es posa sol: és el nom de qui ha entrat a GESTIO. Només l’administració pot triar un altre docent.</small>' :
+            '<input type="hidden" id="gsAmProf" value=""><p class="prog-avis">No s’ha trobat la vostra fitxa al professorat (actiu): no podeu redactar amonestacions. Aviseu l’administració de GESTIO.</p>')) + '</div>' +
         '<p class="gs-ajuda gs-amon__camp--ample">La data i l’hora de redacció i el curs escolar es posen sols. En desar, el PDF per a la família (amb el logo del centre i la referència a les NOFC) es fa en segon pla i es desa a la carpeta de Drive de les amonestacions.</p>' +
         '<p class="prog-avis gs-amon__camp--ample" id="gsAmErr"' + (previ.error ? '' : ' hidden') + '>' + esc(previ.error || '') + '</p></div>';
       var err = function (t, el) { $('gsAmErr').textContent = t; $('gsAmErr').hidden = false; if (el) el.focus(); return false; };
@@ -1596,7 +1603,7 @@
       });
       ll.addEventListener('mousedown', function (e) { var li = e.target.closest('li[data-i]'); if (!li) return; e.preventDefault(); tria(res[Number(li.dataset.i)]); $('gsAmData').focus(); });
       c.addEventListener('blur', function () { setTimeout(tanca, 120); });
-      ['gsAmData', 'gsAmProf', 'gsAmFets'].forEach(function (id) { $(id).addEventListener('input', function () { $('gsAmErr').hidden = true; }); });
+      ['gsAmData', 'gsAmProf', 'gsAmFets'].forEach(function (id) { if ($(id)) $(id).addEventListener('input', function () { $('gsAmErr').hidden = true; }); });
       var compta = function () { var n = $('gsAmFets').value.trim().length; $('gsAmCompte').textContent = n + ' / 3.000 caràcters' + (n && n < 20 ? ' (mínim 20)' : ''); };
       $('gsAmFets').addEventListener('input', compta); compta();
       setTimeout(function () { (previ.id_alumne ? $('gsAmFets') : c).focus(); }, 0);

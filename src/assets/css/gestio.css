@@ -332,3 +332,4 @@
 @keyframes gsGira{ to { transform: rotate(360deg); } }
 /* El cercador general és flex 1 1 260px: dins d'una columna flex, aquesta base es convertia en 260 px d'alçada */
 .gs-amon__camp .gs-cerca{ flex: none; height: 38px; min-width: 0; }
+.gs-amon__camp input[readonly]#gsAmProfNom{ color: #1E1E2A; }
