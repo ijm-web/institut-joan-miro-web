@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 34 · 4 de novembre de 2026",
+  "versio": "PAS 35 · 5 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -14,7 +14,8 @@
           "- **Consulta**: veure, filtrar i exportar.",
           "- **Edició**: a més, alta, baixa i modificació de files.",
           "- **Administració**: a més, «Gestió camps» del mòdul.",
-          "La sessió dura 8 hores. **Surt** tanca la sessió en aquest navegador."
+          "La sessió dura 8 hores. **Surt** tanca la sessió en aquest navegador.",
+          "Des del nivell **consulta**, la barra d'eines només té el que serveix per mirar: Nombres totals, Anàlisi, Visualització camps, Excel i PDF."
         ]
       },
       {
@@ -106,7 +107,8 @@
           "1. **Importa fitxer** › **Baixa la plantilla**: un Excel amb les columnes del mòdul, una pestanya amb els valors permesos i les instruccions.",
           "2. Ompliu-la (o copieu-hi les dades de la preinscripció o la matrícula). També s'entén una columna «Cognoms, Nom».",
           "3. Pugeu-la (xlsx, xls o csv). Abans d'afegir res es mostren les columnes reconegudes, les files que ja hi són (mateix nom i cognoms) i les dades per corregir.",
-          "4. Les files entren a dalt de la graella **sense desar**: reviseu-les (les incorrectes en vermell) i **Desa els canvis**."
+          "4. Les files entren a dalt de la graella **sense desar**: reviseu-les (les incorrectes en vermell) i **Desa els canvis**.",
+          "La importació de fitxers és exclusiva de qui **administra** el mòdul (no surt des d'edició ni consulta)."
         ]
       },
       {
@@ -121,10 +123,11 @@
       {
         "id": "exporta",
         "titol": "Exportar a Excel o PDF",
-        "claus": "exportar excel pdf imprimir descarregar llistat",
+        "claus": "exportar excel pdf imprimir descarregar llistat actualitza recarregar tornar a llegir",
         "text": [
           "Els botons **Excel** i **PDF** (a la dreta) descarreguen el que es veu: les files filtrades i les columnes visibles. Es pot fer des del nivell consulta.",
-          "Tots els PDF que es generen des de GESTIO porten el **logo del centre** a la part superior."
+          "Tots els PDF que es generen des de GESTIO porten el **logo del centre** a la part superior.",
+          "**Actualitza** torna a llegir les dades del full de càlcul (per exemple, després d'una importació o d'un canvi fet directament al full). Només surt per a qui administra el mòdul: quan algú altre desa canvis des del web, surt a dalt un avís amb el seu propi botó «Actualitza»."
         ]
       },
       {
@@ -269,7 +272,8 @@
           "titol": "Nombres totals",
           "claus": "nombres totals quants alumnes per grup nivell pdf",
           "text": [
-            "**Nombres totals** mostra quants alumnes (sense les baixes) hi ha a cada grup-classe, el total de cada nivell i el total de l'ESO. Es pot descarregar en PDF."
+            "**Nombres totals** mostra quants alumnes (sense les baixes) hi ha a cada grup-classe, el total de cada nivell i el total de l'ESO. Es pot descarregar en PDF.",
+            "La taula és compacta (les xifres al costat del grup) i el PDF també."
           ]
         },
         {
@@ -302,6 +306,15 @@
           "text": [
             "Cada grup-classe té el seu equip docent (p. ex. «Equip docent 1r ESO A»), amb el professorat que hi fa classe. Els seus membres **només veuen l'alumnat del seu grup** (si fan classe a dos grups, veuen els dos) i no poden editar res: només consulten.",
             "Qui té permís per una altra via (coordinació, direcció) ho veu tot."
+          ]
+        },
+        {
+          "id": "eso-esborrar",
+          "titol": "Esborrar un alumne",
+          "claus": "esborrar eliminar alumne paperera baixa definitiu",
+          "text": [
+            "Des d'**edició** (coordinació) i administració, la **paperera** de la fila esborra l'alumne del tot (queda una còpia a l'historial). Per a un alumne que marxa, és millor **Baixa**: es conserva i es pot reactivar.",
+            "Des d'edició només es poden esborrar alumnes dels grups que abasta el vostre equip."
           ]
         }
       ]
@@ -354,7 +367,8 @@
           "titol": "Nombres totals",
           "claus": "nombres totals quants alumnes grup itinerari tipologia pdf",
           "text": [
-            "**Nombres totals** mostra quants alumnes (sense les baixes) hi ha a cada grup-classe, repartits per tipologia de batxillerat (itinerari), amb el total de cada nivell i del batxillerat. Es pot descarregar en PDF."
+            "**Nombres totals** mostra quants alumnes (sense les baixes) hi ha a cada grup-classe, repartits per tipologia de batxillerat (itinerari), amb el total de cada nivell i del batxillerat. Es pot descarregar en PDF.",
+            "La taula és compacta (les xifres al costat del grup) i el PDF també."
           ]
         },
         {
@@ -398,6 +412,14 @@
           "text": [
             "Cada grup-classe té el seu equip docent (p. ex. «Equip docent 1r ESO A»), amb el professorat que hi fa classe. Els seus membres **només veuen l'alumnat del seu grup** (si fan classe a dos grups, veuen els dos) i no poden editar res: només consulten.",
             "Qui té permís per una altra via (coordinació, direcció) ho veu tot."
+          ]
+        },
+        {
+          "id": "bat-esborrar",
+          "titol": "Esborrar un alumne",
+          "claus": "esborrar eliminar alumne paperera baixa definitiu",
+          "text": [
+            "Des d'**edició** (coordinació) i administració, la **paperera** de la fila esborra l'alumne del tot (queda una còpia a l'historial). Per a un alumne que marxa, és millor **Baixa**."
           ]
         }
       ]
@@ -498,7 +520,8 @@
             "Cliqueu la cel·la **Membres** per afegir-ne o treure'n (professorat i PAS, amb cercador). Una persona pot ser a diversos equips.",
             "**Grups**: si un equip té grups (p. ex. «1r ESO A»), els seus membres només veuen l'alumnat d'aquests grups als mòduls d'alumnat i al control d'entrada. Buit vol dir tots els grups.",
             "Hi ha un equip docent per grup-classe (EQ-1ESOA, EQ-1ESOGR, EQ-1BATA…), creat a partir del document d'equips docents, amb permís de consulta.",
-            "**Membres** d'un equip: a l'esquerra, les persones que no en són membres; a la dreta, les que sí, totes per ordre del 1r cognom. Seleccioneu-ne una o diverses (Ctrl o Maj + clic) i passeu-les amb **Afegeix →** o **← Treu** (o amb doble clic). Cada llista té la seva cerca. Al final, **Desa els membres**."
+            "**Membres** d'un equip: a l'esquerra, les persones que no en són membres; a la dreta, les que sí, totes per ordre del 1r cognom. Seleccioneu-ne una o diverses (Ctrl o Maj + clic) i passeu-les amb **Afegeix →** o **← Treu** (o amb doble clic). Cada llista té la seva cerca. Al final, **Desa els membres**.",
+            "En desar (equips, membres o permisos) ja no es tornen a carregar les dades: la graella queda com està i es continua treballant al mateix lloc."
           ]
         },
         {
@@ -563,9 +586,86 @@
           "titol": "Avís de retards",
           "claus": "avís retards quantitat període setmana mes alerta",
           "text": [
-            "A dalt de la graella: **Avís a partir de N retards en un període** (per defecte, 5 en 1 mes). La quantitat va de 3 a 20 i el període pot ser 1, 2 o 3 setmanes o 1 mes, comptat fins avui. Només qui administra el mòdul pot canviar el criteri, que val per a tothom.",
+            "A dalt de la graella: **Avís: N retards o més en un període** (per defecte, 5 o més en 1 mes). La quantitat va de 3 a 20 i el període pot ser 1, 2 o 3 setmanes o 1 mes, **comptat enrere des d'avui**: 1 setmana = els darrers 7 dies; 1 mes = des del mateix dia del mes anterior (avui 5 de novembre → des del 5 d'octubre). Al costat surt la data d'inici («des del …»). Només qui administra el mòdul pot canviar el criteri, que val per a tothom.",
             "El botó **⚠ N alumnes** obre la llista dels alumnes que arriben al criteri (amb el nombre de retards i el darrer), amb PDF. A la graella, al costat del nom d'aquests alumnes surt **⚠** i el nombre de retards.",
             "En registrar una **Nova entrada**, si l'alumne arriba al criteri, surt un avís."
+          ]
+        }
+      ]
+    },
+    "amonestacions": {
+      "titol": "Amonestacions",
+      "graella": true,
+      "intro": "Amonestacions lleus de l'alumnat (NOFC 5.3): qualsevol docent en pot redactar; en desar es fa el PDF per a la família i es desa a Drive.",
+      "temes": [
+        {
+          "id": "am-qui",
+          "titol": "Qui hi entra i què veu",
+          "claus": "permisos professorat veure pròpies coordinació tutor",
+          "text": [
+            "**Tot el professorat** hi entra, encara que el seu equip no tingui cap permís: pot redactar amonestacions i veu **les seves** (les que porten el seu nom com a professor/a).",
+            "Els equips amb permís al mòdul veuen més: **consulta** (p. ex. un equip docent amb grups) veu les dels seus grups; **edició** (coordinació) i **administració** (direcció) les veuen totes. Des d'edició es pot redactar en nom d'un altre docent i esborrar."
+          ]
+        },
+        {
+          "id": "am-graella",
+          "titol": "La graella",
+          "claus": "graella període curs tots data a data fets pdf filtrar",
+          "text": [
+            "Una fila per amonestació, de la més recent a la més antiga: data dels fets, alumne, nivell, grup-classe, professor/a, curs i data de redacció. Els **fets** no surten a la graella: la icona de la columna Fets els mostra; la icona **PDF** obre el document en una pestanya nova.",
+            "**Període** (a dalt a l'esquerra): **Curs actual** (per defecte), **Tots** o **Data a data** (del … al …). Es combina amb els filtres de les columnes.",
+            "Les amonestacions no es modifiquen a la cel·la. Una feta per error s'esborra amb la **paperera** (edició): el PDF va a la paperera de Drive i queda una còpia a l'historial.",
+            "**Excel** i **PDF** exporten les files que es veuen. L'Excel inclou els fets; el PDF, no (per mida)."
+          ]
+        },
+        {
+          "id": "am-visor",
+          "titol": "Veure una amonestació",
+          "claus": "visor doble clic fets anterior següent navegar",
+          "text": [
+            "**Doble clic** a una fila obre el visor amb totes les dades, també els fets, i l'enllaç al PDF.",
+            "**‹ Anterior** i **Següent ›** (o les fletxes del teclat) recorren les files que es veuen ara, amb el període, els filtres i l'ordre de la graella."
+          ]
+        },
+        {
+          "id": "am-nova",
+          "titol": "Nova amonestació",
+          "claus": "nova redactar alumne professor data fets validar pdf nofc",
+          "text": [
+            "**+ Nova amonestació** obre el formulari. Cada camp té una **i** amb l'explicació:",
+            "- **Alumne/a**: escriviu un cognom o el grup i trieu-lo de la llista (ESO i batxillerat, sense baixes).",
+            "- **Grup-classe**: es posa sol.",
+            "- **Data dels fets**: amb el calendari; no pot ser posterior a avui ni d'un altre curs.",
+            "- **Professor/a**: el vostre nom (des d'edició es pot triar un altre docent).",
+            "- **Fets i circumstàncies**: text lliure i objectiu, entre 20 i 3.000 caràcters.",
+            "La data i l'hora de redacció i el curs es posen sols. **Desa** comprova les dades, desa l'amonestació i fa el **PDF** (logo del centre, referència a les NOFC 5.3 i a la Llei 12/2009, dades, fets i signatures) a la carpeta de Drive configurada. Si el PDF no es pot fer, l'amonestació queda desada i el podeu tornar a fer des del visor.",
+            "Si es prem Desa dues vegades seguides, no es duplica."
+          ]
+        },
+        {
+          "id": "am-avis",
+          "titol": "Avís d'amonestacions",
+          "claus": "avís acumulació cinc dues eso batxillerat comissió convivència",
+          "text": [
+            "A dalt: **Avís: ESO N o més · BAT M o més** en un període (per defecte, tot el curs). Les NOFC (5.3.2) preveuen mesures a partir de **cinc** amonestacions lleus a l'ESO i de **dues** al batxillerat.",
+            "El botó **⚠ N alumnes** obre la llista (amb PDF). A la graella, al costat del nom surt **⚠** i el nombre d'amonestacions."
+          ]
+        },
+        {
+          "id": "am-analisi",
+          "titol": "Anàlisi",
+          "claus": "anàlisi comptadors alumne grup nivell professor pdf",
+          "text": [
+            "**Anàlisi** compta les amonestacions que es veuen ara (període i filtres), agrupades per **alumne**, **grup-classe**, **nivell** o **professor/a**, amb el total i PDF."
+          ]
+        },
+        {
+          "id": "am-config",
+          "titol": "Configuració (administració)",
+          "claus": "configuració carpeta drive pdf avís criteri",
+          "text": [
+            "**Configuració**: la **carpeta de Drive** on es desen els PDF (ha de ser accessible per al compte que executa GESTIO; els admins hi poden editar els PDF) i el **criteri de l'avís** (ESO, batxillerat i període).",
+            "Les amonestacions del formulari de Google que es feia servir s'importen una vegada amb **importaAmonestacions** (a l'editor d'Apps Script). Si es torna a executar, no duplica."
           ]
         }
       ]

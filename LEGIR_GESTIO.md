@@ -204,6 +204,22 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Esborrar un equip**: paperera de la fila (acció `equip_esborra`): treu l'equip, els seus membres i permisos. EQ-DIR no.
 - Tipus: **gestió** per a administració i consergeria; **docent** per a equips de nivell/grup i departaments.
 
+## PAS 35
+- **Equips i permisos**: en desar (equips, membres, permisos, equip nou, esborrar) ja no es torna a carregar el mòdul: s'actualitzen les dades del navegador.
+- **Barra d'eines**: «Importa fitxer» i «Actualitza» només per a l'administració del mòdul. Des de consulta: Nombres totals, Anàlisi, Visualització camps, Excel i PDF. «Actualitza» torna a llegir el full (importacions o canvis fets al full); els canvis d'altres persones des del web ja surten amb l'avís de versió, que té el seu botó.
+- **Alumnat ESO i batxillerat**: paperera (esborrar del tot) també des d'edició, dins l'abast de l'equip (`esborra_` accepta edició als mòduls d'etapa).
+- **Nombres totals i Anàlisi**: taula compacta (amplada segons el contingut) i PDF amb `tableWidth: 'wrap'`.
+- **Avís de retards**: període comptat enrere des d'avui, inclòs: setmanes = 7/14/21 dies; 1 mes = des del mateix dia del mes anterior. Es mostra «des del dd/mm/aaaa».
+- **Mòdul AMONESTACIONS** (`amonestacions`, codis AMO-00001, full `amonestacions` a ijm_alumnat_db, mòdul de registre):
+  - Camps: data_fets, alumne, nivell, grup, professor, fets, pdf, curs, redactat_el, id_alumne i id_professor (interns).
+  - Tot el professorat (persona PRO-) hi té consulta implícita encara que el seu equip no hi tingui permís: redacta i veu les seves (`nomes_propies`). Consulta d'un equip amb grups → les dels seus grups; edició/admin → totes, redactar en nom d'altri i esborrar.
+  - Accions: `amonestacio_form`, `amonestacio_nova` (valida alumne, professor, data no futura i del curs, fets 20–3000 caràcters amb lletres; evita duplicats per doble clic), `amonestacio_pdf` (refer el PDF), `amonestacions_config` (admin: carpeta, avís ESO/BAT, període).
+  - PDF: HTML → PDF amb el logo (`config › logo_pdf`), NOFC 5.3 / 5.3.2 / 5.3.3 i Llei 12/2009, a la carpeta `config › carpeta_amonestacions`. Esborrar una amonestació envia el PDF a la paperera de Drive.
+  - Avís: `amonestacions_avis_eso` (5), `amonestacions_avis_bat` (2), `amonestacions_periode` (tot el curs).
+  - Importació única: `config › font_amonestacions` (full de respostes del formulari) i executar **importaAmonestacions** (no duplica; registra alumnes i professorat no trobats).
+  - Graella: període (curs actual / tots / data a data), fets amb icona, PDF amb icona, doble clic → visor amb navegació, Anàlisi per alumne/grup/nivell/professor, Excel/PDF de les files visibles. Sense «Visualització camps» ni «Gestió camps».
+  - Requereix autoritzar permisos nous (UrlFetch per al logo, Drive per crear PDF).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

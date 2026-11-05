@@ -34,6 +34,11 @@
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
     fora_abast: 'Només podeu modificar l’alumnat dels vostres grups.',
+    alumne_invalid: 'Trieu un alumne de la llista.', professor_invalid: 'Trieu el professor/a de la llista.',
+    data_futura: 'La data dels fets no pot ser posterior a avui.', data_fora_curs: 'La data dels fets ha de ser d’aquest curs escolar.',
+    fets_curts: 'Els fets han de tenir com a mínim 20 caràcters.', fets_llargs: 'Els fets poden tenir com a màxim 3.000 caràcters.', fets_invalids: 'Descriviu els fets amb paraules.',
+    carpeta_invalida: 'L’enllaç de la carpeta de Drive no és vàlid.', carpeta_sense_acces: 'L’Apps Script no té accés a aquesta carpeta de Drive (compartiu-la amb el compte que executa GESTIO).',
+    pdf_error: 'No s’ha pogut fer el PDF.',
     grup_desconegut: 'Algun grup de l’equip no existeix (reviseu la columna Grups).',
     google_token_invalid: 'No s’ha pogut validar l’inici de sessió amb Google. Torneu-ho a provar.',
     google_no_configurat: 'L’accés encara no està configurat.',
@@ -79,6 +84,9 @@
     no_aplica_nivell: 'no s’omple en aquest nivell (p. ex. camps de 4t, optatives de cursos superiors o matèries de l’altre curs de batxillerat)'
   };
   var text = function (c) { return MISSATGES[c] || MISSATGES.error_servidor; };
+  var BOTO_ACTUALITZA = '<button type="button" class="prog-btn prog-btn--ghost" data-accio="recarrega" title="Torna a llegir les dades del full (p. ex. després d’una importació o d’un canvi fet directament al full)">Actualitza</button>';
+  var ICONA_TEXT = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h6"/></svg>';
+  var ICONA_PDF = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M12 12v6M9 15l3 3 3-3"/></svg>';
   var RELLOTGE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   var PAPERERA = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
   var FIXADES = ['nom', 'cognom1'];   // columnes bloquejades a l'esquerra per defecte
@@ -128,7 +136,8 @@
     return true;
   }
   var esAlumnat = function () { return !!(S.modul && ETAPES[S.modul.id]); };
-  var esRegistre = function () { return !!(S.modul && S.modul.id === 'control_entrada'); };
+  var esRegistre = function () { return !!(S.modul && (S.modul.id === 'control_entrada' || S.modul.id === 'amonestacions')); };
+  var esAmon = function () { return !!(S.modul && S.modul.id === 'amonestacions'); };
   var etapa = function () { return ETAPES[S.modul.id]; };
   var nivellDeGrup = function (g) { g = String(g || '').toUpperCase(); if (!esAlumnat()) return ''; var N = etapa().nivells; for (var i = 0; i < N.length; i++) if (g.indexOf(N[i].toUpperCase()) === 0) return N[i]; return ''; };
   var nivellAlumne = function (d) { return esAlumnat() ? etapa().nivells.indexOf(nivellDeGrup(d.nivell || d.grup_actual)) + 1 : 0; };
@@ -392,6 +401,7 @@
 
   function pintaEines() {
     var ed = potEditar(), ambEstat = S.d.camps.some(function (c) { return c.clau === 'estat'; });
+    if (esAmon()) { pintaEinesAmon(); return; }
     if (esRegistre()) {
       // CONTROL D'ENTRADA: «Nova entrada» (edició) i «Anàlisi» (consulta); les entrades no s'editen a la cel·la
       $('gsEines').innerHTML = '<span class="gs-compte" id="gsCompte"></span><span class="gs-espai"></span>' +
@@ -400,7 +410,7 @@
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="entrada-analisi">Anàlisi</button>' +
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
         (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="camps">Gestió camps</button>' : '') +
-        '<button type="button" class="prog-btn prog-btn--ghost" data-accio="recarrega" title="Torna a llegir les dades del full">Actualitza</button>' +
+        (esAdmin() ? BOTO_ACTUALITZA : '') +
         '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Excel</button>' +
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">PDF</button></span>';
       pintaRetards();
@@ -417,13 +427,16 @@
       (ed ? '<span class="gs-seleccio" id="gsSeleccio" hidden><span id="gsSelN"></span> <button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-accio="aplica-seleccio">Aplica a la selecció…</button> <button type="button" class="gs-enllac" data-accio="treu-seleccio">Treu la selecció</button></span>' : '') +
       '<span class="gs-espai"></span>' +
       (ed ? '<button type="button" class="prog-btn" data-accio="alta">+ Afegeix ' + esc(S.d.nom_fila || 'fila') + '</button>' : '') +
-      (ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="importa" title="Alta massiva a partir d’un fitxer Excel o CSV">Importa fitxer</button>' : '') +
+      // PAS 35: la importació massiva és exclusiva de l'administració del mòdul
+      (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="importa" title="Alta massiva a partir d’un fitxer Excel o CSV">Importa fitxer</button>' : '') +
       (esAlumnat() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="totals" title="Alumnes per nivell i grup">Nombres totals</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="analisi" title="Comptadors per grup d’un nivell">Anàlisi</button>' : '') +
       (S.modul.id === 'professorat' && ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="llistat" title="PDF per recollir signatures en una reunió">Llistat</button>' : '') +
       (ed && esAlumnat() && S.d.camps.some(function (c) { return c.clau === 'decisio_final'; }) ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="tancament" title="Promocions, repeticions i baixes de final de curs">Tancament de curs</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
       (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="camps">Gestió camps</button>' : '') +
-      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="recarrega" title="Torna a llegir les dades del full">Actualitza</button>' +
+      // PAS 35: «Actualitza» torna a llegir el full (canvis fets directament al full o per una importació): només administració.
+      // Quan algú altre desa des del web, l'avís de dalt ja té el seu botó «Actualitza».
+      (esAdmin() ? BOTO_ACTUALITZA : '') +
       '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Excel</button>' +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">PDF</button></span>';
     if ($('gsBaixes')) $('gsBaixes').addEventListener('change', function () { S.baixes = this.checked; aplicaFiltre(); });
@@ -554,12 +567,12 @@
     if (ed && esRegistre()) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: 44, cssClass: 'gs-accions',
       formatter: function () { return '<span class="gs-acc"><button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra aquesta entrada (feta per error)" aria-label="Esborra l’entrada">' + PAPERERA + '</button></span>'; },
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
-    else if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: (adm ? 118 : 92) + (S.d.pot_historial ? 30 : 0), cssClass: 'gs-accions',
+    else if (ed) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: (adm || esAlumnat() ? 118 : 92) + (S.d.pot_historial ? 30 : 0), cssClass: 'gs-accions',
       formatter: function (cell) {
         var r = cell.getRow().getData();
         return '<span class="gs-acc">' + (S.d.pot_historial && String(r.id).indexOf('nou-') !== 0 ? '<button type="button" class="gs-hist" data-a="historial" title="Historial de canvis d’aquesta fila" aria-label="Historial de canvis">' + RELLOTGE + '</button>' : '') +
           (deBaixa(r) ? '<button type="button" data-a="reactiva">Reactiva</button>' : '<button type="button" data-a="baixa">Baixa</button>') +
-          (adm || String(r.id).indexOf('nou-') === 0 ? '<button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra del tot" aria-label="Esborra del tot">' + PAPERERA + '</button>' : '') + '</span>';
+          (adm || esAlumnat() || String(r.id).indexOf('nou-') === 0 ? '<button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra del tot" aria-label="Esborra del tot">' + PAPERERA + '</button>' : '') + '</span>';
       },
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
     // El codi intern (PRO-…, ALU-…) no es mostra: és l'índex de cada fila. Nom i 1r cognom, fixats a l'esquerra.
@@ -593,6 +606,20 @@
       if (c.tipus === 'data') { col.formatter = function (cell) { return esc(dataVista(cell.getValue())); }; col.accessorDownload = function (v) { return dataVista(v); }; }
       // PAS 31: el codi intern de l'alumne del control d'entrada no es mostra (es fa servir per dins)
       if (esRegistre() && c.clau === 'id_alumne') return;
+      if (esAmon()) {
+        if (c.clau === 'id_professor') return;
+        if (c.clau === 'alumne') col.formatter = function (cell) {
+          var d = cell.getRow().getData(), av = (S.avisAmon || {})[d.id_alumne || plega(d.alumne)];
+          return esc(cell.getValue()) + (av ? ' <span class="gs-avis-ret" title="' + av + ' amonestacions ' + esc(textPeriodeAmon()) + '">⚠ ' + av + '</span>' : '');
+        };
+        // Els fets no es veuen a la graella: la icona els mostra (a l'Excel sí que hi surten)
+        if (c.clau === 'redactat_el') col.formatter = function (cell) { var v = String(cell.getValue() || ''); return esc(dataVista(v.slice(0, 10)) + ' ' + v.slice(11, 16)); };
+        if (c.clau === 'fets') Object.assign(col, { title: 'Fets', width: 64, minWidth: 56, hozAlign: 'center', headerSort: false, headerFilter: false, pdfExclou: true,
+          formatter: function (cell) { return cell.getValue() ? '<button type="button" class="gs-ico-btn" title="Mostra els fets" aria-label="Mostra els fets">' + ICONA_TEXT + '</button>' : ''; },
+          cellClick: function (e, cell) { if (e.target.closest('button')) mostraFets(cell.getRow().getData()); } });
+        if (c.clau === 'pdf') Object.assign(col, { title: 'PDF', width: 60, minWidth: 54, hozAlign: 'center', headerSort: false, headerFilter: false, pdfExclou: true,
+          formatter: function (cell) { var u = cell.getValue(); return u ? '<a class="gs-ico-btn" href="' + esc(u) + '" target="_blank" rel="noopener" title="Obre el PDF (pestanya nova)" aria-label="Obre el PDF">' + ICONA_PDF + '</a>' : '<span class="gs-gris">—</span>'; } });
+      }
       cols.push(col);
     });
     if (S.d.amb_equips) cols.push(Object.assign({ title: 'Equips', field: 'equips', minWidth: 140, headerSort: false,
@@ -609,7 +636,7 @@
     if (Array.isArray(visibles)) cols.forEach(function (c) { if (c.field && c.field.charAt(0) !== '_' && c.field !== 'id' && visibles.indexOf(c.field) < 0) c.visible = false; });
     $('gsTaula').hidden = mobil;
     S.taula = new Tabulator('#gsTaula', {
-      data: S.d.files.slice().sort(esRegistre() ? function (a, b) { return String(b.data + ' ' + b.hora).localeCompare(String(a.data + ' ' + a.hora)); } : esAlumnat() ? function (a, b) { return nivellAlumne(a) - nivellAlumne(b) || String(a.grup_actual || '').localeCompare(String(b.grup_actual || ''), 'ca') || ordenaCognoms(a, b); } : ordenaCognoms).map(copia),
+      data: S.d.files.slice().sort(esAmon() ? function (a, b) { return String(b.data_fets + ' ' + b.redactat_el).localeCompare(String(a.data_fets + ' ' + a.redactat_el)); } : esRegistre() ? function (a, b) { return String(b.data + ' ' + b.hora).localeCompare(String(a.data + ' ' + a.hora)); } : esAlumnat() ? function (a, b) { return nivellAlumne(a) - nivellAlumne(b) || String(a.grup_actual || '').localeCompare(String(b.grup_actual || ''), 'ca') || ordenaCognoms(a, b); } : ordenaCognoms).map(copia),
       index: 'id', columns: cols, layout: 'fitDataStretch', height: alcada(), movableColumns: true, selectableRows: potEditar() ? 'highlight' : false,
       placeholder: 'No hi ha cap fila amb aquests filtres.', columnHeaderVertAlign: 'bottom',
       rowFormatter: function (row) {
@@ -628,6 +655,8 @@
     S.taula.on('dataFiltered', function (f, rows) { var c = $('gsCompte'); if (c) c.textContent = rows.length + ' de ' + S.taula.getDataCount() + ' files'; setTimeout(function () { recomptes(); comptesFiltre(); compteIncompletes(); }, 0); });
     S.taula.on('columnMoved', function () { setTimeout(recomptes, 0); });
     S.taula.on('cellEdited', celEditada);
+    // PAS 35: amonestacions → doble clic a una fila obre el visor (amb els fets), que recorre les files que es veuen
+    if (esAmon()) S.taula.on('rowDblClick', function (e, row) { try { window.getSelection().removeAllRanges(); } catch (x) { /* res */ } visorAmon(row.getData().id); });
     if (mobil) pintaMobil();
   }
   // PAS 29 · Damunt de cada camp amb un filtre actiu: quantes files compleixen la condició d'aquell filtre
@@ -690,7 +719,7 @@
     if (!S.taula) return;
     S.taula.setFilter(function (d) {
       // Les baixes s'amaguen si no es marca «Mostra també les baixes»… excepte si es filtra per la columna Estat
-      return (S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat()) && delNivell(d) && (!S.nomesIncompletes || incompleta(d) || !!S.canvis[d.id]);
+      return (S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat()) && delNivell(d) && (!S.nomesIncompletes || incompleta(d) || !!S.canvis[d.id]) && delPeriodeAmon(d);
     });
     columnesNivell();
     if (window.matchMedia('(max-width: 760px)').matches) pintaMobil();
@@ -787,12 +816,13 @@
     }
     if (a === 'esborra') {
       if (String(d.id).indexOf('nou-') === 0) { delete S.altes[d.id]; row.delete(); marcaBrut(Object.keys(S.canvis).length + Object.keys(S.altes).length > 0); return; }
-      if (esRegistre()) return pregunta('Esborrar l’entrada', '<p>S’esborrarà l’entrada de <strong>' + esc(d.alumne) + '</strong> del ' + esc(dataCat(d.data)) + ' a les ' + esc(d.hora) + ' (queda una còpia a l’historial).</p>',
+      if (esRegistre()) return pregunta(esAmon() ? 'Esborrar l’amonestació' : 'Esborrar l’entrada', esAmon() ? '<p>S’esborrarà l’amonestació de <strong>' + esc(d.alumne) + '</strong> del ' + esc(dataCat(d.data_fets)) + ' (' + esc(d.professor) + '). El PDF va a la paperera de Drive i queda una còpia a l’historial.</p><p class="gs-ajuda">Feu-ho només si s’ha redactat per error.</p>' : '<p>S’esborrarà l’entrada de <strong>' + esc(d.alumne) + '</strong> del ' + esc(dataCat(d.data)) + ' a les ' + esc(d.hora) + ' (queda una còpia a l’historial).</p>',
         [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Esborra', valor: 1, tipus: 'danger' }]).then(function (v) {
         if (!v) return;
         api('esborra', { modul: S.modul.id, ids: [d.id] }, 'Esborrant…').then(function (r) {
           if (!r.ok) return toast(text(r.error), true);
-          row.delete(); S.d.files = S.d.files.filter(function (f) { return f.id !== d.id; }); toast('Entrada esborrada.');
+          row.delete(); S.d.files = S.d.files.filter(function (f) { return f.id !== d.id; });
+          if (esAmon()) { pintaAvisAmon(); toast('Amonestació esborrada.'); } else toast('Entrada esborrada.');
         });
       });
       pregunta('Esborrar del tot', '<p>S’esborrarà <strong>' + esc(nomComplet(d) || d.id) + '</strong> de la base de dades (queda una còpia a la pestanya «historial»).</p><p>Per a una persona que ja no és al centre, és millor <strong>donar-la de baixa</strong>: es conserva i es pot reactivar.</p>',
@@ -1118,7 +1148,7 @@
   function logoPdf() { return preparaPdf().then(function (R) { return R.logo; }, function () { return carregaScript(LIBS.jspdf).then(function () { return carregaScript(LIBS.autotable); }).then(function () { return null; }); }); }
   // PDF fet a mà (jsPDF + autoTable): capçalera fora de la taula, amplades segons el contingut, peu amb pàgines
   function pdf(nom, logo) {
-    var cols = S.taula.getColumns().filter(function (c) { var f = c.getField(); return c.isVisible() && f && f.charAt(0) !== '_'; });
+    var cols = S.taula.getColumns().filter(function (c) { var f = c.getField(); return c.isVisible() && f && f.charAt(0) !== '_' && !c.getDefinition().pdfExclou; });
     var files = S.taula.getData('active');
     var tipus = {}; S.d.camps.forEach(function (c) { tipus[c.clau] = c.tipus; });
     var valor = function (c, d) { var f = c.getField(), v = d[f]; if (f === 'equips') return (v || []).join(', '); if (tipus[f] === 'data') return dataVista(v); return v == null ? '' : String(v); };
@@ -1150,7 +1180,7 @@
     }
     if (suma < util) amples = amples.map(function (w) { return w * util / suma; });
     var columnStyles = {}; amples.forEach(function (w, j) { columnStyles[j] = { cellWidth: w }; });
-    var filtres = [nivellTriat(), S.taula.getHeaderFilters().length ? 'filtres a les columnes' : '', S.baixes ? 'amb baixes' : 'sense baixes'].filter(Boolean).join(' · ');
+    var filtres = [nivellTriat(), S.taula.getHeaderFilters().length ? 'filtres a les columnes' : '', esRegistre() ? (esAmon() ? periodeAmonText() : '') : S.baixes ? 'amb baixes' : 'sense baixes'].filter(Boolean).join(' · ');
     var data = new Date().toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' });
     doc.autoTable({
       head: [cap], body: cos, startY: Y_TAULA, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, tableWidth: 'wrap', columnStyles: columnStyles,
@@ -1214,11 +1244,13 @@
   // ------------------------------------------------------------------ informes en una finestra, amb PDF (PAS 29)
   // files: arrays de cel·les o { s: 'Títol de secció' } o { t: [cel·les] } (fila de total, en negreta)
   var dataCat = function (x) { return dataVista(x); };
-  function informe(titol, subtitol, cap, files, nomFitxer) {
+  function informe(titol, subtitol, cap, files, nomFitxer, compacte) {
     // Columnes numèriques (totes les cel·les són xifres): alineades a la dreta, aquí i al PDF
     var nums = cap.map(function (c, j) { return j > 0 && files.every(function (f) { var r = f.s ? null : (f.t || f); return !r || /^\d*$/.test(String(r[j] == null ? '' : r[j])); }); });
     var cel = function (x, j) { return '<td' + (nums[j] ? ' class="gs-num"' : '') + '>' + esc(x) + '</td>'; };
-    var html = '<p class="gs-ajuda">' + esc(subtitol) + '</p><div class="gs-informe"><table class="gs-form-taula gs-informe__taula"><thead><tr>' +
+    // PAS 35: taules compactes (les xifres al costat del nom, no a l'altra punta de la finestra)
+    if (compacte === undefined) compacte = true;
+    var html = '<p class="gs-ajuda">' + esc(subtitol) + '</p><div class="gs-informe"><table class="gs-form-taula gs-informe__taula' + (compacte ? ' gs-informe__taula--compacta' : '') + '"><thead><tr>' +
       cap.map(function (c, j) { return '<th' + (nums[j] ? ' class="gs-num"' : '') + '>' + esc(c) + '</th>'; }).join('') + '</tr></thead><tbody>' +
       files.map(function (f) {
         if (f.s) return '<tr class="gs-informe__seccio"><td colspan="' + cap.length + '">' + esc(f.s) + '</td></tr>';
@@ -1226,7 +1258,7 @@
         return '<tr>' + f.map(cel).join('') + '</tr>';
       }).join('') + '</tbody></table></div>';
     var colPdf = {}; nums.forEach(function (n, j) { if (n) colPdf[j] = { halign: 'right' }; });
-    return pregunta(titol, html, [{ t: 'PDF', valor: 0, tipus: 'ghost', abans: function () { pdfInforme(titol, subtitol, cap, files, nomFitxer, { esquerra: true, columnes: colPdf }); return false; } }, { t: 'Tanca', valor: 1 }], false);
+    return pregunta(titol, html, [{ t: 'PDF', valor: 0, tipus: 'ghost', abans: function () { pdfInforme(titol, subtitol, cap, files, nomFitxer, { esquerra: true, columnes: colPdf, compacte: compacte }); return false; } }, { t: 'Tanca', valor: 1 }], compacte && cap.length <= 4);
   }
   // El mateix disseny que l'exportació a PDF de la graella
   function pdfInforme(titol, subtitol, cap, files, nom, opcions) {
@@ -1256,8 +1288,10 @@
       }
       trossos.forEach(function (tros, ti) {
       if (ti) doc.addPage();
+      // PAS 35: compacte → amplada segons el contingut (columnes de xifres estretes)
+      if (opcions.compacte) cap.forEach(function (c, j) { if (j) colEst[j] = Object.assign({ cellWidth: Math.max(16, Math.min(30, String(c).length * 2.1 + 6)) }, colEst[j] || {}); else colEst[0] = Object.assign({ cellWidth: 'wrap' }, colEst[0] || {}); });
       doc.autoTable({
-        head: [cap], body: tros, startY: ti ? Y_TAULA : y0, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, columnStyles: colEst,
+        head: [cap], body: tros, startY: ti ? Y_TAULA : y0, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, columnStyles: colEst, tableWidth: opcions.compacte ? 'wrap' : 'auto',
         styles: Object.assign({ font: 'helvetica', fontSize: 8.5, cellPadding: 1.6, overflow: 'linebreak', valign: 'middle', lineColor: [225, 229, 238], lineWidth: 0.1 }, estils),
         headStyles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold' }, alternateRowStyles: opcions.sensAlternes ? { fillColor: [255, 255, 255] } : { fillColor: [247, 248, 252] },
         didDrawPage: function () {
@@ -1354,11 +1388,200 @@
       });
     });
   }
+  // ================================================================== PAS 35 · AMONESTACIONS
+  function textPeriodeAmon() { var A = S.d.avis_amon || {}; return A.periode === 'tot el curs' ? 'aquest curs' : 'en ' + A.periode + ' (des del ' + dataVista(iniciPeriode(A.periode)) + ')'; }
+  // Selector del període de la graella: curs actual, tots o data a data
+  var delPeriodeAmon = function (d) {
+    if (!esAmon()) return true;
+    var P = S.periodeAmon || { tipus: 'curs' };
+    if (P.tipus === 'tots') return true;
+    if (P.tipus === 'curs') return !S.d.avis_amon || !S.d.avis_amon.curs || d.curs === S.d.avis_amon.curs;
+    return (!P.des || String(d.data_fets) >= P.des) && (!P.fins || String(d.data_fets) <= P.fins);
+  };
+  function periodeAmonText() {
+    var P = S.periodeAmon || { tipus: 'curs' };
+    return P.tipus === 'tots' ? 'tots els cursos' : P.tipus === 'curs' ? 'curs ' + ((S.d.avis_amon || {}).curs || '') : 'del ' + dataVista(P.des || '…') + ' al ' + dataVista(P.fins || '…');
+  }
+  function pintaEinesAmon() {
+    var ed = potEditar(), P = S.periodeAmon = S.periodeAmon || { tipus: 'curs', des: '', fins: '' };
+    $('gsEines').innerHTML =
+      '<span class="gs-periode"><label>Període <select id="gsAmPer"><option value="curs">Curs actual</option><option value="tots">Tots</option><option value="dates">Data a data</option></select></label>' +
+        '<span id="gsAmDates"' + (P.tipus === 'dates' ? '' : ' hidden') + '><label>del <input type="date" id="gsAmDes" value="' + esc(P.des) + '"></label> <label>al <input type="date" id="gsAmFins" value="' + esc(P.fins || isoDe(new Date())) + '"></label></span></span>' +
+      '<span class="gs-compte" id="gsCompte"></span>' +
+      '<span class="gs-retards" id="gsAvisAmon"></span>' +
+      (S.d.nomes_propies ? '<span class="gs-gris" title="Veieu les amonestacions que heu redactat vosaltres">Les vostres amonestacions</span>' : '') +
+      '<span class="gs-espai"></span>' +
+      (S.d.pot_crear ? '<button type="button" class="prog-btn" data-accio="amon-nova">+ Nova amonestació</button>' : '') +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="amon-analisi" title="Nombre d’amonestacions per alumne, nivell, grup o professor (de les files que es veuen)">Anàlisi</button>' +
+      (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="amon-config" title="Carpeta dels PDF i criteri de l’avís">Configuració</button>' + BOTO_ACTUALITZA : '') +
+      '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx" title="Les files que es veuen, amb els fets">Excel</button>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf" title="Les files que es veuen">PDF</button></span>';
+    $('gsAmPer').value = P.tipus;
+    var canvi = function () {
+      P.tipus = $('gsAmPer').value; P.des = $('gsAmDes').value; P.fins = $('gsAmFins').value;
+      $('gsAmDates').hidden = P.tipus !== 'dates';
+      if (P.tipus === 'dates' && P.des && P.fins && P.des > P.fins) return toast('La data inicial és posterior a la final.', true);
+      aplicaFiltre();
+    };
+    ['gsAmPer', 'gsAmDes', 'gsAmFins'].forEach(function (id) { $(id).addEventListener('change', canvi); });
+    pintaAvisAmon();
+  }
+  // Avís: alumnes amb N amonestacions o més en el període (ESO i batxillerat tenen el seu nombre, NOFC 5.3.2)
+  function alumnesAmbAmon() {
+    var A = S.d.avis_amon; if (!A) return [];
+    var lim = A.periode === 'tot el curs' ? null : iniciPeriode(A.periode), per = {};
+    S.d.files.forEach(function (f) {
+      if (lim ? String(f.data_fets) < lim : (A.curs && f.curs !== A.curs)) return;
+      var k = f.id_alumne || plega(f.alumne), x = per[k] = per[k] || { alumne: f.alumne, nivell: f.nivell, grup: f.grup, n: 0, darrera: '' };
+      x.n++; if (String(f.data_fets) > x.darrera) { x.darrera = f.data_fets; x.grup = f.grup || x.grup; x.nivell = f.nivell || x.nivell; }
+    });
+    return Object.keys(per).map(function (k) { return Object.assign({ clau: k }, per[k]); })
+      .filter(function (a) { return a.n >= (/BAT/.test(a.nivell || a.grup) ? A.bat : A.eso); })
+      .sort(function (a, b) { return b.n - a.n || plega(a.alumne).localeCompare(plega(b.alumne), 'ca'); });
+  }
+  function pintaAvisAmon() {
+    var A = S.d.avis_amon, el = $('gsAvisAmon'); if (!A || !el) return;
+    var llista = alumnesAmbAmon();
+    S.avisAmon = {}; llista.forEach(function (a) { S.avisAmon[a.clau] = a.n; });
+    el.innerHTML = '<span class="gs-retards__regla" title="Criteri de l’avís (el fixa qui administra el mòdul, a Configuració)">Avís: ESO ' + A.eso + ' o més · BAT ' + A.bat + ' o més · ' + esc(textPeriodeAmon()) + '</span>' +
+      '<button type="button" class="gs-incomplet' + (llista.length ? '' : ' is-cap') + '" data-accio="amon-avis"><span aria-hidden="true">⚠</span> ' + llista.length + (llista.length === 1 ? ' alumne' : ' alumnes') + '</button>';
+  }
+  function llistaAvisAmon() {
+    var A = S.d.avis_amon, llista = alumnesAmbAmon();
+    informe('Avís d’amonestacions', 'Alumnes amb ' + A.eso + ' amonestacions o més (ESO) o ' + A.bat + ' o més (batxillerat), ' + textPeriodeAmon() + '. ' + llista.length + (llista.length === 1 ? ' alumne.' : ' alumnes.'),
+      ['', 'Alumne/a', 'Grup-Classe', 'Amonestacions', 'Darrera'], llista.map(function (a, i) { return [String(i + 1), a.alumne, a.grup || a.nivell || '', String(a.n), dataVista(a.darrera)]; }), 'avis-amonestacions', false);
+  }
+  // Fets d'una amonestació (icona de la graella)
+  function mostraFets(d) {
+    pregunta('Fets · ' + d.alumne, '<p class="gs-ajuda">' + esc(d.grup || '') + ' · ' + esc(dataVista(d.data_fets)) + ' · ' + esc(d.professor || '') + '</p><div class="gs-amon__fets">' + esc(d.fets).replace(/\n/g, '<br>') + '</div>',
+      [{ t: 'Obre el visor', valor: 2, tipus: 'ghost' }, { t: 'Tanca', valor: 1 }]).then(function (v) { if (v === 2) visorAmon(d.id); });
+  }
+  // Visor: totes les dades (també els fets) i navegació entre les files que es veuen ara (amb els filtres i l'ordre)
+  function visorAmon(id) {
+    var files = S.taula.getData('active'), i = files.map(function (f) { return f.id; }).indexOf(id);
+    if (i < 0) return;
+    var pinta = function () {
+      var d = files[i];
+      $('gsModalTitol').textContent = 'Amonestació ' + (i + 1) + ' de ' + files.length;
+      $('gsModalText').innerHTML = '<dl class="gs-amon__dl">' +
+        [['Alumne/a', d.alumne], ['Grup-Classe', d.grup + (d.nivell ? ' (' + d.nivell + ')' : '')], ['Data dels fets', dataVista(d.data_fets)], ['Professor/a', d.professor], ['Curs', d.curs], ['Redactada el', dataVista(String(d.redactat_el).slice(0, 10)) + ' ' + String(d.redactat_el).slice(11, 16)], ['Codi', d.id]]
+          .map(function (x) { return '<dt>' + esc(x[0]) + '</dt><dd>' + esc(x[1] || '—') + '</dd>'; }).join('') + '</dl>' +
+        '<p class="gs-amon__tit">Fets i circumstàncies</p><div class="gs-amon__fets">' + esc(d.fets).replace(/\n/g, '<br>') + '</div>' +
+        '<p class="gs-amon__nav">' + (d.pdf ? '<a class="prog-btn prog-btn--ghost prog-btn--sm" href="' + esc(d.pdf) + '" target="_blank" rel="noopener">Obre el PDF</a>' : '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-amon-pdf="' + esc(d.id) + '">Fes el PDF</button>') + '</p>';
+      $('gsVisAnt').disabled = i === 0; $('gsVisSeg').disabled = i === files.length - 1;
+      var b = $('gsModalText').querySelector('[data-amon-pdf]'); if (b) b.addEventListener('click', function () { fesPdfAmon(d, pinta); });
+    };
+    pregunta('Amonestació', '', [{ t: '‹ Anterior', valor: 0, tipus: 'ghost', abans: function () { if (i > 0) { i--; pinta(); } return false; } },
+      { t: 'Següent ›', valor: 0, tipus: 'ghost', abans: function () { if (i < files.length - 1) { i++; pinta(); } return false; } }, { t: 'Tanca', valor: 1 }]);
+    var bs = $('gsModalBtns').querySelectorAll('button'); bs[0].id = 'gsVisAnt'; bs[1].id = 'gsVisSeg';
+    var tecla = function (e) { if ($('gsModal').hidden) return document.removeEventListener('keydown', tecla); if (e.key === 'ArrowLeft') bs[0].click(); if (e.key === 'ArrowRight') bs[1].click(); };
+    document.addEventListener('keydown', tecla);
+    pinta();
+  }
+  function fesPdfAmon(d, despres) {
+    api('amonestacio_pdf', { id: d.id }, 'Fent el PDF…').then(function (r) {
+      if (!r.ok) return toast(text(r.error) + (r.detall ? ' (' + r.detall + ')' : ''), true);
+      d.pdf = r.pdf; var row = S.taula.getRow(d.id); if (row) row.update({ pdf: r.pdf });
+      var f = S.d.files.filter(function (x) { return x.id === d.id; })[0]; if (f) f.pdf = r.pdf;
+      toast('PDF fet.'); if (despres) despres();
+    });
+  }
+  // Anàlisi: comptadors de les files que es veuen (amb els filtres i el període), per alumne, nivell, grup o professor
+  function analisiAmon() {
+    pregunta('Anàlisi · Amonestacions', '<p class="gs-ajuda">Compta les amonestacions que es veuen ara a la graella (període i filtres).</p><label class="gs-form-fila">Agrupa per <select id="gsAmAgr"><option value="alumne">Alumne/a</option><option value="grup">Grup-classe</option><option value="nivell">Nivell</option><option value="professor">Professor/a</option></select></label>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Mostra l’anàlisi', valor: 1, abans: function () { analisiAmon.k = $('gsAmAgr').value; } }]).then(function (v) {
+      if (!v) return;
+      var k = analisiAmon.k, files = S.taula.getData('active'), per = {};
+      files.forEach(function (f) { var x = f[k] || '(sense valor)'; per[x] = per[x] || { n: 0, grup: f.grup }; per[x].n++; });
+      var noms = { alumne: 'Alumne/a', grup: 'Grup-Classe', nivell: 'Nivell', professor: 'Professor/a' };
+      var ordre = k === 'nivell' || k === 'grup' ? function (a, b) { return a.localeCompare(b, 'ca', { numeric: true }); } : function (a, b) { return per[b].n - per[a].n || a.localeCompare(b, 'ca'); };
+      var claus = Object.keys(per).sort(ordre);
+      var periode = periodeAmonText();
+      informe('Anàlisi d’amonestacions', files.length + ' amonestacions (' + periode + (S.taula.getHeaderFilters().length ? ', amb filtres' : '') + '), per ' + noms[k].toLowerCase() + '.',
+        k === 'alumne' ? ['Alumne/a', 'Grup-Classe', 'Amonestacions'] : [noms[k], 'Amonestacions'],
+        claus.map(function (c) { return k === 'alumne' ? [c, per[c].grup || '', String(per[c].n)] : [c, String(per[c].n)]; }).concat([{ t: k === 'alumne' ? ['Total', '', String(files.length)] : ['Total', String(files.length)] }]), 'analisi-amonestacions-' + k);
+    });
+  }
+  // Configuració (administració del mòdul): carpeta de Drive dels PDF i criteri de l'avís
+  function configAmon() {
+    var A = S.d.avis_amon, ns = []; for (var i = 1; i <= 20; i++) ns.push(i);
+    var sel = function (id, ops, v) { return '<select id="' + id + '">' + ops.map(function (o) { return '<option' + (String(o) === String(v) ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>'; };
+    pregunta('Configuració · Amonestacions', '<label class="gs-form-fila gs-form-fila--ample">Carpeta de Drive dels PDF <input id="gsAmCarp" value="' + esc(A.carpeta) + '" placeholder="https://drive.google.com/drive/folders/…"></label>' +
+      '<p class="gs-ajuda">Cada amonestació nova es desa en PDF en aquesta carpeta. Ha de ser accessible per al compte que executa GESTIO.</p>' +
+      '<div class="gs-form-fila">Avís a partir de ' + sel('gsAmEso', ns, A.eso) + ' (ESO) i ' + sel('gsAmBat', ns, A.bat) + ' (batxillerat) amonestacions o més en ' + sel('gsAmPerA', A.periodes, A.periode) + '</div>' +
+      '<p class="gs-ajuda">Les NOFC (5.3.2) preveuen mesures a partir de cinc amonestacions lleus a l’ESO i de dues al batxillerat.</p>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa', valor: 1, abans: function () { configAmon.v = { carpeta: $('gsAmCarp').value.trim(), eso: Number($('gsAmEso').value), bat: Number($('gsAmBat').value), periode: $('gsAmPerA').value }; } }], false).then(function (v) {
+      if (!v) return;
+      api('amonestacions_config', configAmon.v, 'Desant la configuració…').then(function (r) {
+        if (!r.ok) return toast(text(r.error), true);
+        S.d.avis_amon = r.avis_amon; pintaAvisAmon(); if (S.taula) S.taula.redraw(true); toast('Configuració desada.');
+      });
+    });
+  }
+  // Nova amonestació: formulari (alumne i professor de llista, data amb calendari, fets lliures) → desa i fa el PDF
+  var INFO_AMON = {
+    alumne: 'Alumne/a que ha comès els fets. Escriviu un cognom (o el grup) per trobar-lo a la llista.',
+    grup: 'Es posa sol: el grup-classe actual de l’alumne/a.',
+    data: 'Dia que van passar els fets (no pot ser posterior a avui ni d’un altre curs).',
+    professor: 'Docent que redacta l’amonestació (qui imparteix classe a l’alumne/a o ha estat testimoni dels fets, NOFC 5.3.3).',
+    fets: 'Descripció objectiva dels fets i les circumstàncies (què, on, quan), sense valoracions personals. Entre 20 i 3.000 caràcters. Aquest text surt al PDF que rep la família.'
+  };
+  function novaAmon(previ) {
+    var obre = function (F) {
+      previ = previ || {};
+      var lab = function (id, t, k, oblig) { return '<label for="' + id + '">' + t + (oblig ? ' <span class="gs-oblig">*</span>' : '') + ' <span class="gs-info" aria-hidden="true" data-info="' + esc(INFO_AMON[k]) + '">i</span></label>'; };
+      var opcions = function (q) { q = plega(q); return F.alumnes.filter(function (a) { return !q || plega(a.nom + ' ' + a.grup).indexOf(q) >= 0; }).slice(0, 300).map(function (a) { return '<option value="' + esc(a.id) + '"' + (a.id === previ.id_alumne ? ' selected' : '') + '>' + esc(a.nom) + ' — ' + esc(a.grup || a.nivell || '') + '</option>'; }).join(''); };
+      var html = '<div class="gs-amon__form">' +
+        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmCerca', 'Alumne/a', 'alumne', true) + '<input type="search" id="gsAmCerca" class="gs-cerca" placeholder="Escriviu un cognom o el grup…" autocomplete="off" aria-describedby="gsAmInfoAlu"><span class="gs-sr" id="gsAmInfoAlu">' + esc(INFO_AMON.alumne) + '</span>' +
+          '<select id="gsAmAlumne" size="6" class="gs-ent-llista" aria-label="Alumne/a">' + opcions('') + '</select></div>' +
+        '<div class="gs-amon__camp">' + lab('gsAmGrup', 'Grup-classe', 'grup') + '<input id="gsAmGrup" readonly tabindex="-1" placeholder="(es posa sol)"></div>' +
+        '<div class="gs-amon__camp">' + lab('gsAmData', 'Data dels fets', 'data', true) + '<input type="date" id="gsAmData" max="' + esc(F.avui) + '" min="' + esc(String(F.curs).slice(0, 4) + '-09-01') + '" value="' + esc(previ.data_fets || F.avui) + '"></div>' +
+        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmProf', 'Professor/a', 'professor', true) + '<select id="gsAmProf"' + (F.triar_professor ? '' : ' disabled') + '>' + (F.triar_professor ? '<option value="">— Trieu el professor/a —</option>' : '') +
+          F.professorat.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === (previ.id_professor || F.jo) ? ' selected' : '') + '>' + esc(p.nom) + '</option>'; }).join('') + '</select></div>' +
+        '<div class="gs-amon__camp gs-amon__camp--ample">' + lab('gsAmFets', 'Fets i circumstàncies', 'fets', true) + '<textarea id="gsAmFets" rows="7" maxlength="3000" placeholder="Descriviu els fets de manera objectiva…">' + esc(previ.fets || '') + '</textarea><small class="gs-gris" id="gsAmCompte"></small></div>' +
+        '<p class="gs-ajuda gs-amon__camp--ample">La data i l’hora de redacció i el curs escolar es posen sols. En desar es fa el PDF per a la família (amb el logo del centre i la referència a les NOFC) i es desa a la carpeta de Drive de les amonestacions.</p>' +
+        '<p class="prog-avis gs-amon__camp--ample" id="gsAmErr"' + (previ.error ? '' : ' hidden') + '>' + esc(previ.error || '') + '</p></div>';
+      var err = function (t, el) { $('gsAmErr').textContent = t; $('gsAmErr').hidden = false; if (el) el.focus(); return false; };
+      pregunta('Nova amonestació', html, [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa', valor: 1, abans: function () {
+        var v = { id_alumne: $('gsAmAlumne').value, id_professor: $('gsAmProf').value, data_fets: $('gsAmData').value, fets: $('gsAmFets').value.trim() };
+        if (!v.id_alumne) return err(text('alumne_invalid'), $('gsAmCerca'));
+        if (!v.data_fets || !/^\d{4}-\d{2}-\d{2}$/.test(v.data_fets)) return err('Trieu la data dels fets.', $('gsAmData'));
+        if (v.data_fets > F.avui) return err(text('data_futura'), $('gsAmData'));
+        if (!v.id_professor) return err(text('professor_invalid'), $('gsAmProf'));
+        if (v.fets.length < 20) return err(text('fets_curts'), $('gsAmFets'));
+        if (!/[A-Za-zÀ-ÿ]{3,}/.test(v.fets)) return err(text('fets_invalids'), $('gsAmFets'));
+        novaAmon.v = v;
+      } }], false).then(function (ok) {
+        if (!ok) return;
+        var v = novaAmon.v;
+        api('amonestacio_nova', v, 'Desant l’amonestació i fent el PDF…').then(function (r) {
+          if (!r.ok) { v.error = text(r.error); return novaAmon(v); }
+          var f = r.fila; S.d.files.push(copia(f)); S.taula.addRow(copia(f), true).then(aplicaFiltre); pintaAvisAmon();
+          if (S.d.versio) S.d.versio = { data: f.redactat_el, per: S.sessio.email };
+          var av = (S.avisAmon || {})[f.id_alumne || plega(f.alumne)];
+          pregunta('Amonestació desada', '<p>' + (r.repetida ? 'Aquesta amonestació ja s’havia desat fa un moment: no s’ha duplicat.' : 'Amonestació de <strong>' + esc(f.alumne) + '</strong> (' + esc(f.grup) + ') desada amb el codi <strong>' + esc(f.id) + '</strong>.') + '</p>' +
+            (f.pdf ? '<p><a class="prog-btn" href="' + esc(f.pdf) + '" target="_blank" rel="noopener">Obre el PDF</a></p>' : '<p class="prog-avis">No s’ha pogut fer el PDF' + (r.error_pdf ? ' (' + esc(r.error_pdf) + ')' : '') + '. L’amonestació està desada: el podeu tornar a provar des del visor (doble clic a la fila).</p>') +
+            (av ? '<p class="prog-avis">Avís: ' + esc(f.alumne) + ' ja té ' + av + ' amonestacions ' + esc(textPeriodeAmon()) + '.</p>' : ''), [{ t: 'Tanca', valor: 1 }]);
+        });
+      });
+      var c = $('gsAmCerca'), sel = $('gsAmAlumne');
+      var posaGrup = function () { var a = F.alumnes.filter(function (x) { return x.id === sel.value; })[0]; $('gsAmGrup').value = a ? a.grup || a.nivell || '' : ''; };
+      c.addEventListener('input', function () { sel.innerHTML = opcions(c.value); if (c.value.trim() && sel.options.length) sel.selectedIndex = 0; posaGrup(); });
+      c.addEventListener('keydown', function (e) { if (e.key === 'ArrowDown') { e.preventDefault(); sel.focus(); if (sel.selectedIndex < 0 && sel.options.length) sel.selectedIndex = 0; } });
+      sel.addEventListener('change', posaGrup); posaGrup();
+      ['gsAmCerca', 'gsAmData', 'gsAmProf', 'gsAmFets'].forEach(function (id) { $(id).addEventListener('input', function () { $('gsAmErr').hidden = true; }); });
+      var compta = function () { var n = $('gsAmFets').value.trim().length; $('gsAmCompte').textContent = n + ' / 3.000 caràcters' + (n && n < 20 ? ' (mínim 20)' : ''); };
+      $('gsAmFets').addEventListener('input', compta); compta();
+      setTimeout(function () { (previ.id_alumne ? $('gsAmFets') : c).focus(); }, 0);
+    };
+    if (S.formAmon) return obre(S.formAmon);
+    api('amonestacio_form', {}, 'Preparant el formulari…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.formAmon = r; obre(r); });
+  }
+
   // PAS 33 · CONTROL D'ENTRADA · Avís de retards: alumnes amb «quantitat» entrades o més dins del període (comptat fins avui)
   function alumnesAmbRetards() {
     var R = S.d.retards; if (!R || !S.d.files) return [];
-    var lim = new Date(); lim.setHours(0, 0, 0, 0); lim.setDate(lim.getDate() - R.dies + 1);
-    var limIso = lim.getFullYear() + '-' + ('0' + (lim.getMonth() + 1)).slice(-2) + '-' + ('0' + lim.getDate()).slice(-2);
+    var limIso = iniciPeriode(R.periode);
     var per = {};
     S.d.files.forEach(function (f) {
       if (String(f.data) < limIso) return;
@@ -1368,13 +1591,24 @@
     return Object.keys(per).filter(function (k) { return per[k].n >= R.quantitat; }).map(function (k) { return Object.assign({ clau: k }, per[k]); })
       .sort(function (a, b) { return b.n - a.n || plega(a.alumne).localeCompare(plega(b.alumne), 'ca'); });
   }
+  // PAS 35 · Inici d'un període comptat a partir d'avui (inclòs): «1 mes» = des del mateix dia del mes anterior;
+  // «N setmanes» = des de fa N×7 dies; «tot el curs» = des de l'1 de setembre del curs actual
+  function isoDe(d) { return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  function iniciPeriode(p) {
+    var d = new Date(); d.setHours(12, 0, 0, 0);
+    var m = /^(\d+) (setmana|setmanes|mes|mesos)$/.exec(String(p || ''));
+    if (p === 'tot el curs') { var y = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1; return y + '-09-01'; }
+    if (m && /setman/.test(m[2])) d.setDate(d.getDate() - 7 * Number(m[1]));
+    else if (m) { var dia = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() - Number(m[1])); d.setDate(Math.min(dia, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); }
+    return isoDe(d);
+  }
   function pintaRetards() {
     var R = S.d.retards, el = $('gsRetards'); if (!R || !el) return;
     var llista = alumnesAmbRetards();
     S.avisRetards = {}; llista.forEach(function (a) { S.avisRetards[a.clau] = a.n; });
     var sel = function (id, ops, v) { return '<select id="' + id + '"' + (R.pot_canviar ? '' : ' disabled') + '>' + ops.map(function (o) { return '<option' + (String(o) === String(v) ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>'; };
     var q = []; for (var i = 3; i <= 20; i++) q.push(i);
-    el.innerHTML = '<span class="gs-retards__regla" title="' + (R.pot_canviar ? 'Podeu canviar el criteri: val per a tothom.' : 'El criteri el fixa qui administra el mòdul.') + '">Avís a partir de ' + sel('gsRetQ', q, R.quantitat) + ' retards en ' + sel('gsRetP', R.periodes, R.periode) + '</span>' +
+    el.innerHTML = '<span class="gs-retards__regla" title="' + (R.pot_canviar ? 'Podeu canviar el criteri: val per a tothom.' : 'El criteri el fixa qui administra el mòdul.') + '">Avís: ' + sel('gsRetQ', q, R.quantitat) + ' retards o més en ' + sel('gsRetP', R.periodes, R.periode) + ' <small class="gs-gris">(des del ' + dataVista(iniciPeriode(R.periode)) + ')</small></span>' +
       '<button type="button" class="gs-incomplet' + (llista.length ? '' : ' is-cap') + '" data-accio="retards-llista"><span aria-hidden="true">⚠</span> ' + llista.length + (llista.length === 1 ? ' alumne' : ' alumnes') + '</button>';
     if (R.pot_canviar) ['gsRetQ', 'gsRetP'].forEach(function (id) { $(id).addEventListener('change', function () {
       api('retards_desa', { quantitat: Number($('gsRetQ').value), periode: $('gsRetP').value }, 'Desant el criteri…').then(function (r) {
@@ -1385,7 +1619,7 @@
   }
   function llistaRetards() {
     var R = S.d.retards, llista = alumnesAmbRetards();
-    informe('Avís de retards', 'Alumnes amb ' + R.quantitat + ' retards o més en ' + R.periode + ' (fins avui). ' + llista.length + (llista.length === 1 ? ' alumne.' : ' alumnes.'), ['', 'Alumne', 'Nivell', 'Grup-Classe', 'Retards', 'Darrer'],
+    informe('Avís de retards', 'Alumnes amb ' + R.quantitat + ' retards o més en ' + R.periode + ' (del ' + dataVista(iniciPeriode(R.periode)) + ' fins avui). ' + llista.length + (llista.length === 1 ? ' alumne.' : ' alumnes.'), ['', 'Alumne', 'Nivell', 'Grup-Classe', 'Retards', 'Darrer'],
       llista.map(function (a, i) { return [String(i + 1), a.alumne, a.nivell || '', a.grup || '', String(a.n), dataVista(a.ultima.slice(0, 10)) + ' ' + a.ultima.slice(11, 16)]; }), 'avis-retards');
   }
   // CONTROL D'ENTRADA · Nova entrada: triar un alumne (ESO i batxillerat) i desar (data i hora d'ara)
@@ -1732,7 +1966,13 @@
     api('permisos_matriu_desa', { canvis: canvis }, 'Desant els permisos…').then(function (r) {
       if (!r.ok) return toast(text(r.error) + (r.id_equip ? ' (' + r.id_equip + ')' : ''), true);
       S.cache = {};   // els nivells poden haver canviat a qualsevol mòdul
-      marcaBrut(false); toast('Permisos desats.'); carregaEquips();
+      // PAS 35: sense tornar a carregar: s'actualitzen les dades del navegador
+      canvis.forEach(function (c) {
+        var q = S.d.r.equips.filter(function (x) { return x.id_equip === c.id_equip; })[0]; if (!q) return;
+        q.permisos = (q.permisos || []).filter(function (p) { return p.modul !== c.id_modul; }).concat(c.nivell ? [{ modul: c.id_modul, nivell: c.nivell }] : []);
+      });
+      $('gsTaula').querySelectorAll('select[data-eq]').forEach(function (x) { x.dataset.abans = x.value; x.classList.remove('gs-canviat'); });
+      marcaBrut(false); toast('Permisos desats.');
     });
   }
   // Membres d'un equip: llista del professorat amb cercador; es desa de cop (membres_desa)
@@ -1778,8 +2018,12 @@
       if (!v) return;
       api('membres_desa', { id_equip: q.id_equip, membres: sel }, 'Desant els membres…').then(function (r2) {
         if (!r2.ok) return toast(text(r2.error), true);
-        delete S.cache.professorat;   // la columna Equips del professorat ha canviat
-        toast('Membres desats (' + r2.entren + ' altes, ' + r2.surten + ' baixes).'); obreModul(S.modul);
+        delete S.cache.professorat; delete S.cache.pas;   // la columna Equips del professorat ha canviat
+        // PAS 35: sense tornar a carregar: s'actualitza la fila de l'equip
+        var noms = sel.map(function (id) { var p = prof.filter(function (x) { return x.id === id; })[0]; return p ? p.nom : id; });
+        var o = S.d.r.equips.filter(function (x) { return x.id_equip === q.id_equip; })[0]; if (o) { o.membres = noms; o.membres_ids = sel.slice(); }
+        var row = S.taula.getRow(q.id_equip); if (row) row.update({ membres: noms, membres_ids: sel.slice() });
+        toast('Membres desats (' + r2.entren + ' altes, ' + r2.surten + ' baixes).');
       });
     });
     var confirmaDir = false;
@@ -1814,7 +2058,9 @@
       var equips = S.taula.getData().map(function (q) { return { id_equip: q.id_equip, nom: q.nom, tipus: q.tipus, descripcio: q.descripcio, actiu: q.actiu, grups: Array.isArray(q.grups) ? q.grups : String(q.grups || '').split(',').filter(Boolean) }; }).concat([nouEquip.dades]);
       api('equips_desa', { equips: equips }, 'Creant l’equip…').then(function (r) {
         if (!r.ok) return toast(text(r.error) + (r.id_equip ? ' (' + r.id_equip + ')' : '') + (r.camp ? ' (' + r.camp + ')' : ''), true);
-        toast('Equip ' + nouEquip.dades.id_equip + ' creat. Ara podeu afegir-hi membres i, a la pestanya Permisos, donar-li accés als mòduls.'); obreModul(S.modul);
+        var nou = Object.assign({ _nou: false, membres: [], membres_ids: [], permisos: [] }, nouEquip.dades);
+        S.d.r.equips.push(Object.assign({}, nou)); S.taula.addRow(nou, false);
+        toast('Equip ' + nouEquip.dades.id_equip + ' creat. Ara podeu afegir-hi membres i, a la pestanya Permisos, donar-li accés als mòduls.');
       });
     });
     $('gsEqCodi').addEventListener('input', function () { $('gsEqCodiAj').textContent = 'Codi: ' + codi() + ' · lletres i xifres, sense espais ni accents. No es podrà canviar.'; });
@@ -1831,7 +2077,8 @@
       api('equip_esborra', { id_equip: q.id_equip }, 'Esborrant l’equip…').then(function (r) {
         if (!r.ok) return toast(text(r.error), true);
         delete S.cache.professorat; delete S.cache.pas;
-        toast('Equip ' + r.id_equip + ' esborrat (' + r.membres + ' membres i ' + r.permisos + ' permisos).'); obreModul(S.modul);
+        S.d.r.equips = S.d.r.equips.filter(function (x) { return x.id_equip !== r.id_equip; }); row.delete();
+        toast('Equip ' + r.id_equip + ' esborrat (' + r.membres + ' membres i ' + r.permisos + ' permisos).');
       });
     });
   }
@@ -1839,7 +2086,11 @@
     var equips = S.taula.getData().map(function (q) { return { id_equip: q.id_equip, nom: q.nom, tipus: q.tipus, descripcio: q.descripcio, actiu: q.actiu, grups: Array.isArray(q.grups) ? q.grups : String(q.grups || '').split(',').filter(Boolean) }; });
     api('equips_desa', { equips: equips }, 'Desant els equips…').then(function (r) {
       if (!r.ok) return toast(text(r.error) + (r.id_equip ? ' (' + r.id_equip + ')' : '') + (r.camp ? ' (' + r.camp + ')' : ''), true);
-      marcaBrut(false); toast('Equips desats.'); obreModul(S.modul);
+      // PAS 35: no cal tornar a llegir les dades: les del navegador ja són les desades
+      var r0 = S.d.r;
+      S.taula.getData().forEach(function (q) { var o = r0.equips.filter(function (x) { return x.id_equip === q.id_equip; })[0]; if (o) Object.assign(o, { nom: q.nom, tipus: q.tipus, descripcio: q.descripcio, actiu: q.actiu, grups: (q.grups || []).slice() }); });
+      S.taula.getRows().forEach(function (row) { row.getCells().forEach(function (c) { c.getElement().classList.remove('gs-canviat'); }); });
+      marcaBrut(false); toast('Equips desats.');
     });
   }
 
@@ -1910,6 +2161,10 @@
       case 'nivell': triaNivell(b.dataset.nivell || ''); break;
       case 'incompletes': S.nomesIncompletes = !S.nomesIncompletes; b.classList.toggle('is-actiu', S.nomesIncompletes); b.setAttribute('aria-pressed', String(S.nomesIncompletes)); aplicaFiltre(); S.taula.redraw(true); compteIncompletes(); break;
       case 'retards-llista': llistaRetards(); break;
+      case 'amon-nova': novaAmon(); break;
+      case 'amon-analisi': analisiAmon(); break;
+      case 'amon-avis': llistaAvisAmon(); break;
+      case 'amon-config': configAmon(); break;
       case 'analisi': analisiAlumnat(); break;
       case 'llistat': llistatSignatures(); break;
       case 'entrada-nova': novaEntrada(); break;

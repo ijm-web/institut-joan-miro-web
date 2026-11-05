@@ -292,3 +292,30 @@
 .gs-codi-eq{ display: inline-flex; align-items: center; border: 1px solid #D5D9E6; border-radius: 8px; overflow: hidden; background: #fff; }
 .gs-codi-eq span{ padding: 0 8px; font: 700 14px var(--font-main); color: var(--color-blue); background: #F1F0FD; align-self: stretch; display: flex; align-items: center; }
 .gs-codi-eq input{ border: 0 !important; outline: none; height: 36px; padding: 0 10px; text-transform: uppercase; font: 600 14px var(--font-main); width: 160px; }
+
+/* PAS 35 · informes compactes */
+.gs-informe__taula--compacta{ width: auto; min-width: 280px; }
+.gs-informe__taula--compacta th, .gs-informe__taula--compacta td{ padding: 5px 14px; white-space: nowrap; }
+.gs-informe__taula--compacta td:first-child{ white-space: normal; min-width: 120px; max-width: 360px; }
+/* PAS 35 · amonestacions */
+.gs-periode{ display: inline-flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 13px; }
+.gs-periode select, .gs-periode input{ height: 32px; border: 1px solid #D5D9E6; border-radius: 6px; padding: 0 8px; font: 500 13px var(--font-main); }
+.gs-periode [hidden]{ display: none; }
+.gs-ico-btn{ display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 24px; border: 1px solid #D5D9E6; border-radius: 6px; background: #fff; color: var(--color-blue); cursor: pointer; }
+.gs-ico-btn:hover{ border-color: var(--color-blue); background: #F1F0FD; }
+.gs-amon__form{ display: grid; grid-template-columns: 1fr 1fr; gap: 10px 18px; }
+.gs-amon__camp{ display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.gs-amon__camp--ample{ grid-column: 1 / -1; }
+.gs-amon__camp label{ display: flex; align-items: center; gap: 6px; font: 600 13px var(--font-main); color: var(--color-blue); }
+.gs-amon__camp input, .gs-amon__camp select, .gs-amon__camp textarea{ box-sizing: border-box; width: 100%; max-width: none; border: 1px solid #D5D9E6; border-radius: 8px; padding: 6px 10px; font: 400 14px var(--font-main); }
+.gs-amon__camp input[readonly]{ background: #F6F7FA; }
+.gs-amon__camp textarea{ resize: vertical; min-height: 120px; line-height: 1.45; }
+.gs-amon__fets{ white-space: normal; line-height: 1.5; padding: 10px 12px; border: 1px solid #E1E5EE; border-radius: 8px; background: #FAFBFD; max-height: 46vh; overflow: auto; }
+.gs-amon__dl{ display: grid; grid-template-columns: max-content 1fr; gap: 4px 16px; margin: 0 0 10px; font-size: 14px; }
+.gs-amon__dl dt{ font-weight: 600; color: var(--color-blue); }
+.gs-amon__dl dd{ margin: 0; }
+.gs-amon__tit{ margin: 8px 0 4px; font-weight: 700; color: var(--color-blue); }
+.gs-amon__nav{ margin: 10px 0 0; }
+@media (max-width: 640px){ .gs-amon__form{ grid-template-columns: 1fr; } }
+.gs-informe:has(.gs-informe__taula--compacta){ width: fit-content; max-width: 100%; }
+#gsAmAlumne{ height: 140px; min-height: 0; }

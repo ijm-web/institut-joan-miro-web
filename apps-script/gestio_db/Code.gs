@@ -37,7 +37,7 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions' };
 const CAP = {
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu', 'grups'],
   membres: ['id_equip', 'id_membre', 'carrec'],
@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 30;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 35;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -65,6 +65,12 @@ const CONFIG_PER_DEFECTE = [
   ['retards_periode', '1 mes', 'Control d\'entrada: període de l\'avís de retards (1 setmana, 2 setmanes, 3 setmanes o 1 mes).'],
   ['carpeta_copies', '', 'Per a copiaSeguretat: URL de la carpeta de Drive on es desen les còpies (en blanc = es crea «GESTIO · còpies de seguretat»).'],
   ['font_control_entrada', '', 'Per a importaControlEntrada: URL del full amb el registre d\'entrades amb retard que es feia fins ara.'],
+  ['font_amonestacions', 'https://docs.google.com/spreadsheets/d/1hMJhDk_W1BwmwhwPd1u6jlw7jg8vZi715p95zwwtE6Q/edit', 'Per a importaAmonestacions: URL del full de respostes del formulari d\'amonestacions que es feia servir fins ara.'],
+  ['carpeta_amonestacions', 'https://drive.google.com/drive/folders/1vas-tQlX2zA1iLub1_zxbFfqZ1LMGDaE', 'Amonestacions: carpeta de Drive on es desa el PDF de cada amonestació nova (es pot canviar des del web: Configuració).'],
+  ['amonestacions_avis_eso', '5', 'Amonestacions: nombre d\'amonestacions (ESO) que activa l\'avís (NOFC 5.3.2: cinc a l\'ESO).'],
+  ['amonestacions_avis_bat', '2', 'Amonestacions: nombre d\'amonestacions (batxillerat) que activa l\'avís (NOFC 5.3.2: dues al batxillerat).'],
+  ['amonestacions_periode', 'tot el curs', 'Amonestacions: període de l\'avís (1 setmana, 2 setmanes, 3 setmanes, 1 mes, 2 mesos, 3 mesos o tot el curs).'],
+  ['logo_pdf', 'https://institutjoanmiro.netlify.app/assets/programacions/logo-ijm.png', 'Logo que surt als PDF que fa l\'Apps Script (amonestacions).'],
   ['copia_tancament_batxillerat', '', 'La posa el tancament de curs del batxillerat (per a desfesTancamentBatxillerat).'],
 ];
 const MODULS_PER_DEFECTE = [
@@ -74,6 +80,7 @@ const MODULS_PER_DEFECTE = [
   ['batxillerat', 'Alumnat Batxillerat', 'Dades acadèmiques de l\'alumnat de batxillerat: grups, itinerari, matèries, pendents i autoritzacions.', 4, 'si'],
   ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si'],
+  ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta qualsevol docent; registre, PDF per a la família, avisos i anàlisi.', 7, 'si'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
@@ -292,6 +299,21 @@ const CAMPS_BATXILLERAT = [
   ['observacions', 'Observacions', 'text', '', 'no', 'no', 'consulta', 'gestio'],
 ]);
 // PAS 29: CONTROL D'ENTRADA · una fila per entrada amb retard (es registra des del web: «Nova entrada»)
+// PAS 35: amonestacions (pestanya «amonestacions» d'ijm_alumnat_db). Els fets no surten a la graella: es veuen amb la icona.
+const CAMPS_AMONESTACIONS = [
+  ['data_fets', 'Data dels fets', 'data', '', 'si', 'no', 'consulta', 'gestio'],
+  ['alumne', 'Alumne/a', 'text', '', 'si', 'no', 'consulta', 'gestio'],
+  ['nivell', 'Nivell', 'llista', ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'].join('|'), 'no', 'no', 'consulta', 'gestio'],
+  ['grup', 'Grup-Classe', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['professor', 'Professor/a', 'text', '', 'si', 'no', 'consulta', 'gestio'],
+  ['fets', 'Fets i circumstàncies', 'text', '', 'si', 'no', 'consulta', 'gestio'],
+  ['pdf', 'PDF', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['curs', 'Curs', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['redactat_el', 'Redactada el', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['id_alumne', 'Codi alumne', 'text', '', 'no', 'no', 'admin', 'gestio'],
+  ['id_professor', 'Codi professor', 'text', '', 'no', 'no', 'admin', 'gestio'],
+];
+const PERIODES_AMON = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30, '2 mesos': 61, '3 mesos': 92, 'tot el curs': 0 };
 const CAMPS_CONTROL = [
   ['alumne', 'Alumne', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['nivell', 'Nivell', 'llista', NIVELLS_ESO.concat(NIVELLS_BAT).join('|'), 'no', 'no', 'consulta', 'gestio'],
@@ -362,6 +384,7 @@ const MODULS = {
   batxillerat: { full: FULL.bat, id: 'id_alumne', prefix: 'ALU-', xifres: 5, equips: false, nom: 'alumne', ss: () => ssAlumnat_() },
   // PAS 29: registre d'entrades amb retard (a ijm_alumnat_db: són dades d'alumnes). La data de registre és «registrat».
   control_entrada: { full: FULL.ent, id: 'id_entrada', prefix: 'ENT-', xifres: 6, equips: false, nom: 'entrada', registre: true, ss: () => ssAlumnat_() },
+  amonestacions: { full: FULL.amo, id: 'id_amonestacio', prefix: 'AMO-', xifres: 5, equips: false, nom: 'amonestació', registre: true, ss: () => ssAlumnat_() },
 };
 function ssAlumnat_() {
   const id = (String(llegeixConfig_().db_alumnat || '').match(/[-\w]{25,}/) || [''])[0];
@@ -451,6 +474,10 @@ function doPost(e) {
       case 'equips_desa':  return json_(equipsDesa_(ctx, req));
       case 'membres_desa': return json_(membresDesa_(ctx, req));
       case 'equip_esborra': return json_(equipEsborra_(ctx, req));
+      case 'amonestacio_form': return json_(amonestacioForm_(ctx));
+      case 'amonestacio_nova': return json_(amonestacioNova_(ctx, req));
+      case 'amonestacio_pdf': return json_(amonestacioPdf_(ctx, req));
+      case 'amonestacions_config': return json_(amonestacionsConfig_(ctx, req));
       case 'permisos_matriu_desa': return json_(permisosMatriuDesa_(ctx, req));
       case 'tanca_curs':   return json_(tancaCurs_(ctx, req));
       case 'versio':       return json_(MODULS[req.modul] && pot_(ctx, req.modul, 'consulta') ? { ok: true, versio: versio_(req.modul) } : { ok: false, error: 'sense_permis' });
@@ -473,7 +500,7 @@ function json_(o) { return ContentService.createTextOutput(JSON.stringify(o)).se
 
 // ------------------------------------------------------------------ qui és i què pot fer
 const llistaGrups_ = (x) => (Array.isArray(x) ? x : String(x || '').split(/[,;|]/)).map((g) => String(g).trim()).filter(Boolean);
-const campGrup_ = (modul) => (ETAPES[modul] ? 'grup_actual' : (modul === 'control_entrada' ? 'grup' : ''));
+const campGrup_ = (modul) => (ETAPES[modul] ? 'grup_actual' : (modul === 'control_entrada' || modul === 'amonestacions' ? 'grup' : ''));
 const dinsAbast_ = (ab, grup) => !ab || ab.indexOf(String(grup || '').trim()) >= 0;
 function context_(email) {
   const cfg = llegeixConfig_();
@@ -494,8 +521,12 @@ function context_(email) {
     if (modul === 'equips') return '';   // equips i permisos: només admins globals
     let n = -1;
     perms.forEach((r) => { if (r.id_modul === modul || r.id_modul === '*') n = Math.max(n, NIVELLS.indexOf(norm_(r.nivell))); });
+    // PAS 35: tot el professorat pot redactar amonestacions, encara que el seu equip no hi tingui permís (només veu les seves)
+    if (n < 0 && modul === 'amonestacions' && p && /^PRO-/.test(String(p.id))) return 'consulta';
     return n >= 0 ? NIVELLS[n] : '';
   };
+  // Amonestacions: qui no hi té cap permís d'equip (nivell implícit) només veu les que ha redactat
+  const nomesPropies = (modul) => modul === 'amonestacions' && !global && !perms.some((r) => r.id_modul === modul || r.id_modul === '*');
   // PAS 30: si tots els permisos d'un mòdul venen d'equips amb «grups» (p. ex. l'equip docent de 1r ESO A), la persona
   // només veu les files d'aquests grups. Qui té algun permís sense grups (coordinació, direcció) ho veu tot.
   const abast = (modul) => {
@@ -505,7 +536,7 @@ function context_(email) {
     const g = {}; rel.forEach((r) => grupsEq[r.id_equip].forEach((x) => { g[x] = 1; }));
     return Object.keys(g);
   };
-  return { email: email, persona: p, equips: eqs, global: global, nivell: nivell, abast: abast, cfg: cfg };
+  return { email: email, persona: p, equips: eqs, global: global, nivell: nivell, abast: abast, nomesPropies: nomesPropies, cfg: cfg };
 }
 const pot_ = (ctx, modul, nivell) => NIVELLS.indexOf(ctx.nivell(modul)) >= NIVELLS.indexOf(nivell);
 const obert_ = (ctx) => norm_(ctx.cfg.estat || 'obert') === 'obert' || ctx.global;
@@ -544,8 +575,10 @@ function dades_(ctx, modul) {
   const files = llegeixFull_(fullModul_(M, tots))
     // Qui no pot veure l'estat (p. ex. consulta del professorat) només veu les files que no són de baixa
     .filter((r) => veuEstat || !deBaixa_(r))
-    // PAS 30: equips docents → només els seus grups
-    .filter((r) => !ab || !cg || dinsAbast_(ab, r[cg]))
+    // PAS 30: equips docents → només els seus grups (PAS 35: i, a les amonestacions, també les que ha redactat)
+    .filter((r) => !ab || !cg || dinsAbast_(ab, r[cg]) || propiaAmon_(ctx, modul, r))
+    // PAS 35: amonestacions amb el nivell implícit del professorat → només les que ha redactat
+    .filter((r) => !(ctx.nomesPropies && ctx.nomesPropies(modul)) || propiaAmon_(ctx, modul, r))
     .map((r) => {
       const o = { id: r[M.id], data: r.data || '', desat_per: r.desat_per || '' };
       camps.forEach((c) => { o[c.clau] = c.tipus === 'calculat' ? calcula_(c, r) : (r[c.clau] == null ? '' : r[c.clau]); });
@@ -559,7 +592,10 @@ function dades_(ctx, modul) {
     abast: ab && cg ? ab : undefined,
     versio: versio_(modul),
     completesa: COMPLETESA[modul] ? COMPLETESA[modul].filter((k) => camps.some((c) => c.clau === k)) : undefined,
-    retards: M.registre ? Object.assign(retardsCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
+    retards: modul === 'control_entrada' ? Object.assign(retardsCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
+    avis_amon: modul === 'amonestacions' ? Object.assign(avisAmonCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
+    nomes_propies: ctx.nomesPropies ? ctx.nomesPropies(modul) : false,
+    pot_crear: modul === 'amonestacions' ? potRedactar_(ctx) : undefined,
     pot_historial: !M.registre && pot_(ctx, modul, 'edicio'),
     camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips };
 }
@@ -797,6 +833,208 @@ function historialFila_(ctx, req) {
   return { ok: true, id: id, files: files };
 }
 
+// ------------------------------------------------------------------ PAS 35 · AMONESTACIONS
+// Qui pot redactar: tot el professorat (actiu) i qui té edició al mòdul. Qui té edició pot triar el professor/a; la resta, ell mateix.
+const propiaAmon_ = (ctx, modul, r) => modul === 'amonestacions' && ((ctx.persona && String(r.id_professor) === String(ctx.persona.id)) || String(r.desat_per).toLowerCase() === ctx.email);
+function potRedactar_(ctx) {
+  if (pot_(ctx, 'amonestacions', 'edicio')) return true;
+  return !!(ctx.persona && /^PRO-/.test(String(ctx.persona.id)) && pot_(ctx, 'amonestacions', 'consulta'));
+}
+const cursDeData_ = (iso) => { const m = /^(\d{4})-(\d{2})/.exec(String(iso || '')); if (!m) return ''; const y = Number(m[1]); return Number(m[2]) >= 9 ? y + '-' + (y + 1) : (y - 1) + '-' + y; };
+function avisAmonCfg_(cfg) {
+  const n = (v, d) => Math.max(1, Math.min(20, Number(v) || d));
+  const p = PERIODES_AMON[String(cfg.amonestacions_periode || '').trim()] !== undefined ? String(cfg.amonestacions_periode).trim() : 'tot el curs';
+  return { eso: n(cfg.amonestacions_avis_eso, 5), bat: n(cfg.amonestacions_avis_bat, 2), periode: p, periodes: Object.keys(PERIODES_AMON), curs: cfg.curs || '',
+    carpeta: String(cfg.carpeta_amonestacions || '') };
+}
+// Formulari: alumnat (ESO i batxillerat, sense baixes), professorat actiu (sense fitxes de prova) i qui redacta
+function amonestacioForm_(ctx) {
+  if (!potRedactar_(ctx)) return { ok: false, error: 'sense_permis' };
+  const ab = ctx.abast ? ctx.abast('amonestacions') : null;
+  const alumnes = alumnesTots_().map((a) => ({ id: a.id, nom: a.nom, nivell: a.nivell, grup: a.grup }));
+  const prof = llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && !esProva_(p) && p.nom)
+    .map((p) => ({ id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom }))
+    .sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca'));
+  const triar = pot_(ctx, 'amonestacions', 'edicio');
+  return { ok: true, alumnes: alumnes, professorat: triar ? prof : prof.filter((p) => ctx.persona && p.id === ctx.persona.id),
+    jo: ctx.persona && /^PRO-/.test(String(ctx.persona.id)) ? ctx.persona.id : '', triar_professor: triar, curs: ctx.cfg.curs || '', avui: ara_().slice(0, 10), abast: ab || undefined };
+}
+// Validació del text dels fets: entre 20 i 3.000 caràcters, sense caràcters de control, amb lletres
+function netejaFets_(t) {
+  const x = String(t == null ? '' : t).replace(/\r\n?/g, '\n').replace(/[\u0000-\u0008\u000b\u000c\u000e-\u001f\u007f]/g, '').replace(/[ \t]+/g, ' ').replace(/\n{3,}/g, '\n\n').trim();
+  if (x.length < 20) return { error: 'fets_curts' };
+  if (x.length > 3000) return { error: 'fets_llargs' };
+  if (!/[A-Za-zÀ-ÿ]{3,}/.test(x)) return { error: 'fets_invalids' };
+  return { valor: x };
+}
+function amonestacioNova_(ctx, req) {
+  if (!potRedactar_(ctx)) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const a = alumnesTots_().filter((x) => x.id === String(req.id_alumne || ''))[0];
+  if (!a) return { ok: false, error: 'alumne_invalid' };
+  // Qualsevol docent pot amonestar qualsevol alumne (també fora dels grups que veu a la graella)
+  const triar = pot_(ctx, 'amonestacions', 'edicio');
+  const idProf = triar ? String(req.id_professor || '') : (ctx.persona ? String(ctx.persona.id) : '');
+  const p = llegeix_(FULL.prof).filter((x) => x.id_professor === idProf && !deBaixa_(x))[0];
+  if (!p) return { ok: false, error: 'professor_invalid' };
+  const avui = ara_().slice(0, 10), data = String(req.data_fets || '');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || isNaN(new Date(data + 'T12:00:00').getTime())) return { ok: false, error: 'data_invalida' };
+  if (data > avui) return { ok: false, error: 'data_futura' };
+  if (cursDeData_(data) !== String(ctx.cfg.curs || cursDeData_(avui))) return { ok: false, error: 'data_fora_curs' };
+  const f = netejaFets_(req.fets);
+  if (f.error) return { ok: false, error: f.error };
+  const M = MODULS.amonestacions, lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  let o;
+  try {
+    const sh = fullModul_(M, campsDe_('amonestacions', true));
+    const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+    const ids = sh.getLastRow() > 1 ? sh.getRange(2, cap.indexOf(M.id) + 1, sh.getLastRow() - 1, 1).getDisplayValues().map((r) => Number(String(r[0]).replace(/\D/g, '')) || 0) : [];
+    const ara = ara_();
+    // Doble clic: la mateixa amonestació (alumne, professor, data i fets) en els darrers 2 minuts no es duplica
+    const files = llegeixFull_(sh);
+    const previ = files.filter((r) => r.id_alumne === a.id && r.id_professor === p.id_professor && r.data_fets === data && r.fets === f.valor && String(r.redactat_el) >= ara.slice(0, 14))[0];
+    if (previ) return { ok: true, repetida: true, fila: Object.assign({ id: previ[M.id] }, previ) };
+    o = { data_fets: data, alumne: a.nom, nivell: a.nivell, grup: a.grup, professor: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, fets: f.valor,
+      pdf: '', curs: ctx.cfg.curs || cursDeData_(data), redactat_el: ara, id_alumne: a.id, id_professor: p.id_professor, desat_per: ctx.email };
+    o[M.id] = codi_(M, 1 + ids.reduce((m, n) => Math.max(m, n), 0));
+    sh.appendRow(cap.map((k) => (o[k] !== undefined ? o[k] : '')));
+    historial_(ctx.email, 'amonestacio', M.full, o[M.id], a.id + ' · ' + data);
+    marcaVersio_('amonestacions', ctx.email);
+  } finally { lock.releaseLock(); }
+  // El PDF es fa després de desar: si no es pot fer (carpeta sense accés…), l'amonestació queda desada igualment
+  let errPdf = '';
+  try { o.pdf = creaPdfAmonestacio_(o, ctx.cfg); posaCampAmon_(o[M.id], 'pdf', o.pdf); } catch (e) { errPdf = String(e && e.message || e); Logger.log('PDF amonestació ' + o[M.id] + ': ' + errPdf); }
+  return { ok: true, fila: Object.assign({ id: o[M.id] }, o), error_pdf: errPdf || undefined };
+}
+function posaCampAmon_(id, clau, valor) {
+  const M = MODULS.amonestacions, sh = fullModul_(M, campsDe_('amonestacions', true));
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), ci = cap.indexOf(M.id), cj = cap.indexOf(clau);
+  for (let i = 1; i < vals.length; i++) if (String(vals[i][ci]) === id) { sh.getRange(i + 1, cj + 1).setValues([[valor]]); return true; }
+  return false;
+}
+// Torna a fer el PDF d'una amonestació que no en té (o el refà, des d'edició)
+function amonestacioPdf_(ctx, req) {
+  const M = MODULS.amonestacions, id = String(req.id || '');
+  const r = llegeixFull_(fullModul_(M, campsDe_('amonestacions', true))).filter((x) => String(x[M.id]) === id)[0];
+  if (!r) return { ok: false, error: 'no_existeix' };
+  const propia = ctx.persona && String(r.id_professor) === String(ctx.persona.id);
+  if (!pot_(ctx, 'amonestacions', 'edicio') && !(propia && potRedactar_(ctx))) return { ok: false, error: 'sense_permis' };
+  if (r.pdf && !req.refes) return { ok: true, pdf: r.pdf };
+  try { const url = creaPdfAmonestacio_(r, ctx.cfg); posaCampAmon_(id, 'pdf', url); marcaVersio_('amonestacions', ctx.email); return { ok: true, pdf: url }; }
+  catch (e) { return { ok: false, error: 'pdf_error', detall: String(e && e.message || e).slice(0, 200) }; }
+}
+// Configuració (admin del mòdul): carpeta dels PDF i avís
+function amonestacionsConfig_(ctx, req) {
+  if (!pot_(ctx, 'amonestacions', 'admin')) return { ok: false, error: 'sense_permis' };
+  const eso = Number(req.eso), bat = Number(req.bat), per = String(req.periode || ''), carpeta = String(req.carpeta || '').trim();
+  if (!(eso >= 1 && eso <= 20 && bat >= 1 && bat <= 20) || PERIODES_AMON[per] === undefined) return { ok: false, error: 'peticio_invalida' };
+  const idC = (carpeta.match(/[-\w]{25,}/) || [''])[0];
+  if (!idC) return { ok: false, error: 'carpeta_invalida' };
+  try { DriveApp.getFolderById(idC).getName(); } catch (e) { return { ok: false, error: 'carpeta_sense_acces' }; }
+  [['amonestacions_avis_eso', String(Math.round(eso))], ['amonestacions_avis_bat', String(Math.round(bat))], ['amonestacions_periode', per], ['carpeta_amonestacions', carpeta]].forEach((kv) => posaConfig_(kv[0], kv[1]));
+  historial_(ctx.email, 'config', FULL.conf, 'amonestacions', JSON.stringify({ eso: eso, bat: bat, periode: per, carpeta: carpeta }));
+  return { ok: true, avis_amon: Object.assign(avisAmonCfg_(llegeixConfig_()), { pot_canviar: true }) };
+}
+// PDF de l'amonestació (HTML → PDF amb l'Apps Script), amb el logo del centre, a la carpeta de config › carpeta_amonestacions
+const escH_ = (x) => String(x == null ? '' : x).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const dataCat_ = (iso) => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || '')); return m ? m[3] + '/' + m[2] + '/' + m[1] : String(iso || ''); };
+function logoPdf_(cfg) {
+  try { const r = UrlFetchApp.fetch(String(cfg.logo_pdf || ''), { muteHttpExceptions: true }); if (r.getResponseCode() === 200) return 'data:image/png;base64,' + Utilities.base64Encode(r.getContent()); } catch (e) { /* sense logo */ }
+  return '';
+}
+function creaPdfAmonestacio_(o, cfg) {
+  const idC = (String(cfg.carpeta_amonestacions || '').match(/[-\w]{25,}/) || [''])[0];
+  if (!idC) throw new Error('Falta config › carpeta_amonestacions');
+  const carpeta = DriveApp.getFolderById(idC);
+  const bat = /BAT/.test(String(o.nivell || o.grup));
+  const logo = logoPdf_(cfg);
+  const fets = escH_(o.fets).replace(/\n/g, '<br>');
+  const html = '<html><head><meta charset="utf-8"><style>' +
+    'body{font-family:Arial,Helvetica,sans-serif;font-size:11pt;color:#1e1e2a;margin:0 8mm}' +
+    '.cap{display:table;width:100%;border-bottom:2px solid #1c0cbc;padding-bottom:6px;margin-bottom:14px}.cap div{display:table-cell;vertical-align:middle}' +
+    '.adr{text-align:right;font-size:8pt;color:#5a6070;line-height:1.4}h1{font-size:17pt;color:#1c0cbc;font-weight:normal;margin:6px 0 2px}' +
+    '.tipus{font-size:9pt;font-weight:bold;color:#e8600c;letter-spacing:1px;margin:0 0 12px}table.d{border-collapse:collapse;width:100%;margin:10px 0}' +
+    'table.d td{border:1px solid #d6dae6;padding:5px 8px;font-size:10.5pt}table.d td.e{width:32%;background:#f6f7fc;color:#1c0cbc;font-weight:bold}' +
+    '.fets{border:1px solid #d6dae6;border-radius:4px;padding:8px 10px;min-height:60px;margin:4px 0 12px;line-height:1.45}p{line-height:1.45;margin:6px 0}' +
+    '.peu{margin-top:18px;font-size:10.5pt}.signa{margin-top:26px;display:table;width:100%}.signa div{display:table-cell;width:50%;font-size:9pt;color:#5a6070}' +
+    '</style></head><body>' +
+    '<div class="cap"><div>' + (logo ? '<img src="' + logo + '" style="height:46px">' : '<b>Institut Joan Miró</b>') + '</div>' +
+    '<div class="adr">Av. Verge de Montserrat, 53 · 08940 Cornellà de Llobregat<br>93 377 51 66 · www.institutjoanmiro.cat · a8033900@xtec.cat</div></div>' +
+    '<h1>Amonestació lleu</h1><p class="tipus">FALTA PERJUDICIAL PER A LA CONVIVÈNCIA EN EL CENTRE (FALTA LLEU)</p>' +
+    '<p>Benvolguda família,</p>' +
+    '<p>D\'acord amb les Normes d\'Organització i Funcionament del Centre (NOFC) de l\'Institut Joan Miró, apartat 5.3 «Convivència de l\'alumnat al centre», ' +
+    'i amb la Llei 12/2009, del 10 de juliol, d\'educació, us comuniquem que el vostre fill o filla ha tingut una conducta contrària a les normes de convivència del centre, ' +
+    'que queda registrada en aquesta amonestació lleu (NOFC 5.3.3, Protocol d\'amonestació lleu).</p>' +
+    '<table class="d"><tr><td class="e">Alumne/a</td><td>' + escH_(o.alumne) + '</td></tr><tr><td class="e">Grup-classe</td><td>' + escH_(o.grup) + '</td></tr>' +
+    '<tr><td class="e">Data dels fets</td><td>' + escH_(dataCat_(o.data_fets)) + '</td></tr><tr><td class="e">Professor/a</td><td>' + escH_(o.professor) + '</td></tr></table>' +
+    '<p><b>Fets i circumstàncies:</b></p><div class="fets">' + fets + '</div>' +
+    '<p>D\'acord amb l\'apartat 5.3.2 de les NOFC, l\'acumulació de ' + (bat ? 'dues amonestacions lleus (batxillerat)' : 'cinc amonestacions lleus (ESO)') +
+    ' pot comportar mesures correctores i sancionadores, que poden anar des de la realització d\'activitats acadèmiques individuals al centre fins a la no assistència al centre o a determinades classes, ' +
+    'o la suspensió del dret de participar en sortides i activitats complementàries.</p>' +
+    '<p>La Comissió de Convivència valorarà l\'evolució de l\'alumne/a i els fets ocorreguts, i determinarà, si escau, les mesures correctores i/o sancionadores.</p>' +
+    '<p>Desitgem que aquesta amonestació tingui un efecte positiu i ajudi a millorar l\'actitud del vostre fill o filla.</p>' +
+    '<p class="peu">Cornellà de Llobregat, ' + escH_(dataCat_(o.redactat_el || ara_())) + '</p>' +
+    '<div class="signa"><div>Professor/a: ' + escH_(o.professor) + '</div><div>Direcció de l\'Institut Joan Miró</div></div>' +
+    '</body></html>';
+  const nom = ('Amonestació_lleu_' + o.grup + '_' + o.alumne + '_' + dataCat_(o.data_fets).replace(/\//g, '-') + '_' + o.professor).replace(/[\/\\:*?"<>|]/g, '-') + '.pdf';
+  const pdf = Utilities.newBlob(html, 'text/html', 'amonestacio.html').getAs('application/pdf').setName(nom);
+  return carpeta.createFile(pdf).getUrl();
+}
+// Execució manual: importa les amonestacions del formulari que es feia servir (config › font_amonestacions). Si es torna a
+// executar, salta les que ja hi són (mateix alumne, data, professor i inici dels fets). Les dades del full no es toquen.
+function importaAmonestacions() {
+  const cfg = llegeixConfig_();
+  const id = (String(cfg.font_amonestacions || '').match(/[-\w]{25,}/) || [''])[0];
+  if (!id) throw new Error('Cal posar l\'URL del full a config › font_amonestacions.');
+  const M = MODULS.amonestacions, sh = fullModul_(M, campsDe_('amonestacions', true));
+  const capA = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+  const clau = (al, d, pr, f) => [normNom_(al), d, normNom_(pr), normNom_(String(f || '').slice(0, 40))].join('|');
+  const existents = llegeixFull_(sh), vistes = {};
+  existents.forEach((r) => { vistes[clau(r.alumne, r.data_fets, r.professor, r.fets)] = 1; });
+  const alumnes = alumnesTots_(), perNom = {};
+  alumnes.forEach((a) => { perNom[normNom_(a.nom)] = a; perNom[normNom_(a.n + ' ' + a.c1 + ' ' + a.c2)] = a; });
+  const prof = llegeix_(FULL.prof), perProf = {};
+  prof.forEach((p) => { perProf[normNom_([p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom)] = p; perProf[normNom_(p.cognom1 + ', ' + p.nom)] = p; if (p.email) perProf[String(p.email).toLowerCase()] = p; if (p.email_xtec) perProf[String(p.email_xtec).toLowerCase()] = p; });
+  const iso = (x) => { const m = /(\d{1,2})\/(\d{1,2})\/(\d{4})/.exec(String(x || '')); return m ? m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) : ''; };
+  const hora = (x) => { const m = /(\d{1,2}):(\d{2})(?::(\d{2}))?/.exec(String(x || '')); return m ? ('0' + m[1]).slice(-2) + ':' + m[2] + ':' + (m[3] || '00') : '00:00:00'; };
+  let seguent = 1 + existents.reduce((m, r) => Math.max(m, Number(String(r[M.id]).replace(/\D/g, '')) || 0), 0);
+  const noves = [], noAlu = {}, noProf = {};
+  let llegides = 0, saltades = 0, dolentes = 0;
+  SpreadsheetApp.openById(id).getSheets().forEach((pest) => {
+    const vals = pest.getDataRange().getDisplayValues();
+    const fc = vals.findIndex((r) => r.some((k) => /^nom complet alumne/.test(normCap_(k))));
+    if (fc < 0) return;
+    const cap = vals[fc].map(normCap_), ci = (re) => cap.findIndex((k) => re.test(k));
+    const cT = ci(/^marca de temps|^timestamp/), cA = ci(/^nom complet alumne/), cF = ci(/^fets/), cP = ci(/^professor/), cD = ci(/^data$/), cG = ci(/^grup/), cE = ci(/^adreca electronica|^correu/), cU = ci(/^merged doc url/);
+    vals.slice(fc + 1).forEach((r) => {
+      const al = String(r[cA] || '').trim(); if (!al) return;
+      llegides++;
+      const data = iso(r[cD]) || iso(r[cT]), fets = String(r[cF] || '').trim(), profNom = String(r[cP] || '').trim();
+      if (!data || !fets) { dolentes++; return; }
+      const k = clau(al, data, profNom, fets);
+      if (vistes[k]) { saltades++; return; }
+      vistes[k] = 1;
+      const a = perNom[normNom_(al)], p = perProf[normNom_(profNom)] || (cE >= 0 ? perProf[String(r[cE] || '').toLowerCase()] : null);
+      if (!a) noAlu[al] = 1;
+      if (!p) noProf[profNom] = 1;
+      const grup = String(r[cG] || '').trim().replace(/\bbat\b/i, 'BAT').replace(/\beso\b/i, 'ESO');
+      const o = { data_fets: data, alumne: a ? a.nom : al, nivell: nivellDeGrup_(grup), grup: grup, professor: p ? [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom : profNom,
+        fets: fets, pdf: cU >= 0 ? String(r[cU] || '') : '', curs: cursDeData_(data), redactat_el: (iso(r[cT]) || data) + ' ' + hora(r[cT]),
+        id_alumne: a ? a.id : '', id_professor: p ? p.id_professor : '', desat_per: 'importació' };
+      o[M.id] = codi_(M, seguent++);
+      noves.push(capA.map((c) => (o[c] !== undefined ? o[c] : '')));
+    });
+  });
+  if (noves.length) sh.getRange(sh.getLastRow() + 1, 1, noves.length, capA.length).setValues(noves);
+  historial_('importació', 'importacio', M.full, '', noves.length + ' amonestacions');
+  marcaVersio_('amonestacions', 'importació');
+  Logger.log('Amonestacions: ' + llegides + ' files llegides · ' + noves.length + ' importades · ' + saltades + ' ja hi eren · ' + dolentes + ' sense data o sense fets (no s\'importen).');
+  const na = Object.keys(noAlu), np = Object.keys(noProf);
+  if (na.length) Logger.log('Alumnes no trobats a l\'alumnat d\'ara (' + na.length + '; s\'importen amb el nom i el grup del formulari): ' + na.slice(0, 80).join('; '));
+  if (np.length) Logger.log('Professorat no trobat (' + np.length + '; s\'importa amb el nom del formulari): ' + np.join('; '));
+}
+
 // PAS 33 · Avís de retards (control d'entrada): quantitat (3–20) i període
 function retardsCfg_(cfg) {
   const q = Math.max(3, Math.min(20, Number(cfg.retards_quantitat) || 5));
@@ -879,9 +1117,11 @@ function desaMembres_(canvis, usuari) {
 function esborra_(ctx, req) {
   const modul = String(req.modul || ''), M = MODULS[modul];
   if (!M) return { ok: false, error: 'modul_desconegut' };
-  if (!pot_(ctx, modul, M.registre ? 'edicio' : 'admin')) return { ok: false, error: 'sense_permis' };
+  // PAS 35: l'alumnat (ESO i batxillerat) també es pot esborrar des d'edició (coordinacions), dins dels seus grups
+  if (!pot_(ctx, modul, M.registre || ETAPES[modul] ? 'edicio' : 'admin')) return { ok: false, error: 'sense_permis' };
   const ids = (req.ids || []).map(String);
   if (!ids.length) return { ok: false, error: 'peticio_invalida' };
+  const abE = ctx.abast ? ctx.abast(modul) : null, cgE = campGrup_(modul);
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -891,6 +1131,9 @@ function esborra_(ctx, req) {
     for (let i = vals.length - 1; i >= 1; i--) {
       if (ids.indexOf(String(vals[i][ci])) >= 0) {
         const o = {}; cap.forEach((k, j) => { o[k] = vals[i][j]; });
+        if (abE && cgE && !dinsAbast_(abE, o[cgE])) continue;
+        // Amonestacions: el PDF va a la paperera de Drive (s'hi pot recuperar durant 30 dies)
+        if (modul === 'amonestacions' && o.pdf) { try { DriveApp.getFileById((String(o.pdf).match(/[-\w]{25,}/) || [''])[0]).setTrashed(true); } catch (e) { /* sense accés o ja esborrat */ } }
         historial_(ctx.email, 'esborra', M.full, String(vals[i][ci]), JSON.stringify(o).slice(0, 45000));
         sh.deleteRow(i + 1); esborrades.push(String(vals[i][ci]));
       }
@@ -1227,7 +1470,7 @@ function configura() {
   marcaFitxesProva_();
   if (llegeix_(FULL.camps).some((c) => c.modul === 'professorat')) { sincronitzaCamps_('professorat', CAMPS_PROFESSORAT, ['estat', 'situacio']); canviaCampsProfessoratPAS30_(); }
   if (llegeix_(FULL.camps).some((c) => c.modul === 'pas')) { sincronitzaCamps_('pas', CAMPS_PAS, ['estat']); arxivaCamps_('pas', PAS_ARXIVATS); }
-  [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['batxillerat', CAMPS_BATXILLERAT], ['pas', CAMPS_PAS], ['control_entrada', CAMPS_CONTROL]].forEach((x) => {
+  [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['batxillerat', CAMPS_BATXILLERAT], ['pas', CAMPS_PAS], ['control_entrada', CAMPS_CONTROL], ['amonestacions', CAMPS_AMONESTACIONS]].forEach((x) => {
     if (!llegeix_(FULL.camps).some((c) => c.modul === x[0])) {
       const sh = ss.getSheetByName(FULL.camps);
       const t = ETAPES[x[0]] ? titolsGrups_(cursDe_(llegeixConfig_(), x[0])) : {};
@@ -1244,8 +1487,9 @@ function configura() {
     fullModul_(MODULS.alumnat, campsDe_('alumnat', true));
     fullModul_(MODULS.batxillerat, campsDe_('batxillerat', true));
     fullModul_(MODULS.control_entrada, campsDe_('control_entrada', true));
+    fullModul_(MODULS.amonestacions, campsDe_('amonestacions', true));
     ompleNivellPAS28_();
-    Logger.log('ijm_alumnat_db: pestanyes «alumnes» (ESO), «alumnes_bat» (batxillerat) i «entrades» (control d\'entrada) a punt.');
+    Logger.log('ijm_alumnat_db: pestanyes «alumnes» (ESO), «alumnes_bat» (batxillerat), «entrades» (control d\'entrada) i «amonestacions» a punt.');
   } else Logger.log('Encara no hi ha config › db_alumnat: el mòdul Alumnat no funcionarà fins que hi poseu l\'URL d\'ijm_alumnat_db.');
   if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-DIR')) ss.getSheetByName(FULL.eq).appendRow(['EQ-DIR', 'Equip directiu', 'gestio', 'Administració de GESTIO', 'si']);
   if (!llegeix_(FULL.perm).some((p) => p.id_equip === 'EQ-DIR' && p.id_modul === '*')) ss.getSheetByName(FULL.perm).appendRow(['EQ-DIR', '*', 'admin']);
