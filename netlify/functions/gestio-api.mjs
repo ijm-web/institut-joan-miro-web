@@ -3,7 +3,7 @@
 // (equips → permisos per mòdul), de manera que aquí no hi ha cap regla de permisos duplicada.
 import { sessio, json, cridaGestio } from '../lib/gestio.mjs';
 
-const ACCIONS = ['inici', 'dades', 'desa', 'esborra', 'camps_desa', 'permisos', 'permisos_desa', 'equips', 'equips_desa', 'membres_desa', 'permisos_matriu_desa', 'tanca_curs', 'versio', 'nou_professor', 'alta_professor', 'entrada_alumnes', 'entrada_nova', 'historial_fila', 'retards_desa', 'equip_esborra', 'amonestacio_form', 'amonestacio_nova', 'amonestacio_pdf', 'amonestacions_config'];
+const ACCIONS = ['inici', 'dades', 'desa', 'esborra', 'camps_desa', 'permisos', 'permisos_desa', 'equips', 'equips_desa', 'membres_desa', 'permisos_matriu_desa', 'tanca_curs', 'versio', 'nou_professor', 'alta_professor', 'entrada_alumnes', 'entrada_nova', 'historial_fila', 'retards_desa', 'equip_esborra', 'amonestacio_form', 'amonestacio_nova', 'amonestacio_pdf', 'amonestacions_config', 'consell_pdf'];
 
 export default async (req) => {
   if (req.method !== 'POST') return json({ ok: false, error: 'metode_no_permes' }, 405);

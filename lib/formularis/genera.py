@@ -177,6 +177,23 @@ MATERIES_BAT = [
         ("Biomedicina", "Franja 2 · 2 h",
          "Introducció a les ciències de la salut: el funcionament del cos humà, les malalties i el seu diagnòstic i tractament, "
          "la recerca biomèdica, la biotecnologia i la bioètica. Es treballa amb casos, notícies científiques i pràctiques de laboratori."),
+        # PAS 38: descripcions de les ampliacions de ciències
+        ("Ampliació de Biologia", "Franja 1 · grup A · 2 h · itinerari científic",
+         "Vols descobrir com la ciència transforma la medicina i el planeta? Aquesta optativa et permetrà experimentar al laboratori, "
+         "dissenyar investigacions i resoldre reptes reals sobre salut, genètica i medi ambient. Si t'apassiona la biologia i vols "
+         "preparar-te per a carreres biosanitàries o ambientals, aquesta matèria portarà la teva curiositat científica al següent nivell!"),
+        ("Ampliació de Química", "Franja 1 · grup B · 2 h",
+         "T'agrada experimentar i comprendre de què està fet tot el que t'envolta? Submergeix-te al laboratori per crear noves "
+         "substàncies, analitzar reaccions sorprenents i veure com la química millora la salut i la tecnologia. Una matèria totalment "
+         "pràctica i dinàmica, ideal per als futurs talents de la ciència, la medicina i l'enginyeria."),
+        ("Ampliació de Geologia i Ciències Ambientals", "Franja 2 · 2 h",
+         "T'interessa entendre com funciona la Terra i com podem protegir-la? Explora el planeta a través d'estudis pràctics i de camp. "
+         "Aprendràs a prevenir riscos naturals, gestionar recursos de manera sostenible i buscar solucions a l'emergència climàtica. "
+         "És la matèria perfecta per a ments inquietes que volen liderar el canvi cap a un futur més verd i sostenible!"),
+        ("Ampliació de Física", "Franja 2 · 2 h",
+         "T'atreveixes a desxifrar els secrets de l'univers i la tecnologia del futur? Mitjançant experiments, simulacions digitals i "
+         "laboratoris virtuals, aprendràs a aplicar les lleis de la física per resoldre grans reptes. Si somies amb l'enginyeria, la "
+         "tecnologia o la recerca, aquesta optativa et donarà l'impuls definitiu per dominar el món científic!"),
     ]),
     ("Itineraris social i humanístic", [
         ("Literatura Universal", "Franja 1 · 4 h",

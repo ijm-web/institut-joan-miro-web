@@ -336,3 +336,5 @@
 /* PAS 37 · entrada que s'està desant (provisional) */
 .tabulator-row.gs-desant{ opacity: .55; font-style: italic; }
 .tabulator-row.gs-desant .gs-paperera{ visibility: hidden; }
+/* PAS 38 · consell orientador */
+.gs-co-res{ margin:0; padding-left:18px; display:grid; gap:8px; }

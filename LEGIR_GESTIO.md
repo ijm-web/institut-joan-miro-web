@@ -232,6 +232,17 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 
 - **Control d'entrada · velocitat**: `dades` porta `alumnes_entrada` (obrir «Nova entrada» no fa cap crida). Desar és optimista: la fila surt provisional (`gs-desant`) i `entrada_nova` va sense finestra de progrés. Al servidor, `entradaNova_` busca només l'alumne (`alumnePerId_`, TextFinder a la columna del codi) en lloc de llegir tot l'alumnat, no revisa les columnes de la pestanya a cada entrada, i `ssAlumnat_` obre ijm_alumnat_db una sola vegada per petició (millora també la resta de mòduls).
 
+## PAS 38
+- **Batxillerat**: el PDF «Descripció de matèries» inclou Ampliació de Biologia, de Química, de Geologia i Ciències Ambientals i de Física (`lib/formularis/genera.py`, `materies_batxillerat()`).
+- **Control d'entrada**: selector de període (curs actual / tots / data a data), el mateix que a amonestacions (`htmlPeriode`, `lligaPeriode`; estat per mòdul a `S.periodes`).
+- **Desar més ràpid**: `desa_` llegeix només les files modificades (`filaPerId_`, TextFinder) quan no hi ha altes ni camps únics afectats i escriu només les cel·les que canvien. `context_` fa servir `baseContext_()` (configuració, persones, equips, membres i permisos) a CacheService 60 s; es buida en desar persones, equips, membres, permisos o configuració (`invalidaCtx_`, també des d'`historial_`). Un canvi fet a mà al full tarda com a molt 1 minut a aplicar-se.
+- **Mòdul CONSELL ORIENTADOR 4t ESO** (`consell_orientador`, codis CO-00001, pestanya `consell_orientador` d'ijm_alumnat_db):
+  - Una fila per alumne de 4t i curs; `sincronitzaConsell_` (a `dades`) afegeix l'alumnat de 4t del curs actual, corregeix grup i nom, i buida l'orientació inicial dels cursos anteriors.
+  - Camps: alumne, grup, curs, pdf_inicial, pdf_final, id_alumne (origen «clickedu»: no s'editen); orientacio_inicial, resultat_final, orientacio_final, voluntat_familia (llistes), observacions.
+  - Permisos: equips EQ-TUT4TESOA…D (grup + edició, els crea `configura`; cal posar-hi el tutor/a) i coordinació (equip sense grups).
+  - `consell_pdf` {fase, grup, data, igualment}: un PDF per grup (una pàgina per alumne; la inicial amb el retorn de la família) a `config › carpeta_consell` (buida = «GESTIO · Consell orientador»), enllaç a cada fila; el PDF anterior va a la paperera.
+  - **importaConsellFinal**: importa el final del curs anterior des de `config › font_consell_final` (normalitza les opcions; no duplica).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

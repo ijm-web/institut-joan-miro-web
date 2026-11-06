@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 37 · 5 de novembre de 2026",
+  "versio": "PAS 38 · 6 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -65,7 +65,8 @@
           "- **Desa els canvis**: ho comprova tot i ho desa. Si alguna dada no és vàlida, no es desa res i les cel·les queden en vermell.",
           "- **Descarta els canvis**: deixa la graella com a l'última desada (sense llegir res del full).",
           "Si sortiu del mòdul o tanqueu la pestanya amb canvis pendents, el navegador us ho pregunta.",
-          "En desar, la graella no es torna a carregar: les files desades s'actualitzen al moment i continueu treballant al mateix lloc (també a Equips i permisos, Nou professor/a, Control d'entrada i Amonestacions). Només es torna a llegir tot després de canviar els camps (Gestió camps) o de tancar el curs, perquè canvia l'estructura o totes les files."
+          "En desar, la graella no es torna a carregar: les files desades s'actualitzen al moment i continueu treballant al mateix lloc (també a Equips i permisos, Nou professor/a, Control d'entrada i Amonestacions). Només es torna a llegir tot després de canviar els camps (Gestió camps) o de tancar el curs, perquè canvia l'estructura o totes les files.",
+          "Desar una cel·la només escriu les cel·les que canvien (el valor, la data i qui ho desa) i, si no hi ha altes ni camps que no es poden repetir, només llegeix aquella fila. Gran part del temps que queda és el que tarda Google a atendre cada petició (és un servei gratuït compartit)."
         ]
       },
       {
@@ -559,6 +560,7 @@
           "claus": "entrades retards llistat graella consulta filtrar",
           "text": [
             "La graella mostra totes les entrades, de la més recent a la més antiga: alumne, nivell, grup-classe, data i hora. Es pot filtrar per qualsevol camp i exportar a Excel o PDF.",
+            "**Període** (a dalt a l'esquerra), com a Amonestacions: **Curs actual** (per defecte, de l'1 de setembre al 31 d'agost), **Tots** o **Data a data**. Es combina amb els filtres de les columnes; l'Excel i el PDF exporten el que es veu.",
             "Les entrades no es modifiquen a la cel·la.",
             "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne)."
           ]
@@ -671,6 +673,63 @@
             "**Configuració**: la **carpeta de Drive** on es desen els PDF (ha de ser accessible per al compte que executa GESTIO; els admins hi poden editar els PDF) i el **criteri de l'avís** (ESO, batxillerat i període).",
             "Les amonestacions del formulari de Google que es feia servir s'importen una vegada amb **importaAmonestacions** (a l'editor d'Apps Script). Si es torna a executar, no duplica.",
             "**activaPdfsPendents** (a l'editor d'Apps Script, una vegada) crea un activador que cada hora fa el PDF de les amonestacions que se n'hagin quedat sense."
+          ]
+        }
+      ]
+    },
+    "consell_orientador": {
+      "titol": "Consell orientador 4t ESO",
+      "graella": true,
+      "intro": "Orientació inicial (a mitjan curs) i final (a final de curs) de cada alumne de 4t d'ESO, PDF per grup per lliurar en mà i anàlisi per grup.",
+      "temes": [
+        {
+          "id": "co-que",
+          "titol": "Què és i qui ho omple",
+          "claus": "consell orientador tutor coordinació permisos grups",
+          "text": [
+            "Hi ha una fila per alumne de 4t d'ESO i curs. La llista del curs actual es completa sola amb l'alumnat de 4t (sense baixes); si un alumne canvia de grup a l'alumnat, aquí també.",
+            "Ho omple el **tutor/a** de cada grup (equips «Tutoria 4t ESO A», B, C i D, amb el grup i permís d'edició: només veu i modifica el seu grup) o la **coordinació de nivell** (un equip sense grups amb permís d'edició: tots els grups). Direcció posa el tutor/a a cada equip de tutoria des d'Equips i permisos.",
+            "Els dies abans de la sessió d'avaluació, el tutor/a omple les dades i proposa una orientació, que ratifica l'equip docent."
+          ]
+        },
+        {
+          "id": "co-camps",
+          "titol": "Els camps",
+          "claus": "orientació inicial final resultat voluntat família observacions",
+          "text": [
+            "- **Orientació inicial** (a mitjan curs): l'orientació que proposa l'equip docent. No es guarda d'un curs per a l'altre.",
+            "- **Resultat final** i **Orientació final** (a final de curs): es guarden sempre.",
+            "- **Voluntat de la família/alumne**: què volen fer. Sovint no coincideix amb l'orientació de l'equip docent; l'anàlisi ho compara. No surt al PDF.",
+            "- **Observacions** (des d'edició).",
+            "Alumne/a, grup, curs i els enllaços als PDF no s'editen. Es canvien com qualsevol graella: cliqueu la cel·la, trieu l'opció i **Desa els canvis**. Per posar la mateixa opció a molts alumnes, marqueu-los i feu servir «Aplica a la selecció».",
+            "Les opcions de les llistes les pot canviar l'administració del mòdul (Gestió camps)."
+          ]
+        },
+        {
+          "id": "co-pdf",
+          "titol": "PDF per lliurar",
+          "claus": "pdf imprimir lliurar grup data signatura",
+          "text": [
+            "**PDF per lliurar**: trieu el document (orientació inicial o final), la data que hi surt i els grups. Es fa **un PDF per grup** amb **una pàgina per alumne**, per imprimir i lliurar en mà. Es desa a la carpeta de Drive del consell orientador i l'enllaç surt a la columna PDF de cada alumne.",
+            "Abans de fer-lo es veu quants alumnes de cada grup tenen les dades. Els que no en tenen no hi surten (i es diu qui són). Si es torna a fer, el PDF anterior del grup va a la paperera.",
+            "L'orientació inicial porta a sota el retorn signat per la família."
+          ]
+        },
+        {
+          "id": "co-analisi",
+          "titol": "Anàlisi per grup",
+          "claus": "anàlisi comptadors grup orientacions coincidència",
+          "text": [
+            "**Anàlisi** compta, per grup i en total, quants alumnes hi ha a cada opció de l'orientació inicial, el resultat final, l'orientació final o la voluntat de la família, i quantes vegades coincideixen l'orientació final i la voluntat de la família. Compta les files que es veuen (curs i filtres). Amb PDF."
+          ]
+        },
+        {
+          "id": "co-cursos",
+          "titol": "Cursos anteriors i importació",
+          "claus": "curs anterior històric importar",
+          "text": [
+            "El selector **Curs** mostra el curs actual o els anteriors (amb l'orientació final).",
+            "El consell orientador final del curs passat s'importa una vegada amb **importaConsellFinal** (a l'editor d'Apps Script, des de config › font_consell_final). Si es torna a executar, no duplica."
           ]
         }
       ]
