@@ -37,7 +37,7 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups' };
 const CAP = {
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu', 'grups'],
   membres: ['id_equip', 'id_membre', 'carrec'],
@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 38;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 39;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -84,6 +84,7 @@ const MODULS_PER_DEFECTE = [
   ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si'],
   ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta qualsevol docent; registre, PDF per a la família, avisos i anàlisi.', 7, 'si'],
+  ['curriculum', 'Currículum', 'Disseny curricular d\'ESO i batxillerat: matèries de cada nivell amb hores, especialitat i grups; assignació de cada matèria i grup a una especialitat i document dels equips docents.', 9, 'si'],
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si'],
 ];
@@ -338,6 +339,25 @@ const CAMPS_CONSELL = [
   ['curs', 'Curs', 'text', '', 'no', 'no', 'consulta', 'clickedu'],
   ['id_alumne', 'Codi alumne', 'text', '', 'no', 'no', 'admin', 'clickedu'],
 ];
+// PAS 39: currículum. Matèries (nivell, nom, hores A i B, especialitat, grups) i grups (cada matèria × grup → especialitat)
+const CAMPS_CURRICULUM = [
+  ['nivell', 'Nivell', 'llista', NIVELLS_ESO.concat(NIVELLS_BAT).join('|'), 'si', 'no', 'consulta', 'gestio'],
+  ['materia', 'Matèria', 'text', '', 'si', 'no', 'consulta', 'gestio'],
+  ['hores_a', 'Hores A', 'numero', '', 'si', 'no', 'consulta', 'gestio'],
+  ['hores_b', 'Hores B', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
+  ['especialitat', 'Especialitat', 'llista', ESPECIALITATS.join('|'), 'no', 'no', 'consulta', 'gestio'],
+  ['grups', 'Grups', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
+  ['observacions', 'Observacions', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+];
+const CAMPS_CURR_GRUPS = [
+  ['nivell', 'Nivell', 'text', '', 'no', 'no', 'consulta', 'clickedu'],
+  ['materia', 'Matèria', 'text', '', 'no', 'no', 'consulta', 'clickedu'],
+  ['grup', 'Grup', 'text', '', 'si', 'no', 'consulta', 'gestio'],
+  ['hores', 'Hores', 'numero', '', 'no', 'no', 'consulta', 'clickedu'],
+  ['especialitat', 'Especialitat que la imparteix', 'llista', ESPECIALITATS.join('|'), 'no', 'no', 'consulta', 'gestio'],
+  ['professor', 'Professor/a', 'llista', '', 'no', 'no', 'consulta', 'gestio'],
+  ['id_materia', 'Codi matèria', 'text', '', 'no', 'no', 'admin', 'clickedu'],
+];
 const PERIODES_AMON = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30, '2 mesos': 61, '3 mesos': 92, 'tot el curs': 0 };
 const CAMPS_CONTROL = [
   ['alumne', 'Alumne', 'text', '', 'si', 'no', 'consulta', 'gestio'],
@@ -410,6 +430,8 @@ const MODULS = {
   // PAS 29: registre d'entrades amb retard (a ijm_alumnat_db: són dades d'alumnes). La data de registre és «registrat».
   control_entrada: { full: FULL.ent, id: 'id_entrada', prefix: 'ENT-', xifres: 6, equips: false, nom: 'entrada', registre: true, ss: () => ssAlumnat_() },
   amonestacions: { full: FULL.amo, id: 'id_amonestacio', prefix: 'AMO-', xifres: 5, equips: false, nom: 'amonestació', registre: true, ss: () => ssAlumnat_() },
+  curriculum: { full: FULL.cur, id: 'id_materia', prefix: 'MAT-', xifres: 4, equips: false, nom: 'matèria', ss: () => SpreadsheetApp.getActive() },
+  curriculum_grups: { full: FULL.curg, id: 'id_assignacio', prefix: 'ASG-', xifres: 5, equips: false, nom: 'grup', ss: () => SpreadsheetApp.getActive() },
   consell_orientador: { full: FULL.co, id: 'id_consell', prefix: 'CO-', xifres: 5, equips: false, nom: 'alumne', registre: false, ss: () => ssAlumnat_() },
 };
 // PAS 37: el fitxer s'obre una sola vegada per petició (abans, cada lectura d'alumnat el tornava a obrir)
@@ -508,6 +530,8 @@ function doPost(e) {
       case 'amonestacio_pdf': return json_(amonestacioPdf_(ctx, req));
       case 'amonestacions_config': return json_(amonestacionsConfig_(ctx, req));
       case 'consell_pdf': return json_(consellPdf_(ctx, req));
+      case 'consell_config': return json_(consellConfig_(ctx, req));
+      case 'curriculum_genera': return json_(curriculumGenera_(ctx, req));
       case 'permisos_matriu_desa': return json_(permisosMatriuDesa_(ctx, req));
       case 'tanca_curs':   return json_(tancaCurs_(ctx, req));
       case 'versio':       return json_(MODULS[req.modul] && pot_(ctx, req.modul, 'consulta') ? { ok: true, versio: versio_(req.modul) } : { ok: false, error: 'sense_permis' });
@@ -555,7 +579,7 @@ function baseContext_() {
 }
 function invalidaCtx_() { CTX_CFG_ = null; try { CacheService.getScriptCache().remove(CLAU_CTX_); } catch (e) { /* res */ } }
 const TAULES_CTX_ = () => [FULL.prof, FULL.pas, FULL.memb, FULL.eq, FULL.perm, FULL.conf];
-const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'alta_professor', 'tanca_curs'];
+const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs'];
 function context_(email) {
   const B = baseContext_();
   const cfg = B.cfg; CTX_CFG_ = cfg;
@@ -571,6 +595,7 @@ function context_(email) {
   const perms = B.perm.filter((r) => eqs.indexOf(r.id_equip) >= 0);
   const global = admins.indexOf(email) >= 0 || perms.some((r) => r.id_modul === '*' && norm_(r.nivell) === 'admin');
   const nivell = (modul) => {
+    if (modul === 'curriculum_grups') modul = 'curriculum';   // PAS 39: les dues vistes del currículum tenen el mateix permís
     if (global) return 'admin';
     if (modul === 'equips') return '';   // equips i permisos: només admins globals
     let n = -1;
@@ -624,7 +649,12 @@ function dades_(ctx, modul) {
   // PAS 38: la llista del consell orientador del curs actual es completa amb l'alumnat de 4t d'ESO
   if (modul === 'consell_orientador') sincronitzaConsell_(ctx.cfg);
   const tots = campsDe_(modul, true);
-  const camps = visibles_(ctx, modul, tots.filter((c) => c.actiu));
+  let camps = visibles_(ctx, modul, tots.filter((c) => c.actiu));
+  // PAS 39: el desplegable del professor/a (currículum › grups) és el professorat actual
+  if (modul === 'curriculum_grups') {
+    const noms = llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && !esProva_(p) && p.nom).map((p) => [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom).sort((a, b) => normNom_(a).localeCompare(normNom_(b), 'ca'));
+    camps = camps.map((c) => (c.clau === 'professor' ? Object.assign({}, c, { valors: noms.join('|') }) : c));
+  }
   const veuEstat = camps.some((c) => c.clau === 'estat');
   const ambEquips = M.equips && pot_(ctx, modul, 'edicio');
   const membres = ambEquips ? llegeix_(FULL.memb) : [];
@@ -655,7 +685,7 @@ function dades_(ctx, modul) {
     avis_amon: modul === 'amonestacions' ? Object.assign(avisAmonCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
     nomes_propies: ctx.nomesPropies ? ctx.nomesPropies(modul) : false,
     pot_crear: modul === 'amonestacions' ? potRedactar_(ctx) : undefined,
-    consell: modul === 'consell_orientador' ? { orientacions: ORIENTACIONS_CONSELL, resultats: RESULTATS_CONSELL, poblacio: ctx.cfg.consell_poblacio || 'Cornellà' } : undefined,
+    consell: modul === 'consell_orientador' ? { orientacions: ORIENTACIONS_CONSELL, resultats: RESULTATS_CONSELL, poblacio: ctx.cfg.consell_poblacio || 'Cornellà', carpeta: pot_(ctx, modul, 'admin') ? String(ctx.cfg.carpeta_consell || '') : undefined } : undefined,
     // PAS 36: el formulari de «Nova amonestació» arriba amb les dades: obrir-lo no fa cap altra crida
     form: modul === 'amonestacions' && potRedactar_(ctx) ? amonestacioForm_(ctx) : undefined,
     pot_historial: !M.registre && pot_(ctx, modul, 'edicio'),
@@ -1216,7 +1246,8 @@ function esborra_(ctx, req) {
   const modul = String(req.modul || ''), M = MODULS[modul];
   if (!M) return { ok: false, error: 'modul_desconegut' };
   // PAS 35: l'alumnat (ESO i batxillerat) també es pot esborrar des d'edició (coordinacions), dins dels seus grups
-  if (!pot_(ctx, modul, M.registre || ETAPES[modul] ? 'edicio' : 'admin')) return { ok: false, error: 'sense_permis' };
+  // PAS 39: les matèries i els grups del currículum també es poden esborrar des d'edició
+  if (!pot_(ctx, modul, M.registre || ETAPES[modul] || modul === 'curriculum' || modul === 'curriculum_grups' ? 'edicio' : 'admin')) return { ok: false, error: 'sense_permis' };
   const ids = (req.ids || []).map(String);
   if (!ids.length) return { ok: false, error: 'peticio_invalida' };
   const abE = ctx.abast ? ctx.abast(modul) : null, cgE = campGrup_(modul);
@@ -1570,7 +1601,7 @@ function configura() {
   marcaFitxesProva_();
   if (llegeix_(FULL.camps).some((c) => c.modul === 'professorat')) { sincronitzaCamps_('professorat', CAMPS_PROFESSORAT, ['estat', 'situacio']); canviaCampsProfessoratPAS30_(); }
   if (llegeix_(FULL.camps).some((c) => c.modul === 'pas')) { sincronitzaCamps_('pas', CAMPS_PAS, ['estat']); arxivaCamps_('pas', PAS_ARXIVATS); }
-  [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['batxillerat', CAMPS_BATXILLERAT], ['pas', CAMPS_PAS], ['control_entrada', CAMPS_CONTROL], ['amonestacions', CAMPS_AMONESTACIONS], ['consell_orientador', CAMPS_CONSELL]].forEach((x) => {
+  [['professorat', CAMPS_PROFESSORAT], ['alumnat', CAMPS_ALUMNAT], ['batxillerat', CAMPS_BATXILLERAT], ['pas', CAMPS_PAS], ['control_entrada', CAMPS_CONTROL], ['amonestacions', CAMPS_AMONESTACIONS], ['consell_orientador', CAMPS_CONSELL], ['curriculum', CAMPS_CURRICULUM], ['curriculum_grups', CAMPS_CURR_GRUPS]].forEach((x) => {
     if (!llegeix_(FULL.camps).some((c) => c.modul === x[0])) {
       const sh = ss.getSheetByName(FULL.camps);
       const t = ETAPES[x[0]] ? titolsGrups_(cursDe_(llegeixConfig_(), x[0])) : {};
@@ -1582,6 +1613,8 @@ function configura() {
   canviaCodisPAS25_();
   fullModul_(MODULS.professorat, campsDe_('professorat', true));
   fullModul_(MODULS.pas, campsDe_('pas', true));
+  sembraCurriculum_();
+  fullModul_(MODULS.curriculum_grups, campsDe_('curriculum_grups', true));
   if (String(llegeixConfig_().db_alumnat || '').trim()) {
     canviaAlumnesPAS28_();
     fullModul_(MODULS.alumnat, campsDe_('alumnat', true));
@@ -2636,6 +2669,8 @@ function consellPdf_(ctx, req) {
   try {
     if (idC) carpeta = DriveApp.getFolderById(idC);
     else { const it = DriveApp.getFoldersByName('GESTIO · Consell orientador'); carpeta = it.hasNext() ? it.next() : DriveApp.createFolder('GESTIO · Consell orientador'); }
+    // PAS 39: dins de la carpeta, una subcarpeta per a cada document (Inicial i Final)
+    carpeta = subcarpeta_(carpeta, fase === 'inicial' ? 'Inicial' : 'Final');
   } catch (e) { return { ok: false, error: 'carpeta_sense_acces' }; }
   const nom = ('Consell orientador ' + fase + ' · ' + grup + ' · ' + curs).replace(/[\/\\:*?"<>|]/g, '-') + '.pdf';
   let url;
@@ -2651,6 +2686,17 @@ function consellPdf_(ctx, req) {
   historial_(ctx.email, 'pdf_consell_' + fase, M.full, grup, fets.length + ' alumnes');
   marcaVersio_(modul, ctx.email);
   return { ok: true, pdf: url, alumnes: fets.length, ids: Object.keys(ids), camp: camp, falten: falten };
+}
+function subcarpeta_(pare, nom) { const it = pare.getFoldersByName(nom); return it.hasNext() ? it.next() : pare.createFolder(nom); }
+// PAS 39 · Configuració del consell orientador (administració del mòdul): carpeta de Drive dels PDF (s'hi creen Inicial i Final)
+function consellConfig_(ctx, req) {
+  if (!pot_(ctx, 'consell_orientador', 'admin')) return { ok: false, error: 'sense_permis' };
+  const url = String(req.carpeta || '').trim(), id = (url.match(/[-\w]{25,}/) || [''])[0];
+  if (url && !id) return { ok: false, error: 'carpeta_invalida' };
+  if (id) { try { const f = DriveApp.getFolderById(id); f.getName(); subcarpeta_(f, 'Inicial'); subcarpeta_(f, 'Final'); } catch (e) { return { ok: false, error: 'carpeta_sense_acces' }; } }
+  posaConfig_('carpeta_consell', url);
+  historial_(ctx.email, 'config', FULL.conf, 'carpeta_consell', url || '(per defecte)');
+  return { ok: true, carpeta: url };
 }
 function htmlConsell_(files, fase, curs, data, cfg) {
   const logo = logoPdf_(cfg);
@@ -2718,4 +2764,121 @@ function importaConsellFinal() {
   historial_('importació', 'importacio', M.full, '', noves.length + ' consells orientadors finals (' + curs + ')');
   marcaVersio_('consell_orientador', 'importació');
   Logger.log('Consell orientador final ' + curs + ': ' + llegides + ' files llegides · ' + noves.length + ' importades · ' + saltades + ' ja hi eren · ' + dolentes + ' sense orientació.');
+}
+
+// ------------------------------------------------------------------ PAS 39 · CURRÍCULUM (matèries i grups)
+// Matèries de cada nivell (1r ESO a 2n BAT) amb hores A (grup sencer) i B (mig grup), especialitat i nombre de grups.
+// «Genera els grups» crea una fila per matèria i grup (pestanya «curriculum_grups») amb l'especialitat que la impartirà
+// (per defecte, la de la matèria) i, si es vol, el professor/a: d'aquí surt el document dels equips docents.
+const GRUPS_NIVELL_ = { '1r ESO': GRUPS_1R, '2n ESO': GRUPS_2N, '3r ESO': GRUPS_3R, '4t ESO': GRUPS_4T, '1r BAT': GRUPS_1BAT, '2n BAT': GRUPS_2BAT };
+const numCur_ = (x) => { const n = Number(String(x == null ? '' : x).replace(',', '.')); return isNaN(n) ? 0 : n; };
+function curriculumGenera_(ctx, req) {
+  if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const MM = MODULS.curriculum, MG = MODULS.curriculum_grups;
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const materies = llegeixFull_(fullModul_(MM, campsDe_('curriculum', true)));
+    const sh = fullModul_(MG, campsDe_('curriculum_grups', true));
+    const vals = sh.getLastRow() > 1 ? sh.getDataRange().getDisplayValues() : [sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0]];
+    const cap = vals[0].map(norm_), c = (k) => cap.indexOf(k);
+    const files = vals.slice(1).filter((r) => r.join('') !== '').map((r) => { const o = {}; cap.forEach((k, j) => { if (k) o[k] = r[j]; }); return o; });
+    let seguent = 1 + files.reduce((m, r) => Math.max(m, Number(String(r[MG.id]).replace(/\D/g, '')) || 0), 0);
+    const ara = ara_(), perMat = {};
+    files.forEach((r) => { (perMat[r.id_materia] = perMat[r.id_materia] || []).push(r); });
+    const resultat = [], resum = { afegides: 0, tretes: 0, actualitzades: 0, tretes_amb_professor: [] };
+    // Files fetes a mà (sense matèria) es conserven
+    files.filter((r) => !r.id_materia).forEach((r) => resultat.push(r));
+    materies.forEach((m) => {
+      const id = m[MM.id], n = Math.max(0, Math.round(numCur_(m.grups))), hores = String(numCur_(m.hores_a) + numCur_(m.hores_b));
+      const ara0 = perMat[id] || [], grups = (GRUPS_NIVELL_[m.nivell] || []).filter((g) => !/ (GR|UEC)$/.test(g));
+      ara0.forEach((r, i) => {
+        if (i >= n) { resum.tretes++; if (r.professor) resum.tretes_amb_professor.push(m.materia + ' · ' + r.grup + ' (' + r.professor + ')'); return; }
+        const nou = Object.assign({}, r, { nivell: m.nivell, materia: m.materia, hores: hores, especialitat: r.especialitat || m.especialitat || '' });
+        if (['nivell', 'materia', 'hores', 'especialitat'].some((k) => String(nou[k]) !== String(r[k]))) { resum.actualitzades++; nou.data = ara; nou.desat_per = ctx.email; }
+        resultat.push(nou);
+      });
+      for (let i = ara0.length; i < n; i++) {
+        const o = { id_materia: id, nivell: m.nivell, materia: m.materia, grup: grups[i] || (m.nivell + ' · grup ' + (i + 1)), hores: hores, especialitat: m.especialitat || '', professor: '', data: ara, desat_per: ctx.email };
+        o[MG.id] = codi_(MG, seguent++); resultat.push(o); resum.afegides++;
+      }
+    });
+    // Files de matèries que ja no existeixen
+    const ids = {}; materies.forEach((m) => { ids[m[MM.id]] = 1; });
+    files.filter((r) => r.id_materia && !ids[r.id_materia]).forEach((r) => { resum.tretes++; if (r.professor) resum.tretes_amb_professor.push(r.materia + ' · ' + r.grup + ' (' + r.professor + ')'); });
+    if (req.prova) return Object.assign({ ok: true, prova: true }, resum);
+    const ordre = (r) => (NIVELLS_ESO.concat(NIVELLS_BAT).indexOf(r.nivell) + 1) * 100000 + (Number(String(r.id_materia).replace(/\D/g, '')) || 99999);
+    resultat.sort((a, b) => ordre(a) - ordre(b) || String(a.grup).localeCompare(String(b.grup), 'ca'));
+    if (vals.length > 1) sh.getRange(2, 1, vals.length - 1, cap.length).clearContent();
+    if (resultat.length) sh.getRange(2, 1, resultat.length, cap.length).setValues(resultat.map((r) => cap.map((k) => (k && r[k] !== undefined ? r[k] : ''))));
+    historial_(ctx.email, 'genera_grups', MG.full, '', JSON.stringify({ afegides: resum.afegides, tretes: resum.tretes, actualitzades: resum.actualitzades }));
+    marcaVersio_('curriculum_grups', ctx.email);
+    return Object.assign({ ok: true }, resum);
+  } finally { lock.releaseLock(); }
+}
+// Matèries inicials (del document d'equips docents 26-27): es poden canviar, afegir i esborrar des del web
+// [nivell, matèria, hores A, hores B, especialitat, grups]
+const CURRICULUM_INICIAL = [
+  ['1r ESO', 'Tutoria', 1, 0, '', 4], ['1r ESO', 'Català', 3, 0, 'Català', 4], ['1r ESO', 'Català (div.)', 3, 0, 'Català', 2],
+  ['1r ESO', 'Castellà', 3, 0, 'Castellà', 4], ['1r ESO', 'Castellà (div.)', 3, 0, 'Castellà', 2], ['1r ESO', 'Socials', 3, 0, 'Història', 4],
+  ['1r ESO', 'Matemàtiques', 3, 0, 'Matemàtiques', 4], ['1r ESO', 'Matemàtiques (div.)', 3, 0, 'Matemàtiques', 2], ['1r ESO', 'Educació Física', 2, 0, 'Educació Física', 4],
+  ['1r ESO', 'EVIP', 2, 0, 'Dibuix', 4], ['1r ESO', 'Música', 2, 0, 'Música', 4], ['1r ESO', 'Anglès', 2, 2, 'Anglès', 4],
+  ['1r ESO', 'Experimentals (Biologia)', 2, 2, 'Biologia', 4], ['1r ESO', 'Tecnologia', 1, 2, 'Tecnologia', 4],
+  ['1r ESO', 'Optativa: Italià', 3, 0, 'Italià', 1], ['1r ESO', 'Optativa: Anglès', 3, 0, 'Anglès', 1], ['1r ESO', 'Optativa: Francès', 3, 0, 'Francès', 1],
+  ['1r ESO', 'Optativa: Alemany', 3, 0, 'Alemany', 1], ['1r ESO', 'Optativa: Tècniques d\'estudi', 3, 0, '', 1], ['1r ESO', 'Optativa: Iniciació als esports de raqueta', 3, 0, 'Educació Física', 1],
+  ['1r ESO', 'Optativa: Construïm coneixement científic', 3, 0, '', 1],
+  ['2n ESO', 'Tutoria', 1, 0, '', 4], ['2n ESO', 'Català', 3, 0, 'Català', 4], ['2n ESO', 'Català (div.)', 3, 0, 'Català', 2],
+  ['2n ESO', 'Castellà', 3, 0, 'Castellà', 4], ['2n ESO', 'Castellà (div.)', 3, 0, 'Castellà', 2], ['2n ESO', 'Socials', 3, 0, 'Història', 4],
+  ['2n ESO', 'Matemàtiques', 3, 0, 'Matemàtiques', 4], ['2n ESO', 'Matemàtiques (div.)', 3, 0, 'Matemàtiques', 2], ['2n ESO', 'Educació Física', 2, 0, 'Educació Física', 4],
+  ['2n ESO', 'Música', 2, 0, 'Música', 4], ['2n ESO', 'Anglès', 2, 2, 'Anglès', 4], ['2n ESO', 'Experimentals (Física i Química)', 2, 2, 'Física i Química', 4],
+  ['2n ESO', 'Tecnologia', 2, 2, 'Tecnologia', 4], ['2n ESO', 'Lectura', 1, 0, '', 4],
+  ['2n ESO', 'Optativa: Italià', 3, 0, 'Italià', 1], ['2n ESO', 'Optativa: Alemany', 3, 0, 'Alemany', 1], ['2n ESO', 'Optativa: Francès', 3, 0, 'Francès', 1],
+  ['2n ESO', 'Optativa: Anglès', 3, 0, 'Anglès', 1], ['2n ESO', 'Optativa: Taller d\'expressió', 3, 0, '', 1], ['2n ESO', 'Optativa: Expressió artística', 3, 0, 'Dibuix', 1],
+  ['2n ESO', 'Optativa: Tecnificació en esports de raqueta', 3, 0, 'Educació Física', 1],
+  ['3r ESO', 'Tutoria', 1, 0, '', 4], ['3r ESO', 'Català', 2, 0, 'Català', 4], ['3r ESO', 'Català (div.)', 2, 0, 'Català', 2],
+  ['3r ESO', 'Castellà', 2, 0, 'Castellà', 4], ['3r ESO', 'Castellà (div.)', 2, 0, 'Castellà', 2], ['3r ESO', 'Socials', 3, 0, 'Història', 4],
+  ['3r ESO', 'Matemàtiques', 3, 0, 'Matemàtiques', 4], ['3r ESO', 'Matemàtiques (div.)', 3, 0, 'Matemàtiques', 2], ['3r ESO', 'Educació Física', 2, 0, 'Educació Física', 4],
+  ['3r ESO', 'Anglès', 2, 2, 'Anglès', 4], ['3r ESO', 'Tecnologia', 1, 2, 'Tecnologia', 4], ['3r ESO', 'Experimentals (Física i Química)', 1, 2, 'Física i Química', 4],
+  ['3r ESO', 'Experimentals (Ciències Naturals)', 2, 0, 'Biologia', 4], ['3r ESO', 'EVIP', 2, 0, 'Dibuix', 4], ['3r ESO', 'Lectura', 1, 0, '', 4],
+  ['3r ESO', 'Projecte de ciències', 1, 2, 'Biologia', 4],
+  ['3r ESO', 'Optativa: Italià', 3, 0, 'Italià', 1], ['3r ESO', 'Optativa: Alemany', 3, 0, 'Alemany', 1], ['3r ESO', 'Optativa: Francès', 3, 0, 'Francès', 1],
+  ['3r ESO', 'Optativa: Anglès', 3, 0, 'Anglès', 1], ['3r ESO', 'Optativa: Esports de raqueta', 3, 0, 'Educació Física', 1], ['3r ESO', 'Optativa: Teatre', 3, 0, '', 1],
+  ['4t ESO', 'Tutoria', 1, 0, '', 4], ['4t ESO', 'Català', 3, 0, 'Català', 4], ['4t ESO', 'Castellà', 3, 0, 'Castellà', 4], ['4t ESO', 'Socials', 3, 0, 'Història', 4],
+  ['4t ESO', 'Matemàtiques', 4, 0, 'Matemàtiques', 4], ['4t ESO', 'Educació Física', 2, 0, 'Educació Física', 4], ['4t ESO', 'Anglès', 2, 2, 'Anglès', 4],
+  ['4t ESO', 'Ètica i valors', 2, 0, 'Filosofia', 4],
+  ['4t ESO', 'Biologia', 3, 0, 'Biologia', 2], ['4t ESO', 'Física i Química', 3, 0, 'Física i Química', 3], ['4t ESO', 'Informàtica', 3, 0, 'Tecnologia', 3],
+  ['4t ESO', 'Economia', 3, 0, 'Economia', 2], ['4t ESO', 'Emprenedoria', 3, 0, 'Economia', 2], ['4t ESO', 'EVIP', 3, 0, 'Dibuix', 1], ['4t ESO', 'Filosofia', 3, 0, 'Filosofia', 1],
+  ['4t ESO', 'Llatí', 3, 0, 'Clàssiques', 1], ['4t ESO', 'Música', 3, 0, 'Música', 1], ['4t ESO', 'Tecnologia', 3, 0, 'Tecnologia', 1],
+  ['4t ESO', 'Alemany', 3, 0, 'Alemany', 1], ['4t ESO', 'Francès', 3, 0, 'Francès', 1], ['4t ESO', 'Italià', 3, 0, 'Italià', 1],
+  ['1r BAT', 'Tutoria', 1, 0, '', 3], ['1r BAT', 'Català', 2, 0, 'Català', 3], ['1r BAT', 'Castellà', 2, 0, 'Castellà', 3], ['1r BAT', 'Anglès', 3, 0, 'Anglès', 3],
+  ['1r BAT', 'Educació Física', 2, 0, 'Educació Física', 3], ['1r BAT', 'Filosofia i ciutadania', 2, 0, 'Filosofia', 3],
+  ['1r BAT', 'Matemàtiques (tecnològic i científic)', 4, 0, 'Matemàtiques', 2], ['1r BAT', 'Matemàtiques aplicades a les ciències socials', 4, 0, 'Matemàtiques', 2],
+  ['1r BAT', 'Llatí', 4, 0, 'Clàssiques', 1], ['1r BAT', 'Grec', 4, 0, 'Clàssiques', 1], ['1r BAT', 'Física i Química', 4, 0, 'Física i Química', 2],
+  ['1r BAT', 'Tecnologia i Enginyeria', 4, 0, 'Tecnologia', 1], ['1r BAT', 'Dibuix Tècnic', 4, 0, 'Dibuix', 1], ['1r BAT', 'Biologia i Geologia', 4, 0, 'Biologia', 1],
+  ['1r BAT', 'Economia', 4, 0, 'Economia', 2], ['1r BAT', 'Història del Món Contemporani', 4, 0, 'Història', 2],
+  ['1r BAT', 'Programació', 2, 0, 'Tecnologia', 1], ['1r BAT', 'Ampliació de Biologia', 2, 0, 'Biologia', 1], ['1r BAT', 'Ampliació de Química', 2, 0, 'Física i Química', 2],
+  ['1r BAT', 'Ampliació de Física', 2, 0, 'Física i Química', 2], ['1r BAT', 'Problemàtiques Socials', 2, 0, '', 1], ['1r BAT', 'Funcionament de l\'Empresa', 2, 0, 'Economia', 1],
+  ['1r BAT', 'Ciutadania, Política i Dret', 2, 0, 'Història', 1], ['1r BAT', 'Formació i Orientació Personal i Professional', 2, 0, 'Economia', 1],
+  ['1r BAT', 'Psicologia', 2, 0, '', 1], ['1r BAT', 'Món Clàssic', 2, 0, '', 1], ['1r BAT', 'Alemany', 2, 0, 'Alemany', 1], ['1r BAT', 'Italià', 2, 0, 'Italià', 1],
+  ['2n BAT', 'Tutoria', 1, 0, '', 3], ['2n BAT', 'Català', 2, 0, 'Català', 3], ['2n BAT', 'Castellà', 2, 0, 'Castellà', 3], ['2n BAT', 'Anglès', 3, 0, 'Anglès', 3],
+  ['2n BAT', 'Història de la Filosofia', 3, 0, 'Filosofia', 3], ['2n BAT', 'Història', 3, 0, 'Història', 3],
+  ['2n BAT', 'Matemàtiques (tecnològic)', 4, 0, 'Matemàtiques', 1], ['2n BAT', 'Matemàtiques (científic)', 4, 0, 'Matemàtiques', 1], ['2n BAT', 'Matemàtiques aplicades a les ciències socials', 4, 0, 'Matemàtiques', 1],
+  ['2n BAT', 'Llatí', 4, 0, 'Clàssiques', 1], ['2n BAT', 'Grec', 4, 0, 'Clàssiques', 1], ['2n BAT', 'Tecnologia i Enginyeria', 4, 0, 'Tecnologia', 1],
+  ['2n BAT', 'Dibuix Tècnic', 4, 0, 'Dibuix', 1], ['2n BAT', 'Química', 4, 0, 'Física i Química', 1], ['2n BAT', 'Física', 4, 0, 'Física i Química', 2],
+  ['2n BAT', 'Biologia', 4, 0, 'Biologia', 1], ['2n BAT', 'Ciències Ambientals', 4, 0, 'Biologia', 1], ['2n BAT', 'Empresa i Disseny de Models de Negoci', 4, 0, 'Economia', 1],
+  ['2n BAT', 'Geografia', 4, 0, 'Història', 1], ['2n BAT', 'Història de l\'Art', 4, 0, 'Història', 1], ['2n BAT', 'Literatura Catalana', 4, 0, 'Català', 1],
+  ['2n BAT', 'Literatura Castellana', 4, 0, 'Castellà', 1], ['2n BAT', 'Alemany', 4, 0, 'Alemany', 1], ['2n BAT', 'Francès', 4, 0, 'Francès', 1], ['2n BAT', 'Italià', 4, 0, 'Italià', 1],
+];
+function sembraCurriculum_() {
+  const M = MODULS.curriculum, sh = fullModul_(M, campsDe_('curriculum', true));
+  if (sh.getLastRow() > 1) return;
+  const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_), ara = ara_();
+  const files = CURRICULUM_INICIAL.map((m, i) => {
+    const o = { nivell: m[0], materia: m[1], hores_a: String(m[2]), hores_b: m[3] ? String(m[3]) : '', especialitat: m[4], grups: String(m[5]), data: ara, desat_per: 'configura' };
+    o[M.id] = codi_(M, i + 1);
+    return cap.map((k) => (o[k] !== undefined ? o[k] : ''));
+  });
+  sh.getRange(2, 1, files.length, cap.length).setValues(files);
+  Logger.log('Currículum: ' + files.length + ' matèries inicials (del document d\'equips docents 26-27). Reviseu-les al web.');
 }

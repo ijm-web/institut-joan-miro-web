@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 38 · 6 de novembre de 2026",
+  "versio": "PAS 39 · 6 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -53,7 +53,8 @@
           "Les cel·les canviades queden en **taronja** fins que es desa. Si un valor no té el format correcte (correu, NIF, data, valor d'una llista…), la cel·la queda en **vermell** i surt un avís.",
           "Les cel·les **ratllades** no s'omplen per a aquella fila (p. ex. un camp que no és del nivell de l'alumne).",
           "En fer el primer canvi apareix a dalt la barra «Canvis sense desar»; la graella es queda a la mateixa fila perquè pugueu continuar canviant-ne camps.",
-          "**Historial**: el botó del rellotge de cada fila (des d'edició) mostra qui ha canviat què i quan, del canvi més recent al més antic (valor d'abans → valor nou). Hi surten els canvis fets des del web."
+          "**Historial**: el botó del rellotge de cada fila (des d'edició) mostra qui ha canviat què i quan, del canvi més recent al més antic (valor d'abans → valor nou). Hi surten els canvis fets des del web.",
+          "Quan es modifica la primera cel·la i surt la barra «Canvis sense desar», la graella baixa però la fila que esteu editant continua visible."
         ]
       },
       {
@@ -712,7 +713,8 @@
           "text": [
             "**PDF per lliurar**: trieu el document (orientació inicial o final), la data que hi surt i els grups. Es fa **un PDF per grup** amb **una pàgina per alumne**, per imprimir i lliurar en mà. Es desa a la carpeta de Drive del consell orientador i l'enllaç surt a la columna PDF de cada alumne.",
             "Abans de fer-lo es veu quants alumnes de cada grup tenen les dades. Els que no en tenen no hi surten (i es diu qui són). Si es torna a fer, el PDF anterior del grup va a la paperera.",
-            "L'orientació inicial porta a sota el retorn signat per la família."
+            "L'orientació inicial porta a sota el retorn signat per la família.",
+            "**Configuració** (administració del mòdul): la carpeta de Drive dels PDF. Dins s'hi creen les subcarpetes **Inicial** i **Final**, i cada PDF es desa a la seva."
           ]
         },
         {
@@ -730,6 +732,55 @@
           "text": [
             "El selector **Curs** mostra el curs actual o els anteriors (amb l'orientació final).",
             "El consell orientador final del curs passat s'importa una vegada amb **importaConsellFinal** (a l'editor d'Apps Script, des de config › font_consell_final). Si es torna a executar, no duplica."
+          ]
+        }
+      ]
+    },
+    "curriculum": {
+      "titol": "Currículum",
+      "graella": true,
+      "intro": "Disseny curricular d'ESO i batxillerat: matèries de cada nivell (hores A i B, especialitat i grups), assignació de cada matèria i grup a una especialitat i document dels equips docents.",
+      "temes": [
+        {
+          "id": "cur-materies",
+          "titol": "Matèries",
+          "claus": "matèria nivell hores A B especialitat grups desdoblament",
+          "text": [
+            "Pestanya **Matèries**: una fila per matèria i nivell (1r ESO a 2n BAT) amb:",
+            "- **Hores A**: hores amb el grup sencer.",
+            "- **Hores B**: hores amb mig grup (desdoblament). La majoria de matèries no en tenen.",
+            "- **Especialitat** de la matèria i **Grups**: a quants grups s'imparteix (p. ex. les divisions, a 2).",
+            "Es calculen soles les **hores de l'alumne** (A + B/2) i les **hores de professorat** ((A + B) × grups).",
+            "El botó de nivell (Tots, 1r ESO…) filtra la graella. **+ Afegeix matèria** i la paperera, des d'edició.",
+            "Les matèries inicials venen del document d'equips docents 26-27: cal revisar-les (sobretot les optatives, 4t d'ESO i batxillerat)."
+          ]
+        },
+        {
+          "id": "cur-genera",
+          "titol": "Genera els grups",
+          "claus": "generar grups assignacions",
+          "text": [
+            "Quan les matèries estiguin a punt, **Genera els grups** crea una fila per cada matèria i grup a la pestanya **Grups i especialitats** (p. ex. Anglès de 1r ESO amb 4 grups → 1r ESO A, B, C i D).",
+            "Abans es mostra què canviarà. Si després es modifica una matèria (hores, grups, nom), es torna a prémer: afegeix o treu files i actualitza les hores; les especialitats i els professors ja assignats es conserven. Si es treuen files que ja tenien professor/a, s'avisa abans."
+          ]
+        },
+        {
+          "id": "cur-grups",
+          "titol": "Grups i especialitats",
+          "claus": "grup especialitat professor assignar lectura",
+          "text": [
+            "Pestanya **Grups i especialitats**: cada parella matèria-grup amb l'**especialitat que la imparteix**. Per defecte és la de la matèria; es pot canviar (p. ex. Lectura impartida per Matemàtiques).",
+            "El **grup** es pot reanomenar (p. ex. «1r ESO AB» per a una divisió). El **professor/a** és opcional (desplegable del professorat actual).",
+            "Per canviar molts grups alhora, marqueu-los i feu servir «Aplica a la selecció»."
+          ]
+        },
+        {
+          "id": "cur-resum",
+          "titol": "Hores per especialitat i document dels equips docents",
+          "claus": "hores especialitat plantilla document equips docents pdf",
+          "text": [
+            "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Grups, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
+            "**Document equips docents** (pestanya Grups): per nivell, una taula matèria × grup amb el professor/a o, si encara no n'hi ha, l'especialitat entre claudàtors. Amb PDF."
           ]
         }
       ]

@@ -243,6 +243,15 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
   - `consell_pdf` {fase, grup, data, igualment}: un PDF per grup (una pàgina per alumne; la inicial amb el retorn de la família) a `config › carpeta_consell` (buida = «GESTIO · Consell orientador»), enllaç a cada fila; el PDF anterior va a la paperera.
   - **importaConsellFinal**: importa el final del curs anterior des de `config › font_consell_final` (normalitza les opcions; no duplica).
 
+## PAS 39
+- **Consell orientador**: carpeta configurable des del web (Configuració, admin del mòdul; acció `consell_config`); dins s'hi creen les subcarpetes **Inicial** i **Final** (`subcarpeta_`), on va cada PDF.
+- **Corregit**: en editar la primera cel·la, quan sortia la barra «Canvis sense desar», la compensació del desplaçament podia amagar la fila editada (si era de les primeres). Ara la fila editada (`S.filaEditada`) sempre es queda visible.
+- **Mòdul CURRÍCULUM** (`curriculum`, al nucli):
+  - Pestanya `curriculum` (MAT-0001): nivell, materia, hores_a, hores_b, especialitat (ESPECIALITATS), grups, observacions. `configura` hi posa les matèries inicials del document d'equips docents 26-27 (`CURRICULUM_INICIAL`) si és buida.
+  - Pestanya `curriculum_grups` (ASG-00001), vista «Grups i especialitats» (mòdul intern amb el mateix permís que `curriculum`): nivell, materia, hores, id_materia (de la matèria), grup, especialitat, professor (desplegable del professorat, valors posats a `dades`).
+  - `curriculum_genera` {prova}: crea/treu/actualitza les files segons la columna Grups; conserva especialitats i professors; amb `prova` només compta.
+  - Al web: hores de l'alumne (A + B/2) i de professorat ((A + B) × grups), hores per especialitat, document dels equips docents (PDF).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
