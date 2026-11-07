@@ -280,6 +280,11 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Hores lectives**: ⚠ quan el total no coincideix amb la jornada (abans, quan la superava). Diàleg amb selector Tot/Especialitat, peu de totals i PDF (`pdfHoresLectives`).
 - **Document per especialitat**: columnes numèriques estretes i centrades (HTML amb `colgroup`, PDF amb `cellWidth`).
 
+## PAS 44
+- **Grups-classe de cada nivell** editables (Currículum › botó Grups-classe): `config › curriculum_grups_classe` (JSON {nivell: "A, B, …"}); `grupsNivell_(cfg)` (per defecte, les constants sense GR/UEC), acció `curriculum_classes_desa`. Els fan servir `grupsClasse_`, `curriculumGenera_` i `dades` (`grups_nivell`).
+- **Separa** (tisores a Grups i distribució): acció `curriculum_separa` {id, grups_classe:[lletres], grups}: la fila es queda amb la resta de grups-classe i se n'afegeix una de nova (MAT-…) amb els triats; si «Grups» era buit, totes dues queden buides; si no, la nova té `grups` i l'original la resta (mínim 1).
+- Hores lectives: separadors verticals (`.gs-hl-sep`) i el selector d'especialitat només amb «Especialitat».
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 43;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 44;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -67,6 +67,7 @@ const CONFIG_PER_DEFECTE = [
   ['consell_poblacio', 'Cornellà', 'Consell orientador: població que surt al peu dels PDF («Cornellà, 18 de juny de 2026»).'],
   ['font_consell_final', 'https://docs.google.com/spreadsheets/d/1RsFMoB7uaPRA1Lb14ZRfLQnFRL42boQQ7E4w97Ht388/edit', 'Per a importaConsellFinal: URL del full amb el consell orientador final del curs anterior.'],
   ['carpeta_copies', '', 'Per a copiaSeguretat: URL de la carpeta de Drive on es desen les còpies (en blanc = es crea «GESTIO · còpies de seguretat»).'],
+  ['curriculum_grups_classe', '', 'Currículum: grups-classe de cada nivell (JSON {"1r ESO": "A, B, C, D", …}). Es canvia des del web (Currículum › Grups-classe); en blanc = els de sempre.'],
   ['font_hores_lectives', 'https://docs.google.com/spreadsheets/d/1Rhz9uHF8PtJFjvS5LqaqUIF4NcaHYPw1h9Z3G9b7Gcc/edit?gid=1977250486', 'Per a importaHoresLectives: URL del full de plantilla amb les hores lectives de cada docent (la pestanya del gid de l\'URL; sense gid, la que té «Total lectives»).'],
   ['font_control_entrada', '', 'Per a importaControlEntrada: URL del full amb el registre d\'entrades amb retard que es feia fins ara.'],
   ['font_amonestacions', 'https://docs.google.com/spreadsheets/d/1hMJhDk_W1BwmwhwPd1u6jlw7jg8vZi715p95zwwtE6Q/edit', 'Per a importaAmonestacions: URL del full de respostes del formulari d\'amonestacions que es feia servir fins ara.'],
@@ -563,6 +564,8 @@ function doPost(e) {
       case 'consell_config': return json_(consellConfig_(ctx, req));
       case 'curriculum_genera': return json_(curriculumGenera_(ctx, req));
       case 'curriculum_divideix': return json_(curriculumDivideix_(ctx, req));
+      case 'curriculum_classes_desa': return json_(curriculumClassesDesa_(ctx, req));
+      case 'curriculum_separa': return json_(curriculumSepara_(ctx, req));
       case 'curriculum_professorat': return json_(curriculumProfessorat_(ctx));
       case 'hores_lectives_desa': return json_(horesLectivesDesa_(ctx, req));
       case 'permisos_matriu_desa': return json_(permisosMatriuDesa_(ctx, req));
@@ -612,7 +615,7 @@ function baseContext_() {
 }
 function invalidaCtx_() { CTX_CFG_ = null; try { CacheService.getScriptCache().remove(CLAU_CTX_); } catch (e) { /* res */ } }
 const TAULES_CTX_ = () => [FULL.prof, FULL.pas, FULL.memb, FULL.eq, FULL.perm, FULL.conf];
-const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa'];
+const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa'];
 function context_(email) {
   const B = baseContext_();
   const cfg = B.cfg; CTX_CFG_ = cfg;
@@ -692,7 +695,7 @@ function dades_(ctx, modul) {
   // PAS 42: el professorat amb les hores lectives es carrega en obrir el mòdul (Matèries i Assignacions)
   const extraCurr = modul === 'curriculum_grups' || modul === 'curriculum' ? {
     materies: modul === 'curriculum_grups' ? llegeix_(FULL.cur).map((m) => ({ id: m.id_materia, nivell: m.nivell, materia: m.materia, especialitat: m.especialitat || '', hores_a: m.hores_a || '', hores_b: m.hores_b || '', grups: m.grups || '', docents: m.docents || '' })) : undefined,
-    grups_nivell: Object.keys(GRUPS_NIVELL_).reduce((o, k) => { o[k] = GRUPS_NIVELL_[k].filter((g) => !/ (GR|UEC)$/.test(g)); return o; }, {}),
+    grups_nivell: grupsNivell_(ctx.cfg),
     professorat_hores: professoratHores_(), hores_pot_desar: pot_(ctx, 'curriculum', 'edicio') || pot_(ctx, 'professorat', 'edicio')
   } : {};
   const veuEstat = camps.some((c) => c.clau === 'estat');
@@ -2858,8 +2861,17 @@ function importaConsellFinal() {
 // (per defecte, la de la matèria) i, si es vol, el professor/a: d'aquí surt el document dels equips docents.
 const GRUPS_NIVELL_ = { '1r ESO': GRUPS_1R, '2n ESO': GRUPS_2N, '3r ESO': GRUPS_3R, '4t ESO': GRUPS_4T, '1r BAT': GRUPS_1BAT, '2n BAT': GRUPS_2BAT };
 // PAS 43: grups-classe d'una matèria («A, B» o «1r ESO A; 1r ESO B»); buit = tots els del nivell (sense GR ni UEC)
-function grupsClasse_(m) {
-  const tots = (GRUPS_NIVELL_[m.nivell] || []).filter((g) => !/ (GR|UEC)$/.test(g));
+// PAS 44: els grups-classe de cada nivell es poden canviar cada curs (Currículum › Grups-classe): config › curriculum_grups_classe
+// = JSON {"1r ESO": "A, B, C, D", …}. Sense valor, els de sempre (sense GR ni UEC).
+function grupsNivell_(cfg) {
+  const def = {}; Object.keys(GRUPS_NIVELL_).forEach((k) => { def[k] = GRUPS_NIVELL_[k].filter((g) => !/ (GR|UEC)$/.test(g)); });
+  let o = {}; try { o = JSON.parse(String((cfg || llegeixConfig_()).curriculum_grups_classe || '{}')) || {}; } catch (e) { o = {}; }
+  Object.keys(def).forEach((k) => { if (typeof o[k] === 'string' && o[k].trim()) def[k] = lletresClasse_(o[k]).map((x) => k + ' ' + x); });
+  return def;
+}
+const lletresClasse_ = (t) => String(t || '').toUpperCase().split(/[\s,;\/+]+/).map((x) => x.trim()).filter((x) => /^[A-Z0-9]{1,4}$/.test(x)).filter((x, i, a) => a.indexOf(x) === i);
+function grupsClasse_(m, GN) {
+  const tots = (GN || grupsNivell_())[m.nivell] || [];
   const t = String(m.grups_classe || '').trim();
   if (!t) return tots;
   const sufixos = t.toUpperCase().replace(new RegExp(m.nivell.toUpperCase(), 'g'), ' ').split(/[\s,;\/+]+/).filter(Boolean);
@@ -2875,6 +2887,7 @@ function curriculumGenera_(ctx, req) {
   lock.waitLock(20000);
   try {
     const materies = llegeixFull_(fullModul_(MM, campsDe_('curriculum', true)));
+    const GN = grupsNivell_(ctx.cfg);
     const sh = fullModul_(MG, campsDe_('curriculum_grups', true));
     const vals = sh.getLastRow() > 1 ? sh.getDataRange().getDisplayValues() : [sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0]];
     const cap = vals[0].map(norm_);
@@ -2888,7 +2901,7 @@ function curriculumGenera_(ctx, req) {
     materies.forEach((m) => {
       const id = m[MM.id], total = numCur_(m.hores_a) + numCur_(m.hores_b);
       // PAS 43: grups-classe on s'imparteix (buit = tots) i docents a l'aula (codocència)
-      const classes = grupsClasse_(m), d = Math.max(1, Math.round(numCur_(m.docents)) || 1);
+      const classes = grupsClasse_(m, GN), d = Math.max(1, Math.round(numCur_(m.docents)) || 1);
       const n = String(m.grups == null ? '' : m.grups).trim() === '' ? classes.length : Math.max(0, Math.round(numCur_(m.grups)));
       const nomGrup = (g) => (n === classes.length ? classes[g - 1] : m.nivell + ' ' + classes.map((c) => c.slice(m.nivell.length).trim()).join('') + (n > 1 ? ' ' + g : ''));
       // PAS 41: cada fila sap de quin grup és (num_grup); les antigues sense número s'enumeren per ordre
@@ -2923,6 +2936,48 @@ function curriculumGenera_(ctx, req) {
     historial_(ctx.email, 'genera_grups', MG.full, '', JSON.stringify({ afegides: resum.afegides, tretes: resum.tretes, actualitzades: resum.actualitzades }));
     marcaVersio_('curriculum_grups', ctx.email);
     return Object.assign({ ok: true }, resum);
+  } finally { lock.releaseLock(); }
+}
+// PAS 44 · Desa els grups-classe de cada nivell {grups: {"1r ESO": "A, B, C, D", …}}
+function curriculumClassesDesa_(ctx, req) {
+  if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const g = req.grups || {}, o = {};
+  Object.keys(GRUPS_NIVELL_).forEach((k) => { const l = lletresClasse_(g[k]); if (l.length) o[k] = l.join(', '); });
+  if (Object.keys(GRUPS_NIVELL_).some((k) => !o[k])) return { ok: false, error: 'classes_buides' };
+  posaConfig_('curriculum_grups_classe', JSON.stringify(o));
+  historial_(ctx.email, 'grups_classe', 'config', 'curriculum_grups_classe', JSON.stringify(o));
+  marcaVersio_('curriculum', ctx.email);
+  return { ok: true, grups_nivell: grupsNivell_(llegeixConfig_()) };
+}
+// PAS 44 · Separa una matèria (Grups i distribució): els grups-classe triats passen a una fila nova (mateixa matèria, hores,
+// especialitat i docents) i l'original es queda amb la resta. Així cada part pot tenir un altre nombre de grups o especialitat.
+function curriculumSepara_(ctx, req) {
+  if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const MM = MODULS.curriculum, id = String(req.id || ''), tria = lletresClasse_((req.grups_classe || []).join(','));
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = fullModul_(MM, campsDe_('curriculum', true));
+    const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+    const f = filaPerId_(sh, cap, MM.id, id);
+    if (!f) return { ok: false, error: 'no_existeix' };
+    const r = {}; cap.forEach((k, j) => { if (k) r[k] = f.r[j]; });
+    const actuals = grupsClasse_(r, grupsNivell_(ctx.cfg)).map((g) => g.slice(r.nivell.length).trim());
+    if (!tria.length || tria.length >= actuals.length || tria.some((x) => actuals.indexOf(x) < 0)) return { ok: false, error: 'separacio_invalida' };
+    const resta = actuals.filter((x) => tria.indexOf(x) < 0), ara = ara_();
+    const buit = String(r.grups == null ? '' : r.grups).trim() === '';
+    const gNova = buit ? '' : String(Math.max(1, Math.round(numCur_(req.grups)) || tria.length));
+    const a = Object.assign({}, r, { grups_classe: resta.join(', '), grups: buit ? '' : String(Math.max(1, Math.round(numCur_(r.grups)) - Number(gNova))), data: ara, desat_per: ctx.email });
+    const b = Object.assign({}, r, { grups_classe: tria.join(', '), grups: gNova, data: ara, desat_per: ctx.email });
+    let n = 1 + sh.getRange(2, cap.indexOf(MM.id) + 1, Math.max(1, sh.getLastRow() - 1), 1).getDisplayValues().reduce((m, x) => Math.max(m, Number(String(x[0]).replace(/\D/g, '')) || 0), 0);
+    b[MM.id] = codi_(MM, n);
+    sh.getRange(f.fila, 1, 1, cap.length).setValues([cap.map((k) => (k && a[k] !== undefined ? a[k] : ''))]);
+    sh.appendRow(cap.map((k) => (k && b[k] !== undefined ? b[k] : '')));
+    historial_(ctx.email, 'separa', MM.full, id, resta.join(', ') + ' | ' + tria.join(', ') + ' → ' + b[MM.id]);
+    marcaVersio_('curriculum', ctx.email);
+    const out = (o) => Object.assign({ id: o[MM.id] }, o);
+    return { ok: true, fila: out(a), nova: out(b) };
   } finally { lock.releaseLock(); }
 }
 // PAS 41 · Reparteix les hores d'un grup: la fila es queda «hores» i es crea una part nova amb la resta (una altra especialitat)

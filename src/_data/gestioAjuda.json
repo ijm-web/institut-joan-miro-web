@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 43 · 7 de novembre de 2026",
+  "versio": "PAS 44 · 7 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -773,10 +773,21 @@
           "text": [
             "Pestanya **Grups i distribució** (mateix full que Matèries, altres columnes):",
             "- **Grups**: quants grups té la matèria. Buit = tants com grups-classe on s'imparteix.",
-            "- **Grups-classe**: a quins grups-classe s'imparteix, amb les lletres separades per comes (p. ex. «A, B»). Buit = a tots els del nivell (sense GR ni UEC).",
+            "- **Grups-classe**: a quins grups-classe s'imparteix, amb les lletres separades per comes (p. ex. «A, B»). Buit = a tots els del nivell (els de l'apartat **Grups-classe**).",
             "- **Docents a l'aula**: 2 = **codocència** (dos docents a la mateixa aula i hora). Les hores de professorat es multipliquen i en generar els grups cada grup té una fila per docent, cadascuna amb totes les hores.",
+            "- **Tisores** (a l'esquerra de cada fila): separen alguns grups-classe en una **fila nova** de la mateixa matèria (mateixes hores, especialitat i docents). P. ex. Anglès 1r ESO → una fila per a A, B, C i una altra per a D, E; després cada fila pot tenir un altre nombre de grups o una altra especialitat. Cal tornar a **Genera els grups**.",
             "- **Hores professorat** (calculat) = (A + B) × grups × docents a l'aula.",
             "Noms dels grups nous: si hi ha tants grups com grups-classe, un per grup-classe (1r ESO A…); si n'hi ha menys, les lletres juntes (p. ex. «1r ESO CD» o «1r ESO ABCD 2»). Els grups que ja existien conserven el nom (es pot canviar a Assignacions)."
+          ]
+        },
+        {
+          "id": "cur-grups-classe",
+          "titol": "Grups-classe de cada nivell",
+          "claus": "grups-classe nivell lletres curs A B C D E",
+          "text": [
+            "Botó **Grups-classe** (al costat de Hores lectives classe): les lletres dels grups-classe de cada nivell aquest curs (p. ex. 1r ESO: A, B, C, D, E), sense GR ni UEC.",
+            "Les fan servir la columna **Grups-classe** de les matèries (buit = tots aquests) i **Genera els grups**. Cada curs es poden canviar; els grups ja generats no canvien de nom.",
+            "Es canvien amb edició al Currículum. Es desen a la configuració (curriculum_grups_classe)."
           ]
         },
         {
@@ -809,6 +820,7 @@
           "text": [
             "Botó **Hores lectives classe** (al costat de Matèries i Assignacions): el professorat actual per especialitat amb les hores lectives. Les dades es carreguen en obrir el mòdul (no cal esperar en prémer el botó).",
             "Selector **Mostra**: **Tot** o **Especialitat** (i quina). A la part inferior, els **totals** de cada columna dels docents que es veuen. **PDF** exporta el que es veu (amb els valors escrits, encara que no s'hagin desat).",
+            "Les línies verticals separen les lectives amb alumnat, les reduccions i el total. El desplegable d'especialitat només surt amb **Mostra: Especialitat**.",
             "**Lectives amb alumnat**: matèries ESO, matèries Bat, atenció individual (ahl), tutoria (matèria) ESO 1r/2n, ESO 3r/4t i Bat. La suma és el **Total lectives alumnat**, que és el que fa servir el Currículum (document per especialitat).",
             "**Reduccions**: reducció de tutoria ESO 1r/2n (ahl), càrrec directiu (cd1), coordinació lectiu (cc), reducció de coordinació de nivell (ahl) i reducció lectiva de 55 anys (ahl). **Total** = alumnat + reduccions.",
             "**⚠** al total: no coincideix amb les hores de la jornada (sencera 18 h, ⅔ 12 h, mitja 9 h).",

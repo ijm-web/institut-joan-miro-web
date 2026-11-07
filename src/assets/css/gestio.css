@@ -356,3 +356,6 @@
 .gs-esp-taula .gs-cen{ text-align: center; }
 .gs-hl-filtre{ align-items: flex-end; gap: 12px; margin-bottom: 8px; }
 .gs-hl tfoot td{ font-weight: 700; border-top: 2px solid #1C0CBC; }
+/* PAS 44 */
+.gs-hl .gs-hl-sep{ border-left: 2px solid #1C0CBC !important; }
+.gs-check{ display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; }
