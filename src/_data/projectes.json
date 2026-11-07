@@ -984,18 +984,6 @@
           },
           {
             "t": {
-              "ca": "Biblioteca a les tardes",
-              "es": "Biblioteca por las tardes",
-              "en": "Library in the afternoons"
-            },
-            "d": {
-              "ca": "Contractació d’un bibliotecari o bibliotecària 2 tardes a la setmana, 2 hores cada dia.",
-              "es": "Contratación de un bibliotecario o bibliotecaria 2 tardes a la semana, 2 horas cada día.",
-              "en": "A librarian is hired for 2 afternoons a week, 2 hours each day."
-            }
-          },
-          {
-            "t": {
               "ca": "Orles de graduació",
               "es": "Orlas de graduación",
               "en": "Graduation photos"

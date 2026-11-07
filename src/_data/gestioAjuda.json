@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 39 · 6 de novembre de 2026",
+  "versio": "PAS 40 · 7 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -703,7 +703,8 @@
             "- **Voluntat de la família/alumne**: què volen fer. Sovint no coincideix amb l'orientació de l'equip docent; l'anàlisi ho compara. No surt al PDF.",
             "- **Observacions** (des d'edició).",
             "Alumne/a, grup, curs i els enllaços als PDF no s'editen. Es canvien com qualsevol graella: cliqueu la cel·la, trieu l'opció i **Desa els canvis**. Per posar la mateixa opció a molts alumnes, marqueu-los i feu servir «Aplica a la selecció».",
-            "Les opcions de les llistes les pot canviar l'administració del mòdul (Gestió camps)."
+            "Les opcions de les llistes les pot canviar l'administració del mòdul (Gestió camps).",
+            "Per esborrar les dades del consell orientador d'un alumne (des d'edició), feu servir la **goma** de la fila: buida l'orientació inicial, el resultat i l'orientació final, la voluntat de la família i les observacions, i queda pendent de desar. Des d'aquest mòdul no es dona de baixa ni s'esborra cap alumne: això es fa a Alumnat ESO."
           ]
         },
         {
@@ -722,7 +723,7 @@
           "titol": "Anàlisi per grup",
           "claus": "anàlisi comptadors grup orientacions coincidència",
           "text": [
-            "**Anàlisi** compta, per grup i en total, quants alumnes hi ha a cada opció de l'orientació inicial, el resultat final, l'orientació final o la voluntat de la família, i quantes vegades coincideixen l'orientació final i la voluntat de la família. Compta les files que es veuen (curs i filtres). Amb PDF."
+            "**Anàlisi**: trieu què voleu comptar (orientació inicial, orientació final, resultat final, voluntat de la família o la coincidència entre l'orientació final i la voluntat). Surt una taula amb una fila per a cada valor possible i una columna per grup-classe, amb els comptadors i el total. Compta les files que es veuen (curs i filtres). Amb PDF."
           ]
         },
         {
@@ -752,7 +753,8 @@
             "- **Especialitat** de la matèria i **Grups**: a quants grups s'imparteix (p. ex. les divisions, a 2).",
             "Es calculen soles les **hores de l'alumne** (A + B/2) i les **hores de professorat** ((A + B) × grups).",
             "El botó de nivell (Tots, 1r ESO…) filtra la graella. **+ Afegeix matèria** i la paperera, des d'edició.",
-            "Les matèries inicials venen del document d'equips docents 26-27: cal revisar-les (sobretot les optatives, 4t d'ESO i batxillerat)."
+            "Les matèries inicials venen del document d'equips docents 26-27: cal revisar-les (sobretot les optatives, 4t d'ESO i batxillerat).",
+            "Les opcions del desplegable **Especialitat** surten per ordre alfabètic."
           ]
         },
         {

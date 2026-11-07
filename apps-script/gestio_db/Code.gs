@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 39;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 40;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -92,7 +92,8 @@ const MODULS_PER_DEFECTE = [
 // [clau, nom, tipus, valors, obligatori, unic, visible_des_de, origen]
 // PAS 30: especialitats (desplegable) i dades personals (des d'edició; les omple importaDadesProfessorat)
 const ESPECIALITATS = ['Català', 'Castellà', 'Matemàtiques', 'Anglès', 'Francès', 'Alemany', 'Italià', 'Història', 'Orientació', 'Economia',
-  'Educació Física', 'Física i Química', 'Biologia', 'Dibuix', 'Música', 'Religió', 'Clàssiques', 'Filosofia', 'Tecnologia'];
+  'Educació Física', 'Física i Química', 'Biologia', 'Dibuix', 'Música', 'Religió', 'Clàssiques', 'Filosofia', 'Tecnologia']
+  .sort((a, b) => a.localeCompare(b, 'ca'));   // PAS 40: per ordre alfabètic als desplegables
 const ESPECIALITAT_ALIES = { 'llengua catalana': 'Català', 'catala': 'Català', 'llengua castellana': 'Castellà', 'castella': 'Castellà', 'llengua i literatura catalana': 'Català',
   'llengua i literatura castellana': 'Castellà', 'matematiques': 'Matemàtiques', 'angles': 'Anglès', 'frances': 'Francès', 'italia': 'Italià', 'geografia i historia': 'Història',
   'historia': 'Història', 'socials': 'Història', 'ciencies socials': 'Història', 'orientacio educativa': 'Orientació', 'psicologia i pedagogia': 'Orientació',
@@ -1628,6 +1629,7 @@ function configura() {
   if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-DIR')) ss.getSheetByName(FULL.eq).appendRow(['EQ-DIR', 'Equip directiu', 'gestio', 'Administració de GESTIO', 'si']);
   if (!llegeix_(FULL.perm).some((p) => p.id_equip === 'EQ-DIR' && p.id_modul === '*')) ss.getSheetByName(FULL.perm).appendRow(['EQ-DIR', '*', 'admin']);
   creaEquipsTutoria4t_();
+  ordenaLlistes_([['professorat', 'especialitat'], ['curriculum', 'especialitat'], ['curriculum_grups', 'especialitat']]);
   posaConfig_('esquema', String(ESQUEMA));
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = ss.getSheetByName(n); if (f && f.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(f); });
   Logger.log('Fet. Pestanyes: ' + ss.getSheets().map((s) => s.getName()).join(', '));
@@ -1646,6 +1648,18 @@ function creaEquipsTutoria4t_() {
     if (!perm.some((p) => p.id_equip === id && p.id_modul === 'consell_orientador')) ss.getSheetByName(FULL.perm).appendRow([id, 'consell_orientador', 'edicio']);
   });
   if (fets.length) Logger.log('Equips de tutoria creats (cal posar-hi el tutor/a des d\'Equips i permisos): ' + fets.join(', '));
+}
+// PAS 40: ordena alfabèticament les opcions d'aquests desplegables (pestanya «camps»); no afegeix ni treu cap opció
+function ordenaLlistes_(llista) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
+  if (!sh || sh.getLastRow() < 2) return;
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), cm = cap.indexOf('modul'), cc = cap.indexOf('clau'), cv = cap.indexOf('valors');
+  for (let i = 1; i < vals.length; i++) {
+    if (!llista.some((x) => x[0] === vals[i][cm] && x[1] === vals[i][cc])) continue;
+    const ops = String(vals[i][cv] || '').split('|').map((x) => x.trim()).filter(Boolean);
+    const ord = ops.slice().sort((a, b) => a.localeCompare(b, 'ca')).join('|');
+    if (ord !== ops.join('|')) sh.getRange(i + 1, cv + 1).setValues([[ord]]);
+  }
 }
 function posaConfig_(clau, valor) {
   invalidaCtx_();

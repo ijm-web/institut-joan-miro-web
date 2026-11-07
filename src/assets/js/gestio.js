@@ -88,6 +88,7 @@
   var BOTO_ACTUALITZA = '<button type="button" class="prog-btn prog-btn--ghost" data-accio="recarrega" title="Torna a llegir les dades del full (p. ex. després d’una importació o d’un canvi fet directament al full)">Actualitza</button>';
   var ICONA_TEXT = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M8 13h8M8 17h6"/></svg>';
   var ICONA_PDF = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/><path d="M12 12v6M9 15l3 3 3-3"/></svg>';
+  var GOMA = '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 20H9l-5-5a2 2 0 0 1 0-3l8-8a2 2 0 0 1 3 0l5 5a2 2 0 0 1 0 3l-8 8"/><path d="M6 11l7 7"/></svg>';
   var RELLOTGE = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
   var PAPERERA = '<svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6h18"/><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>';
   var FIXADES = ['nom', 'cognom1'];   // columnes bloquejades a l'esquerra per defecte
@@ -576,6 +577,10 @@
     else if (ed && esCurriculum()) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: 44, cssClass: 'gs-accions',
       formatter: function () { return '<span class="gs-acc"><button type="button" class="gs-perill gs-paperera" data-a="esborra" title="Esborra" aria-label="Esborra">' + PAPERERA + '</button></span>'; },
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
+    // PAS 40: al consell orientador no es dona de baixa ni s'esborra cap alumne (es fa a l'alumnat): només es buiden les dades del consell
+    else if (ed && esConsell()) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: 44, cssClass: 'gs-accions',
+      formatter: function () { return '<span class="gs-acc"><button type="button" class="gs-perill gs-paperera" data-a="buida-consell" title="Buida les dades del consell orientador d’aquest alumne (orientacions, resultat, voluntat i observacions)" aria-label="Buida les dades del consell orientador">' + GOMA + '</button></span>'; },
+      cellClick: function (e, cell) { if (e.target.closest('button[data-a]')) buidaConsell(cell.getRow()); } });
     else if (ed && !esConsell()) cols.push({ title: '', field: '_acc', frozen: true, headerSort: false, download: false, width: (adm || esAlumnat() ? 118 : 92) + (S.d.pot_historial ? 30 : 0), cssClass: 'gs-accions',
       formatter: function (cell) {
         var r = cell.getRow().getData();
@@ -1437,7 +1442,7 @@
   }
   // Anàlisi: per a cada grup (de les files que es veuen), quants alumnes hi ha a cada opció
   function analisiConsell() {
-    var Q = [['orientacio_inicial', 'Orientació inicial'], ['resultat_final', 'Resultat final'], ['orientacio_final', 'Orientació final'], ['voluntat_familia', 'Voluntat de la família/alumne'], ['coincidencia', 'Orientació final i voluntat de la família']];
+    var Q = [['orientacio_inicial', 'Orientació inicial'], ['orientacio_final', 'Orientació final'], ['resultat_final', 'Resultat final'], ['voluntat_familia', 'Voluntat de la família/alumne'], ['coincidencia', 'Orientació final i voluntat de la família']];
     pregunta('Anàlisi · Consell orientador', '<p class="gs-ajuda">Compta els alumnes que es veuen ara a la graella (curs i filtres), per grup.</p><label class="gs-form-fila">Què voleu comptar <select id="gsCoQue">' +
       Q.map(function (q) { return '<option value="' + q[0] + '">' + q[1] + '</option>'; }).join('') + '</select></label>',
       [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Mostra l’anàlisi', valor: 1, abans: function () { analisiConsell.k = $('gsCoQue').value; } }]).then(function (v) {
@@ -1460,6 +1465,18 @@
         opcions.filter(function (x) { return tot(x) > 0 || x !== '(sense dades)'; }).map(function (x) { return [x].concat(grups.map(function (g) { return String((per[x] || {})[g] || 0); }), [String(tot(x))]); })
           .concat([{ t: ['Total'].concat(grups.map(function (g) { return String(files.filter(function (f) { return f.grup === g; }).length); }), [String(files.length)]) }]),
         'consell-orientador-' + k, false);
+    });
+  }
+  // PAS 40 · Buida les dades del consell orientador d'un alumne (queda pendent de desar, com qualsevol canvi de la graella)
+  function buidaConsell(row) {
+    var d = row.getData(), camps = S.d.camps.filter(function (c) { return editable(c) && d[c.clau]; });
+    if (!camps.length) return toast('Aquest alumne no té cap dada del consell orientador.', true);
+    pregunta('Buidar les dades', '<p>Es buidaran les dades del consell orientador de <strong>' + esc(d.alumne) + '</strong>: ' + esc(camps.map(function (c) { return c.nom; }).join(', ')) + '.</p><p class="gs-ajuda">L’alumne no s’esborra ni es dona de baixa (això es fa a Alumnat ESO). El canvi queda pendent fins que premeu «Desa els canvis».</p>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Buida', valor: 1, tipus: 'danger' }]).then(function (v) {
+      if (!v) return;
+      var x = {}; camps.forEach(function (c) { x[c.clau] = ''; }); row.update(x);
+      camps.forEach(function (c) { registra(d.id, c.clau, ''); var ce = row.getCell(c.clau); if (ce) ce.getElement().classList.add('gs-canviat'); });
+      toast('Dades buidades. Premeu «Desa els canvis».');
     });
   }
   // PAS 39 · Configuració (administració del mòdul): carpeta de Drive dels PDF; s'hi creen les subcarpetes Inicial i Final

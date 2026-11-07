@@ -252,6 +252,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
   - `curriculum_genera` {prova}: crea/treu/actualitza les files segons la columna Grups; conserva especialitats i professors; amb `prova` només compta.
   - Al web: hores de l'alumne (A + B/2) i de professorat ((A + B) × grups), hores per especialitat, document dels equips docents (PDF).
 
+## PAS 40
+- **Consell orientador**: sense «Baixa» ni paperera; la fila té una goma (`buidaConsell`) que buida els camps editables del consell (queda pendent de desar). Els alumnes es donen de baixa o s'esborren a Alumnat ESO.
+- **Especialitats** per ordre alfabètic: `ESPECIALITATS` ordenada i `configura` reordena les opcions existents (`ordenaLlistes_`: professorat, currículum i grups).
+- **AFA**: tret «Biblioteca a les tardes» de «Què finança l'AFA» (`src/_data/projectes.json`).
+- **Control d'entrada**: per afegir les entrades noves del full antic, `config › font_control_entrada` amb l'URL del full i executar **importaControlEntrada** (salta les que ja hi són: mateix alumne, data i hora). No cal `reimportaControlEntrada`.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
