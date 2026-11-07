@@ -19,6 +19,9 @@
   </div>
 </div>
 
+<!-- PAS 47: avís cridaner del curs de les dades -->
+<div class="pi-banner" role="note"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.3 3.9L1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><path d="M12 9v4M12 17h.01"/></svg><p>{{ C.banner26[L] | safe }}</p></div>
+
 {%- if etapa == 'batx' %}
 <p class="pi-pending-note">{{ C.pendent[L] | safe }}</p>
 {%- endif %}

@@ -37,8 +37,10 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata' };
 const CAP = {
+  // PAS 47: una fila per especialitat; «dades» = JSON {clau assignació: [{prof, grups}]}
+  desiderata: ['especialitat', 'dades', 'observacions', 'data', 'desat_per'],
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu', 'grups'],
   membres: ['id_equip', 'id_membre', 'carrec'],
   moduls: ['id_modul', 'nom', 'descripcio', 'ordre', 'actiu'],
@@ -46,7 +48,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 46;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 47;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -67,6 +69,7 @@ const CONFIG_PER_DEFECTE = [
   ['consell_poblacio', 'Cornellà', 'Consell orientador: població que surt al peu dels PDF («Cornellà, 18 de juny de 2026»).'],
   ['font_consell_final', 'https://docs.google.com/spreadsheets/d/1RsFMoB7uaPRA1Lb14ZRfLQnFRL42boQQ7E4w97Ht388/edit', 'Per a importaConsellFinal: URL del full amb el consell orientador final del curs anterior.'],
   ['carpeta_copies', '', 'Per a copiaSeguretat: URL de la carpeta de Drive on es desen les còpies (en blanc = es crea «GESTIO · còpies de seguretat»).'],
+  ['carpeta_horaris', '', 'Per a exportaHoraris: URL de la carpeta de Drive on es desa el JSON per al generador d\'horaris (en blanc = es crea «GESTIO · Horaris»).'],
   ['curriculum_grups_classe', '', 'Currículum: grups-classe de cada nivell (JSON {"1r ESO": "A, B, C, D", …}). Es canvia des del web (Currículum › Grups-classe); en blanc = els de sempre.'],
   ['font_hores_lectives', 'https://docs.google.com/spreadsheets/d/1Rhz9uHF8PtJFjvS5LqaqUIF4NcaHYPw1h9Z3G9b7Gcc/edit?gid=1977250486', 'Per a importaHoresLectives: URL del full de plantilla amb les hores lectives de cada docent (la pestanya del gid de l\'URL; sense gid, la que té «Total lectives»).'],
   ['font_control_entrada', '', 'Per a importaControlEntrada: URL del full amb el registre d\'entrades amb retard que es feia fins ara.'],
@@ -88,6 +91,7 @@ const MODULS_PER_DEFECTE = [
   ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta qualsevol docent; registre, PDF per a la família, avisos i anàlisi.', 7, 'si'],
   ['curriculum', 'Currículum', 'Disseny curricular d\'ESO i batxillerat: matèries de cada nivell amb hores, especialitat i grups; assignació de cada matèria i grup a una especialitat i document dels equips docents.', 9, 'si'],
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si'],
+  ['desiderata', 'Desiderata', 'Proposta de cada cap de departament: quin docent imparteix cada assignació de la seva especialitat, observacions pedagògiques i coherència amb les hores lectives.', 9, 'si'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
@@ -574,6 +578,9 @@ function doPost(e) {
       case 'consell_config': return json_(consellConfig_(ctx, req));
       case 'curriculum_genera': return json_(curriculumGenera_(ctx, req));
       case 'curriculum_divideix': return json_(curriculumDivideix_(ctx, req));
+      case 'desiderata_dades': return json_(desiderataDades_(ctx, req));
+      case 'desiderata_desa': return json_(desiderataDesa_(ctx, req));
+      case 'desiderata_analisi': return json_(desiderataAnalisi_(ctx));
       case 'curriculum_classes_desa': return json_(curriculumClassesDesa_(ctx, req));
       case 'curriculum_separa': return json_(curriculumSepara_(ctx, req));
       case 'curriculum_professorat': return json_(curriculumProfessorat_(ctx));
@@ -1692,6 +1699,10 @@ function configura() {
   sincronitzaCamps_('curriculum', CAMPS_CURRICULUM);
   fullModul_(MODULS.curriculum, campsDe_('curriculum', true));
   migraGrupsPAS45_();
+  // PAS 47: Desiderata (full, equip «Caps de departament» sense membres i el seu permís d'edició)
+  assegura_(FULL.des);
+  if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-CAPS')) SpreadsheetApp.getActive().getSheetByName(FULL.eq).appendRow(['EQ-CAPS', 'Caps de departament', 'gestio', 'Caps de departament i d\'àmbit: mòdul Desiderata', 'si', '']);
+  if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'desiderata')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'desiderata', 'edicio']);
   actualitzaCamp_('curriculum', 'grups', { actiu: 'no' });
   sincronitzaCamps_('curriculum_grups', CAMPS_CURR_GRUPS);
   posaOrigenCamp_('curriculum_grups', 'hores', 'gestio');
@@ -2964,6 +2975,110 @@ function curriculumGenera_(ctx, req) {
     marcaVersio_('curriculum_grups', ctx.email);
     return Object.assign({ ok: true }, resum);
   } finally { lock.releaseLock(); }
+}
+// ================================================================== PAS 47 · DESIDERATA
+// El cap de departament (edició al mòdul) proposa, per a cada assignació de la seva especialitat (Currículum › Assignacions),
+// quins docents la imparteixen i quants grups fa cadascun. Els grups concrets els assigna després la direcció.
+// Assignacions agrupades per matèria i hores per grup (clau = id_materia|hores). Admin: qualsevol especialitat i «Anàlisi».
+function assignacionsEsp_(esp) {
+  const per = {};
+  llegeix_(FULL.curg).filter((r) => String(r.especialitat || '') === esp).forEach((r) => {
+    const h = numCur_(r.hores), k = (r.id_materia || (r.nivell + '·' + r.materia)) + '|' + h;
+    const x = per[k] = per[k] || { clau: k, nivell: r.nivell, materia: r.materia, hores: h, grups: 0, noms: [] };
+    x.grups++; if (r.grup && x.noms.indexOf(r.grup) < 0) x.noms.push(r.grup);
+  });
+  const o = NIVELLS_ESO.concat(NIVELLS_BAT);
+  return Object.keys(per).map((k) => per[k]).sort((a, b) => (o.indexOf(a.nivell) - o.indexOf(b.nivell)) || String(a.materia).localeCompare(String(b.materia), 'ca') || b.hores - a.hores);
+}
+function especialitatDe_(ctx) {
+  const id = ctx.persona && String(ctx.persona.id || '');
+  if (!/^PRO-/.test(id)) return '';
+  const p = llegeix_(FULL.prof).filter((x) => String(x.id_professor) === id)[0];
+  return p ? String(p.especialitat || '') : '';
+}
+function desiderataEsps_(ctx) {
+  if (pot_(ctx, 'desiderata', 'admin')) { const s = {}; ESPECIALITATS.forEach((e) => { s[e] = 1; }); llegeix_(FULL.curg).forEach((r) => { if (r.especialitat) s[r.especialitat] = 1; }); return Object.keys(s).sort((a, b) => a.localeCompare(b, 'ca')); }
+  const e = especialitatDe_(ctx); return e ? [e] : [];
+}
+function desiderataDades_(ctx, req) {
+  if (!pot_(ctx, 'desiderata', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const esps = desiderataEsps_(ctx);
+  if (!esps.length) return { ok: false, error: 'sense_especialitat' };
+  const esp = esps.indexOf(String(req.especialitat || '')) >= 0 ? String(req.especialitat) : esps[0];
+  const fet = llegeix_(FULL.des).filter((r) => r.especialitat === esp)[0] || {};
+  let dades = {}; try { dades = JSON.parse(fet.dades || '{}') || {}; } catch (e) { dades = {}; }
+  return { ok: true, especialitat: esp, especialitats: esps, admin: pot_(ctx, 'desiderata', 'admin'), obert: obert_(ctx),
+    assignacions: assignacionsEsp_(esp), professorat: professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, hores_lectives: p.hores_lectives, jornada: p.jornada })),
+    dades: dades, observacions: fet.observacions || '', data: fet.data || '', desat_per: fet.desat_per || '' };
+}
+function desiderataDesa_(ctx, req) {
+  if (!pot_(ctx, 'desiderata', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const esp = String(req.especialitat || '');
+  if (desiderataEsps_(ctx).indexOf(esp) < 0) return { ok: false, error: 'sense_permis' };
+  const valides = {}; assignacionsEsp_(esp).forEach((a) => { valides[a.clau] = a; });
+  const profs = {}; professoratHores_().forEach((p) => { profs[p.id] = 1; });
+  const net = {}, d = req.dades || {};
+  Object.keys(d).forEach((k) => {
+    if (!valides[k] || !Array.isArray(d[k])) return;
+    const ll = d[k].map((x) => ({ prof: String(x.prof || ''), grups: Math.max(0, Math.round(Number(x.grups) || 0)) })).filter((x) => profs[x.prof] && x.grups > 0);
+    if (ll.length) net[k] = ll;
+  });
+  const obs = String(req.observacions || '').slice(0, 5000), ara = ara_();
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = assegura_(FULL.des), vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_);
+    const fila = [esp, JSON.stringify(net), obs, ara, ctx.email];
+    let i = vals.findIndex((r, j) => j > 0 && String(r[cap.indexOf('especialitat')]) === esp);
+    if (i > 0) sh.getRange(i + 1, 1, 1, fila.length).setValues([fila]); else sh.appendRow(fila);
+    historial_(ctx.email, 'desiderata', FULL.des, esp, Object.keys(net).length + ' assignacions');
+    return { ok: true, data: ara, desat_per: ctx.email, dades: net };
+  } finally { lock.releaseLock(); }
+}
+// Resum de totes les especialitats (admin): hores a assignar, assignades, pendents i docents amb hores que no quadren
+function desiderataAnalisi_(ctx) {
+  if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
+  const desats = {}; llegeix_(FULL.des).forEach((r) => { let d = {}; try { d = JSON.parse(r.dades || '{}'); } catch (e) { d = {}; } desats[r.especialitat] = { d: d, data: r.data, per: r.desat_per, obs: r.observacions || '' }; });
+  const profs = professoratHores_(), perProf = {};
+  const files = desiderataEsps_(ctx).map((e) => {
+    const as = assignacionsEsp_(e), D = desats[e] || { d: {} };
+    const total = as.reduce((t, a) => t + a.grups * a.hores, 0);
+    let fetes = 0, sobre = [];
+    as.forEach((a) => { const ll = D.d[a.clau] || []; const g = ll.reduce((t, x) => t + x.grups, 0); fetes += Math.min(g, a.grups) * a.hores; if (g > a.grups) sobre.push(a.nivell + ' ' + a.materia); ll.forEach((x) => { perProf[x.prof] = (perProf[x.prof] || 0) + x.grups * a.hores; }); });
+    return { especialitat: e, a_assignar: total, assignades: fetes, pendents: Math.round((total - fetes) * 100) / 100, sobreassignades: sobre, data: D.data || '', desat_per: D.per || '', te_obs: !!D.obs, docents: profs.filter((p) => p.especialitat === e).length };
+  }).filter((f) => f.a_assignar > 0 || f.data);
+  // Docents de les especialitats amb desiderata desada (o amb grups assignats) amb hores que no quadren amb les lectives amb alumnat
+  const incoherents = profs.filter((p) => desats[p.especialitat] || perProf[p.id] !== undefined)
+    .map((p) => ({ nom: p.nom, especialitat: p.especialitat, lectives: p.hores_lectives === '' ? 0 : Number(p.hores_lectives), assignades: Math.round((perProf[p.id] || 0) * 100) / 100 }))
+    .filter((p) => Math.abs(p.lectives - p.assignades) > 0.01);
+  return { ok: true, especialitats: files, docents: incoherents };
+}
+// ================================================================== PAS 47 · GENERADOR D'HORARIS (fase 0)
+// Execució manual: exporta en un JSON (format «horaris-dades» v1) el que el generador d'horaris necessita de GESTIO:
+// grups-classe de cada nivell, docents (codi, nom, especialitat, jornada, hores lectives), assignacions (Currículum ›
+// Assignacions, amb els grups-classe de cada grup i la codocència) i la desiderata desada. El desa a config › carpeta_horaris.
+function dadesHoraris_() {
+  const cfg = llegeixConfig_(), GN = grupsNivell_(cfg);
+  const mats = {}; llegeix_(FULL.cur).forEach((m) => { mats[m.id_materia] = m; });
+  const assignacions = llegeix_(FULL.curg).map((r) => {
+    const m = mats[r.id_materia] || {}, GM = m.nivell ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1];
+    return { id: r.id_assignacio || r[MODULS.curriculum_grups.id] || '', id_materia: r.id_materia || '', nivell: r.nivell, materia: r.materia, grup: r.grup,
+      grups_classe: g ? g.lletres.map((x) => r.nivell + ' ' + x) : [], num_grup: Number(r.num_grup) || 1, hores: numCur_(r.hores),
+      hores_a: numCur_(m.hores_a), hores_b: numCur_(m.hores_b), especialitat: r.especialitat || '', especialitat_materia: m.especialitat || '',
+      docents_aula: Math.max(1, Math.round(numCur_(m.docents)) || 1), professor: r.professor || '' };
+  });
+  const docents = professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, jornada: p.jornada, lectives_alumnat: p.hores_lectives === '' ? null : p.hores_lectives, total_lectives: p.total_lectives === '' ? null : p.total_lectives }));
+  const desiderata = {}; llegeix_(FULL.des).forEach((r) => { try { desiderata[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
+  return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, docents: docents, assignacions: assignacions, desiderata: desiderata };
+}
+function exportaHoraris() {
+  const cfg = llegeixConfig_(), dades = dadesHoraris_(), id = (String(cfg.carpeta_horaris || '').match(/[-\w]{25,}/) || [''])[0];
+  let carpeta; if (id) carpeta = DriveApp.getFolderById(id); else { const it = DriveApp.getFoldersByName('GESTIO · Horaris'); carpeta = it.hasNext() ? it.next() : DriveApp.createFolder('GESTIO · Horaris'); }
+  const nom = 'horaris-dades-' + Utilities.formatDate(new Date(), 'Europe/Madrid', 'yyyyMMdd-HHmm') + '.json';
+  const f = carpeta.createFile(Utilities.newBlob(JSON.stringify(dades, null, 1), 'application/json', nom));
+  Logger.log('Exportat ' + nom + ': ' + dades.assignacions.length + ' assignacions, ' + dades.docents.length + ' docents → ' + f.getUrl());
+  return f.getUrl();
 }
 // PAS 44 · Desa els grups-classe de cada nivell {grups: {"1r ESO": "A, B, C, D", …}}
 function curriculumClassesDesa_(ctx, req) {

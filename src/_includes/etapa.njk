@@ -258,7 +258,11 @@
           {%- for bl in e.qual.blocs %}
           <div class="eso-qbox">
             <h4>{{ bl.titol[L] }}</h4>
+            {%- if E.qual.criterisDisponibles %}
             <a class="eso-doc eso-doc--row" href="#qualificacio" data-criteris="{{ bl.nivell }}" data-nom="{{ bl.titol[L] }}"><span>{{ E.qual.criterisPdf[L] }}</span><svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+            {%- else %}
+            <span class="eso-doc eso-doc--row eso-doc--off" aria-disabled="true"><span>{{ E.qual.criterisPdf[L] }}</span><span class="eso-doc__soon">{{ E.qual.properament[L] }}</span></span>
+            {%- endif %}
             <ol class="eso-reports">
               {%- for b in bl.butlletins %}
               <li{% if b.paper %} class="eso-reports__item--paper"{% endif %}><span class="eso-reports__when">{{ b.quan[L] }}</span><span class="eso-reports__what">{{ b.que[L] }}</span><span class="eso-reports__fmt">{{ b.format[L] }}</span></li>
@@ -272,7 +276,11 @@
         <p>{{ e.qual.comText[L] }}</p>
         <div class="eso-docs">
           {%- for c in e.curr.cursos %}
+          {%- if E.qual.criterisDisponibles %}
           <a class="eso-doc" href="#qualificacio" data-criteris="{{ c.nivell }}" data-nom="{{ c.label[L] }}"><span class="eso-doc__title">{{ c.label[L] }}</span><span class="eso-doc__meta">{{ E.qual.criterisPdf[L] }}</span></a>
+          {%- else %}
+          <span class="eso-doc eso-doc--off" aria-disabled="true"><span class="eso-doc__title">{{ c.label[L] }}</span><span class="eso-doc__meta">{{ E.qual.criterisPdf[L] }}</span><span class="eso-doc__soon">{{ E.qual.properament[L] }}</span></span>
+          {%- endif %}
           {%- endfor %}
         </div>
         <ol class="eso-reports">

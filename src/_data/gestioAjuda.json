@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 46 · 7 de novembre de 2026",
+  "versio": "PAS 47 · 7 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -813,7 +813,9 @@
             "Les hores de cada part també es poden editar a la graella. El senyal **⚠** a la columna Hores vol dir que les parts d'aquell grup no sumen les hores de la matèria (A + B).",
             "Per desfer un repartiment, esborreu la part que sobra (paperera) i poseu les hores totals a la que queda.",
             "Per canviar moltes files alhora, marqueu-les i feu servir «Aplica a la selecció».",
-            "El nom del **grup** no s'edita aquí: surt dels grups-classe de la matèria (pestanya Grups i distribució). El **professor/a** és opcional (desplegable del professorat actual)."
+            "El nom del **grup** no s'edita aquí: surt dels grups-classe de la matèria (pestanya Grups i distribució). El **professor/a** és opcional (desplegable del professorat actual).",
+            "Les files de **codocència** (o **cotutoria**, si és una tutoria) es marquen amb una etiqueta (p. ex. «Codocència ×2»): n'hi ha una per docent, cadascuna amb totes les hores, i no és un error.",
+            "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT)."
           ]
         },
         {
@@ -845,12 +847,75 @@
           ]
         },
         {
+          "id": "cur-balanc",
+          "titol": "Balanç i transferències",
+          "claus": "balanç transferències esquema caixes fletxes especialitat departament",
+          "text": [
+            "Botó **Balanç i transferències** (pestanya Assignacions): esquema amb una **caixa per especialitat** i el seu **balanç** d'hores (hores lectives del professorat − hores a impartir). L'ideal és 0: en verd si quadra, en vermell si en falten (negatiu) i en blau si en sobren (positiu).",
+            "Cada **fletxa** va de l'especialitat de la matèria a l'especialitat que la imparteix, amb les hores transferides. Passant el ratolí per sobre d'una fletxa o d'una caixa es veu el detall (matèries i hores).",
+            "Per defecte només surten les especialitats amb transferències (es pot desmarcar). **PDF**: l'esquema i, a la pàgina següent, les taules de transferències i de balanç."
+          ]
+        },
+        {
           "id": "cur-resum",
           "titol": "Hores per especialitat i document dels equips docents",
           "claus": "hores especialitat plantilla document equips docents pdf",
           "text": [
             "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Assignacions, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
             "**Document equips docents** (pestanya Assignacions): per nivell, una taula matèria × grup amb el professor/a o, si encara no n'hi ha, l'especialitat entre claudàtors. Amb PDF."
+          ]
+        }
+      ]
+    },
+    "desiderata": {
+      "titol": "Desiderata",
+      "graella": false,
+      "intro": "Proposta de cada cap de departament o d'àmbit: quin docent imparteix cada assignació de la seva especialitat i quants grups fa cadascun, amb observacions pedagògiques. Només hi tenen accés els caps (equip «Caps de departament», nivell edició) i la direcció.",
+      "temes": [
+        {
+          "id": "des-acces",
+          "titol": "Qui hi té accés",
+          "claus": "accés caps departament equip permís especialitat",
+          "text": [
+            "Hi entren els membres de l'equip **Caps de departament** (EQ-CAPS, el crea «configura» sense membres: la direcció hi afegeix els caps a **Equips i permisos**).",
+            "Cada cap veu **la seva especialitat** (la de la seva fitxa del professorat). La direcció (nivell admin) pot triar qualsevol especialitat al desplegable de dalt."
+          ]
+        },
+        {
+          "id": "des-assignacions",
+          "titol": "Repartir les assignacions",
+          "claus": "assignació docent grups repartir comptadors pendents",
+          "text": [
+            "Surt una fila per a cada assignació de l'especialitat (Currículum › Assignacions), agrupada per matèria i hores per grup: nivell, matèria (amb els grups), hores per grup i nombre de grups.",
+            "Amb **+ docent** s'afegeix un docent i **quants grups** fa (no cal dir quins: els grups-classe concrets els assigna després la direcció). Es poden posar docents d'altres especialitats.",
+            "La columna **Pendents** diu els grups que falten (✓ si quadra; ⚠ si se n'han posat de més).",
+            "A dalt, els **comptadors**: hores a assignar, assignades i pendents."
+          ]
+        },
+        {
+          "id": "des-docents",
+          "titol": "Coherència amb les hores lectives",
+          "claus": "docents hores lectives incoherència més menys",
+          "text": [
+            "La taula **Docents** compara les hores assignades de cada docent amb les seves **hores lectives amb alumnat** (fitxa del professorat). ⚠ si en té de més, de menys o si no té hores lectives a la fitxa."
+          ]
+        },
+        {
+          "id": "des-desa",
+          "titol": "Observacions, desar i exportar",
+          "claus": "observacions pedagògiques desar avís pdf excel",
+          "text": [
+            "**Observacions pedagògiques**: text lliure (criteris del departament, continuïtat amb els grups…).",
+            "**Desa**: si queden hores pendents, grups de més o files sense docent, surt un avís; es pot desar igualment i acabar més tard.",
+            "**PDF** i **Excel**: les assignacions amb els docents, les **incoherències** (docents amb més o menys hores assignades que lectives) i les observacions."
+          ]
+        },
+        {
+          "id": "des-analisi",
+          "titol": "Anàlisi (administració)",
+          "claus": "anàlisi balanç departaments direcció",
+          "text": [
+            "Amb nivell **admin**, el botó **Anàlisi** mostra totes les especialitats (hores a assignar, assignades, pendents, excés i data de desat) i els docents amb hores que no quadren. Amb PDF."
           ]
         }
       ]

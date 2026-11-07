@@ -359,3 +359,27 @@
 /* PAS 44 */
 .gs-hl .gs-hl-sep{ border-left: 2px solid #1C0CBC !important; }
 .gs-check{ display: inline-flex; align-items: center; gap: 6px; margin-right: 14px; }
+/* PAS 47 */
+.gs-codo{ display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; background:#ECEAFD; color:#1C0CBC; font-size:11px; font-weight:700; white-space:nowrap; }
+.gs-bal{ overflow:auto; max-height:70vh; border:1px solid #E1E5EE; border-radius:12px; background:#fff; }
+.gs-bal svg{ display:block; margin:0 auto; max-width:none; }
+.gs-bal__fl:hover path{ opacity:1; stroke:#B54700; }
+.gs-bal__l{ display:inline-block; padding:0 8px; border-radius:999px; font-weight:700; font-size:12px; }
+.gs-bal__l--0{ background:#E3F3EA; color:#0F9D58; } .gs-bal__l--n{ background:#FDE8E8; color:#C62828; } .gs-bal__l--p{ background:#ECEAFD; color:#1C0CBC; }
+.gs-form-fila .gs-check{ display:inline-flex; flex-direction:row; align-items:center; gap:8px; font-weight:500; }
+.gs-check input[type="checkbox"]{ width:18px; height:18px; min-height:0; padding:0; margin:0; flex:none; accent-color:#1C0CBC; }
+/* PAS 47 · Desiderata */
+.gs-des{ display:block; }
+.gs-des__titol{ margin:0; font-weight:700; font-size:18px; color:#1C0CBC; }
+.gs-des__esp select{ margin-left:8px; padding:6px 10px; border:1px solid #D5D9E6; border-radius:8px; font:inherit; }
+.gs-des__compt{ display:flex; flex-wrap:wrap; gap:12px; margin:8px 0 14px; }
+.gs-des__compt span{ padding:10px 16px; border-radius:12px; background:#F4F5FA; border:1px solid #E1E5EE; }
+.gs-des__compt b{ font-size:20px; margin-right:4px; }
+.gs-des .is-ok{ color:#0F9D58; } .gs-des .is-pend{ color:#C62828; font-weight:700; }
+.gs-des__compt .is-ok{ background:#E3F3EA; border-color:#BFE3CF; } .gs-des__compt .is-pend{ background:#FDE8E8; border-color:#F5C2C2; }
+.gs-des__taula td{ vertical-align:top; }
+.gs-des__doc{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.gs-des__doc select{ min-width:240px; max-width:320px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-des__doc input{ width:56px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; text-align:center; }
+.gs-des__obs{ width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D5D9E6; border-radius:10px; font:inherit; }
+.gs-des .gs-cen{ text-align:center; }

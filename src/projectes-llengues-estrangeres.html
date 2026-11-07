@@ -6,6 +6,9 @@ permalink: "projectes-llengues-estrangeres.html"
 lang: ca
 slug: projectes-llengues-estrangeres.html
 pageStyles: |
+  /* PAS 47 · enllaç a la pàgina Erasmus+ */
+  .le-erasmus-link{ display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; background:var(--color-blue); color:#fff; font-weight:700; text-decoration:none; }
+  .le-erasmus-link:hover{ background:var(--color-orange); color:#fff; }
   /* ============ PÀGINA PROJECTES · LLENGÜES ESTRANGERES ============ */
   .le-wrap{
     max-width: 1220px;
@@ -491,29 +494,10 @@ pageScript: |
       <h2>Internacionalització i projectes europeus</h2>
     </header>
     <div class="le-section__body le-reveal">
-      <ol class="le-timeline">
-        <li><b>2012-2013</b><span>Primeres mobilitats de curta durada</span></li>
-        <li><b>2023-2024</b><span>Acreditació Erasmus+ KA120 en l’àmbit de l’educació escolar</span></li>
-        <li><b>Avui</b><span>Intercanvis bilaterals amb centres de quatre països europeus</span></li>
-      </ol>
-      <p>El centre compta amb experiència en projectes europeus i disposa, des del curs 2023-2024, de l’<span class="kw">acreditació Erasmus+ KA120</span> en l’àmbit de l’educació escolar. Aquesta acreditació emmarca la nostra estratègia d’internacionalització i ens permet continuar desenvolupant oportunitats d’aprenentatge i cooperació amb altres centres europeus.</p>
-      <p>Promovem la internacionalització del centre i organitzem mobilitats de curta durada des del curs 2012-2013. Actualment, duem a terme <span class="kw">intercanvis bilaterals</span> amb centres educatius dels Països Baixos, Alemanya, Itàlia i França.</p>
-      {% include "erasmus-botons.njk" %}
-      <p>En el marc del programa Erasmus+, també impulsem diverses accions de mobilitat i formació, entre les quals destaquen:</p>
-      <ol class="le-actions">
-        <li><b>Formació del professorat</b><span>En institucions educatives i entitats especialitzades d’altres països.</span></li>
-        <li><b>Visita d’experts</b><span>Experts i professionals estrangers visiten el nostre centre.</span></li>
-        <li><b>Job shadowing</b><span>Estades d’observació que permeten al professorat conèixer de prop altres sistemes educatius, metodologies i formes d’organització escolar.</span></li>
-      </ol>
-      <p>Aquestes experiències contribueixen al desenvolupament professional del professorat, afavoreixen l’intercanvi de bones pràctiques i enriqueixen la tasca educativa del centre.</p>
-      <p>La <span class="kw">Coordinació Erasmus+</span> del centre està formada per {{ centre.coordinacioErasmus | llistaNoms(lang) }}, que planifiquen i fan el seguiment de les mobilitats i dels projectes europeus.</p>
+      <p>El centre participa en el programa <span class="kw">Erasmus+</span>, amb l’acreditació KA120 des del curs 2023-2024, i organitza intercanvis i mobilitats amb centres europeus. Tota la informació sobre els projectes europeus, les mobilitats i la coordinació Erasmus+ és a la pàgina pròpia.</p>
+      <p><a class="le-erasmus-link" href="/projectes-erasmus.html">Vés a la pàgina Erasmus+ <span aria-hidden="true">→</span></a></p>
     </div>
   </section>
 
 </div>
 
-<section class="le-closing">
-  <div class="le-closing__inner le-reveal">
-    <p>Alhora, permeten a l’alumnat <span class="kw">utilitzar les llengües en contextos reals</span>, conèixer altres sistemes educatius i cultures, desenvolupar l’autonomia i la responsabilitat, i créixer com a ciutadania <span class="kw">oberta al món</span>.</p>
-  </div>
-</section>

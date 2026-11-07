@@ -1098,6 +1098,12 @@
       "ca": "Els criteris de qualificació recullen la planificació inicial de cada matèria per al curs. Al llarg del curs es poden ajustar per raons pedagògiques, sempre amb el vistiplau del departament corresponent i, si escau, de la direcció del centre. Qualsevol canvi es comunicarà a l’alumnat i a les famílies.",
       "es": "Los criterios de calificación recogen la planificación inicial de cada materia para el curso. A lo largo del curso pueden ajustarse por razones pedagógicas, siempre con el visto bueno del departamento correspondiente y, si procede, de la dirección del centro. Cualquier cambio se comunicará al alumnado y a las familias.",
       "en": "The assessment criteria set out each subject’s initial plan for the school year. They may be adjusted during the year for educational reasons, always with the approval of the relevant department and, where appropriate, the school’s management team. Students and families will be informed of any changes."
+    },
+    "criterisDisponibles": false,
+    "properament": {
+      "ca": "Properament disponibles",
+      "es": "Próximamente disponibles",
+      "en": "Available soon"
     }
   },
   "proj": {

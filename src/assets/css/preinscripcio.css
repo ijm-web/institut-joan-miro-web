@@ -239,3 +239,10 @@ a.doc-card:focus-visible{ background: var(--color-orange); }
   .pi-table th, .pi-table td{ padding: 10px 8px; }
   .pi-table thead th{ font-size: 10.5px; letter-spacing: .03em; }
 }
+
+/* PAS 47 · avís del curs de les dades */
+.pi-banner{ display:flex; gap:14px; align-items:flex-start; max-width:1100px; width:calc(100% - 32px); box-sizing:border-box; margin:24px auto 0; padding:16px 20px;
+  background:#FFF4E5; border:2px solid #E8600C; border-left-width:8px; border-radius:12px; color:#5A2A00; font-size:1.05rem; line-height:1.5; }
+.pi-banner svg{ flex:none; width:28px; height:28px; color:#E8600C; margin-top:1px; }
+.pi-banner p{ margin:0; }
+.pi-banner strong{ color:#B54700; }

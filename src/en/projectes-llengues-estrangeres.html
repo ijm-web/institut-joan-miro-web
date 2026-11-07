@@ -6,6 +6,9 @@ permalink: "en/projectes-llengues-estrangeres.html"
 lang: en
 slug: projectes-llengues-estrangeres.html
 pageStyles: |
+  /* PAS 47 · enllaç a la pàgina Erasmus+ */
+  .le-erasmus-link{ display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; background:var(--color-blue); color:#fff; font-weight:700; text-decoration:none; }
+  .le-erasmus-link:hover{ background:var(--color-orange); color:#fff; }
   /* ============ PÀGINA PROJECTES · LLENGÜES ESTRANGERES ============ */
   .le-wrap{
     max-width: 1220px;
@@ -491,29 +494,10 @@ pageScript: |
       <h2>Internationalisation and European projects</h2>
     </header>
     <div class="le-section__body le-reveal">
-      <ol class="le-timeline">
-        <li><b>2012-2013</b><span>First short-term mobilities</span></li>
-        <li><b>2023-2024</b><span>Erasmus+ KA120 accreditation in school education</span></li>
-        <li><b>Today</b><span>Bilateral exchanges with schools in four European countries</span></li>
-      </ol>
-      <p>Our school has experience in European projects and, since the 2023-2024 school year, holds the <span class="kw">Erasmus+ KA120 accreditation</span> in school education. This accreditation frames our internationalisation strategy and allows us to keep developing learning and cooperation opportunities with other European schools.</p>
-      <p>We promote the internationalisation of the school and have organised short-term mobilities since the 2012-2013 school year. We currently run <span class="kw">bilateral exchanges</span> with schools in the Netherlands, Germany, Italy and France.</p>
-      {% include "erasmus-botons.njk" %}
-      <p>As part of the Erasmus+ programme, we also promote a range of mobility and training activities, including:</p>
-      <ol class="le-actions">
-        <li><b>Teacher training</b><span>At educational institutions and specialist organisations in other countries.</span></li>
-        <li><b>Expert visits</b><span>Experts and professionals from abroad visit our school.</span></li>
-        <li><b>Job shadowing</b><span>Observation periods that allow teachers to see other education systems, methodologies and ways of organising a school at first hand.</span></li>
-      </ol>
-      <p>These experiences contribute to teachers’ professional development, encourage the exchange of good practice and enrich the school’s educational work.</p>
-      <p>The school’s <span class="kw">Erasmus+ coordination team</span> is made up of {{ centre.coordinacioErasmus | llistaNoms(lang) }}, who plan and follow up mobilities and European projects.</p>
+      <p>The school takes part in the <span class="kw">Erasmus+</span> programme, holding the KA120 accreditation since 2023-2024, and organises exchanges and mobilities with European schools. All the information about European projects, mobilities and the Erasmus+ coordination is on its own page.</p>
+      <p><a class="le-erasmus-link" href="/en/projectes-erasmus.html">Go to the Erasmus+ page <span aria-hidden="true">→</span></a></p>
     </div>
   </section>
 
 </div>
 
-<section class="le-closing">
-  <div class="le-closing__inner le-reveal">
-    <p>At the same time, they allow students to <span class="kw">use languages in real contexts</span>, discover other education systems and cultures, develop autonomy and responsibility, and grow as citizens <span class="kw">open to the world</span>.</p>
-  </div>
-</section>

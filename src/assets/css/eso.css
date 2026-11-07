@@ -598,3 +598,9 @@ a.eso-card:focus-visible{ transform: translateY(-4px); box-shadow: 0 10px 24px r
   line-height: 1.6;
   color: var(--color-text);
 }
+
+/* PAS 47 · criteris de qualificació encara no disponibles */
+.eso-doc--off{ cursor: default; opacity: .72; border-style: dashed; }
+.eso-doc--off:hover{ transform: none; box-shadow: none; }
+.eso-doc__soon{ display: inline-block; align-self: flex-start; white-space: nowrap; margin-top: 6px; padding: 2px 10px; border-radius: 999px; background: #FFF4E5; color: #B54700; font-size: .78rem; font-weight: 700; letter-spacing: .02em; }
+.eso-doc--row .eso-doc__soon{ margin: 0 0 0 auto; }

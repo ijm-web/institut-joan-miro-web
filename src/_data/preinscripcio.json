@@ -343,6 +343,11 @@
       "ca": "Ves a preinscripcio.gencat.cat",
       "es": "Ve a preinscripcio.gencat.cat",
       "en": "Go to preinscripcio.gencat.cat"
+    },
+    "banner26": {
+      "ca": "<strong>Atenció:</strong> totes les dades d'aquesta pàgina corresponen al <strong>curs 2026-2027</strong>. Encara no s'han publicat les dates oficials de la preinscripció per al curs 2027-2028.",
+      "es": "<strong>Atención:</strong> todos los datos de esta página corresponden al <strong>curso 2026-2027</strong>. Todavía no se han publicado las fechas oficiales de la preinscripción para el curso 2027-2028.",
+      "en": "<strong>Please note:</strong> all the information on this page refers to the <strong>2026-2027 school year</strong>. The official pre-enrolment dates for 2027-2028 have not been published yet."
     }
   },
   "hub": {

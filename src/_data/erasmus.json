@@ -1,5 +1,5 @@
 {
-  "_info": "Projectes › Llengües estrangeres › Internacionalització: botons de les mobilitats Erasmus+ (include erasmus-botons.njk) i pàgines de cada intercanvi (plantilla erasmus.njk, estils /assets/css/projecte.css + /assets/css/erasmus.css). Fotos a /assets/img/erasmus/<id>/<img>-800.jpg i -1600.jpg. Una mobilitat sense href surt com a «Properament».",
+  "_info": "Projectes › Erasmus+ (PAS 47; abans Llengües estrangeres › Internacionalització): botons de les mobilitats Erasmus+ (include erasmus-botons.njk) i pàgines de cada intercanvi (plantilla erasmus.njk, estils /assets/css/projecte.css + /assets/css/erasmus.css). Fotos a /assets/img/erasmus/<id>/<img>-800.jpg i -1600.jpg. Una mobilitat sense href surt com a «Properament».",
   "titolBotons": {
     "ca": "Intercanvis Erasmus+",
     "es": "Intercambios Erasmus+",
@@ -438,10 +438,10 @@
       "it": "Scambi come questo permettono agli studenti di <span class=\"kw\">usare le lingue in contesti reali</span>, conoscere altre culture e crescere come cittadini <span class=\"kw\">aperti al mondo</span>."
     },
     "tornar": {
-      "ca": "Llengües estrangeres",
-      "es": "Lenguas extranjeras",
-      "en": "Foreign languages",
-      "it": "Lingue straniere"
+      "ca": "Erasmus+",
+      "es": "Erasmus+",
+      "en": "Erasmus+",
+      "it": "Erasmus+"
     },
     "traduccio": {
       "ca": "Leggi in italiano",

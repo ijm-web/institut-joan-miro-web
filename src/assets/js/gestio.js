@@ -39,7 +39,7 @@
     fets_curts: 'Els fets han de tenir com a mínim 20 caràcters.', fets_llargs: 'Els fets poden tenir com a màxim 3.000 caràcters.', fets_invalids: 'Descriviu els fets amb paraules.',
     carpeta_invalida: 'L’enllaç de la carpeta de Drive no és vàlid.', carpeta_sense_acces: 'L’Apps Script no té accés a aquesta carpeta de Drive (compartiu-la amb el compte que executa GESTIO).',
     pdf_error: 'No s’ha pogut fer el PDF.',
-    camp_desconegut: 'Aquest camp no és d’hores lectives.', grup_classe_desconegut: 'Grups-classe: només lletres de grups-classe del nivell (vegeu el botó Grups-classe), separades per comes (grups) o + (units).', classes_buides: 'Cada nivell ha de tenir almenys un grup-classe.', separacio_invalida: 'Cal marcar almenys un grup-classe de la fila i deixar-ne algun.', hores_invalides: 'Les hores de la part han de ser més d’1 i menys que les del grup.', falta_configura: 'Cal executar «configura» a l’Apps Script (falta la columna d’hores lectives).',
+    camp_desconegut: 'Aquest camp no és d’hores lectives.', grup_classe_desconegut: 'Grups-classe: només lletres de grups-classe del nivell (vegeu el botó Grups-classe), separades per comes (grups) o + (units).', sense_especialitat: 'No trobem la vostra especialitat a la fitxa del professorat.', classes_buides: 'Cada nivell ha de tenir almenys un grup-classe.', separacio_invalida: 'Cal marcar almenys un grup-classe de la fila i deixar-ne algun.', hores_invalides: 'Les hores de la part han de ser més d’1 i menys que les del grup.', falta_configura: 'Cal executar «configura» a l’Apps Script (falta la columna d’hores lectives).',
     falten_dades: 'Cap alumne del grup té les dades d’aquest document', sense_alumnes: 'No hi ha alumnes en aquest grup.',
     grup_desconegut: 'Algun grup de l’equip no existeix (reviseu la columna Grups).',
     google_token_invalid: 'No s’ha pogut validar l’inici de sessió amb Google. Torneu-ho a provar.',
@@ -350,6 +350,7 @@
     destrueixTaula(); clearInterval(vigila.t); amagaAvisCanvis();
     if (m.id === 'equips') return carregaEquips();
     if (m.id === 'nou_professor') return carregaNouProfessor();
+    if (m.id === 'desiderata') return carregaDesiderata();
     // Les dades ja llegides en aquesta pàgina es reutilitzen: tornar al mòdul no torna a cridar el full
     if (S.cache[m.id]) return mostraDades(S.cache[m.id]);
     carregaDades();
@@ -479,11 +480,14 @@
     (S.taula ? S.taula.getData() : S.d.files).forEach(function (d) { var v = d[camp] == null ? '' : String(d[camp]).trim(); if (v === '') buit = true; else vist[v] = 1; });
     return Object.keys(vist).sort(function (a, b) { return a.localeCompare(b, 'ca', { numeric: true }); }).map(function (x) { return { v: x, t: x }; }).concat(buit ? [BUIT] : []);
   }
+  var ordreNivell = function (v) { var o = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'], i = o.indexOf(String(v || '').replace(/\bBat\b/i, 'BAT')); return i < 0 ? (v ? 50 : 99) : i; };
   function filtreDe(c, compacte) {
     var opts = c.tipus === 'si_no' ? function () { return [{ v: 'sí', t: 'sí' }, { v: '', t: 'no' }]; }
       : c.tipus === 'llista' ? function () { return c.valors.split('|').map(function (x) { x = x.trim(); return { v: x, t: x }; }).concat([BUIT]); }
       : c.tipus === 'data' ? function () { return valorsDiferents(c.clau).map(function (o) { return o === BUIT ? o : { v: o.v, t: dataVista(o.v) }; }); }
       : function () { return valorsDiferents(c.clau); };
+    // PAS 47: el filtre Nivell, en l'ordre de les etapes (ESO i després batxillerat), no alfabètic
+    if (c.clau === 'nivell') { var base = opts; opts = function () { return base().slice().sort(function (a, b) { return ordreNivell(a.v) - ordreNivell(b.v); }); }; }
     var norm = function (v) { v = v == null ? '' : String(v).trim(); return c.tipus === 'si_no' ? (v === 'sí' ? 'sí' : '') : v; };
     return {
       headerFilter: function (cell, onRendered, success) { var el = filtreMultiple(c.nom, opts, success, cell.getValue()); if (compacte) el.classList.add('gs-filtre--compacte'); return el; },
@@ -652,6 +656,11 @@
       if (S.modul.id === 'professorat' && c.clau === 'total_lectives') col.formatter = function (cell) {
         var t = cell.getValue(), mx = maxJornada(cell.getRow().getData().jornada);
         return esc(t == null ? '' : t) + (t !== '' && t != null && mx && Math.abs(numero(t) - mx) > 0.01 ? ' <span class="gs-avis-ret" title="No coincideix amb les ' + mx + ' h lectives de la jornada">⚠</span>' : '');
+      };
+      // PAS 47: assignacions → les files de codocència (o cotutoria) es marquen: n'hi ha una per docent i no és un error
+      if (S.modul.id === 'curriculum_grups' && c.clau === 'grup') col.formatter = function (cell) {
+        var d = cell.getRow().getData(), m = materiaDe(d), n = m ? Math.round(numero(m.docents)) || 1 : 1;
+        return esc(cell.getValue() || '') + (n > 1 ? ' <span class="gs-codo" title="' + n + ' docents a l’aula alhora: hi ha una fila per docent, cadascuna amb totes les hores">' + (/tutoria/i.test(d.materia || '') ? 'Cotutoria' : 'Codocència') + ' ×' + n + '</span>' : '');
       };
       // PAS 41: assignacions → ⚠ si les parts d'un grup no sumen les hores de la matèria
       if (S.modul.id === 'curriculum_grups' && c.clau === 'hores') col.formatter = function (cell) {
@@ -1683,6 +1692,74 @@
     });
     return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
   }
+  // PAS 47 · Esquema «Balanç i transferències»: una caixa per especialitat amb el balanç d'hores (professorat − a impartir;
+  // l'ideal és 0) i fletxes de l'especialitat de la matèria a l'especialitat que la imparteix amb les hores transferides.
+  function dadesBalanc() {
+    var files = S.d.files.map(function (f) { var m = materiaDe(f) || {}; return { nivell: f.nivell, materia: f.materia, de: m.especialitat || '', a: f.especialitat || '', hores: numero(f.hores) }; });
+    var esps = {}; files.forEach(function (f) { if (f.de) esps[f.de] = 1; if (f.a) esps[f.a] = 1; }); (S.d.professorat_hores || []).forEach(function (p) { if (p.especialitat) esps[p.especialitat] = 1; });
+    var trans = {}; files.forEach(function (f) { if (!f.de || !f.a || f.de === f.a) return; var k = f.de + '→' + f.a; var t = trans[k] = trans[k] || { de: f.de, a: f.a, hores: 0, det: {} }; t.hores += f.hores; var d = f.nivell + ' ' + f.materia; t.det[d] = (t.det[d] || 0) + f.hores; });
+    var llista = Object.keys(esps).sort(function (a, b) { return a.localeCompare(b, 'ca'); }).map(function (e) { var D = dadesEspecialitat(e); return { e: e, balanc: D.balanc, tE: D.tE, tP: D.tP, tC: D.tC, tA: D.tA }; });
+    return { esps: llista, trans: Object.keys(trans).map(function (k) { return trans[k]; }) };
+  }
+  function svgBalanc(B, nomesTrans) {
+    var amb = {}; B.trans.forEach(function (t) { amb[t.de] = amb[t.a] = 1; });
+    var es = B.esps.filter(function (x) { return !nomesTrans || amb[x.e]; });
+    var n = es.length, bw = 168, bh = 58, R = Math.max(230, n * 30), W = 2 * R + bw + 80, H = 2 * R + bh + 80, cx = W / 2, cy = H / 2, pos = {};
+    es.forEach(function (x, i) { var a = -Math.PI / 2 + 2 * Math.PI * i / Math.max(1, n); pos[x.e] = { x: cx + R * Math.cos(a), y: cy + R * Math.sin(a) }; });
+    var color = function (b) { return Math.abs(b) < 0.01 ? ['#E3F3EA', '#0F9D58'] : b < 0 ? ['#FDE8E8', '#C62828'] : ['#ECEAFD', '#1C0CBC']; };
+    var vora = function (p, q) { // punt de la vora de la caixa p en direcció a q
+      var dx = q.x - p.x, dy = q.y - p.y, sx = (bw / 2 + 6) / Math.abs(dx || 1e-6), sy = (bh / 2 + 6) / Math.abs(dy || 1e-6), s = Math.min(sx, sy); return { x: p.x + dx * s, y: p.y + dy * s };
+    };
+    var fl = B.trans.filter(function (t) { return pos[t.de] && pos[t.a]; }).map(function (t) {
+      var p = vora(pos[t.de], pos[t.a]), q = vora(pos[t.a], pos[t.de]), mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2, dx = q.x - p.x, dy = q.y - p.y, l = Math.sqrt(dx * dx + dy * dy) || 1;
+      var ox = -dy / l * 26, oy = dx / l * 26, kx = mx + ox, ky = my + oy, lx = (p.x + 2 * kx + q.x) / 4, ly = (p.y + 2 * ky + q.y) / 4;
+      var tip = t.de + ' → ' + t.a + ': ' + fmtH(t.hores) + ' h\n' + Object.keys(t.det).map(function (d) { return '· ' + d + ': ' + fmtH(t.det[d]) + ' h'; }).join('\n');
+      return '<g class="gs-bal__fl"><title>' + esc(tip) + '</title><path d="M' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' Q' + kx.toFixed(1) + ',' + ky.toFixed(1) + ' ' + q.x.toFixed(1) + ',' + q.y.toFixed(1) + '" fill="none" stroke="#E8600C" stroke-width="' + Math.min(6, 1.5 + t.hores / 4).toFixed(1) + '" marker-end="url(#gsBalPunta)" opacity=".85"/>' +
+        '<rect x="' + (lx - 22).toFixed(1) + '" y="' + (ly - 10).toFixed(1) + '" width="44" height="20" rx="10" fill="#fff" stroke="#E8600C"/><text x="' + lx.toFixed(1) + '" y="' + (ly + 4).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#B54700">' + esc(fmtH(t.hores)) + ' h</text></g>';
+    }).join('');
+    var caixes = es.map(function (x) {
+      var p = pos[x.e], c = color(x.balanc), nom = x.e.length > 22 ? x.e.slice(0, 21) + '…' : x.e;
+      return '<g><title>' + esc(x.e + '\nHores de l’especialitat: ' + fmtH(x.tE) + '\n− cedides: ' + fmtH(x.tC) + '\n+ assignades d’altres: ' + fmtH(x.tA) + '\nProfessorat: ' + fmtH(x.tP) + '\nBalanç: ' + fmtH(x.balanc)) + '</title>' +
+        '<rect x="' + (p.x - bw / 2).toFixed(1) + '" y="' + (p.y - bh / 2).toFixed(1) + '" width="' + bw + '" height="' + bh + '" rx="10" fill="' + c[0] + '" stroke="' + c[1] + '" stroke-width="2"/>' +
+        '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 6).toFixed(1) + '" text-anchor="middle" font-size="12" font-weight="600" fill="#1E1E2A">' + esc(nom) + '</text>' +
+        '<text x="' + p.x.toFixed(1) + '" y="' + (p.y + 17).toFixed(1) + '" text-anchor="middle" font-size="16" font-weight="800" fill="' + c[1] + '">' + (x.balanc > 0 ? '+' : '') + esc(fmtH(x.balanc)) + ' h</text></g>';
+    }).join('');
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + W.toFixed(0) + ' ' + H.toFixed(0) + '" width="' + W.toFixed(0) + '" height="' + H.toFixed(0) + '" font-family="Montserrat, Helvetica, Arial, sans-serif"><defs><marker id="gsBalPunta" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#E8600C"/></marker></defs>' +
+      '<rect width="100%" height="100%" fill="#fff"/>' + fl + caixes + '</svg>';
+  }
+  function esquemaBalanc() {
+    if (S.modul.id !== 'curriculum_grups') return;
+    if (!S.d.files.length) return toast('No hi ha assignacions: primer genereu els grups.', true);
+    var B = dadesBalanc();
+    pregunta('Balanç i transferències', '<p class="gs-ajuda">Cada caixa és una especialitat amb el seu <strong>balanç</strong> d’hores (hores lectives del professorat − hores a impartir): <span class="gs-bal__l gs-bal__l--0">0 = quadra</span> <span class="gs-bal__l gs-bal__l--n">negatiu = falten hores</span> <span class="gs-bal__l gs-bal__l--p">positiu = sobren</span>. Cada <strong>fletxa</strong> va de l’especialitat de la matèria a la que la imparteix, amb les hores transferides (passeu el ratolí per sobre per veure les matèries).</p>' +
+      '<div class="gs-form-fila"><label class="gs-check"><input type="checkbox" id="gsBalTrans" checked> Només les especialitats amb transferències</label><span class="gs-gris">' + B.trans.length + ' transferències · ' + B.esps.length + ' especialitats</span></div><div class="gs-bal" id="gsBal"></div>',
+      [{ t: 'PDF', valor: 0, tipus: 'ghost', abans: function () { pdfBalanc(B, $('gsBalTrans').checked); return false; } }, { t: 'Tanca', valor: 1 }], false);
+    $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample', 'gs-modal--hl');
+    var pinta = function () { $('gsBal').innerHTML = svgBalanc(B, $('gsBalTrans').checked); };
+    $('gsBalTrans').addEventListener('change', pinta); pinta();
+  }
+  function pdfBalanc(B, nomesTrans) {
+    var svg = svgBalanc(B, nomesTrans), m = /width="(\d+)" height="(\d+)"/.exec(svg), w = Number(m[1]), h = Number(m[2]);
+    var img = new Image(), url = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    var crida = new Promise(function (ok, ko) { img.onload = ok; img.onerror = ko; img.src = url; }).then(function () {
+      var c = document.createElement('canvas'), k = 2; c.width = w * k; c.height = h * k; var x = c.getContext('2d'); x.scale(k, k); x.drawImage(img, 0, 0);
+      return logoPdf().then(function (logo) {
+        var doc = new window.jspdf.jsPDF({ orientation: w >= h ? 'landscape' : 'portrait', unit: 'mm', format: 'a4' });
+        var PW = doc.internal.pageSize.getWidth(), PH = doc.internal.pageSize.getHeight(), M = 10, data = new Date().toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+        capPdf(doc, logo, 'CURRÍCULUM · BALANÇ I TRANSFERÈNCIES · Institut Joan Miró', data + ' · Balanç = hores del professorat - hores a impartir (0 = quadra)', M, PW);
+        var aw = PW - 2 * M, ah = PH - Y_TAULA - 12, s = Math.min(aw / w, ah / h);
+        doc.addImage(c.toDataURL('image/png'), 'PNG', M + (aw - w * s) / 2, Y_TAULA, w * s, h * s);
+        doc.addPage();
+        capPdf(doc, logo, 'CURRÍCULUM · TRANSFERÈNCIES D’HORES · Institut Joan Miró', data, M, PW);
+        doc.autoTable({ head: [['De (especialitat de la matèria)', 'A (especialitat que la imparteix)', 'Hores', 'Matèries']], body: B.trans.sort(function (a, b) { return a.de.localeCompare(b.de, 'ca') || a.a.localeCompare(b.a, 'ca'); }).map(function (t) { return [t.de, t.a, fmtH(t.hores), Object.keys(t.det).map(function (d) { return d + ' (' + fmtH(t.det[d]) + ' h)'; }).join('; ')]; }),
+          startY: Y_TAULA, margin: { left: M, right: M }, styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.4 }, headStyles: { fillColor: [28, 12, 188], textColor: 255 }, columnStyles: { 2: { halign: 'center', cellWidth: 16 } } });
+        doc.autoTable({ head: [['Especialitat', 'Hores especialitat', '- Cedides', '+ Assignades', 'Professorat', 'Balanç']], body: B.esps.map(function (x) { return [x.e, fmtH(x.tE), fmtH(x.tC), fmtH(x.tA), fmtH(x.tP), fmtH(x.balanc)]; }),
+          startY: doc.lastAutoTable.finalY + 6, margin: { left: M, right: M }, styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.4 }, headStyles: { fillColor: [28, 12, 188], textColor: 255 }, columnStyles: { 1: { halign: 'center' }, 2: { halign: 'center' }, 3: { halign: 'center' }, 4: { halign: 'center' }, 5: { halign: 'center', fontStyle: 'bold' } } });
+        doc.save('balanc-transferencies-' + new Date().toISOString().slice(0, 10) + '.pdf');
+      });
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
+  }
   // PAS 41 · Document per especialitat (per al cap de departament): hores de l'especialitat, cedides, assignades d'altres
   // especialitats, professorat amb les hores lectives i balanç
   function dadesEspecialitat(e) {
@@ -1850,6 +1927,7 @@
       (ed && !grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="alta">+ Afegeix matèria</button>' : '') +
       (ed && !grups ? '<button type="button" class="prog-btn" data-accio="cur-genera" title="Crea o actualitza una fila per cada matèria i grup">Genera els grups</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-resum" title="Hores de professorat per especialitat i nivell">Hores per especialitat</button>' +
+      (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-balanc" title="Esquema: balanç d’hores de cada especialitat i transferències entre especialitats">Balanç i transferències</button>' : '') +
       (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-especialitat" title="Per al cap de departament: hores de l’especialitat, cedides, assignades, professorat i balanç (PDF)">Document per especialitat</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-document" title="Taula per nivell: matèries × grups amb el professorat o l’especialitat (PDF)">Document equips docents</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
       (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="camps">Gestió camps</button>' + BOTO_ACTUALITZA : '') +
@@ -2332,6 +2410,143 @@
   }
   var esSubstitut = function () { var el = $('gsNou_situacio'); return !!el && el.value === 'Substitut'; };
 
+  // ================================================================== PAS 47 · DESIDERATA
+  // El cap de departament proposa, per a cada assignació de la seva especialitat (Currículum › Assignacions), quins docents
+  // la imparteixen i quants grups fa cadascun (els grups concrets els assigna després la direcció). Comptadors d'hores,
+  // observacions pedagògiques, coherència amb les hores lectives de cada docent, PDF, Excel i, per a l'administració, «Anàlisi».
+  function carregaDesiderata(esp) {
+    api('desiderata_dades', esp ? { especialitat: esp } : {}, 'Carregant la desiderata…').then(function (r) {
+      if (!r.ok) { $('gsAvis').innerHTML = r.error === 'sense_especialitat' ? 'No trobem la vostra especialitat a la fitxa del professorat: la direcció l’hi ha de posar (o us pot obrir la desiderata d’una especialitat).' : textError(r); $('gsAvis').hidden = false; return; }
+      S.des = r; S.desDades = JSON.parse(JSON.stringify(r.dades || {})); S.d = { files: [], camps: [], nivell: S.modul.nivell };
+      pintaDesiderata();
+    });
+  }
+  // Canvis sense desar (sense la barra de la graella: aquí el botó Desa és a dalt)
+  var brutDes = function (b) { S.brut = b; var x = document.querySelector('[data-accio="des-desa"]'); if (x) { x.classList.toggle('is-brut', b); x.textContent = b ? 'Desa *' : 'Desa'; } };
+  var desProfs = function () { var P = {}; (S.des.professorat || []).forEach(function (p) { P[p.id] = p; }); return P; };
+  function calculsDesiderata() {
+    var A = S.des.assignacions, D = S.desDades, P = desProfs(), per = {}, total = 0, fetes = 0, sobre = [];
+    A.forEach(function (a) {
+      var ll = D[a.clau] || [], g = ll.reduce(function (t, x) { return t + (Number(x.grups) || 0); }, 0);
+      total += a.grups * a.hores; fetes += Math.min(g, a.grups) * a.hores; if (g > a.grups) sobre.push(a);
+      ll.forEach(function (x) { if (!x.prof || !(Number(x.grups) > 0)) return; per[x.prof] = (per[x.prof] || 0) + x.grups * a.hores; });
+    });
+    var ids = {}; Object.keys(per).forEach(function (k) { ids[k] = 1; }); (S.des.professorat || []).forEach(function (p) { if (p.especialitat === S.des.especialitat) ids[p.id] = 1; });
+    var docents = Object.keys(ids).map(function (id) { var p = P[id] || { nom: id, especialitat: '' }, l = p.hores_lectives === '' || p.hores_lectives == null ? null : numero(p.hores_lectives), as = per[id] || 0;
+      return { id: id, nom: p.nom, especialitat: p.especialitat, lectives: l, assignades: as, dif: (l === null ? 0 : l) - as }; })
+      .sort(function (a, b) { return (a.especialitat === S.des.especialitat ? 0 : 1) - (b.especialitat === S.des.especialitat ? 0 : 1) || a.nom.localeCompare(b.nom, 'ca'); });
+    return { total: total, fetes: fetes, pendents: Math.round((total - fetes) * 100) / 100, sobre: sobre, docents: docents };
+  }
+  function pintaDesiderata() {
+    var R = S.des, ed = R.obert !== false, C;
+    $('gsEines').innerHTML = (R.especialitats.length > 1 ? '<label class="gs-des__esp">Especialitat <select id="gsDesEsp">' + R.especialitats.map(function (e) { return '<option' + (e === R.especialitat ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select></label>' : '<p class="gs-des__titol">' + esc(R.especialitat) + '</p>') +
+      '<span class="gs-espai"></span>' + (R.admin ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-analisi" title="Balanç de totes les especialitats">Anàlisi</button>' : '') +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-xlsx">Excel</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="des-pdf">PDF</button>' +
+      (ed ? '<button type="button" class="prog-btn" data-accio="des-desa">Desa</button>' : '') +
+      '<p class="gs-ajuda" style="flex:1 1 100%;margin:4px 0 0">Per a cada assignació de l’especialitat, indiqueu <strong>quins docents</strong> la faran i <strong>quants grups</strong> fa cadascun (no cal dir quins: els grups-classe concrets els assigna després la direcció). ' + (R.data ? 'Desat el ' + esc(dataVista(R.data.slice(0, 10))) + ' per ' + esc(R.desat_per) + '.' : 'Encara no s’ha desat.') + '</p>';
+    var P = desProfs(), opcions = function (sel) {
+      var propis = R.professorat.filter(function (p) { return p.especialitat === R.especialitat; }), altres = R.professorat.filter(function (p) { return p.especialitat !== R.especialitat; });
+      var op = function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.nom) + '</option>'; };
+      return '<option value="">— Docent —</option><optgroup label="' + esc(R.especialitat) + '">' + propis.map(op).join('') + '</optgroup><optgroup label="Altres especialitats">' + altres.map(op).join('') + '</optgroup>';
+    };
+    var fila = function (a, x, i) { return '<div class="gs-des__doc" data-i="' + i + '"><select data-k="prof"' + (ed ? '' : ' disabled') + '>' + opcions(x.prof) + '</select><input type="number" data-k="grups" min="1" max="' + a.grups + '" step="1" value="' + esc(x.grups || 1) + '"' + (ed ? '' : ' disabled') + ' aria-label="Grups"><span class="gs-gris">grups</span>' + (ed ? '<button type="button" class="gs-perill gs-paperera" data-a="treu" title="Treu" aria-label="Treu">' + PAPERERA + '</button>' : '') + '</div>'; };
+    var html = '<div class="gs-des__compt" id="gsDesCompt"></div>' +
+      (R.assignacions.length ? '<table class="gs-form-taula gs-informe__taula gs-des__taula"><thead><tr><th>Nivell</th><th>Matèria</th><th class="gs-cen">h/grup</th><th class="gs-cen">Grups</th><th>Docents (i quants grups fa cadascun)</th><th class="gs-cen">Pendents</th></tr></thead><tbody>' +
+        R.assignacions.map(function (a) { var ll = S.desDades[a.clau] || [];
+          return '<tr data-clau="' + esc(a.clau) + '"><td>' + esc(a.nivell) + '</td><td>' + esc(a.materia) + '<br><small class="gs-gris">' + esc(a.noms.join(', ')) + '</small></td><td class="gs-cen">' + esc(fmtH(a.hores)) + '</td><td class="gs-cen">' + a.grups + '</td><td><div class="gs-des__docs">' + ll.map(function (x, i) { return fila(a, x, i); }).join('') + '</div>' +
+            (ed ? '<button type="button" class="gs-enllac" data-a="afegeix">+ docent</button>' : '') + '</td><td class="gs-cen" data-pend></td></tr>'; }).join('') + '</tbody></table>' : '<p class="prog-avis">Aquesta especialitat no té assignacions: cal generar-les al Currículum (pestanya Assignacions).</p>') +
+      '<h3 class="gs-amon__tit">Docents: hores lectives amb alumnat i hores assignades</h3><div id="gsDesDocents"></div>' +
+      '<h3 class="gs-amon__tit">Observacions pedagògiques</h3><textarea id="gsDesObs" class="gs-des__obs" rows="5" maxlength="5000"' + (ed ? '' : ' disabled') + ' placeholder="Criteris del departament, continuïtat amb els grups, docents que convé que facin un nivell…">' + esc(R.observacions || '') + '</textarea>';
+    // Els esdeveniments van a un contenidor intern (es destrueix en tornar a pintar o en canviar de mòdul)
+    var t0 = $('gsTaula'); t0.className = 'gs-des'; t0.innerHTML = '<div id="gsDesCos">' + html + '</div>'; var t = $('gsDesCos');
+    var llegeix = function () {
+      [].forEach.call(t.querySelectorAll('tr[data-clau]'), function (tr) {
+        S.desDades[tr.dataset.clau] = [].map.call(tr.querySelectorAll('.gs-des__doc'), function (d) { return { prof: d.querySelector('[data-k="prof"]').value, grups: Number(d.querySelector('[data-k="grups"]').value) || 0 }; });
+      });
+    };
+    var refresca = function () {
+      llegeix(); C = calculsDesiderata();
+      $('gsDesCompt').innerHTML = '<span><b>' + fmtH(C.total) + '</b> h a assignar</span><span class="is-ok"><b>' + fmtH(C.fetes) + '</b> h assignades</span><span class="' + (C.pendents > 0 ? 'is-pend' : 'is-ok') + '"><b>' + fmtH(C.pendents) + '</b> h pendents</span>' + (C.sobre.length ? '<span class="is-pend">⚠ ' + C.sobre.length + ' amb més grups dels que hi ha</span>' : '');
+      [].forEach.call(t.querySelectorAll('tr[data-clau]'), function (tr) {
+        var a = R.assignacions.filter(function (x) { return x.clau === tr.dataset.clau; })[0], g = (S.desDades[a.clau] || []).reduce(function (s, x) { return s + (Number(x.grups) || 0); }, 0), p = a.grups - g;
+        var c = tr.querySelector('[data-pend]'); c.textContent = p > 0 ? p + (p === 1 ? ' grup' : ' grups') : p < 0 ? '⚠ ' + (-p) + ' de més' : '✓'; c.className = 'gs-cen ' + (p === 0 ? 'is-ok' : 'is-pend');
+      });
+      $('gsDesDocents').innerHTML = '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Docent</th><th>Especialitat</th><th class="gs-cen">Lectives alumnat</th><th class="gs-cen">Assignades</th><th class="gs-cen">Diferència</th></tr></thead><tbody>' +
+        C.docents.map(function (d) { var av = d.lectives === null ? 'sense hores lectives a la fitxa' : d.dif > 0.01 ? 'li falten ' + fmtH(d.dif) + ' h' : d.dif < -0.01 ? 'té ' + fmtH(-d.dif) + ' h de més' : '';
+          return '<tr><td>' + esc(d.nom) + '</td><td>' + esc(d.especialitat) + '</td><td class="gs-cen">' + (d.lectives === null ? '—' : esc(fmtH(d.lectives))) + '</td><td class="gs-cen">' + esc(fmtH(d.assignades)) + '</td><td class="gs-cen ' + (av ? 'is-pend' : 'is-ok') + '">' + (av ? '⚠ ' + esc(av) : '✓') + '</td></tr>'; }).join('') + '</tbody></table>';
+      brutDes(true);
+    };
+    t.addEventListener('input', refresca); t.addEventListener('change', refresca);
+    t.addEventListener('click', function (e) {
+      var b = e.target.closest('button[data-a]'); if (!b) return;
+      var tr = b.closest('tr[data-clau]'), a = R.assignacions.filter(function (x) { return x.clau === tr.dataset.clau; })[0];
+      if (b.dataset.a === 'afegeix') { var fet = (S.desDades[a.clau] || []).reduce(function (s, x) { return s + (Number(x.grups) || 0); }, 0); var box = tr.querySelector('.gs-des__docs'); box.insertAdjacentHTML('beforeend', fila(a, { prof: '', grups: Math.max(1, a.grups - fet) }, box.children.length)); }
+      else if (b.dataset.a === 'treu') b.closest('.gs-des__doc').remove();
+      refresca();
+    });
+    if ($('gsDesEsp')) $('gsDesEsp').addEventListener('change', function () { if (S.brut && !confirm('Hi ha canvis sense desar. Voleu canviar d’especialitat igualment?')) { this.value = R.especialitat; return; } brutDes(false); carregaDesiderata(this.value); });
+    refresca(); brutDes(false);
+  }
+  function desaDesiderata() {
+    var C = calculsDesiderata(), envia = function () {
+      var net = {}; Object.keys(S.desDades).forEach(function (k) { var ll = S.desDades[k].filter(function (x) { return x.prof && x.grups > 0; }); if (ll.length) net[k] = ll; });
+      api('desiderata_desa', { especialitat: S.des.especialitat, dades: net, observacions: $('gsDesObs').value }, 'Desant la desiderata…').then(function (r) {
+        if (!r.ok) return toast(text(r.error), true);
+        S.des.data = r.data; S.des.desat_per = r.desat_per; S.des.dades = r.dades; S.des.observacions = $('gsDesObs').value; brutDes(false);
+        toast('Desiderata desada' + (C.pendents > 0 ? ' (queden ' + fmtH(C.pendents) + ' h pendents).' : '.'));
+      });
+    };
+    var falten = [].filter.call(document.querySelectorAll('.gs-des__doc select[data-k="prof"]'), function (s) { return !s.value; }).length;
+    if (C.pendents > 0 || C.sobre.length || falten) return pregunta('Desar la desiderata', '<p class="prog-avis">' + [C.pendents > 0 ? 'Queden <strong>' + fmtH(C.pendents) + ' h pendents</strong> d’assignar.' : '', C.sobre.length ? 'Hi ha ' + C.sobre.length + ' assignacions amb més grups dels que hi ha: ' + esc(C.sobre.map(function (a) { return a.nivell + ' ' + a.materia; }).join('; ')) + '.' : '', falten ? falten + ' files sense docent (no es desaran).' : ''].filter(Boolean).join('<br>') + '</p><p>Es pot desar igualment i acabar-la més tard.</p>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa igualment', valor: 1 }], false).then(function (v) { if (v) envia(); });
+    envia();
+  }
+  // Exportacions (PDF i Excel): assignacions, docents amb hores que no quadren i observacions
+  function filesDesiderata() {
+    var P = desProfs(), C = calculsDesiderata();
+    var ass = S.des.assignacions.map(function (a) { var ll = (S.desDades[a.clau] || []).filter(function (x) { return x.prof; }), g = ll.reduce(function (s, x) { return s + (Number(x.grups) || 0); }, 0);
+      return [a.nivell, a.materia, fmtH(a.hores), String(a.grups), ll.map(function (x) { return (P[x.prof] || { nom: x.prof }).nom + ' (' + x.grups + ')'; }).join('; '), a.grups - g > 0 ? (a.grups - g) + (a.grups - g === 1 ? ' grup' : ' grups') : a.grups - g < 0 ? (g - a.grups) + ' de més' : 'cap']; });
+    var inc = C.docents.filter(function (d) { return d.lectives === null || Math.abs(d.dif) > 0.01; }).map(function (d) { return [d.nom, d.especialitat, d.lectives === null ? '—' : fmtH(d.lectives), fmtH(d.assignades), d.lectives === null ? 'Sense hores lectives a la fitxa' : d.dif > 0 ? 'Menys hores assignades que lectives (' + fmtH(d.dif) + ' h)' : 'Més hores assignades que lectives (' + fmtH(-d.dif) + ' h)']; });
+    return { C: C, ass: ass, inc: inc, obs: $('gsDesObs') ? $('gsDesObs').value : S.des.observacions || '' };
+  }
+  function pdfDesiderata() {
+    var F = filesDesiderata(), esp = S.des.especialitat;
+    var crida = logoPdf().then(function (logo) {
+      var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }), W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 12, data = new Date().toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+      var peu = function () { capPdf(doc, logo, ('Desiderata · ' + esp).toUpperCase() + ' · Institut Joan Miró', data + ' · ' + fmtH(F.C.total) + ' h a assignar · ' + fmtH(F.C.fetes) + ' assignades · ' + fmtH(F.C.pendents) + ' pendents', M, W); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90, 96, 120); doc.text('Pàgina ' + doc.internal.getNumberOfPages(), W - M, H - 6, { align: 'right' }); };
+      var est = { font: 'helvetica', fontSize: 8, cellPadding: 1.4, lineColor: [225, 229, 238], lineWidth: 0.1 }, head = { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold' };
+      doc.autoTable({ head: [['Nivell', 'Matèria', 'h/grup', 'Grups', 'Docents (grups)', 'Pendents']], body: F.ass, startY: Y_TAULA, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, styles: est, headStyles: head, didDrawPage: peu,
+        columnStyles: { 0: { cellWidth: 16 }, 2: { halign: 'center', cellWidth: 13 }, 3: { halign: 'center', cellWidth: 13 }, 5: { halign: 'center', cellWidth: 20 } },
+        didParseCell: function (h) { if (h.section === 'body' && h.column.index === 5 && h.cell.raw !== 'cap') h.cell.styles.textColor = [198, 40, 40]; } });
+      var y = doc.lastAutoTable.finalY + 6;
+      doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(28, 12, 188); doc.text('Incoherències: docents amb hores que no quadren', M, y + 3);
+      doc.autoTable({ head: [['Docent', 'Especialitat', 'Lectives', 'Assignades', 'Incoherència']], body: F.inc.length ? F.inc : [[{ content: 'Cap: totes les hores quadren.', colSpan: 5 }]], startY: y + 5, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, styles: est, headStyles: head, didDrawPage: peu, columnStyles: { 2: { halign: 'center' }, 3: { halign: 'center' } } });
+      y = doc.lastAutoTable.finalY + 6;
+      doc.autoTable({ head: [['Observacions pedagògiques']], body: [[F.obs || '—']], startY: y, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, styles: est, headStyles: head, didDrawPage: peu });
+      doc.save('desiderata-' + esp.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-') + '.pdf');
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
+  }
+  function xlsxDesiderata() {
+    var F = filesDesiderata(), esp = S.des.especialitat;
+    carregaScript(LIBS.xlsx).then(function () {
+      var wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Desiderata · ' + esp], ['A assignar (h)', F.C.total, 'Assignades (h)', F.C.fetes, 'Pendents (h)', F.C.pendents], [], ['Nivell', 'Matèria', 'h/grup', 'Grups', 'Docents (grups)', 'Pendents']].concat(F.ass)), 'Assignacions');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Docent', 'Especialitat', 'Lectives', 'Assignades', 'Incoherència']].concat(F.inc.length ? F.inc : [['Cap: totes les hores quadren.']])), 'Incoherències');
+      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet([['Observacions pedagògiques'], [F.obs]]), 'Observacions');
+      XLSX.writeFile(wb, 'desiderata-' + esp.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-') + '.xlsx');
+    });
+  }
+  function analisiDesiderata() {
+    api('desiderata_analisi', {}, 'Analitzant…').then(function (r) {
+      if (!r.ok) return toast(text(r.error), true);
+      var T = r.especialitats.reduce(function (t, f) { t[0] += f.a_assignar; t[1] += f.assignades; t[2] += f.pendents; return t; }, [0, 0, 0]);
+      var files = [{ s: 'Especialitats' }].concat(r.especialitats.map(function (f) { return [f.especialitat, fmtH(f.a_assignar), fmtH(f.assignades), fmtH(f.pendents), f.sobreassignades.length ? '⚠ ' + f.sobreassignades.length : '', f.data ? dataVista(String(f.data).slice(0, 10)) : 'no desada']; }),
+        [{ t: ['Total', fmtH(T[0]), fmtH(T[1]), fmtH(T[2]), '', ''] }], [{ s: 'Docents amb hores que no quadren (lectives amb alumnat ≠ assignades)' }],
+        r.docents.length ? r.docents.map(function (d) { return [d.nom + ' · ' + d.especialitat, fmtH(d.lectives), fmtH(d.assignades), fmtH(d.lectives - d.assignades), '', '']; }) : [['Cap', '', '', '', '', '']]);
+      informe('Anàlisi de la desiderata', 'Hores a assignar, assignades i pendents de cada especialitat (de les desiderates desades). A la part de docents: lectives, assignades i diferència.', ['Especialitat / docent', 'A assignar', 'Assignades', 'Pendents', 'Excés', 'Desada'], files, 'desiderata-analisi', true);
+    });
+  }
   function carregaNouProfessor() {
     api('nou_professor', {}, 'Preparant el formulari…').then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
@@ -2791,6 +3006,11 @@
       case 'cur-resum': resumCurriculum(); break;
       case 'cur-document': documentEquips(); break;
       case 'cur-especialitat': documentEspecialitat(); break;
+      case 'cur-balanc': esquemaBalanc(); break;
+      case 'des-desa': desaDesiderata(); break;
+      case 'des-pdf': pdfDesiderata(); break;
+      case 'des-xlsx': xlsxDesiderata(); break;
+      case 'des-analisi': analisiDesiderata(); break;
       case 'cur-hores': horesLectives(); break;
       case 'cur-classes': grupsClasseNivells(); break;
       case 'co-pdf': pdfConsell(); break;

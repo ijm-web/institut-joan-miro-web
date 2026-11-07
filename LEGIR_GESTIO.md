@@ -295,6 +295,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - `curriculumGenera_`: el nom del grup es recalcula sempre (`nomGrup(g)` a partir de `grupsMateria_`); abans es conservava el de la fila i quedaven noms antics (p. ex. «1r ESO A» per a «C+D»). El canvi de nom compta com a fila actualitzada. Camp `grup` de les assignacions amb origen clickedu (no editable).
 - `curriculum_separa` mou les assignacions ja generades dels grups triats a la matèria nova (renumera `num_grup` a totes dues): es conserven especialitat i professor/a.
 
+## PAS 47
+- **Currículum › Assignacions**: ordre del filtre Nivell per etapa (`ordreNivell`); etiqueta «Codocència ×n» / «Cotutoria ×n» a la columna Grup; esquema **Balanç i transferències** (`dadesBalanc`, `svgBalanc`, `pdfBalanc`: SVG en cercle, caixa per especialitat amb el balanç de `dadesEspecialitat`, fletxes de l'especialitat de la matèria a la que la imparteix).
+- **Mòdul Desiderata** (`desiderata`, ordre 9): full `desiderata` (especialitat, dades JSON {id_materia|hores: [{prof, grups}]}, observacions, data, desat_per). Accions `desiderata_dades` (edició; especialitat de la fitxa o, admin, qualsevol), `desiderata_desa`, `desiderata_analisi` (admin). `configura` crea l'equip EQ-CAPS «Caps de departament» (sense membres) amb edició a Desiderata. Client: `carregaDesiderata`, `pdfDesiderata`, `xlsxDesiderata`, `analisiDesiderata`.
+- **Generador d'horaris, fase 0**: `exportaHoraris()` (manual) desa un JSON «horaris-dades» v1 a `config › carpeta_horaris` (o «GESTIO · Horaris»). El generador és un projecte a part (carpeta `generador-horaris`, Python).
+- **Web**: avís del curs 2026-2027 a Preinscripció (`preinscripcio.json › comuns.banner26`); criteris de qualificació desactivats (`eso.json › qual.criterisDisponibles: false`, «Properament disponibles»); pàgina nova **Projectes › Erasmus+** (`projectes-erasmus.html`, ca/es/en) amb el que hi havia a Llengües estrangeres › 04, que ara hi enllaça; menú i tornada de les mobilitats a Erasmus+.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

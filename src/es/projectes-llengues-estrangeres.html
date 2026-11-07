@@ -6,6 +6,9 @@ permalink: "es/projectes-llengues-estrangeres.html"
 lang: es
 slug: projectes-llengues-estrangeres.html
 pageStyles: |
+  /* PAS 47 · enllaç a la pàgina Erasmus+ */
+  .le-erasmus-link{ display:inline-flex; align-items:center; gap:8px; padding:12px 22px; border-radius:999px; background:var(--color-blue); color:#fff; font-weight:700; text-decoration:none; }
+  .le-erasmus-link:hover{ background:var(--color-orange); color:#fff; }
   /* ============ PÀGINA PROJECTES · LLENGÜES ESTRANGERES ============ */
   .le-wrap{
     max-width: 1220px;
@@ -491,29 +494,10 @@ pageScript: |
       <h2>Internacionalización y proyectos europeos</h2>
     </header>
     <div class="le-section__body le-reveal">
-      <ol class="le-timeline">
-        <li><b>2012-2013</b><span>Primeras movilidades de corta duración</span></li>
-        <li><b>2023-2024</b><span>Acreditación Erasmus+ KA120 en el ámbito de la educación escolar</span></li>
-        <li><b>Hoy</b><span>Intercambios bilaterales con centros de cuatro países europeos</span></li>
-      </ol>
-      <p>El centro cuenta con experiencia en proyectos europeos y dispone, desde el curso 2023-2024, de la <span class="kw">acreditación Erasmus+ KA120</span> en el ámbito de la educación escolar. Esta acreditación enmarca nuestra estrategia de internacionalización y nos permite seguir desarrollando oportunidades de aprendizaje y cooperación con otros centros europeos.</p>
-      <p>Promovemos la internacionalización del centro y organizamos movilidades de corta duración desde el curso 2012-2013. Actualmente, llevamos a cabo <span class="kw">intercambios bilaterales</span> con centros educativos de los Países Bajos, Alemania, Italia y Francia.</p>
-      {% include "erasmus-botons.njk" %}
-      <p>En el marco del programa Erasmus+, también impulsamos diversas acciones de movilidad y formación, entre las que destacan:</p>
-      <ol class="le-actions">
-        <li><b>Formación del profesorado</b><span>En instituciones educativas y entidades especializadas de otros países.</span></li>
-        <li><b>Visita de expertos</b><span>Expertos y profesionales extranjeros visitan nuestro centro.</span></li>
-        <li><b>Job shadowing</b><span>Estancias de observación que permiten al profesorado conocer de cerca otros sistemas educativos, metodologías y formas de organización escolar.</span></li>
-      </ol>
-      <p>Estas experiencias contribuyen al desarrollo profesional del profesorado, favorecen el intercambio de buenas prácticas y enriquecen la labor educativa del centro.</p>
-      <p>La <span class="kw">Coordinación Erasmus+</span> del centro está formada por {{ centre.coordinacioErasmus | llistaNoms(lang) }}, que planifican y hacen el seguimiento de las movilidades y de los proyectos europeos.</p>
+      <p>El centro participa en el programa <span class="kw">Erasmus+</span>, con la acreditación KA120 desde el curso 2023-2024, y organiza intercambios y movilidades con centros europeos. Toda la información sobre los proyectos europeos, las movilidades y la coordinación Erasmus+ está en su página propia.</p>
+      <p><a class="le-erasmus-link" href="/es/projectes-erasmus.html">Ir a la página Erasmus+ <span aria-hidden="true">→</span></a></p>
     </div>
   </section>
 
 </div>
 
-<section class="le-closing">
-  <div class="le-closing__inner le-reveal">
-    <p>Al mismo tiempo, permiten al alumnado <span class="kw">utilizar las lenguas en contextos reales</span>, conocer otros sistemas educativos y culturas, desarrollar la autonomía y la responsabilidad, y crecer como ciudadanía <span class="kw">abierta al mundo</span>.</p>
-  </div>
-</section>
