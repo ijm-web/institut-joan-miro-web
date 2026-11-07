@@ -248,7 +248,7 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Corregit**: en editar la primera cel·la, quan sortia la barra «Canvis sense desar», la compensació del desplaçament podia amagar la fila editada (si era de les primeres). Ara la fila editada (`S.filaEditada`) sempre es queda visible.
 - **Mòdul CURRÍCULUM** (`curriculum`, al nucli):
   - Pestanya `curriculum` (MAT-0001): nivell, materia, hores_a, hores_b, especialitat (ESPECIALITATS), grups, observacions. `configura` hi posa les matèries inicials del document d'equips docents 26-27 (`CURRICULUM_INICIAL`) si és buida.
-  - Pestanya `curriculum_grups` (ASG-00001), vista «Grups i especialitats» (mòdul intern amb el mateix permís que `curriculum`): nivell, materia, hores, id_materia (de la matèria), grup, especialitat, professor (desplegable del professorat, valors posats a `dades`).
+  - Pestanya `curriculum_grups` (ASG-00001), vista «Assignacions» (mòdul intern amb el mateix permís que `curriculum`): nivell, materia, hores, id_materia (de la matèria), grup, especialitat, professor (desplegable del professorat, valors posats a `dades`).
   - `curriculum_genera` {prova}: crea/treu/actualitza les files segons la columna Grups; conserva especialitats i professors; amb `prova` només compta.
   - Al web: hores de l'alumne (A + B/2) i de professorat ((A + B) × grups), hores per especialitat, document dels equips docents (PDF).
 
@@ -257,6 +257,15 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Especialitats** per ordre alfabètic: `ESPECIALITATS` ordenada i `configura` reordena les opcions existents (`ordenaLlistes_`: professorat, currículum i grups).
 - **AFA**: tret «Biblioteca a les tardes» de «Què finança l'AFA» (`src/_data/projectes.json`).
 - **Control d'entrada**: per afegir les entrades noves del full antic, `config › font_control_entrada` amb l'URL del full i executar **importaControlEntrada** (salta les que ja hi són: mateix alumne, data i hora). No cal `reimportaControlEntrada`.
+
+## PAS 41
+- **Currículum › Assignacions** (abans «Grups i especialitats»): les hores d'un grup es reparteixen en parts amb especialitats diferents (tisores → `curriculum_divideix` {id, hores, especialitat}: la fila es queda amb `hores` i s'afegeix una part nova amb la resta). Nou camp `num_grup` (admin, origen clickedu) que identifica el grup dins la matèria; el camp `hores` és editable (origen gestio). ⚠ a la graella si les parts no sumen A+B.
+- `curriculumGenera_` conserva les parts: un grup amb una sola fila s'actualitza a les hores totals; un grup repartit es deixa com està i es retorna a `desquadrats` si no quadra.
+- **Hores lectives classe**: camp `hores_lectives` a `CAMPS_PROFESSORAT` (numèric, origen gestio). Accions `curriculum_professorat` (llista per especialitat; `pot_desar` amb edició a currículum o professorat) i `hores_lectives_desa` {canvis:[{id,hores}]} (0–40, historial al full del professorat).
+- **Document per especialitat** (client, `documentEspecialitat`/`pdfEspecialitats`): matèries de l'especialitat, cedides, assignades d'altres, professorat amb hores lectives i balanç (total − cedides + assignades = a impartir; professorat − a impartir = balanç). `dades` de `curriculum_grups` retorna `materies` i `professorat_hores`.
+- **Control d'entrada**: el període «Curs actual» es calcula per la data d'avui (no pel `curs` de la configuració, que podia amagar les entrades més recents). `importaControlEntrada` llegeix les dates reals de la cel·la (evita el mes/dia dels fulls amb configuració dels EUA) i el registre diu la data més recent de l'origen i el rang de les entrades noves.
+- **Web**: carrusel d'inici amb una diapositiva de logos (Erasmus+, Escola Verda sense el logo de la Generalitat, XAJI, Fundació Joan Miró, Paraula al Centre) a `src/assets/img/inici/inici-5-projectes-*.jpg`. ESO 4t: Educació visual i plàstica adreçada a qui vol fer batxillerat artístic o cicles d'arts.
+- Desiderata (pas 3 del currículum): pendent.
 
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).

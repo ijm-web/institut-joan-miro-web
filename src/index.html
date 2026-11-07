@@ -34,6 +34,10 @@ pageStyles: |
       display: block;
       filter: brightness(0.85);
     }
+    /* Diapositiva de logos: es veu sencera (sense retallar ni enfosquir), sobre fons blanc */
+    .hero-carousel__slide--logos{ background: #fff; }
+    .hero-carousel__slide--logos picture{ display: block; width: 100%; height: 100%; }
+    .hero-carousel__slide--logos img{ object-fit: contain; filter: none; background: #fff; }
 
     .hero-carousel__box{
       position: absolute;
@@ -637,6 +641,13 @@ pageScript: |
       <img src="/assets/img/inici/inici-4-edifici-2400.jpg" srcset="/assets/img/inici/inici-4-edifici-1600.jpg 1600w, /assets/img/inici/inici-4-edifici-2400.jpg 2400w" sizes="100vw" width="2400" height="900" loading="lazy" alt="" role="presentation">
     </div>
 
+    <div class="hero-carousel__slide hero-carousel__slide--logos">
+      <picture>
+        <source media="(max-width: 700px)" srcset="/assets/img/inici/inici-5-projectes-mobil.jpg">
+        <img src="/assets/img/inici/inici-5-projectes-2400.jpg" srcset="/assets/img/inici/inici-5-projectes-1600.jpg 1600w, /assets/img/inici/inici-5-projectes-2400.jpg 2400w" sizes="100vw" width="2400" height="600" loading="lazy" alt="Projectes i xarxes del centre: Erasmus+, Escola Verda, XAJI (Xarxa Activa de Joventut per la Igualtat), Fundació Joan Miró i La Paraula al Centre">
+      </picture>
+    </div>
+
     <button class="hero-carousel__arrow hero-carousel__arrow--prev" id="carouselPrev" aria-label="Imatge anterior">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
     </button>
@@ -649,6 +660,7 @@ pageScript: |
       <button class="hero-carousel__dot" aria-label="Imatge 2"></button>
       <button class="hero-carousel__dot" aria-label="Imatge 3"></button>
       <button class="hero-carousel__dot" aria-label="Imatge 4"></button>
+      <button class="hero-carousel__dot" aria-label="Imatge 5"></button>
     </div>
   </section>
 

@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 40 · 7 de novembre de 2026",
+  "versio": "PAS 41 · 7 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -212,6 +212,14 @@
           "claus": "prova test fitxa de prova",
           "text": [
             "El camp **Fitxa de prova** marca les fitxes que només serveixen per fer proves (p. ex. «Test, Profe»). Surten en gris i en cursiva, i no compten al Llistat, a l'avís de dades buides ni a «Substitueix a». No s'esborren soles."
+          ]
+        },
+        {
+          "id": "prof-hores-lectives",
+          "titol": "Hores lectives de classe",
+          "claus": "hores lectives classe currículum",
+          "text": [
+            "El camp **Hores lectives de classe** de cada docent el fan servir el Currículum (botó «Hores lectives classe») i el document per especialitat per calcular el balanç d'hores. Es pot editar des d'aquí o des del Currículum."
           ]
         }
       ]
@@ -561,7 +569,7 @@
           "claus": "entrades retards llistat graella consulta filtrar",
           "text": [
             "La graella mostra totes les entrades, de la més recent a la més antiga: alumne, nivell, grup-classe, data i hora. Es pot filtrar per qualsevol camp i exportar a Excel o PDF.",
-            "**Període** (a dalt a l'esquerra), com a Amonestacions: **Curs actual** (per defecte, de l'1 de setembre al 31 d'agost), **Tots** o **Data a data**. Es combina amb els filtres de les columnes; l'Excel i el PDF exporten el que es veu.",
+            "**Període** (a dalt a l'esquerra), com a Amonestacions: **Curs actual** (per defecte, de l'1 de setembre al 31 d'agost del curs en què som segons la data d'avui), **Tots** o **Data a data**. Si no veieu entrades antigues o importades, trieu **Tots**. Es combina amb els filtres de les columnes; l'Excel i el PDF exporten el que es veu.",
             "Les entrades no es modifiquen a la cel·la.",
             "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne)."
           ]
@@ -762,18 +770,46 @@
           "titol": "Genera els grups",
           "claus": "generar grups assignacions",
           "text": [
-            "Quan les matèries estiguin a punt, **Genera els grups** crea una fila per cada matèria i grup a la pestanya **Grups i especialitats** (p. ex. Anglès de 1r ESO amb 4 grups → 1r ESO A, B, C i D).",
-            "Abans es mostra què canviarà. Si després es modifica una matèria (hores, grups, nom), es torna a prémer: afegeix o treu files i actualitza les hores; les especialitats i els professors ja assignats es conserven. Si es treuen files que ja tenien professor/a, s'avisa abans."
+            "Quan les matèries estiguin a punt, **Genera els grups** crea una fila per cada matèria i grup a la pestanya **Assignacions** (p. ex. Anglès de 1r ESO amb 4 grups → 1r ESO A, B, C i D).",
+            "Abans es mostra què canviarà. Si després es modifica una matèria (hores, grups, nom), es torna a prémer: afegeix o treu files i actualitza les hores; les especialitats i els professors ja assignats es conserven. Si es treuen files que ja tenien professor/a, s'avisa abans.",
+            "Si un grup té les hores repartides en parts (vegeu Assignacions), en tornar a generar es conserven les parts tal com estan; si no sumen les hores de la matèria, s'avisa."
           ]
         },
         {
           "id": "cur-grups",
-          "titol": "Grups i especialitats",
-          "claus": "grup especialitat professor assignar lectura",
+          "titol": "Assignacions",
+          "claus": "assignacions grup especialitat professor repartir dividir tisores parts",
           "text": [
-            "Pestanya **Grups i especialitats**: cada parella matèria-grup amb l'**especialitat que la imparteix**. Per defecte és la de la matèria; es pot canviar (p. ex. Lectura impartida per Matemàtiques).",
+            "Pestanya **Assignacions** (abans «Grups i especialitats»): cada grup de cada matèria amb l'**especialitat que l'imparteix**. Per defecte és la de la matèria; es pot canviar (p. ex. Lectura impartida per Matemàtiques).",
+            "**Repartir les hores d'un grup** (botó de les **tisores**): una part es queda amb les hores que indiqueu i la resta passa a una part nova amb l'especialitat que trieu. Es pot repetir amb qualsevol part. Exemple: Optativa d'Anglès de 1r ESO A (3 h) → 1 h Anglès + 1 h Alemany + 1 h Matemàtiques.",
+            "Les hores de cada part també es poden editar a la graella. El senyal **⚠** a la columna Hores vol dir que les parts d'aquell grup no sumen les hores de la matèria (A + B).",
+            "Per desfer un repartiment, esborreu la part que sobra (paperera) i poseu les hores totals a la que queda.",
             "El **grup** es pot reanomenar (p. ex. «1r ESO AB» per a una divisió). El **professor/a** és opcional (desplegable del professorat actual).",
-            "Per canviar molts grups alhora, marqueu-los i feu servir «Aplica a la selecció»."
+            "Per canviar moltes files alhora, marqueu-les i feu servir «Aplica a la selecció»."
+          ]
+        },
+        {
+          "id": "cur-hores-lectives",
+          "titol": "Hores lectives classe",
+          "claus": "hores lectives classe professorat docent plantilla",
+          "text": [
+            "Botó **Hores lectives classe** (al costat de Matèries i Assignacions): la llista del professorat actual agrupada per especialitat, amb les **hores lectives de classe** de cada docent i el total de l'especialitat.",
+            "Es desen a la fitxa del professorat (camp «Hores lectives de classe») i també es poden canviar des del mòdul **Professorat**. Valors de 0 a 40 (admet mitges hores).",
+            "Les pot canviar qui té edició al Currículum o al Professorat; la resta les veu."
+          ]
+        },
+        {
+          "id": "cur-especialitat",
+          "titol": "Document per especialitat",
+          "claus": "document departament cap especialitat cedides assignades balanç pdf",
+          "text": [
+            "**Document per especialitat** (pestanya Assignacions): el document per al cap de departament. Trieu l'especialitat i surt:",
+            "- **Matèries de l'especialitat**: les matèries que tenen aquesta especialitat, amb grups, hores A, hores B, total i a qui estan assignades.",
+            "- **Cedides**: hores de matèries de l'especialitat que imparteixen altres especialitats.",
+            "- **Assignades d'altres especialitats**: hores de matèries d'altres especialitats que ha d'impartir aquesta.",
+            "- **Professorat** de l'especialitat amb el càrrec i les hores lectives.",
+            "- **Balanç**: total de l'especialitat − cedides + assignades = hores a impartir; hores lectives del professorat − hores a impartir = balanç (positiu: sobren hores; negatiu: en falten).",
+            "**PDF** fa el de l'especialitat triada; **PDF de totes**, un PDF amb una pàgina (o més) per especialitat."
           ]
         },
         {
@@ -781,8 +817,8 @@
           "titol": "Hores per especialitat i document dels equips docents",
           "claus": "hores especialitat plantilla document equips docents pdf",
           "text": [
-            "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Grups, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
-            "**Document equips docents** (pestanya Grups): per nivell, una taula matèria × grup amb el professor/a o, si encara no n'hi ha, l'especialitat entre claudàtors. Amb PDF."
+            "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Assignacions, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
+            "**Document equips docents** (pestanya Assignacions): per nivell, una taula matèria × grup amb el professor/a o, si encara no n'hi ha, l'especialitat entre claudàtors. Amb PDF."
           ]
         }
       ]
