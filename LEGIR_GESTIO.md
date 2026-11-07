@@ -285,6 +285,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Separa** (tisores a Grups i distribució): acció `curriculum_separa` {id, grups_classe:[lletres], grups}: la fila es queda amb la resta de grups-classe i se n'afegeix una de nova (MAT-…) amb els triats; si «Grups» era buit, totes dues queden buides; si no, la nova té `grups` i l'original la resta (mínim 1).
 - Hores lectives: separadors verticals (`.gs-hl-sep`) i el selector d'especialitat només amb «Especialitat».
 
+## PAS 45
+- **Grups d'una matèria només amb `grups_classe`**: comes = grups separats, + = units, buit = un per grup-classe; es pot repetir (`grupsMateria_` al servidor, `grupsMat` al client; noms «1r ESO A», «1r ESO AB», «1r ESO ABCD 1/2»). El camp `grups` queda inactiu.
+- `migraGrupsPAS45_` (a `configura`, idempotent): converteix els `grups` antics (n = nombre de grups-classe → un per grup; menys → blocs seguits «A+B, C+D»; més → el bloc sencer repetit) i escriu al registre les matèries agrupades per revisar-les.
+- Regla de validació `REGLES.curriculum` (error `grup_classe_desconegut`). `curriculum_separa` ara rep `grups` = índexs dels grups de la fila.
+- Columna calculada «Grups» a Grups i distribució; la fila es refà en editar grups-classe, docents o hores.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

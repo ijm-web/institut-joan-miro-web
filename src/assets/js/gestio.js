@@ -39,7 +39,7 @@
     fets_curts: 'Els fets han de tenir com a mínim 20 caràcters.', fets_llargs: 'Els fets poden tenir com a màxim 3.000 caràcters.', fets_invalids: 'Descriviu els fets amb paraules.',
     carpeta_invalida: 'L’enllaç de la carpeta de Drive no és vàlid.', carpeta_sense_acces: 'L’Apps Script no té accés a aquesta carpeta de Drive (compartiu-la amb el compte que executa GESTIO).',
     pdf_error: 'No s’ha pogut fer el PDF.',
-    camp_desconegut: 'Aquest camp no és d’hores lectives.', classes_buides: 'Cada nivell ha de tenir almenys un grup-classe.', separacio_invalida: 'Cal marcar almenys un grup-classe de la fila i deixar-ne algun.', hores_invalides: 'Les hores de la part han de ser més d’1 i menys que les del grup.', falta_configura: 'Cal executar «configura» a l’Apps Script (falta la columna d’hores lectives).',
+    camp_desconegut: 'Aquest camp no és d’hores lectives.', grup_classe_desconegut: 'Grups-classe: només lletres de grups-classe del nivell (vegeu el botó Grups-classe), separades per comes (grups) o + (units).', classes_buides: 'Cada nivell ha de tenir almenys un grup-classe.', separacio_invalida: 'Cal marcar almenys un grup-classe de la fila i deixar-ne algun.', hores_invalides: 'Les hores de la part han de ser més d’1 i menys que les del grup.', falta_configura: 'Cal executar «configura» a l’Apps Script (falta la columna d’hores lectives).',
     falten_dades: 'Cap alumne del grup té les dades d’aquest document', sense_alumnes: 'No hi ha alumnes en aquest grup.',
     grup_desconegut: 'Algun grup de l’equip no existeix (reviseu la columna Grups).',
     google_token_invalid: 'No s’ha pogut validar l’inici de sessió amb Google. Torneu-ho a provar.',
@@ -601,7 +601,7 @@
     var camps = S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) >= 0; }).concat(S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) < 0; }));
     // PAS 43: el mòdul Currículum té dues vistes del mateix full: Matèries (camps propis) i Grups i distribució
     if (S.modul.id === 'curriculum') {
-      var DIST = ['grups', 'grups_classe', 'docents'], COM = ['nivell', 'materia'];
+      var DIST = ['grups_classe', 'docents'], COM = ['nivell', 'materia'];
       camps = camps.filter(function (c) { return COM.indexOf(c.clau) >= 0 || (S.vistaCur === 'distribucio' ? DIST.indexOf(c.clau) >= 0 || c.clau === 'hores_a' || c.clau === 'hores_b' : DIST.indexOf(c.clau) < 0); });
     }
     camps.forEach(function (c) {
@@ -630,7 +630,7 @@
           formatter: function (cell) { return cell.getValue() === 'sí' ? '<span class="gs-si" aria-label="sí">✓</span>' : ''; } }, filtreDe(c, true));
       }
       if (c.tipus === 'numero') { col.hozAlign = 'right'; col.sorter = 'number'; }
-      if (S.modul.id === 'curriculum' && c.clau === 'grups_classe') { col.tooltip = 'Buit = a tots els grups-classe del nivell. P. ex. «A, B»'; col.formatter = function (cell) { return cell.getValue() ? esc(cell.getValue()) : '<span class="gs-gris">tots</span>'; }; }
+      if (S.modul.id === 'curriculum' && c.clau === 'grups_classe') { col.tooltip = 'Comes = grups separats (A, B → 2 grups); + = units (A+B → 1 grup). Buit = un grup per cada grup-classe'; col.formatter = function (cell) { return cell.getValue() ? esc(cell.getValue()) : '<span class="gs-gris">tots, separats</span>'; }; }
       if (S.modul.id === 'curriculum' && S.vistaCur === 'distribucio' && (c.clau === 'hores_a' || c.clau === 'hores_b')) { col.editable = false; col.cssClass = 'gs-ck'; col.tooltip = 'Es canvia a la pestanya Matèries'; }
       if (c.tipus === 'data') { col.formatter = function (cell) { return esc(dataVista(cell.getValue())); }; col.accessorDownload = function (v) { return dataVista(v); }; }
       // PAS 31: el codi intern de l'alumne del control d'entrada no es mostra (es fa servir per dins)
@@ -639,6 +639,10 @@
       if (S.modul.id === 'curriculum' && c.clau === 'hores_b' && S.vistaCur !== 'distribucio') {
         cols.push(col);
         col = { title: 'Hores alumne', field: '_halumne', width: 96, hozAlign: 'right', headerSort: false, download: false, cssClass: 'gs-calc', tooltip: 'A + B/2', formatter: function (cell) { var d = cell.getRow().getData(); return fmtH(horesA(d) + horesB(d) / 2); } };
+      }
+      if (S.modul.id === 'curriculum' && c.clau === 'grups_classe' && S.vistaCur === 'distribucio') {
+        cols.push(col);
+        col = { title: 'Grups', field: '_ngrups', width: 220, headerSort: false, download: false, cssClass: 'gs-calc', tooltip: 'Grups que surten dels grups-classe (es generen a Assignacions)', formatter: function (cell) { var g = grupsMat(cell.getRow().getData()); return '<strong>' + g.length + '</strong> <span class="gs-gris">· ' + esc(g.map(function (x) { return x.nom.slice(cell.getRow().getData().nivell.length).trim(); }).join(' · ')) + '</span>'; } };
       }
       if (S.modul.id === 'curriculum' && c.clau === 'docents' && S.vistaCur === 'distribucio') {
         cols.push(col);
@@ -709,6 +713,8 @@
     S.taula.on('dataFiltered', function (f, rows) { var c = $('gsCompte'); if (c) c.textContent = rows.length + ' de ' + S.taula.getDataCount() + ' files'; setTimeout(function () { recomptes(); comptesFiltre(); compteIncompletes(); }, 0); });
     S.taula.on('columnMoved', function () { setTimeout(recomptes, 0); });
     S.taula.on('cellEdited', celEditada);
+    // PAS 45: a Grups i distribució, els grups i les hores de professorat (calculats) es refan en canviar grups-classe, docents o hores
+    if (S.modul.id === 'curriculum') S.taula.on('cellEdited', function (cell) { if (['grups_classe', 'docents', 'hores_a', 'hores_b'].indexOf(cell.getField()) >= 0) cell.getRow().reformat(); });
     // PAS 35: amonestacions → doble clic a una fila obre el visor (amb els fets), que recorre les files que es veuen
     if (esAmon()) S.taula.on('rowDblClick', function (e, row) { try { window.getSelection().removeAllRanges(); } catch (x) { /* res */ } visorAmon(row.getData().id); });
     if (mobil) pintaMobil();
@@ -1630,18 +1636,14 @@
   // PAS 44 · Separa grups-classe d'una matèria en una fila nova (Grups i distribució)
   function separaMateria(row) {
     if (S.brut) return toast('Primer deseu o descarteu els canvis.', true);
-    var d = row.getData(), tots = (S.d.grups_nivell || {})[d.nivell] || [];
-    var t = String(d.grups_classe || '').toUpperCase().split(/[\s,;\/+]+/).filter(Boolean);
-    var act = tots.map(function (g) { return g.slice(d.nivell.length).trim(); }).filter(function (x) { return !t.length || t.indexOf(x) >= 0; });
-    if (act.length < 2) return toast('Aquesta fila només té un grup-classe: no es pot separar.', true);
-    var ambGrups = String(d.grups == null ? '' : d.grups).trim() !== '';
-    pregunta('Separa grups-classe · ' + d.materia + ' · ' + d.nivell, '<p class="gs-ajuda">Els grups-classe que marqueu passen a una <strong>fila nova</strong> d’aquesta matèria (amb les mateixes hores, especialitat i docents); aquesta fila es queda amb la resta. Després, cada fila pot tenir un altre nombre de grups o una altra especialitat. Recordeu tornar a <strong>generar els grups</strong>.</p>' +
-      '<div class="gs-form-fila" id="gsSepG">' + act.map(function (x) { return '<label class="gs-check"><input type="checkbox" value="' + esc(x) + '"> ' + esc(d.nivell + ' ' + x) + '</label>'; }).join('') + '</div>' +
-      (ambGrups ? '<div class="gs-form-fila"><label>Grups de la fila nova <input type="number" id="gsSepN" min="1" step="1" value="1"></label></div>' : '') + '<p class="prog-avis" id="gsSepErr" hidden></p>',
+    var d = row.getData(), gs = grupsMat(d);
+    if (gs.length < 2) return toast('Aquesta fila només té un grup: no es pot separar.', true);
+    pregunta('Separa grups · ' + d.materia + ' · ' + d.nivell, '<p class="gs-ajuda">Els grups que marqueu passen a una <strong>fila nova</strong> d’aquesta matèria (amb les mateixes hores, especialitat i docents); aquesta fila es queda amb la resta. Després cada fila pot tenir una altra especialitat o un altre nombre de docents. Recordeu tornar a <strong>generar els grups</strong>.</p>' +
+      '<div class="gs-form-fila" id="gsSepG">' + gs.map(function (g, i) { return '<label class="gs-check"><input type="checkbox" value="' + i + '"> ' + esc(g.nom) + (g.lletres.length > 1 ? ' <span class="gs-gris">(' + esc(g.lletres.join('+')) + ')</span>' : '') + '</label>'; }).join('') + '</div><p class="prog-avis" id="gsSepErr" hidden></p>',
       [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Separa', valor: 1, abans: function () {
-        var g = [].filter.call($('gsSepG').querySelectorAll('input'), function (i) { return i.checked; }).map(function (i) { return i.value; });
-        if (!g.length || g.length === act.length) { $('gsSepErr').textContent = 'Marqueu almenys un grup-classe i deixeu-ne algun a la fila actual.'; $('gsSepErr').hidden = false; return false; }
-        separaMateria.v = { id: d.id, grups_classe: g, grups: ambGrups ? $('gsSepN').value : '' };
+        var g = [].filter.call($('gsSepG').querySelectorAll('input'), function (i) { return i.checked; }).map(function (i) { return Number(i.value); });
+        if (!g.length || g.length === gs.length) { $('gsSepErr').textContent = 'Marqueu almenys un grup i deixeu-ne algun a la fila actual.'; $('gsSepErr').hidden = false; return false; }
+        separaMateria.v = { id: d.id, grups: g };
       } }], false).then(function (v) {
       if (!v) return;
       api('curriculum_separa', separaMateria.v, 'Separant…').then(function (r) {
@@ -1650,7 +1652,7 @@
         S.d.files.push(copia(r.nova)); S.taula.addRow(copia(r.nova), false, row).then(function () { aplicaFiltre(); S.taula.getRows().forEach(function (rw) { rw.reformat(); }); });
         if (r.versio) S.d.versio = r.versio;
         delete S.cache.curriculum_grups;
-        toast('Separat: ' + (r.fila.grups_classe || '') + ' | ' + (r.nova.grups_classe || '') + '. Torneu a generar els grups.');
+        toast('Separat: «' + r.fila.grups_classe + '» | «' + r.nova.grups_classe + '». Torneu a generar els grups.');
       });
     });
   }
@@ -1814,13 +1816,17 @@
   var nivellCurr = function (d) { return !esCurriculum() || !S.nivellCurr || d.nivell === S.nivellCurr; };
   var horesA = function (d) { var n = Number(String(d.hores_a || '').replace(',', '.')); return isNaN(n) ? 0 : n; };
   var horesB = function (d) { var n = Number(String(d.hores_b || '').replace(',', '.')); return isNaN(n) ? 0 : n; };
-  // PAS 43: grups d'una matèria (buit = tants com grups-classe on s'imparteix)
-  var grupsDe = function (f) {
-    if (String(f.grups == null ? '' : f.grups).trim() !== '') return numero(f.grups);
-    var tots = ((S.d && S.d.grups_nivell) || {})[f.nivell] || [], t = String(f.grups_classe || '').toUpperCase().replace(String(f.nivell).toUpperCase(), ' ').split(/[\s,;\/+]+/).filter(Boolean);
-    if (!t.length) return tots.length;
-    var n = tots.filter(function (g) { return t.indexOf(g.slice(f.nivell.length).trim().toUpperCase()) >= 0; }).length; return n || tots.length;
+  // PAS 45: grups d'una matèria segons «Grups-classe» (comes = grups separats, + = units; buit = un per grup-classe)
+  var grupsMat = function (f) {
+    var L = (((S.d && S.d.grups_nivell) || {})[f.nivell] || []).map(function (g) { return g.slice(f.nivell.length).trim(); });
+    var t = String(f.grups_classe || '').toUpperCase().split(String(f.nivell).toUpperCase()).join(' ').trim();
+    var gs = t ? t.split(/[,;]+/).map(function (x) { return x.split(/[+\s]+/).filter(function (y) { return L.indexOf(y) >= 0; }); }).filter(function (x) { return x.length; }) : [];
+    if (!gs.length) gs = L.map(function (x) { return [x]; });
+    var noms = gs.map(function (x) { return f.nivell + ' ' + (x.length === 1 ? x[0] : x.join('')); }), cops = {}, vist = {};
+    noms.forEach(function (n) { cops[n] = (cops[n] || 0) + 1; });
+    return gs.map(function (x, i) { var n = noms[i]; vist[n] = (vist[n] || 0) + 1; return { lletres: x, nom: cops[n] > 1 ? n + ' ' + vist[n] : n }; });
   };
+  var grupsDe = function (f) { return grupsMat(f).length; };
   var numero = function (x) { var n = Number(String(x == null ? '' : x).replace(',', '.')); return isNaN(n) ? 0 : n; };
   var fmtH = function (n) { return (Math.round(n * 10) / 10).toString().replace('.', ','); };
   function pintaEinesCurriculum() {
@@ -1834,7 +1840,7 @@
       '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-accio="cur-classes" title="Grups-classe de cada nivell aquest curs">Grups-classe</button>' +
       '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">' + (grups ?
         'Cada grup de cada matèria i l’especialitat que l’imparteix (per defecte, la de la matèria; es pot canviar). Amb les <strong>tisores</strong> es reparteixen les hores d’un grup entre especialitats (p. ex. 1 h Anglès + 1 h Alemany + 1 h Matemàtiques). ⚠ = les parts no sumen les hores de la matèria. El professor/a és opcional.' :
-        dist ? 'Quants <strong>grups</strong> té cada matèria i a quins <strong>grups-classe</strong> s’imparteix (buit = a tots els del nivell; p. ex. «A, B»). <strong>Docents a l’aula</strong>: 2 = codocència (dos docents alhora: es dupliquen les hores de professorat). Després, <strong>Genera els grups</strong>.' :
+        dist ? '<strong>Grups-classe</strong>: comes = grups separats (A, B → 2 grups); + = units (A+B → 1 grup); buit = un grup per cada grup-classe del nivell. Es pot repetir (A+B+C+D, A+B+C+D = dues optatives barrejades). <strong>Docents a l’aula</strong>: 2 = codocència (dos docents alhora: es dupliquen les hores de professorat). Després, <strong>Genera els grups</strong>.' :
         'Matèries de cada nivell. <strong>Hores A</strong>: amb el grup sencer; <strong>hores B</strong>: amb mig grup (desdoblament). Hores de l’alumne = A + B/2. Els grups i la distribució es defineixen a la pestanya següent.') + '</p>' +
       '<span class="gs-nivells" role="group" aria-label="Nivell que es mostra">' + [''].concat(nivells).map(function (n) {
         return '<button type="button" class="gs-nivells__btn' + ((S.nivellCurr || '') === n ? ' is-actiu' : '') + '" data-accio="cur-nivell" data-nivell="' + esc(n) + '">' + (n || 'Tots') + '</button>'; }).join('') + '</span>' +
@@ -1862,7 +1868,7 @@
     api('curriculum_genera', { prova: true }, 'Comprovant…').then(function (r) {
       if (!r.ok) return toast(text(r.error), true);
       if (!r.afegides && !r.tretes && !r.actualitzades) return toast('Els grups ja estan al dia amb les matèries.');
-      pregunta('Genera els grups', '<p>Es crearà una fila per cada matèria i grup (segons la columna <strong>Grups</strong>):</p><ul>' +
+      pregunta('Genera els grups', '<p>Es crearà una fila per cada matèria i grup (segons els <strong>Grups-classe</strong> de cada matèria):</p><ul>' +
         '<li>Files noves: <strong>' + r.afegides + '</strong> (amb l’especialitat de la matèria)</li><li>Files actualitzades (nom, nivell o hores de la matèria): <strong>' + r.actualitzades + '</strong></li>' +
         '<li>Files que es treuen (matèries esborrades o amb menys grups): <strong>' + r.tretes + '</strong></li></ul>' +
         (r.tretes_amb_professor.length ? '<p class="prog-avis">Es treuran files que ja tenen professor/a: ' + esc(r.tretes_amb_professor.join('; ')) + '</p>' : '') +
