@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 42;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 43;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -372,6 +372,10 @@ const CAMPS_CURRICULUM = [
   ['especialitat', 'Especialitat', 'llista', ESPECIALITATS.join('|'), 'no', 'no', 'consulta', 'gestio'],
   ['grups', 'Grups', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
   ['observacions', 'Observacions', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  // PAS 43 (pestanya «Grups i distribució»): a quins grups-classe s'imparteix (buit = a tots els del nivell; p. ex. «A, B»)
+  // i quants docents hi ha a l'aula alhora (codocència: 2 → les hores de professorat es dupliquen)
+  ['grups_classe', 'Grups-classe', 'text', '', 'no', 'no', 'consulta', 'gestio'],
+  ['docents', 'Docents a l\'aula', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
 ];
 const CAMPS_CURR_GRUPS = [
   ['nivell', 'Nivell', 'text', '', 'no', 'no', 'consulta', 'clickedu'],
@@ -687,7 +691,8 @@ function dades_(ctx, modul) {
   // PAS 41: per a les assignacions, les matèries (especialitat pròpia i hores) i el professorat amb les hores lectives
   // PAS 42: el professorat amb les hores lectives es carrega en obrir el mòdul (Matèries i Assignacions)
   const extraCurr = modul === 'curriculum_grups' || modul === 'curriculum' ? {
-    materies: modul === 'curriculum_grups' ? llegeix_(FULL.cur).map((m) => ({ id: m.id_materia, nivell: m.nivell, materia: m.materia, especialitat: m.especialitat || '', hores_a: m.hores_a || '', hores_b: m.hores_b || '', grups: m.grups || '' })) : undefined,
+    materies: modul === 'curriculum_grups' ? llegeix_(FULL.cur).map((m) => ({ id: m.id_materia, nivell: m.nivell, materia: m.materia, especialitat: m.especialitat || '', hores_a: m.hores_a || '', hores_b: m.hores_b || '', grups: m.grups || '', docents: m.docents || '' })) : undefined,
+    grups_nivell: Object.keys(GRUPS_NIVELL_).reduce((o, k) => { o[k] = GRUPS_NIVELL_[k].filter((g) => !/ (GR|UEC)$/.test(g)); return o; }, {}),
     professorat_hores: professoratHores_(), hores_pot_desar: pot_(ctx, 'curriculum', 'edicio') || pot_(ctx, 'professorat', 'edicio')
   } : {};
   const veuEstat = camps.some((c) => c.clau === 'estat');
@@ -724,7 +729,7 @@ function dades_(ctx, modul) {
     // PAS 36: el formulari de «Nova amonestació» arriba amb les dades: obrir-lo no fa cap altra crida
     form: modul === 'amonestacions' && potRedactar_(ctx) ? amonestacioForm_(ctx) : undefined,
     pot_historial: !M.registre && pot_(ctx, modul, 'edicio'),
-    camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips, materies: extraCurr.materies, professorat_hores: extraCurr.professorat_hores, hores_pot_desar: extraCurr.hores_pot_desar, max_lectives: extraCurr.professorat_hores ? MAX_LECTIVES : undefined };
+    camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips, materies: extraCurr.materies, professorat_hores: extraCurr.professorat_hores, hores_pot_desar: extraCurr.hores_pot_desar, grups_nivell: extraCurr.grups_nivell, max_lectives: extraCurr.professorat_hores ? MAX_LECTIVES : undefined };
 }
 
 // ------------------------------------------------------------------ desar canvis (alta, modificació, baixa)
@@ -1671,6 +1676,8 @@ function configura() {
   if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-DIR')) ss.getSheetByName(FULL.eq).appendRow(['EQ-DIR', 'Equip directiu', 'gestio', 'Administració de GESTIO', 'si']);
   if (!llegeix_(FULL.perm).some((p) => p.id_equip === 'EQ-DIR' && p.id_modul === '*')) ss.getSheetByName(FULL.perm).appendRow(['EQ-DIR', '*', 'admin']);
   creaEquipsTutoria4t_();
+  sincronitzaCamps_('curriculum', CAMPS_CURRICULUM);
+  fullModul_(MODULS.curriculum, campsDe_('curriculum', true));
   sincronitzaCamps_('curriculum_grups', CAMPS_CURR_GRUPS);
   posaOrigenCamp_('curriculum_grups', 'hores', 'gestio');
   fullModul_(MODULS.curriculum_grups, campsDe_('curriculum_grups', true));
@@ -2850,6 +2857,15 @@ function importaConsellFinal() {
 // «Genera els grups» crea una fila per matèria i grup (pestanya «curriculum_grups») amb l'especialitat que la impartirà
 // (per defecte, la de la matèria) i, si es vol, el professor/a: d'aquí surt el document dels equips docents.
 const GRUPS_NIVELL_ = { '1r ESO': GRUPS_1R, '2n ESO': GRUPS_2N, '3r ESO': GRUPS_3R, '4t ESO': GRUPS_4T, '1r BAT': GRUPS_1BAT, '2n BAT': GRUPS_2BAT };
+// PAS 43: grups-classe d'una matèria («A, B» o «1r ESO A; 1r ESO B»); buit = tots els del nivell (sense GR ni UEC)
+function grupsClasse_(m) {
+  const tots = (GRUPS_NIVELL_[m.nivell] || []).filter((g) => !/ (GR|UEC)$/.test(g));
+  const t = String(m.grups_classe || '').trim();
+  if (!t) return tots;
+  const sufixos = t.toUpperCase().replace(new RegExp(m.nivell.toUpperCase(), 'g'), ' ').split(/[\s,;\/+]+/).filter(Boolean);
+  const tria = tots.filter((g) => sufixos.indexOf(g.slice(m.nivell.length).trim().toUpperCase()) >= 0);
+  return tria.length ? tria : tots;
+}
 const numCur_ = (x) => { const n = Number(String(x == null ? '' : x).replace(',', '.')); return isNaN(n) ? 0 : n; };
 function curriculumGenera_(ctx, req) {
   if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
@@ -2870,23 +2886,31 @@ function curriculumGenera_(ctx, req) {
     files.filter((r) => !r.id_materia).forEach((r) => resultat.push(r));   // files fetes a mà
     const toca = (r, nou) => { if (['nivell', 'materia', 'hores', 'especialitat', 'num_grup'].some((k) => String(nou[k] || '') !== String(r[k] || ''))) { resum.actualitzades++; nou.data = ara; nou.desat_per = ctx.email; } return nou; };
     materies.forEach((m) => {
-      const id = m[MM.id], n = Math.max(0, Math.round(numCur_(m.grups))), total = numCur_(m.hores_a) + numCur_(m.hores_b);
-      const grups = (GRUPS_NIVELL_[m.nivell] || []).filter((g) => !/ (GR|UEC)$/.test(g));
+      const id = m[MM.id], total = numCur_(m.hores_a) + numCur_(m.hores_b);
+      // PAS 43: grups-classe on s'imparteix (buit = tots) i docents a l'aula (codocència)
+      const classes = grupsClasse_(m), d = Math.max(1, Math.round(numCur_(m.docents)) || 1);
+      const n = String(m.grups == null ? '' : m.grups).trim() === '' ? classes.length : Math.max(0, Math.round(numCur_(m.grups)));
+      const nomGrup = (g) => (n === classes.length ? classes[g - 1] : m.nivell + ' ' + classes.map((c) => c.slice(m.nivell.length).trim()).join('') + (n > 1 ? ' ' + g : ''));
       // PAS 41: cada fila sap de quin grup és (num_grup); les antigues sense número s'enumeren per ordre
       const propis = perMat[id] || [];
       let k = 0; propis.forEach((r) => { if (!Number(r.num_grup)) { k++; while (propis.some((x) => Number(x.num_grup) === k && x !== r)) k++; r.num_grup = String(k); } });
       for (let g = 1; g <= Math.max(n, ...propis.map((r) => Number(r.num_grup) || 0)); g++) {
         const parts = propis.filter((r) => Number(r.num_grup) === g);
         if (g > n) { parts.forEach((r) => { resum.tretes++; if (r.professor) resum.tretes_amb_professor.push(m.materia + ' · ' + r.grup + ' (' + r.professor + ')'); }); continue; }
-        if (!parts.length) {
-          const o = { id_materia: id, num_grup: String(g), nivell: m.nivell, materia: m.materia, grup: grups[g - 1] || (m.nivell + ' · grup ' + g), hores: String(total), especialitat: m.especialitat || '', professor: '', data: ara, desat_per: ctx.email };
-          o[MG.id] = codi_(MG, seguent++); resultat.push(o); resum.afegides++; continue;
+        const nou = () => { const o = { id_materia: id, num_grup: String(g), nivell: m.nivell, materia: m.materia, grup: (parts[0] && parts[0].grup) || nomGrup(g), hores: String(total), especialitat: m.especialitat || '', professor: '', data: ara, desat_per: ctx.email };
+          o[MG.id] = codi_(MG, seguent++); resultat.push(o); resum.afegides++; };
+        if (!parts.length) { for (let x = 0; x < d; x++) nou(); continue; }
+        if (parts.length === 1 && d === 1) { resultat.push(toca(parts[0], Object.assign({}, parts[0], { nivell: m.nivell, materia: m.materia, hores: String(total), especialitat: parts[0].especialitat || m.especialitat || '' }))); continue; }
+        // Codocència: cada docent té totes les hores; si en falten (s'ha posat la codocència després), s'afegeixen
+        if (d > 1 && parts.length < d && parts.every((r) => Math.abs(numCur_(r.hores) - total) < 0.01)) {
+          parts.forEach((r) => resultat.push(toca(r, Object.assign({}, r, { nivell: m.nivell, materia: m.materia }))));
+          for (let x = parts.length; x < d; x++) nou();
+          continue;
         }
-        if (parts.length === 1) { resultat.push(toca(parts[0], Object.assign({}, parts[0], { nivell: m.nivell, materia: m.materia, hores: String(total), especialitat: parts[0].especialitat || m.especialitat || '' }))); continue; }
         // Grup repartit entre especialitats: es conserven les hores de cada part; s'avisa si no sumen les de la matèria
         parts.forEach((r) => resultat.push(toca(r, Object.assign({}, r, { nivell: m.nivell, materia: m.materia }))));
         const suma = parts.reduce((t, r) => t + numCur_(r.hores), 0);
-        if (Math.abs(suma - total) > 0.01) resum.desquadrats.push(m.nivell + ' · ' + m.materia + ' · ' + parts[0].grup + ': ' + suma + ' h de ' + total);
+        if (Math.abs(suma - total * d) > 0.01) resum.desquadrats.push(m.nivell + ' · ' + m.materia + ' · ' + parts[0].grup + ': ' + suma + ' h de ' + total * d);
       }
     });
     const ids = {}; materies.forEach((m) => { ids[m[MM.id]] = 1; });

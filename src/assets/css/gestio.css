@@ -348,3 +348,11 @@
 .gs-hl th, .gs-hl td{ white-space: nowrap; }
 .gs-hl__grup{ text-align: center; }
 .gs-hl__tot{ font-weight: 700; }
+/* PAS 43 */
+.gs-esp-taula{ table-layout: fixed; width: 100%; }
+.gs-esp-taula .gs-esp-c-niv{ width: 76px; }
+.gs-esp-taula .gs-esp-c-num{ width: 68px; }
+.gs-esp-taula .gs-esp-c-esp{ width: 150px; }
+.gs-esp-taula .gs-cen{ text-align: center; }
+.gs-hl-filtre{ align-items: flex-end; gap: 12px; margin-bottom: 8px; }
+.gs-hl tfoot td{ font-weight: 700; border-top: 2px solid #1C0CBC; }

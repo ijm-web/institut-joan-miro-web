@@ -274,6 +274,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - `hores_lectives_desa` ara és {canvis:[{id, valors:{clau: hores}}]} (0–40). `dades` de `curriculum` i `curriculum_grups` porta `professorat_hores`, `hores_pot_desar` i `max_lectives`: el diàleg «Hores lectives classe» ja no fa cap crida en obrir-se.
 - **Control d'entrada**: `importaControlEntrada2627()` desa l'URL del formulari 26-27 a `config › font_control_entrada` i importa.
 
+## PAS 43
+- **Currículum** amb tres pestanyes: Matèries i **Grups i distribució** (totes dues el mòdul `curriculum`, `S.vistaCur` = 'materies' | 'distribucio' tria les columnes) i Assignacions (`curriculum_grups`).
+- Camps nous a `CAMPS_CURRICULUM`: `grups_classe` (text, «A, B»; buit = tots els del nivell sense GR/UEC; `grupsClasse_`) i `docents` (codocència; buit = 1). `curriculumGenera_`: grups buit = nombre de grups-classe; noms nous segons els grups-classe; amb codocència, una fila per docent amb totes les hores (s'afegeixen les que falten); `desquadrats` compara amb total × docents. `dades` del currículum porta `grups_nivell`.
+- **Hores lectives**: ⚠ quan el total no coincideix amb la jornada (abans, quan la superava). Diàleg amb selector Tot/Especialitat, peu de totals i PDF (`pdfHoresLectives`).
+- **Document per especialitat**: columnes numèriques estretes i centrades (HTML amb `colgroup`, PDF amb `cellWidth`).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 42 · 7 de novembre de 2026",
+  "versio": "PAS 43 · 7 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -220,7 +220,7 @@
           "claus": "hores lectives classe currículum reduccions jornada total",
           "text": [
             "Columnes d'**hores lectives**: les lectives amb alumnat (matèries ESO i Bat, atenció individual, tutories) i les reduccions (tutoria 1r/2n, càrrec directiu, coordinació, coordinació de nivell, reducció de 55 anys). Venen del full de plantilla (importaHoresLectives) i es poden editar aquí o des del Currículum.",
-            "**Total lectives alumnat** i **Total lectives** es calculen sols. **⚠** al Total lectives: supera el màxim de la jornada (sencera 18, ⅔ 12, mitja 9)."
+            "**Total lectives alumnat** i **Total lectives** es calculen sols. **⚠** al Total lectives: no coincideix amb les hores de la jornada (sencera 18, ⅔ 12, mitja 9)."
           ]
         }
       ]
@@ -756,14 +756,27 @@
           "titol": "Matèries",
           "claus": "matèria nivell hores A B especialitat grups desdoblament",
           "text": [
+            "El Currículum té tres pestanyes: **Matèries** (camps propis de cada matèria), **Grups i distribució** (quants grups i a quins grups-classe) i **Assignacions** (qui imparteix les hores de cada grup).",
             "Pestanya **Matèries**: una fila per matèria i nivell (1r ESO a 2n BAT) amb:",
             "- **Hores A**: hores amb el grup sencer.",
             "- **Hores B**: hores amb mig grup (desdoblament). La majoria de matèries no en tenen.",
-            "- **Especialitat** de la matèria i **Grups**: a quants grups s'imparteix (p. ex. les divisions, a 2).",
-            "Es calculen soles les **hores de l'alumne** (A + B/2) i les **hores de professorat** ((A + B) × grups).",
+            "- **Especialitat** de la matèria. Es calcula sola l'**hora de l'alumne** (A + B/2).",
             "El botó de nivell (Tots, 1r ESO…) filtra la graella. **+ Afegeix matèria** i la paperera, des d'edició.",
             "Les matèries inicials venen del document d'equips docents 26-27: cal revisar-les (sobretot les optatives, 4t d'ESO i batxillerat).",
             "Les opcions del desplegable **Especialitat** surten per ordre alfabètic."
+          ]
+        },
+        {
+          "id": "cur-distribucio",
+          "titol": "Grups i distribució",
+          "claus": "grups grups-classe distribució codocència docents aula optativa",
+          "text": [
+            "Pestanya **Grups i distribució** (mateix full que Matèries, altres columnes):",
+            "- **Grups**: quants grups té la matèria. Buit = tants com grups-classe on s'imparteix.",
+            "- **Grups-classe**: a quins grups-classe s'imparteix, amb les lletres separades per comes (p. ex. «A, B»). Buit = a tots els del nivell (sense GR ni UEC).",
+            "- **Docents a l'aula**: 2 = **codocència** (dos docents a la mateixa aula i hora). Les hores de professorat es multipliquen i en generar els grups cada grup té una fila per docent, cadascuna amb totes les hores.",
+            "- **Hores professorat** (calculat) = (A + B) × grups × docents a l'aula.",
+            "Noms dels grups nous: si hi ha tants grups com grups-classe, un per grup-classe (1r ESO A…); si n'hi ha menys, les lletres juntes (p. ex. «1r ESO CD» o «1r ESO ABCD 2»). Els grups que ja existien conserven el nom (es pot canviar a Assignacions)."
           ]
         },
         {
@@ -795,9 +808,10 @@
           "claus": "hores lectives classe professorat docent plantilla reduccions jornada tutoria",
           "text": [
             "Botó **Hores lectives classe** (al costat de Matèries i Assignacions): el professorat actual per especialitat amb les hores lectives. Les dades es carreguen en obrir el mòdul (no cal esperar en prémer el botó).",
+            "Selector **Mostra**: **Tot** o **Especialitat** (i quina). A la part inferior, els **totals** de cada columna dels docents que es veuen. **PDF** exporta el que es veu (amb els valors escrits, encara que no s'hagin desat).",
             "**Lectives amb alumnat**: matèries ESO, matèries Bat, atenció individual (ahl), tutoria (matèria) ESO 1r/2n, ESO 3r/4t i Bat. La suma és el **Total lectives alumnat**, que és el que fa servir el Currículum (document per especialitat).",
             "**Reduccions**: reducció de tutoria ESO 1r/2n (ahl), càrrec directiu (cd1), coordinació lectiu (cc), reducció de coordinació de nivell (ahl) i reducció lectiva de 55 anys (ahl). **Total** = alumnat + reduccions.",
-            "**⚠** al total: supera el màxim de la jornada (sencera 18 h, ⅔ 12 h, mitja 9 h).",
+            "**⚠** al total: no coincideix amb les hores de la jornada (sencera 18 h, ⅔ 12 h, mitja 9 h).",
             "Es desen a la fitxa del professorat i també es poden canviar des del mòdul **Professorat**. Valors de 0 a 40 (admet mitges hores). Les pot canviar qui té edició al Currículum o al Professorat."
           ]
         },

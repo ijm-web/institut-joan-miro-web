@@ -599,6 +599,11 @@
       cellClick: function (e, cell) { var b = e.target.closest('button[data-a]'); if (b) accioFila(b.dataset.a, cell.getRow()); } });
     // El codi intern (PRO-…, ALU-…) no es mostra: és l'índex de cada fila. Nom i 1r cognom, fixats a l'esquerra.
     var camps = S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) >= 0; }).concat(S.d.camps.filter(function (c) { return FIXADES.indexOf(c.clau) < 0; }));
+    // PAS 43: el mòdul Currículum té dues vistes del mateix full: Matèries (camps propis) i Grups i distribució
+    if (S.modul.id === 'curriculum') {
+      var DIST = ['grups', 'grups_classe', 'docents'], COM = ['nivell', 'materia'];
+      camps = camps.filter(function (c) { return COM.indexOf(c.clau) >= 0 || (S.vistaCur === 'distribucio' ? DIST.indexOf(c.clau) >= 0 || c.clau === 'hores_a' || c.clau === 'hores_b' : DIST.indexOf(c.clau) < 0); });
+    }
     camps.forEach(function (c) {
       var col = Object.assign({ title: c.nom + (c.obligatori && editable(c) ? ' *' : ''), field: c.clau, minWidth: 90, maxWidth: 360,
         editable: editable(c), cssClass: c.tipus === 'calculat' ? 'gs-calc' : (c.origen === 'clickedu' ? 'gs-ck' : ''),
@@ -625,19 +630,24 @@
           formatter: function (cell) { return cell.getValue() === 'sí' ? '<span class="gs-si" aria-label="sí">✓</span>' : ''; } }, filtreDe(c, true));
       }
       if (c.tipus === 'numero') { col.hozAlign = 'right'; col.sorter = 'number'; }
+      if (S.modul.id === 'curriculum' && c.clau === 'grups_classe') { col.tooltip = 'Buit = a tots els grups-classe del nivell. P. ex. «A, B»'; col.formatter = function (cell) { return cell.getValue() ? esc(cell.getValue()) : '<span class="gs-gris">tots</span>'; }; }
+      if (S.modul.id === 'curriculum' && S.vistaCur === 'distribucio' && (c.clau === 'hores_a' || c.clau === 'hores_b')) { col.editable = false; col.cssClass = 'gs-ck'; col.tooltip = 'Es canvia a la pestanya Matèries'; }
       if (c.tipus === 'data') { col.formatter = function (cell) { return esc(dataVista(cell.getValue())); }; col.accessorDownload = function (v) { return dataVista(v); }; }
       // PAS 31: el codi intern de l'alumne del control d'entrada no es mostra (es fa servir per dins)
       if (esRegistre() && c.clau === 'id_alumne') return;
-      // PAS 39: currículum › matèries → hores de l'alumne i de professorat (calculades) després de «Grups»
-      if (S.modul.id === 'curriculum' && c.clau === 'grups') {
+      // PAS 39/43: currículum → Matèries: hores de l'alumne després d'«Hores B»; Grups i distribució: hores de professorat al final
+      if (S.modul.id === 'curriculum' && c.clau === 'hores_b' && S.vistaCur !== 'distribucio') {
         cols.push(col);
-        cols.push({ title: 'Hores alumne', field: '_halumne', width: 96, hozAlign: 'right', headerSort: false, download: false, cssClass: 'gs-calc', tooltip: 'A + B/2', formatter: function (cell) { var d = cell.getRow().getData(); return fmtH(horesA(d) + horesB(d) / 2); } });
-        col = { title: 'Hores professorat', field: '_hprof', width: 120, hozAlign: 'right', headerSort: false, download: false, cssClass: 'gs-calc', tooltip: '(A + B) × grups', formatter: function (cell) { var d = cell.getRow().getData(); return fmtH((horesA(d) + horesB(d)) * numero(d.grups)); } };
+        col = { title: 'Hores alumne', field: '_halumne', width: 96, hozAlign: 'right', headerSort: false, download: false, cssClass: 'gs-calc', tooltip: 'A + B/2', formatter: function (cell) { var d = cell.getRow().getData(); return fmtH(horesA(d) + horesB(d) / 2); } };
+      }
+      if (S.modul.id === 'curriculum' && c.clau === 'docents' && S.vistaCur === 'distribucio') {
+        cols.push(col);
+        col = { title: 'Hores professorat', field: '_hprof', width: 130, hozAlign: 'right', headerSort: false, download: false, cssClass: 'gs-calc', tooltip: '(A + B) × grups × docents a l’aula', formatter: function (cell) { var d = cell.getRow().getData(); return fmtH((horesA(d) + horesB(d)) * grupsDe(d) * (Math.round(numero(d.docents)) || 1)); } };
       }
       // PAS 42: professorat → ⚠ si el total lectives supera el màxim de la jornada
       if (S.modul.id === 'professorat' && c.clau === 'total_lectives') col.formatter = function (cell) {
         var t = cell.getValue(), mx = maxJornada(cell.getRow().getData().jornada);
-        return esc(t == null ? '' : t) + (t !== '' && t != null && mx && numero(t) > mx ? ' <span class="gs-avis-ret" title="Supera les ' + mx + ' h lectives de la jornada">⚠</span>' : '');
+        return esc(t == null ? '' : t) + (t !== '' && t != null && mx && Math.abs(numero(t) - mx) > 0.01 ? ' <span class="gs-avis-ret" title="No coincideix amb les ' + mx + ' h lectives de la jornada">⚠</span>' : '');
       };
       // PAS 41: assignacions → ⚠ si les parts d'un grup no sumen les hores de la matèria
       if (S.modul.id === 'curriculum_grups' && c.clau === 'hores') col.formatter = function (cell) {
@@ -1500,7 +1510,7 @@
   // PAS 41 · Assignacions: repartir les hores d'un grup entre especialitats (parts d'1 h, 2 h…)
   // la matèria d'una assignació: per id (administració) o per nivell + nom (la resta no veu l'id)
   var materiaDe = function (d) { return (S.d.materies || []).filter(function (x) { return d.id_materia ? x.id === d.id_materia : x.nivell === d.nivell && x.materia === d.materia; })[0]; };
-  var totalMateria = function (d) { var m = materiaDe(d); return m ? numero(m.hores_a) + numero(m.hores_b) : null; };
+  var totalMateria = function (d) { var m = materiaDe(d); return m ? (numero(m.hores_a) + numero(m.hores_b)) * (Math.round(numero(m.docents)) || 1) : null; };
   var clauGrup = function (d) { return (d.id_materia || d.nivell + '|' + d.materia) + '|' + (d.num_grup || d.grup); };
   var sumaGrup = function (d) { var k = clauGrup(d); return S.taula.getData().filter(function (x) { return clauGrup(x) === k; }).reduce(function (t, x) { return t + numero(x.hores); }, 0); };
   function divideixAssignacio(row) {
@@ -1539,7 +1549,9 @@
     var per = {}; llista.forEach(function (p) { var e = p.especialitat || '(sense especialitat)'; (per[e] = per[e] || []).push(p); });
     var esp = Object.keys(per).sort(function (a, b) { return a.localeCompare(b, 'ca'); });
     var totes = COLS_HL.concat(COLS_RED), cel = function (p, c) { var v = String(p[c[0]] == null ? '' : p[c[0]]); return '<td class="gs-num">' + (pot ? '<input type="number" min="0" max="40" step="0.5" data-id="' + esc(p.id) + '" data-k="' + c[0] + '" data-abans="' + esc(v) + '" value="' + esc(v.replace(',', '.')) + '" aria-label="' + esc(c[2]) + '">' : esc(v)) + '</td>'; };
-    var html = '<p class="gs-ajuda">Hores lectives de cada docent (fitxa del professorat; també es canvien des del mòdul Professorat). <strong>Alumnat</strong> = lectives amb alumnat (el que fa servir el Currículum); <strong>Total</strong> = alumnat + reduccions. ⚠ = el total supera el màxim de la jornada (sencera 18, ⅔ 12, mitja 9).</p>' +
+    var html = '<p class="gs-ajuda">Hores lectives de cada docent (fitxa del professorat; també es canvien des del mòdul Professorat). <strong>Alumnat</strong> = lectives amb alumnat (el que fa servir el Currículum); <strong>Total</strong> = alumnat + reduccions. ⚠ = el total no coincideix amb les hores de la jornada (sencera 18, ⅔ 12, mitja 9).</p>' +
+      '<div class="gs-form-fila gs-hl-filtre"><label>Mostra <select id="gsHlMode"><option value="tot">Tot</option><option value="esp">Especialitat</option></select></label><label id="gsHlEspL" hidden>Especialitat <select id="gsHlEsp">' + esp.map(function (e) { return '<option>' + esc(e) + '</option>'; }).join('') + '</select></label>' +
+      '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" id="gsHlPdf">PDF</button></div>' +
       '<div class="gs-informe gs-hl-wrap"><table class="gs-form-taula gs-informe__taula gs-hl"><thead><tr><th rowspan="2">Professor/a</th><th rowspan="2">Jornada</th><th colspan="' + (COLS_HL.length + 1) + '" class="gs-hl__grup">Lectives amb alumnat</th><th colspan="' + (COLS_RED.length + 1) + '" class="gs-hl__grup">Reduccions</th></tr><tr>' +
       COLS_HL.map(function (c) { return '<th class="gs-num" title="' + esc(c[2]) + '">' + c[1] + '</th>'; }).join('') + '<th class="gs-num">Alumnat</th>' + COLS_RED.map(function (c) { return '<th class="gs-num" title="' + esc(c[2]) + '">' + c[1] + '</th>'; }).join('') + '<th class="gs-num">Total</th></tr></thead><tbody>' +
       esp.map(function (e) {
@@ -1547,7 +1559,8 @@
           return '<tr data-fila="' + esc(p.id) + '" data-esp="' + esc(e) + '" data-j="' + esc(p.jornada) + '"><td>' + esc(p.nom) + (p.carrec ? '<br><small class="gs-gris">' + esc(p.carrec) + '</small>' : '') + '</td><td>' + esc(p.jornada || '—') + '</td>' +
             COLS_HL.map(function (c) { return cel(p, c); }).join('') + '<td class="gs-num gs-hl__tot" data-t="a"></td>' + COLS_RED.map(function (c) { return cel(p, c); }).join('') + '<td class="gs-num gs-hl__tot" data-t="t"></td></tr>';
         }).join('');
-      }).join('') + '</tbody></table></div>';
+      }).join('') + '</tbody><tfoot><tr class="gs-informe__total"><td colspan="2">Total <span id="gsHlN"></span></td>' + COLS_HL.map(function (c) { return '<td class="gs-num" data-peu="' + c[0] + '"></td>'; }).join('') + '<td class="gs-num" data-peu="_a"></td>' +
+        COLS_RED.map(function (c) { return '<td class="gs-num" data-peu="' + c[0] + '"></td>'; }).join('') + '<td class="gs-num" data-peu="_t"></td></tr></tfoot></table></div>';
     pregunta('Hores lectives classe', html, pot ? [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa', valor: 1, abans: function () {
       var canvis = {};
       [].forEach.call($('gsModalText').querySelectorAll('input[data-id]'), function (i) { if (String(i.value) !== String(i.dataset.abans).replace(',', '.')) (canvis[i.dataset.id] = canvis[i.dataset.id] || {})[i.dataset.k] = i.value; });
@@ -1563,18 +1576,55 @@
     });
     var box = $('gsModalText').closest('.prog-modal__box'); box.classList.add('gs-modal--ample', 'gs-modal--hl');
     var valor = function (tr, k) { var i = tr.querySelector('input[data-k="' + k + '"]'); if (i) return i.value; var p = llista.filter(function (x) { return x.id === tr.dataset.fila; })[0]; return p ? p[k] : ''; };
+    var visible = function (e) { return $('gsHlMode').value === 'tot' || $('gsHlEsp').value === e; };
     var recalcula = function () {
-      var tots = {};
+      var tots = {}, peu = { _a: 0, _t: 0 }, nv = 0;
+      [].forEach.call($('gsModalText').querySelectorAll('tr.gs-informe__seccio'), function (tr) { var s = tr.querySelector('[data-tot]'); tr.hidden = !visible(s.dataset.tot); });
       [].forEach.call($('gsModalText').querySelectorAll('tr[data-fila]'), function (tr) {
+        tr.hidden = !visible(tr.dataset.esp);
         var o = {}; COLS_HL.concat(COLS_RED).forEach(function (c) { o[c[0]] = valor(tr, c[0]); });
+        if (!tr.hidden) { nv++; COLS_HL.concat(COLS_RED).forEach(function (c) { peu[c[0]] = (peu[c[0]] || 0) + numero(o[c[0]]); }); }
         var a = sumaHL(o, COLS_HL), t = sumaHL(o, COLS_HL.concat(COLS_RED)), mx = maxJornada(tr.dataset.j);
         tr.querySelector('[data-t="a"]').textContent = a === '' ? '' : fmtH(a);
-        var ct = tr.querySelector('[data-t="t"]'); ct.innerHTML = t === '' ? '' : esc(fmtH(t)) + (mx && t > mx ? ' <span class="gs-avis-ret" title="Supera les ' + mx + ' h de la jornada ' + esc(tr.dataset.j) + '">⚠</span>' : '');
+        var ct = tr.querySelector('[data-t="t"]'); ct.innerHTML = t === '' ? '' : esc(fmtH(t)) + (mx && Math.abs(t - mx) > 0.01 ? ' <span class="gs-avis-ret" title="No coincideix amb les ' + mx + ' h de la jornada ' + esc(tr.dataset.j) + '">⚠</span>' : '');
         tots[tr.dataset.esp] = (tots[tr.dataset.esp] || 0) + (a === '' ? 0 : a);
+        if (!tr.hidden) { peu._a += a === '' ? 0 : a; peu._t += t === '' ? 0 : t; }
       });
       [].forEach.call($('gsModalText').querySelectorAll('[data-tot]'), function (s) { s.textContent = fmtH(tots[s.dataset.tot] || 0); });
+      [].forEach.call($('gsModalText').querySelectorAll('[data-peu]'), function (c) { c.textContent = fmtH(peu[c.dataset.peu] || 0); });
+      $('gsHlN').textContent = '(' + nv + ' docents)';
     };
-    $('gsModalText').addEventListener('input', recalcula); recalcula();
+    $('gsModalText').addEventListener('input', recalcula);
+    $('gsHlMode').addEventListener('change', function () { $('gsHlEspL').hidden = this.value !== 'esp'; recalcula(); });
+    $('gsHlEsp').addEventListener('change', recalcula); recalcula();
+    $('gsHlPdf').addEventListener('click', function () { pdfHoresLectives(valor); });
+  }
+  // PAS 43 · PDF del que es veu al diàleg d'hores lectives (amb els valors que hi ha escrits, encara que no s'hagin desat)
+  function pdfHoresLectives(valor) {
+    var modeEsp = $('gsHlMode').value === 'esp', titolEsp = modeEsp ? $('gsHlEsp').value : 'Tot el professorat';
+    var files = [].filter.call($('gsModalText').querySelectorAll('tr[data-fila], tr.gs-informe__seccio'), function (tr) { return !tr.hidden; });
+    var cols = COLS_HL.concat(COLS_RED), body = [], peu = {};
+    files.forEach(function (tr) {
+      if (tr.classList.contains('gs-informe__seccio')) { body.push([{ content: tr.textContent.trim(), colSpan: cols.length + 4, styles: { fillColor: [236, 234, 253], textColor: [28, 12, 188], fontStyle: 'bold' } }]); return; }
+      var o = {}; cols.forEach(function (c) { o[c[0]] = valor(tr, c[0]); peu[c[0]] = (peu[c[0]] || 0) + numero(o[c[0]]); });
+      var a = sumaHL(o, COLS_HL), t = sumaHL(o, cols), mx = maxJornada(tr.dataset.j);
+      peu._a = (peu._a || 0) + (a === '' ? 0 : a); peu._t = (peu._t || 0) + (t === '' ? 0 : t);
+      body.push([tr.cells[0].innerText.replace(/\n+/g, ' - '), String(tr.dataset.j || '-').replace('⅔', '2/3')].concat(COLS_HL.map(function (c) { return String(o[c[0]] || '').replace('.', ','); }), [a === '' ? '' : fmtH(a)],
+        COLS_RED.map(function (c) { return String(o[c[0]] || '').replace('.', ','); }), [t === '' ? '' : fmtH(t) + (mx && Math.abs(t - mx) > 0.01 ? ' (!)' : '')]));
+    });
+    body.push([{ content: 'Total', colSpan: 2, styles: { fontStyle: 'bold' } }].concat(COLS_HL.map(function (c) { return fmtH(peu[c[0]] || 0); }), [fmtH(peu._a || 0)], COLS_RED.map(function (c) { return fmtH(peu[c[0]] || 0); }), [fmtH(peu._t || 0)]).map(function (x) { return typeof x === 'string' ? { content: x, styles: { fontStyle: 'bold' } } : x; }));
+    var crida = logoPdf().then(function (logo) {
+      var doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' });
+      var W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 10, data = new Date().toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' });
+      var peuPag = function () { capPdf(doc, logo, ('Hores lectives · ' + titolEsp).toUpperCase() + ' · Institut Joan Miró', data + ' · (!) = el total no coincideix amb la jornada (sencera 18, 2/3 12, mitja 9)', M, W); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90, 96, 120); doc.text('Pàgina ' + doc.internal.getNumberOfPages(), W - M, H - 6, { align: 'right' }); };
+      var cs = {}; for (var j = 2; j < cols.length + 4; j++) cs[j] = { halign: 'center', cellWidth: 15 };
+      doc.autoTable({ head: [['Professor/a', 'Jornada'].concat(COLS_HL.map(function (c) { return c[1]; }), ['Alumnat'], COLS_RED.map(function (c) { return c[1]; }), ['Total'])], body: body, startY: Y_TAULA,
+        margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, styles: { font: 'helvetica', fontSize: 7.5, cellPadding: 1.2, lineColor: [225, 229, 238], lineWidth: 0.1 },
+        headStyles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold', halign: 'center' }, columnStyles: cs, didDrawPage: peuPag,
+        didParseCell: function (h) { if (h.section === 'body' && (h.column.index === COLS_HL.length + 2 || h.column.index === cols.length + 3)) h.cell.styles.fontStyle = 'bold'; if (h.section === 'body' && /\(!\)/.test(String(h.cell.raw))) h.cell.styles.textColor = [200, 40, 40]; } });
+      doc.save('hores-lectives-' + (modeEsp ? titolEsp.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, '-') : 'tot') + '.pdf');
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
   }
   // PAS 41 · Document per especialitat (per al cap de departament): hores de l'especialitat, cedides, assignades d'altres
   // especialitats, professorat amb les hores lectives i balanç
@@ -1599,9 +1649,10 @@
     if (S.modul.id !== 'curriculum_grups') return;
     var esps = {}; (S.d.materies || []).forEach(function (m) { if (m.especialitat) esps[m.especialitat] = 1; }); S.d.files.forEach(function (f) { if (f.especialitat) esps[f.especialitat] = 1; });
     var llista = Object.keys(esps).sort(function (a, b) { return a.localeCompare(b, 'ca'); });
+    // PAS 43: columnes numèriques estretes i centrades (abans quedaven massa a la dreta)
     var taula = function (titol, ll, total) {
-      return '<p class="gs-amon__tit">' + esc(titol) + ' · ' + fmtH(total) + ' h</p>' + (ll.length ? '<div class="gs-informe"><table class="gs-form-taula gs-informe__taula"><thead><tr>' + CAP_ESP.map(function (c) { return '<th>' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
-        ll.map(function (x) { return '<tr>' + x.cel.map(function (c, j) { return '<td' + (j >= 2 && j <= 5 ? ' class="gs-num"' : '') + '>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>' : '<p class="gs-gris">Cap.</p>');
+      return '<p class="gs-amon__tit">' + esc(titol) + ' · ' + fmtH(total) + ' h</p>' + (ll.length ? '<div class="gs-informe"><table class="gs-form-taula gs-informe__taula gs-esp-taula"><colgroup><col class="gs-esp-c-niv"><col><col class="gs-esp-c-num"><col class="gs-esp-c-num"><col class="gs-esp-c-num"><col class="gs-esp-c-num"><col class="gs-esp-c-esp"><col class="gs-esp-c-esp"></colgroup><thead><tr>' + CAP_ESP.map(function (c, j) { return '<th' + (j >= 2 && j <= 5 ? ' class="gs-cen"' : '') + '>' + c + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        ll.map(function (x) { return '<tr>' + x.cel.map(function (c, j) { return '<td' + (j >= 2 && j <= 5 ? ' class="gs-cen"' : '') + '>' + esc(c) + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table></div>' : '<p class="gs-gris">Cap.</p>');
     };
     var pinta = function () {
       var e = $('gsEspSel').value, D = dadesEspecialitat(e);
@@ -1629,7 +1680,7 @@
         var peu = function () { capPdf(doc, logo, ('Currículum · ' + e).toUpperCase() + ' · Institut Joan Miró', data + ' · Document per al cap de departament', M, W); doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90, 96, 120); doc.text('Pàgina ' + doc.internal.getNumberOfPages(), W - M, H - 6, { align: 'right' }); };
         var titol = function (t) { if (y > H - 30) { doc.addPage(); y = Y_TAULA; } doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(28, 12, 188); doc.text(t, M, y + 4); y += 6; };
         var taula = function (head, body, opc) { doc.autoTable(Object.assign({ head: [head], body: body, startY: y, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 }, styles: est, headStyles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold' }, alternateRowStyles: { fillColor: [247, 248, 252] }, didDrawPage: peu }, opc || {})); y = doc.lastAutoTable.finalY + 5; };
-        var cols = { 2: { halign: 'right' }, 3: { halign: 'right' }, 4: { halign: 'right' }, 5: { halign: 'right' } };
+        var cols = { 0: { cellWidth: 17 }, 2: { halign: 'center', cellWidth: 14 }, 3: { halign: 'center', cellWidth: 16 }, 4: { halign: 'center', cellWidth: 16 }, 5: { halign: 'center', cellWidth: 14 }, 6: { cellWidth: 32 }, 7: { cellWidth: 32 } };
         [['Matèries de l’especialitat', D.propies, D.tE], ['Matèries/grups cedits a altres especialitats', D.cedides, D.tC], ['Matèries/grups assignats d’altres especialitats', D.alienes, D.tA]].forEach(function (s) {
           titol(s[0] + ' · ' + fmtH(s[2]) + ' h');
           taula(CAP_ESP, s[1].length ? s[1].map(function (x) { return x.cel; }) : [[{ content: 'Cap.', colSpan: 8 }]], { columnStyles: cols });
@@ -1708,18 +1759,27 @@
   var nivellCurr = function (d) { return !esCurriculum() || !S.nivellCurr || d.nivell === S.nivellCurr; };
   var horesA = function (d) { var n = Number(String(d.hores_a || '').replace(',', '.')); return isNaN(n) ? 0 : n; };
   var horesB = function (d) { var n = Number(String(d.hores_b || '').replace(',', '.')); return isNaN(n) ? 0 : n; };
+  // PAS 43: grups d'una matèria (buit = tants com grups-classe on s'imparteix)
+  var grupsDe = function (f) {
+    if (String(f.grups == null ? '' : f.grups).trim() !== '') return numero(f.grups);
+    var tots = ((S.d && S.d.grups_nivell) || {})[f.nivell] || [], t = String(f.grups_classe || '').toUpperCase().replace(String(f.nivell).toUpperCase(), ' ').split(/[\s,;\/+]+/).filter(Boolean);
+    if (!t.length) return tots.length;
+    var n = tots.filter(function (g) { return t.indexOf(g.slice(f.nivell.length).trim().toUpperCase()) >= 0; }).length; return n || tots.length;
+  };
   var numero = function (x) { var n = Number(String(x == null ? '' : x).replace(',', '.')); return isNaN(n) ? 0 : n; };
   var fmtH = function (n) { return (Math.round(n * 10) / 10).toString().replace('.', ','); };
   function pintaEinesCurriculum() {
-    var ed = potEditar(), grups = S.modul.id === 'curriculum_grups';
+    var ed = potEditar(), grups = S.modul.id === 'curriculum_grups', dist = !grups && S.vistaCur === 'distribucio';
     var nivells = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'];
     $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist">' +
-        '<button type="button" role="tab" data-accio="cur-materies" aria-selected="' + !grups + '">Matèries</button>' +
+        '<button type="button" role="tab" data-accio="cur-materies" aria-selected="' + (!grups && !dist) + '">Matèries</button>' +
+        '<button type="button" role="tab" data-accio="cur-distribucio" aria-selected="' + dist + '">Grups i distribució</button>' +
         '<button type="button" role="tab" data-accio="cur-grups" aria-selected="' + grups + '">Assignacions</button></div>' +
       '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-accio="cur-hores" title="Hores lectives de classe de cada docent (fitxa del professorat)">Hores lectives classe</button>' +
       '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">' + (grups ?
         'Cada grup de cada matèria i l’especialitat que l’imparteix (per defecte, la de la matèria; es pot canviar). Amb les <strong>tisores</strong> es reparteixen les hores d’un grup entre especialitats (p. ex. 1 h Anglès + 1 h Alemany + 1 h Matemàtiques). ⚠ = les parts no sumen les hores de la matèria. El professor/a és opcional.' :
-        'Matèries de cada nivell. <strong>Hores A</strong>: amb el grup sencer; <strong>hores B</strong>: amb mig grup (desdoblament). Hores de l’alumne = A + B/2; hores de professorat = (A + B) × grups. Quan el currículum estigui a punt, <strong>Genera els grups</strong>.') + '</p>' +
+        dist ? 'Quants <strong>grups</strong> té cada matèria i a quins <strong>grups-classe</strong> s’imparteix (buit = a tots els del nivell; p. ex. «A, B»). <strong>Docents a l’aula</strong>: 2 = codocència (dos docents alhora: es dupliquen les hores de professorat). Després, <strong>Genera els grups</strong>.' :
+        'Matèries de cada nivell. <strong>Hores A</strong>: amb el grup sencer; <strong>hores B</strong>: amb mig grup (desdoblament). Hores de l’alumne = A + B/2. Els grups i la distribució es defineixen a la pestanya següent.') + '</p>' +
       '<span class="gs-nivells" role="group" aria-label="Nivell que es mostra">' + [''].concat(nivells).map(function (n) {
         return '<button type="button" class="gs-nivells__btn' + ((S.nivellCurr || '') === n ? ' is-actiu' : '') + '" data-accio="cur-nivell" data-nivell="' + esc(n) + '">' + (n || 'Tots') + '</button>'; }).join('') + '</span>' +
       '<span class="gs-compte" id="gsCompte"></span>' +
@@ -1734,8 +1794,9 @@
       '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx">Excel</button>' +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">PDF</button></span>';
   }
-  function vistaCurriculum(grups) {
+  function vistaCurriculum(grups, dist) {
     if (S.brut) return toast('Primer deseu o descarteu els canvis.', true);
+    S.vistaCur = dist ? 'distribucio' : 'materies';
     var m = Object.assign({}, S.modul, { id: grups ? 'curriculum_grups' : 'curriculum' });
     obreModul(m);
     $('gsManual').href = '/assets/docs/gestio/manual-curriculum.pdf';
@@ -1767,13 +1828,13 @@
     var grups = S.modul.id === 'curriculum_grups', files = S.taula.getData('active'), niv = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'];
     var per = {};
     files.forEach(function (f) {
-      var h = grups ? numero(f.hores) : (horesA(f) + horesB(f)) * numero(f.grups), e = f.especialitat || '(sense especialitat)';
+      var h = grups ? numero(f.hores) : (horesA(f) + horesB(f)) * grupsDe(f) * (Math.round(numero(f.docents)) || 1), e = f.especialitat || '(sense especialitat)';
       per[e] = per[e] || {}; per[e][f.nivell] = (per[e][f.nivell] || 0) + h;
     });
     var esp = Object.keys(per).sort(function (a, b) { return a.localeCompare(b, 'ca'); }), usats = niv.filter(function (n) { return esp.some(function (e) { return per[e][n]; }); });
     var tot = function (e) { return usats.reduce(function (s, n) { return s + (per[e][n] || 0); }, 0); };
     var totN = function (n) { return esp.reduce(function (s, e) { return s + (per[e][n] || 0); }, 0); };
-    informe('Hores de professorat per especialitat', (grups ? 'Segons els grups (especialitat que imparteix cada matèria i grup)' : 'Segons les matèries: (hores A + hores B) × grups') + ' · ' + files.length + ' files' + (S.nivellCurr ? ' · ' + S.nivellCurr : '') + '.',
+    informe('Hores de professorat per especialitat', (grups ? 'Segons els grups (especialitat que imparteix cada matèria i grup)' : 'Segons les matèries: (hores A + hores B) × grups × docents a l’aula') + ' · ' + files.length + ' files' + (S.nivellCurr ? ' · ' + S.nivellCurr : '') + '.',
       ['Especialitat'].concat(usats, ['Total']),
       esp.map(function (e) { return [e].concat(usats.map(function (n) { return per[e][n] ? fmtH(per[e][n]) : ''; }), [fmtH(tot(e))]); })
         .concat([{ t: ['Total'].concat(usats.map(function (n) { return fmtH(totN(n)); }), [fmtH(esp.reduce(function (s, e) { return s + tot(e); }, 0))]) }]),
@@ -2661,6 +2722,7 @@
       case 'co-analisi': analisiConsell(); break;
       case 'co-config': configConsell(); break;
       case 'cur-materies': vistaCurriculum(false); break;
+      case 'cur-distribucio': vistaCurriculum(false, true); break;
       case 'cur-grups': vistaCurriculum(true); break;
       case 'cur-nivell': S.nivellCurr = b.dataset.nivell; document.querySelectorAll('#gsEines [data-accio="cur-nivell"]').forEach(function (x) { x.classList.toggle('is-actiu', x === b); }); aplicaFiltre(); break;
       case 'cur-genera': generaGrups(); break;
