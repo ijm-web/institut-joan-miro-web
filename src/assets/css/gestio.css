@@ -341,3 +341,10 @@
 /* PAS 41 · currículum */
 .gs-hl input{ width: 72px; text-align: right; border: 1px solid #D5D9E6; border-radius: 6px; padding: 3px 6px; }
 .gs-balanc{ margin-top: 10px; }
+/* PAS 42 · hores lectives */
+.gs-modal--hl{ max-width: min(1280px, 96vw); }
+.gs-hl-wrap{ overflow-x: auto; }
+.gs-hl input{ width: 52px; }
+.gs-hl th, .gs-hl td{ white-space: nowrap; }
+.gs-hl__grup{ text-align: center; }
+.gs-hl__tot{ font-weight: 700; }

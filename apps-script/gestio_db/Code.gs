@@ -46,7 +46,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 41;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 42;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -67,6 +67,7 @@ const CONFIG_PER_DEFECTE = [
   ['consell_poblacio', 'Cornellà', 'Consell orientador: població que surt al peu dels PDF («Cornellà, 18 de juny de 2026»).'],
   ['font_consell_final', 'https://docs.google.com/spreadsheets/d/1RsFMoB7uaPRA1Lb14ZRfLQnFRL42boQQ7E4w97Ht388/edit', 'Per a importaConsellFinal: URL del full amb el consell orientador final del curs anterior.'],
   ['carpeta_copies', '', 'Per a copiaSeguretat: URL de la carpeta de Drive on es desen les còpies (en blanc = es crea «GESTIO · còpies de seguretat»).'],
+  ['font_hores_lectives', 'https://docs.google.com/spreadsheets/d/1Rhz9uHF8PtJFjvS5LqaqUIF4NcaHYPw1h9Z3G9b7Gcc/edit?gid=1977250486', 'Per a importaHoresLectives: URL del full de plantilla amb les hores lectives de cada docent (la pestanya del gid de l\'URL; sense gid, la que té «Total lectives»).'],
   ['font_control_entrada', '', 'Per a importaControlEntrada: URL del full amb el registre d\'entrades amb retard que es feia fins ara.'],
   ['font_amonestacions', 'https://docs.google.com/spreadsheets/d/1hMJhDk_W1BwmwhwPd1u6jlw7jg8vZi715p95zwwtE6Q/edit', 'Per a importaAmonestacions: URL del full de respostes del formulari d\'amonestacions que es feia servir fins ara.'],
   ['carpeta_amonestacions', 'https://drive.google.com/drive/folders/1vas-tQlX2zA1iLub1_zxbFfqZ1LMGDaE', 'Amonestacions: carpeta de Drive on es desa el PDF de cada amonestació nova (es pot canviar des del web: Configuració).'],
@@ -100,6 +101,22 @@ const ESPECIALITAT_ALIES = { 'llengua catalana': 'Català', 'catala': 'Català',
   'educacio fisica': 'Educació Física', 'fisica i quimica': 'Física i Química', 'biologia i geologia': 'Biologia', 'dibuix': 'Dibuix', 'visual i plastica': 'Dibuix',
   'educacio visual i plastica': 'Dibuix', 'musica': 'Música', 'religio': 'Religió', 'llati': 'Clàssiques', 'grec': 'Clàssiques', 'cultura classica': 'Clàssiques',
   'classiques': 'Clàssiques', 'filosofia': 'Filosofia', 'tecnologia': 'Tecnologia', 'economia': 'Economia', 'alemany': 'Alemany' };
+// PAS 42 · Hores lectives del professorat: [clau, nom, capçalera del full de plantilla (normCap_)]
+const LECTIVES_ALUMNAT = [
+  ['lectives_eso', 'Lectives matèries ESO', /^lectives materies eso/],
+  ['lectives_bat', 'Lectives matèries Bat', /^lectives materies bat/],
+  ['atencio_individual', 'Atenció individual (ahl)', /^atencio individual/],
+  ['tutoria_eso12', 'Tutoria (matèria) ESO 1r/2n', /^tutoria materia eso 1r/],
+  ['tutoria_eso34', 'Tutoria (matèria) ESO 3r/4t', /^tutoria materia eso 3r/],
+  ['tutoria_bat', 'Tutoria (matèria) Bat', /^tutoria materia bat/]];
+const LECTIVES_REDUCCIONS = [
+  ['red_tutoria_eso12', 'Red. tutoria ESO 1r/2n (ahl)', /^red tutoria eso/],
+  ['carrec_directiu', 'Càrrec directiu (cd1)', /^carrec directiu/],
+  ['coordinacio_lectiu', 'Coordinació lectiu (cc)', /^c ?coordinacio lectiu|^coordinacio lectiu/],
+  ['red_coord_nivell', 'Red. coord. nivell (ahl)', /^r ?coord nivell|^red coord nivell/],
+  ['red_lectiva_55', 'Red. lectiva 55 (ahl)', /^red lectiva 55/]];
+// Màxim d'hores lectives segons la jornada (avís si el total el supera)
+const MAX_LECTIVES = { 'Sencera': 18, '1/2': 9, '⅔': 12 };
 const CAMPS_PROFESSORAT = [
   ['nom', 'Nom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom1', '1r cognom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
@@ -122,7 +139,12 @@ const CAMPS_PROFESSORAT = [
   ['anys', 'Anys docència', 'numero', '', 'no', 'no', 'edicio', 'gestio'],
   ['catala', 'Català', 'text', '', 'no', 'no', 'edicio', 'gestio'],
   ['carrec', 'Càrrec', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['hores_lectives', 'Hores lectives de classe', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
+  // PAS 42: hores lectives (importades del full de plantilla amb importaHoresLectives; s'editen al Professorat i al Currículum).
+  // Els dos totals es calculen sols: «Total lectives alumnat» (el que fa servir el Currículum) i «Total lectives».
+  ...LECTIVES_ALUMNAT.map((x) => [x[0], x[1], 'numero', '', 'no', 'no', 'consulta', 'gestio']),
+  ['hores_lectives', 'Total lectives alumnat', 'calculat', LECTIVES_ALUMNAT.map((x) => x[0]).join(' + '), 'no', 'no', 'consulta', 'gestio'],
+  ...LECTIVES_REDUCCIONS.map((x) => [x[0], x[1], 'numero', '', 'no', 'no', 'consulta', 'gestio']),
+  ['total_lectives', 'Total lectives', 'calculat', LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).map((x) => x[0]).join(' + '), 'no', 'no', 'consulta', 'gestio'],
   ['data_arribada_centre', 'Data arribada al centre', 'data', '', 'no', 'no', 'edicio', 'gestio'],
   ['prova', 'Fitxa de prova', 'si_no', '', 'no', 'no', 'edicio', 'gestio'],
 ];
@@ -663,9 +685,10 @@ function dades_(ctx, modul) {
     camps = camps.map((c) => (c.clau === 'professor' ? Object.assign({}, c, { valors: noms.join('|') }) : c));
   }
   // PAS 41: per a les assignacions, les matèries (especialitat pròpia i hores) i el professorat amb les hores lectives
-  const extraCurr = modul === 'curriculum_grups' ? {
-    materies: llegeix_(FULL.cur).map((m) => ({ id: m.id_materia, nivell: m.nivell, materia: m.materia, especialitat: m.especialitat || '', hores_a: m.hores_a || '', hores_b: m.hores_b || '', grups: m.grups || '' })),
-    professorat_hores: professoratHores_()
+  // PAS 42: el professorat amb les hores lectives es carrega en obrir el mòdul (Matèries i Assignacions)
+  const extraCurr = modul === 'curriculum_grups' || modul === 'curriculum' ? {
+    materies: modul === 'curriculum_grups' ? llegeix_(FULL.cur).map((m) => ({ id: m.id_materia, nivell: m.nivell, materia: m.materia, especialitat: m.especialitat || '', hores_a: m.hores_a || '', hores_b: m.hores_b || '', grups: m.grups || '' })) : undefined,
+    professorat_hores: professoratHores_(), hores_pot_desar: pot_(ctx, 'curriculum', 'edicio') || pot_(ctx, 'professorat', 'edicio')
   } : {};
   const veuEstat = camps.some((c) => c.clau === 'estat');
   const ambEquips = M.equips && pot_(ctx, modul, 'edicio');
@@ -701,11 +724,19 @@ function dades_(ctx, modul) {
     // PAS 36: el formulari de «Nova amonestació» arriba amb les dades: obrir-lo no fa cap altra crida
     form: modul === 'amonestacions' && potRedactar_(ctx) ? amonestacioForm_(ctx) : undefined,
     pot_historial: !M.registre && pot_(ctx, modul, 'edicio'),
-    camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips, materies: extraCurr.materies, professorat_hores: extraCurr.professorat_hores };
+    camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips, materies: extraCurr.materies, professorat_hores: extraCurr.professorat_hores, hores_pot_desar: extraCurr.hores_pot_desar, max_lectives: extraCurr.professorat_hores ? MAX_LECTIVES : undefined };
 }
 
 // ------------------------------------------------------------------ desar canvis (alta, modificació, baixa)
 function calcula_(c, v) {
+  // PAS 42: «a + b + c» = suma numèrica (buit si tots són buits)
+  if (/\+/.test(String(c.valors || ''))) {
+    const ks = String(c.valors).split('+').map((k) => k.trim()).filter(Boolean);
+    const nums = ks.map((k) => String(v[k] == null ? '' : v[k]).replace(',', '.').trim()).filter((x) => x !== '' && !isNaN(Number(x)));
+    if (!nums.length) return '';
+    const t = Math.round(nums.reduce((a, x) => a + Number(x), 0) * 100) / 100;
+    return String(t).replace('.', ',');
+  }
   // valors = «nom cognom1 cognom2» o «cognom1 cognom2, nom»: claus separades per espais; la coma es manté
   return String(c.valors || '').replace(/[a-z_0-9]+/g, (k) => String(v[k] == null ? '' : v[k]).trim())
     .replace(/\s+,/g, ',').replace(/\s{2,}/g, ' ').replace(/^[\s,]+|[\s,]+$/g, '').trim();
@@ -1643,6 +1674,10 @@ function configura() {
   sincronitzaCamps_('curriculum_grups', CAMPS_CURR_GRUPS);
   posaOrigenCamp_('curriculum_grups', 'hores', 'gestio');
   fullModul_(MODULS.curriculum_grups, campsDe_('curriculum_grups', true));
+  // PAS 42: hores lectives del professorat (l'antic «Hores lectives de classe» passa a ser el total calculat)
+  sincronitzaCamps_('professorat', CAMPS_PROFESSORAT);
+  CAMPS_PROFESSORAT.filter((c) => c[0] === 'hores_lectives' || c[0] === 'total_lectives').forEach((c) => actualitzaCamp_('professorat', c[0], { nom: c[1], tipus: c[2], valors: c[3] }));
+  fullModul_(MODULS.professorat, campsDe_('professorat', true));
   ordenaLlistes_([['professorat', 'especialitat'], ['curriculum', 'especialitat'], ['curriculum_grups', 'especialitat']]);
   posaConfig_('esquema', String(ESQUEMA));
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = ss.getSheetByName(n); if (f && f.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(f); });
@@ -1668,6 +1703,11 @@ function posaOrigenCamp_(modul, clau, origen) {
   const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
   const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), cm = cap.indexOf('modul'), cc = cap.indexOf('clau'), co = cap.indexOf('origen');
   for (let i = 1; i < vals.length; i++) if (vals[i][cm] === modul && vals[i][cc] === clau && vals[i][co] !== origen) sh.getRange(i + 1, co + 1).setValues([[origen]]);
+}
+function actualitzaCamp_(modul, clau, o) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), cm = cap.indexOf('modul'), cc = cap.indexOf('clau');
+  for (let i = 1; i < vals.length; i++) if (vals[i][cm] === modul && vals[i][cc] === clau) Object.keys(o).forEach((k) => { const j = cap.indexOf(k); if (j >= 0 && String(vals[i][j]) !== String(o[k])) sh.getRange(i + 1, j + 1).setValues([[o[k]]]); });
 }
 function ordenaLlistes_(llista) {
   const sh = SpreadsheetApp.getActive().getSheetByName(FULL.camps);
@@ -2892,36 +2932,116 @@ function curriculumDivideix_(ctx, req) {
   } finally { lock.releaseLock(); }
 }
 // PAS 41 · Hores lectives de classe del professorat (es desen a la fitxa del professorat)
+const CLAUS_LECTIVES_ = () => LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).map((x) => x[0]);
+const sumaLect_ = (p, ll) => { const n = ll.map((x) => String(p[x[0]] == null ? '' : p[x[0]]).replace(',', '.').trim()).filter((x) => x !== '' && !isNaN(Number(x))); return n.length ? Math.round(n.reduce((a, x) => a + Number(x), 0) * 100) / 100 : ''; };
 function professoratHores_() {
-  return llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && !esProva_(p) && p.nom)
-    .map((p) => ({ id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, especialitat: p.especialitat || '', carrec: p.carrec || '', hores_lectives: p.hores_lectives || '' }))
-    .sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca'));
+  return llegeix_(FULL.prof).filter((p) => !deBaixa_(p) && !esProva_(p) && p.nom).map((p) => {
+    const o = { id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, especialitat: p.especialitat || '', carrec: p.carrec || '', jornada: p.jornada || '' };
+    CLAUS_LECTIVES_().forEach((k) => { o[k] = p[k] == null ? '' : String(p[k]); });
+    o.hores_lectives = sumaLect_(p, LECTIVES_ALUMNAT); o.total_lectives = sumaLect_(p, LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS));
+    return o;
+  }).sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca'));
 }
 function curriculumProfessorat_(ctx) {
   if (!pot_(ctx, 'curriculum', 'consulta')) return { ok: false, error: 'sense_permis' };
-  return { ok: true, professorat: professoratHores_(), pot_desar: pot_(ctx, 'curriculum', 'edicio') || pot_(ctx, 'professorat', 'edicio') };
+  return { ok: true, professorat: professoratHores_(), pot_desar: pot_(ctx, 'curriculum', 'edicio') || pot_(ctx, 'professorat', 'edicio'), max_lectives: MAX_LECTIVES };
 }
+// PAS 42: {canvis: [{id, valors: {lectives_eso: '12', …}}]} (format del PAS 41 {id, hores} ja no s'accepta: el total es calcula)
 function horesLectivesDesa_(ctx, req) {
   if (!pot_(ctx, 'curriculum', 'edicio') && !pot_(ctx, 'professorat', 'edicio')) return { ok: false, error: 'sense_permis' };
-  const canvis = Array.isArray(req.canvis) ? req.canvis : [];
-  for (const c of canvis) { const v = String(c.hores == null ? '' : c.hores).replace(',', '.').trim(); if (v && (isNaN(Number(v)) || Number(v) < 0 || Number(v) > 40)) return { ok: false, error: 'numero_invalid', id: c.id }; }
+  const canvis = Array.isArray(req.canvis) ? req.canvis : [], claus = CLAUS_LECTIVES_();
+  const noms = {}; LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).forEach((x) => { noms[x[0]] = x[1]; });
+  const net = (x) => String(x == null ? '' : x).replace(',', '.').trim();
+  for (const c of canvis) for (const k of Object.keys(c.valors || {})) {
+    if (claus.indexOf(k) < 0) return { ok: false, error: 'camp_desconegut', id: c.id };
+    const v = net(c.valors[k]); if (v && (isNaN(Number(v)) || Number(v) < 0 || Number(v) > 40)) return { ok: false, error: 'numero_invalid', id: c.id };
+  }
   const M = MODULS.professorat, lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
     const sh = fullModul_(M, campsDe_('professorat', true));
-    const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_), ch = cap.indexOf('hores_lectives');
-    if (ch < 0) return { ok: false, error: 'falta_configura' };
+    const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+    if (claus.some((k) => cap.indexOf(k) < 0)) return { ok: false, error: 'falta_configura' };
     let n = 0;
     canvis.forEach((c) => {
       const f = filaPerId_(sh, cap, M.id, String(c.id)); if (!f) return;
-      const v = String(c.hores == null ? '' : c.hores).replace(',', '.').trim();
-      if (String(f.r[ch]) === v) return;
-      sh.getRange(f.fila, ch + 1).setValues([[v]]); n++;
-      historial_(ctx.email, 'modificacio', M.full, String(c.id), JSON.stringify([{ camp: 'Hores lectives de classe', abans: f.r[ch], ara: v }]));
+      const dif = [];
+      Object.keys(c.valors || {}).forEach((k) => {
+        const j = cap.indexOf(k), v = net(c.valors[k]);
+        if (net(f.r[j]) === v) return;
+        sh.getRange(f.fila, j + 1).setValues([[v]]); dif.push({ camp: noms[k], abans: f.r[j], ara: v });
+      });
+      if (dif.length) { n++; historial_(ctx.email, 'modificacio', M.full, String(c.id), JSON.stringify(dif)); }
     });
     if (n) marcaVersio_('professorat', ctx.email);
     return { ok: true, desats: n, professorat: professoratHores_() };
   } finally { lock.releaseLock(); }
+}
+// PAS 42 · Execució manual: importa les hores lectives del full de plantilla (config › font_hores_lectives). Reconeix les
+// columnes per la capçalera («Lectives matèries ESO», «Tutoria (matèria) ESO 1r/2n», «Carrec Directiu (cd1)», «Total
+// lectives (t_lec)»…) i el docent pel correu o pel nom (en qualsevol ordre). Sobreescriu els valors d'aquests camps dels
+// docents trobats; no toca res més. Al registre: qui no s'ha trobat i on el «Total lectives» del full no quadra amb la suma.
+function importaHoresLectives() {
+  const cfg = llegeixConfig_(), url = String(cfg.font_hores_lectives || '');
+  const id = (url.match(/[-\w]{25,}/) || [''])[0];
+  if (!id) throw new Error('Cal posar l\'URL del full a config › font_hores_lectives.');
+  const gid = (url.match(/gid=(\d+)/) || [])[1];
+  const origen = SpreadsheetApp.openById(id);
+  const defs = LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS);
+  let pest = null, vals = null, fc = -1;
+  const candidates = gid ? origen.getSheets().filter((x) => String(x.getSheetId()) === gid).concat(origen.getSheets()) : origen.getSheets();
+  for (const x of candidates) {
+    const v = x.getDataRange().getDisplayValues(), i = v.findIndex((r) => r.some((k) => /^total lectives/.test(normCap_(k))));
+    if (i >= 0) { pest = x; vals = v; fc = i; break; }
+  }
+  if (!pest) throw new Error('No trobo cap pestanya amb la columna «Total lectives» al full ' + origen.getName() + '.');
+  const cap = vals[fc].map(normCap_), dalt = fc > 0 ? vals[fc - 1].map(normCap_) : [];
+  const col = {}; defs.forEach((d) => { col[d[0]] = cap.findIndex((k) => d[2].test(k)); });
+  const cTot = cap.findIndex((k) => /^total lectives/.test(k));
+  const busca = (re) => { let j = cap.findIndex((k) => re.test(k)); if (j < 0) j = dalt.findIndex((k) => re.test(k)); return j; };
+  const cMail = busca(/(e ?mail|correu)/), cCog = busca(/^cognoms?$/), cNom = busca(/^nom$/);
+  let cNomComp = busca(/^(professor|professora|professorat|docent|docents|nom i cognoms|cognoms i nom|cognoms nom|nom complet|nom cognoms)/);
+  const dades = vals.slice(fc + 1).filter((r) => r.join('').trim());
+  if (cNomComp < 0 && cNom < 0 && cMail < 0) cNomComp = cap.findIndex((k, j) => !defs.some((d) => col[d[0]] === j) && j !== cTot && dades.filter((r) => /[a-zà-ú]{2,}/i.test(String(r[j] || ''))).length >= 0.6 * dades.length);
+  Logger.log(origen.getName() + ' › ' + pest.getName() + ': columnes trobades ' + defs.filter((d) => col[d[0]] >= 0).length + ' de ' + defs.length +
+    (defs.some((d) => col[d[0]] < 0) ? ' (falten: ' + defs.filter((d) => col[d[0]] < 0).map((d) => d[1]).join(', ') + ')' : '') + ' · docent per ' + (cMail >= 0 ? 'correu' : cNomComp >= 0 ? 'nom complet' : 'nom i cognoms'));
+  // Professorat de GESTIO: per correu i per totes les formes del nom
+  const M = MODULS.professorat, sh = fullModul_(M, campsDe_('professorat', true));
+  const tots = sh.getDataRange().getValues(), capP = tots[0].map(norm_);
+  const k = (s) => normNom_(s).replace(/,/g, ' ').replace(/\s+/g, ' ').trim();
+  const perMail = {}, perNom = {};
+  tots.slice(1).forEach((r, i) => {
+    const p = {}; capP.forEach((c, j) => { p[c] = r[j]; });
+    if (!p.nom || esProva_(p)) return;
+    [p.email, p.email_xtec].forEach((m) => { if (m) perMail[String(m).toLowerCase().trim()] = i; });
+    const n = String(p.nom).trim(), c1 = String(p.cognom1 || '').trim(), c2 = String(p.cognom2 || '').trim();
+    [n + ' ' + c1 + ' ' + c2, c1 + ' ' + c2 + ' ' + n, n + ' ' + c1, c1 + ' ' + n, c1 + ' ' + c2].forEach((x) => { const kk = k(x); if (kk && perNom[kk] === undefined) perNom[kk] = i; else if (kk && perNom[kk] !== i) perNom[kk] = -1; });
+  });
+  const noTrobats = [], descuadres = [];
+  let n = 0;
+  dades.forEach((r) => {
+    let i = cMail >= 0 ? perMail[String(r[cMail] || '').toLowerCase().trim()] : undefined;
+    const nom = cNomComp >= 0 ? String(r[cNomComp] || '') : [cNom >= 0 ? r[cNom] : '', cCog >= 0 ? r[cCog] : ''].join(' ');
+    if (i === undefined && nom.trim()) { const x = perNom[k(nom)]; i = x === -1 ? undefined : x; }
+    if (!nom.trim() && i === undefined) return;
+    if (/^total/i.test(nom.trim())) return;
+    if (i === undefined) { noTrobats.push(nom.trim() || String(r[cMail] || '')); return; }
+    const fila = tots[i + 1]; let suma = 0;
+    defs.forEach((d) => { const j = col[d[0]], jp = capP.indexOf(d[0]); if (j < 0 || jp < 0) return; const v = String(r[j] || '').replace(',', '.').trim(); fila[jp] = v; if (v && !isNaN(Number(v))) suma += Number(v); });
+    if (cTot >= 0) { const t = Number(String(r[cTot] || '').replace(',', '.')); if (String(r[cTot] || '').trim() && !isNaN(t) && Math.abs(t - suma) > 0.01) descuadres.push(nom.trim() + ' (full ' + t + ', suma ' + Math.round(suma * 100) / 100 + ')'); }
+    n++;
+  });
+  defs.forEach((d) => { const jp = capP.indexOf(d[0]); if (jp >= 0 && col[d[0]] >= 0 && tots.length > 1) sh.getRange(2, jp + 1, tots.length - 1, 1).setValues(tots.slice(1).map((r) => [r[jp]])); });
+  historial_('importació', 'importacio', M.full, '', n + ' docents · hores lectives');
+  marcaVersio_('professorat', 'importació');
+  Logger.log('Hores lectives: ' + n + ' docents actualitzats.');
+  if (noTrobats.length) Logger.log('No trobats a GESTIO (' + noTrobats.length + '): ' + noTrobats.join('; '));
+  if (descuadres.length) Logger.log('«Total lectives» del full diferent de la suma de les columnes (' + descuadres.length + '): ' + descuadres.join('; '));
+}
+// PAS 42 · Execució manual: importa el control d'entrada del formulari del curs 26-27 (desa l'URL a config › font_control_entrada)
+function importaControlEntrada2627() {
+  posaConfig_('font_control_entrada', 'https://docs.google.com/spreadsheets/d/1N2XlFeeYLRcQ4XP4QgwiGX_U0j2Mvd_FXQp8Rmo6YWg/edit');
+  importaControlEntrada();
 }
 // Matèries inicials (del document d'equips docents 26-27): es poden canviar, afegir i esborrar des del web
 // [nivell, matèria, hores A, hores B, especialitat, grups]

@@ -39,7 +39,7 @@
     fets_curts: 'Els fets han de tenir com a mínim 20 caràcters.', fets_llargs: 'Els fets poden tenir com a màxim 3.000 caràcters.', fets_invalids: 'Descriviu els fets amb paraules.',
     carpeta_invalida: 'L’enllaç de la carpeta de Drive no és vàlid.', carpeta_sense_acces: 'L’Apps Script no té accés a aquesta carpeta de Drive (compartiu-la amb el compte que executa GESTIO).',
     pdf_error: 'No s’ha pogut fer el PDF.',
-    hores_invalides: 'Les hores de la part han de ser més d’1 i menys que les del grup.', falta_configura: 'Cal executar «configura» a l’Apps Script (falta la columna d’hores lectives).',
+    camp_desconegut: 'Aquest camp no és d’hores lectives.', hores_invalides: 'Les hores de la part han de ser més d’1 i menys que les del grup.', falta_configura: 'Cal executar «configura» a l’Apps Script (falta la columna d’hores lectives).',
     falten_dades: 'Cap alumne del grup té les dades d’aquest document', sense_alumnes: 'No hi ha alumnes en aquest grup.',
     grup_desconegut: 'Algun grup de l’equip no existeix (reviseu la columna Grups).',
     google_token_invalid: 'No s’ha pogut validar l’inici de sessió amb Google. Torneu-ho a provar.',
@@ -453,6 +453,12 @@
 
   // Valors calculats (els mateixos que fa l'Apps Script en desar): «nom cognom1 cognom2», «cognom1 cognom2, nom»
   function calcula(c, v) {
+    // PAS 42: «a + b + c» = suma numèrica (buit si tots són buits)
+    if (/\+/.test(String(c.valors || ''))) {
+      var ks = String(c.valors).split('+').map(function (k) { return k.trim(); }).filter(Boolean);
+      var ns = ks.map(function (k) { return String(v[k] == null ? '' : v[k]).replace(',', '.').trim(); }).filter(function (x) { return x !== '' && !isNaN(Number(x)); });
+      return ns.length ? String(Math.round(ns.reduce(function (t, x) { return t + Number(x); }, 0) * 100) / 100).replace('.', ',') : '';
+    }
     return String(c.valors || '').replace(/[a-z_0-9]+/g, function (k) { return String(v[k] == null ? '' : v[k]).trim(); })
       .replace(/\s+,/g, ',').replace(/\s{2,}/g, ' ').replace(/^[\s,]+|[\s,]+$/g, '').trim();
   }
@@ -628,6 +634,11 @@
         cols.push({ title: 'Hores alumne', field: '_halumne', width: 96, hozAlign: 'right', headerSort: false, download: false, cssClass: 'gs-calc', tooltip: 'A + B/2', formatter: function (cell) { var d = cell.getRow().getData(); return fmtH(horesA(d) + horesB(d) / 2); } });
         col = { title: 'Hores professorat', field: '_hprof', width: 120, hozAlign: 'right', headerSort: false, download: false, cssClass: 'gs-calc', tooltip: '(A + B) × grups', formatter: function (cell) { var d = cell.getRow().getData(); return fmtH((horesA(d) + horesB(d)) * numero(d.grups)); } };
       }
+      // PAS 42: professorat → ⚠ si el total lectives supera el màxim de la jornada
+      if (S.modul.id === 'professorat' && c.clau === 'total_lectives') col.formatter = function (cell) {
+        var t = cell.getValue(), mx = maxJornada(cell.getRow().getData().jornada);
+        return esc(t == null ? '' : t) + (t !== '' && t != null && mx && numero(t) > mx ? ' <span class="gs-avis-ret" title="Supera les ' + mx + ' h lectives de la jornada">⚠</span>' : '');
+      };
       // PAS 41: assignacions → ⚠ si les parts d'un grup no sumen les hores de la matèria
       if (S.modul.id === 'curriculum_grups' && c.clau === 'hores') col.formatter = function (cell) {
         var d = cell.getRow().getData(), t = totalMateria(d), s = sumaGrup(d);
@@ -1515,38 +1526,55 @@
     });
     var posa = function () { $('gsDivR').textContent = fmtH(Math.max(0, h - numero($('gsDivH').value))); }; $('gsDivH').addEventListener('input', posa); posa();
   }
-  // PAS 41 · Hores lectives de classe de cada docent (es desen a la fitxa del professorat)
+  // PAS 42 · Hores lectives de cada docent (camps de la fitxa del professorat). Es carreguen amb el mòdul (S.d.professorat_hores):
+  // lectives amb alumnat + reduccions; els totals es calculen sols i ⚠ si el total supera el màxim de la jornada.
+  var COLS_HL = [['lectives_eso', 'ESO', 'Lectives matèries ESO'], ['lectives_bat', 'Bat', 'Lectives matèries Bat'], ['atencio_individual', 'AI', 'Atenció individual (ahl)'], ['tutoria_eso12', 'Tut 1-2', 'Tutoria (matèria) ESO 1r/2n'], ['tutoria_eso34', 'Tut 3-4', 'Tutoria (matèria) ESO 3r/4t'], ['tutoria_bat', 'Tut Bat', 'Tutoria (matèria) Bat']];
+  var COLS_RED = [['red_tutoria_eso12', 'R.Tut', 'Red. tutoria ESO 1r/2n (ahl)'], ['carrec_directiu', 'CD', 'Càrrec directiu (cd1)'], ['coordinacio_lectiu', 'CC', 'Coordinació lectiu (cc)'], ['red_coord_nivell', 'R.Niv', 'Red. coord. nivell (ahl)'], ['red_lectiva_55', 'R.55', 'Red. lectiva 55 (ahl)']];
+  var maxJornada = function (j) { var M = (S.d && S.d.max_lectives) || { 'Sencera': 18, '1/2': 9, '⅔': 12 }; return M[j] || null; };
+  var sumaHL = function (o, cols) { var b = cols.filter(function (c) { return String(o[c[0]] == null ? '' : o[c[0]]).trim() !== ''; }); return b.length ? b.reduce(function (t, c) { return t + numero(o[c[0]]); }, 0) : ''; };
   function horesLectives() {
     if (S.brut) return toast('Primer deseu o descarteu els canvis.', true);
-    api('curriculum_professorat', {}, 'Carregant el professorat…').then(function (r) {
-      if (!r.ok) return toast(text(r.error), true);
-      var per = {}; r.professorat.forEach(function (p) { (per[p.especialitat || '(sense especialitat)'] = per[p.especialitat || '(sense especialitat)'] || []).push(p); });
-      var esp = Object.keys(per).sort(function (a, b) { return a.localeCompare(b, 'ca'); });
-      var html = '<p class="gs-ajuda">Hores lectives de classe de cada docent (es desen a la fitxa del professorat i es poden canviar també des del mòdul Professorat). Serveixen per al balanç d’hores de cada especialitat.</p>' +
-        '<div class="gs-informe"><table class="gs-form-taula gs-informe__taula gs-hl"><thead><tr><th>Professor/a</th><th>Càrrec</th><th class="gs-num">Hores</th></tr></thead><tbody>' +
-        esp.map(function (e) {
-          var t = per[e].reduce(function (s, p) { return s + numero(p.hores_lectives); }, 0);
-          return '<tr class="gs-informe__seccio"><td colspan="2">' + esc(e) + '</td><td class="gs-num" data-tot="' + esc(e) + '">' + fmtH(t) + '</td></tr>' + per[e].map(function (p) {
-            return '<tr><td>' + esc(p.nom) + '</td><td>' + esc(p.carrec) + '</td><td class="gs-num">' + (r.pot_desar ? '<input type="number" min="0" max="40" step="0.5" data-id="' + esc(p.id) + '" data-esp="' + esc(e) + '" data-abans="' + esc(p.hores_lectives) + '" value="' + esc(String(p.hores_lectives).replace(',', '.')) + '">' : esc(p.hores_lectives)) + '</td></tr>';
-          }).join('');
-        }).join('') + '</tbody></table></div>';
-      pregunta('Hores lectives de classe', html, r.pot_desar ? [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa', valor: 1, abans: function () {
-        horesLectives.c = [].filter.call($('gsModalText').querySelectorAll('input[data-id]'), function (i) { return String(i.value) !== String(i.dataset.abans).replace(',', '.'); }).map(function (i) { return { id: i.dataset.id, hores: i.value }; });
-      } }] : [{ t: 'Tanca', valor: 0 }], false).then(function (v) {
-        if (!v) return;
-        if (!horesLectives.c.length) return toast('No hi ha cap canvi.');
-        api('hores_lectives_desa', { canvis: horesLectives.c }, 'Desant les hores lectives…').then(function (r2) {
-          if (!r2.ok) return toast(text(r2.error), true);
-          delete S.cache.professorat; if (S.d) S.d.professorat_hores = r2.professorat;
-          toast('Hores lectives desades (' + r2.desats + ').');
-        });
+    var llista = S.d.professorat_hores || [], pot = !!S.d.hores_pot_desar;
+    if (!llista.length) return toast('No hi ha professorat (o cal executar «configura»).', true);
+    var per = {}; llista.forEach(function (p) { var e = p.especialitat || '(sense especialitat)'; (per[e] = per[e] || []).push(p); });
+    var esp = Object.keys(per).sort(function (a, b) { return a.localeCompare(b, 'ca'); });
+    var totes = COLS_HL.concat(COLS_RED), cel = function (p, c) { var v = String(p[c[0]] == null ? '' : p[c[0]]); return '<td class="gs-num">' + (pot ? '<input type="number" min="0" max="40" step="0.5" data-id="' + esc(p.id) + '" data-k="' + c[0] + '" data-abans="' + esc(v) + '" value="' + esc(v.replace(',', '.')) + '" aria-label="' + esc(c[2]) + '">' : esc(v)) + '</td>'; };
+    var html = '<p class="gs-ajuda">Hores lectives de cada docent (fitxa del professorat; també es canvien des del mòdul Professorat). <strong>Alumnat</strong> = lectives amb alumnat (el que fa servir el Currículum); <strong>Total</strong> = alumnat + reduccions. ⚠ = el total supera el màxim de la jornada (sencera 18, ⅔ 12, mitja 9).</p>' +
+      '<div class="gs-informe gs-hl-wrap"><table class="gs-form-taula gs-informe__taula gs-hl"><thead><tr><th rowspan="2">Professor/a</th><th rowspan="2">Jornada</th><th colspan="' + (COLS_HL.length + 1) + '" class="gs-hl__grup">Lectives amb alumnat</th><th colspan="' + (COLS_RED.length + 1) + '" class="gs-hl__grup">Reduccions</th></tr><tr>' +
+      COLS_HL.map(function (c) { return '<th class="gs-num" title="' + esc(c[2]) + '">' + c[1] + '</th>'; }).join('') + '<th class="gs-num">Alumnat</th>' + COLS_RED.map(function (c) { return '<th class="gs-num" title="' + esc(c[2]) + '">' + c[1] + '</th>'; }).join('') + '<th class="gs-num">Total</th></tr></thead><tbody>' +
+      esp.map(function (e) {
+        return '<tr class="gs-informe__seccio"><td colspan="' + (totes.length + 4) + '">' + esc(e) + ' · <span data-tot="' + esc(e) + '"></span> h amb alumnat</td></tr>' + per[e].map(function (p) {
+          return '<tr data-fila="' + esc(p.id) + '" data-esp="' + esc(e) + '" data-j="' + esc(p.jornada) + '"><td>' + esc(p.nom) + (p.carrec ? '<br><small class="gs-gris">' + esc(p.carrec) + '</small>' : '') + '</td><td>' + esc(p.jornada || '—') + '</td>' +
+            COLS_HL.map(function (c) { return cel(p, c); }).join('') + '<td class="gs-num gs-hl__tot" data-t="a"></td>' + COLS_RED.map(function (c) { return cel(p, c); }).join('') + '<td class="gs-num gs-hl__tot" data-t="t"></td></tr>';
+        }).join('');
+      }).join('') + '</tbody></table></div>';
+    pregunta('Hores lectives classe', html, pot ? [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Desa', valor: 1, abans: function () {
+      var canvis = {};
+      [].forEach.call($('gsModalText').querySelectorAll('input[data-id]'), function (i) { if (String(i.value) !== String(i.dataset.abans).replace(',', '.')) (canvis[i.dataset.id] = canvis[i.dataset.id] || {})[i.dataset.k] = i.value; });
+      horesLectives.c = Object.keys(canvis).map(function (id) { return { id: id, valors: canvis[id] }; });
+    } }] : [{ t: 'Tanca', valor: 0 }], false).then(function (v) {
+      if (!v) return;
+      if (!horesLectives.c.length) return toast('No hi ha cap canvi.');
+      api('hores_lectives_desa', { canvis: horesLectives.c }, 'Desant les hores lectives…').then(function (r2) {
+        if (!r2.ok) return toast(text(r2.error), true);
+        delete S.cache.professorat; S.d.professorat_hores = r2.professorat;
+        toast('Hores lectives desades (' + r2.desats + ' docents).');
       });
-      $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample');
-      $('gsModalText').querySelectorAll('input[data-id]').forEach(function (i) { i.addEventListener('input', function () {
-        var e = i.dataset.esp, t = [].filter.call($('gsModalText').querySelectorAll('input[data-esp]'), function (x) { return x.dataset.esp === e; }).reduce(function (s, x) { return s + numero(x.value); }, 0);
-        var c = $('gsModalText').querySelector('[data-tot="' + e.replace(/"/g, '\\"') + '"]'); if (c) c.textContent = fmtH(t);
-      }); });
     });
+    var box = $('gsModalText').closest('.prog-modal__box'); box.classList.add('gs-modal--ample', 'gs-modal--hl');
+    var valor = function (tr, k) { var i = tr.querySelector('input[data-k="' + k + '"]'); if (i) return i.value; var p = llista.filter(function (x) { return x.id === tr.dataset.fila; })[0]; return p ? p[k] : ''; };
+    var recalcula = function () {
+      var tots = {};
+      [].forEach.call($('gsModalText').querySelectorAll('tr[data-fila]'), function (tr) {
+        var o = {}; COLS_HL.concat(COLS_RED).forEach(function (c) { o[c[0]] = valor(tr, c[0]); });
+        var a = sumaHL(o, COLS_HL), t = sumaHL(o, COLS_HL.concat(COLS_RED)), mx = maxJornada(tr.dataset.j);
+        tr.querySelector('[data-t="a"]').textContent = a === '' ? '' : fmtH(a);
+        var ct = tr.querySelector('[data-t="t"]'); ct.innerHTML = t === '' ? '' : esc(fmtH(t)) + (mx && t > mx ? ' <span class="gs-avis-ret" title="Supera les ' + mx + ' h de la jornada ' + esc(tr.dataset.j) + '">⚠</span>' : '');
+        tots[tr.dataset.esp] = (tots[tr.dataset.esp] || 0) + (a === '' ? 0 : a);
+      });
+      [].forEach.call($('gsModalText').querySelectorAll('[data-tot]'), function (s) { s.textContent = fmtH(tots[s.dataset.tot] || 0); });
+    };
+    $('gsModalText').addEventListener('input', recalcula); recalcula();
   }
   // PAS 41 · Document per especialitat (per al cap de departament): hores de l'especialitat, cedides, assignades d'altres
   // especialitats, professorat amb les hores lectives i balanç

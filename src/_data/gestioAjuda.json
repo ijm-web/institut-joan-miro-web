@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 41 · 7 de novembre de 2026",
+  "versio": "PAS 42 · 7 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -217,9 +217,10 @@
         {
           "id": "prof-hores-lectives",
           "titol": "Hores lectives de classe",
-          "claus": "hores lectives classe currículum",
+          "claus": "hores lectives classe currículum reduccions jornada total",
           "text": [
-            "El camp **Hores lectives de classe** de cada docent el fan servir el Currículum (botó «Hores lectives classe») i el document per especialitat per calcular el balanç d'hores. Es pot editar des d'aquí o des del Currículum."
+            "Columnes d'**hores lectives**: les lectives amb alumnat (matèries ESO i Bat, atenció individual, tutories) i les reduccions (tutoria 1r/2n, càrrec directiu, coordinació, coordinació de nivell, reducció de 55 anys). Venen del full de plantilla (importaHoresLectives) i es poden editar aquí o des del Currículum.",
+            "**Total lectives alumnat** i **Total lectives** es calculen sols. **⚠** al Total lectives: supera el màxim de la jornada (sencera 18, ⅔ 12, mitja 9)."
           ]
         }
       ]
@@ -791,11 +792,13 @@
         {
           "id": "cur-hores-lectives",
           "titol": "Hores lectives classe",
-          "claus": "hores lectives classe professorat docent plantilla",
+          "claus": "hores lectives classe professorat docent plantilla reduccions jornada tutoria",
           "text": [
-            "Botó **Hores lectives classe** (al costat de Matèries i Assignacions): la llista del professorat actual agrupada per especialitat, amb les **hores lectives de classe** de cada docent i el total de l'especialitat.",
-            "Es desen a la fitxa del professorat (camp «Hores lectives de classe») i també es poden canviar des del mòdul **Professorat**. Valors de 0 a 40 (admet mitges hores).",
-            "Les pot canviar qui té edició al Currículum o al Professorat; la resta les veu."
+            "Botó **Hores lectives classe** (al costat de Matèries i Assignacions): el professorat actual per especialitat amb les hores lectives. Les dades es carreguen en obrir el mòdul (no cal esperar en prémer el botó).",
+            "**Lectives amb alumnat**: matèries ESO, matèries Bat, atenció individual (ahl), tutoria (matèria) ESO 1r/2n, ESO 3r/4t i Bat. La suma és el **Total lectives alumnat**, que és el que fa servir el Currículum (document per especialitat).",
+            "**Reduccions**: reducció de tutoria ESO 1r/2n (ahl), càrrec directiu (cd1), coordinació lectiu (cc), reducció de coordinació de nivell (ahl) i reducció lectiva de 55 anys (ahl). **Total** = alumnat + reduccions.",
+            "**⚠** al total: supera el màxim de la jornada (sencera 18 h, ⅔ 12 h, mitja 9 h).",
+            "Es desen a la fitxa del professorat i també es poden canviar des del mòdul **Professorat**. Valors de 0 a 40 (admet mitges hores). Les pot canviar qui té edició al Currículum o al Professorat."
           ]
         },
         {

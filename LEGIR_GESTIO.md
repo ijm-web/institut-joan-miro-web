@@ -267,6 +267,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Web**: carrusel d'inici amb una diapositiva de logos (Erasmus+, Escola Verda sense el logo de la Generalitat, XAJI, Fundació Joan Miró, Paraula al Centre) a `src/assets/img/inici/inici-5-projectes-*.jpg`. ESO 4t: Educació visual i plàstica adreçada a qui vol fer batxillerat artístic o cicles d'arts.
 - Desiderata (pas 3 del currículum): pendent.
 
+## PAS 42
+- **Professorat · hores lectives**: camps `LECTIVES_ALUMNAT` (lectives_eso, lectives_bat, atencio_individual, tutoria_eso12, tutoria_eso34, tutoria_bat) i `LECTIVES_REDUCCIONS` (red_tutoria_eso12, carrec_directiu, coordinacio_lectiu, red_coord_nivell, red_lectiva_55). `hores_lectives` passa a ser el calculat «Total lectives alumnat» (suma) i `total_lectives` el calculat «Total lectives» (tot). Els calculats admeten sumes: `valors` = «a + b + c» (`calcula_` i `calcula`). La columna antiga `hores_lectives` del full queda sense ús.
+- `MAX_LECTIVES` per jornada (Sencera 18, 1/2 9, ⅔ 12): ⚠ a la graella del professorat i al diàleg del currículum.
+- **importaHoresLectives** (manual): `config › font_hores_lectives` (per defecte el full de plantilla; la pestanya del `gid`). Capçalera = fila amb «Total lectives»; docent per correu o pel nom en qualsevol ordre. Registre: no trobats i on el «Total lectives (t_lec)» del full no quadra amb la suma.
+- `hores_lectives_desa` ara és {canvis:[{id, valors:{clau: hores}}]} (0–40). `dades` de `curriculum` i `curriculum_grups` porta `professorat_hores`, `hores_pot_desar` i `max_lectives`: el diàleg «Hores lectives classe» ja no fa cap crida en obrir-se.
+- **Control d'entrada**: `importaControlEntrada2627()` desa l'URL del formulari 26-27 a `config › font_control_entrada` i importa.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
