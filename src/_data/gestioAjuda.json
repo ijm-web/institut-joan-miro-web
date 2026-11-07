@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 45 · 7 de novembre de 2026",
+  "versio": "PAS 46 · 7 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -780,7 +780,7 @@
             "- **Docents a l'aula**: 2 = **codocència** (dos docents a la mateixa aula i hora). Les hores de professorat es multipliquen i en generar els grups cada grup té una fila per docent.",
             "- **Hores professorat** (calculat) = (A + B) × grups × docents a l'aula.",
             "- **Tisores**: separen alguns grups en una **fila nova** de la mateixa matèria (mateixes hores, especialitat i docents). Després cada fila pot tenir una altra especialitat o un altre nombre de docents. Cal tornar a **Genera els grups**.",
-            "Els grups que ja existien conserven el nom (es pot canviar a Assignacions)."
+            "El **nom de cada grup** surt sempre dels grups-classe (1r ESO A, 1r ESO CD, 1r ESO ABCD 1…): si es canvien els grups-classe, en tornar a **Genera els grups** els noms s'actualitzen i es conserven l'especialitat i el professor/a de cada grup (per ordre). Les **tisores** també s'emporten les assignacions dels grups que passen a la fila nova."
           ]
         },
         {
@@ -799,7 +799,7 @@
           "claus": "generar grups assignacions",
           "text": [
             "Quan les matèries estiguin a punt, **Genera els grups** crea una fila per cada matèria i grup a la pestanya **Assignacions** (p. ex. Anglès de 1r ESO amb 4 grups → 1r ESO A, B, C i D).",
-            "Abans es mostra què canviarà. Si després es modifica una matèria (hores, grups, nom), es torna a prémer: afegeix o treu files i actualitza les hores; les especialitats i els professors ja assignats es conserven. Si es treuen files que ja tenien professor/a, s'avisa abans.",
+            "Abans es mostra què canviarà. Si després es modifica una matèria (hores, grups, nom), es torna a prémer: afegeix o treu files i actualitza les hores i el nom dels grups; les especialitats i els professors ja assignats es conserven. Si es treuen files que ja tenien professor/a, s'avisa abans.",
             "Si un grup té les hores repartides en parts (vegeu Assignacions), en tornar a generar es conserven les parts tal com estan; si no sumen les hores de la matèria, s'avisa."
           ]
         },
@@ -812,8 +812,8 @@
             "**Repartir les hores d'un grup** (botó de les **tisores**): una part es queda amb les hores que indiqueu i la resta passa a una part nova amb l'especialitat que trieu. Es pot repetir amb qualsevol part. Exemple: Optativa d'Anglès de 1r ESO A (3 h) → 1 h Anglès + 1 h Alemany + 1 h Matemàtiques.",
             "Les hores de cada part també es poden editar a la graella. El senyal **⚠** a la columna Hores vol dir que les parts d'aquell grup no sumen les hores de la matèria (A + B).",
             "Per desfer un repartiment, esborreu la part que sobra (paperera) i poseu les hores totals a la que queda.",
-            "El **grup** es pot reanomenar (p. ex. «1r ESO AB» per a una divisió). El **professor/a** és opcional (desplegable del professorat actual).",
-            "Per canviar moltes files alhora, marqueu-les i feu servir «Aplica a la selecció»."
+            "Per canviar moltes files alhora, marqueu-les i feu servir «Aplica a la selecció».",
+            "El nom del **grup** no s'edita aquí: surt dels grups-classe de la matèria (pestanya Grups i distribució). El **professor/a** és opcional (desplegable del professorat actual)."
           ]
         },
         {

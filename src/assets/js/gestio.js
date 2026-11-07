@@ -1869,7 +1869,7 @@
       if (!r.ok) return toast(text(r.error), true);
       if (!r.afegides && !r.tretes && !r.actualitzades) return toast('Els grups ja estan al dia amb les matèries.');
       pregunta('Genera els grups', '<p>Es crearà una fila per cada matèria i grup (segons els <strong>Grups-classe</strong> de cada matèria):</p><ul>' +
-        '<li>Files noves: <strong>' + r.afegides + '</strong> (amb l’especialitat de la matèria)</li><li>Files actualitzades (nom, nivell o hores de la matèria): <strong>' + r.actualitzades + '</strong></li>' +
+        '<li>Files noves: <strong>' + r.afegides + '</strong> (amb l’especialitat de la matèria)</li><li>Files actualitzades (nom del grup, matèria, nivell o hores): <strong>' + r.actualitzades + '</strong></li>' +
         '<li>Files que es treuen (matèries esborrades o amb menys grups): <strong>' + r.tretes + '</strong></li></ul>' +
         (r.tretes_amb_professor.length ? '<p class="prog-avis">Es treuran files que ja tenen professor/a: ' + esc(r.tretes_amb_professor.join('; ')) + '</p>' : '') +
         (r.desquadrats && r.desquadrats.length ? '<p class="prog-avis">Grups repartits que no sumen les hores de la matèria (es conserven com estan): ' + esc(r.desquadrats.join('; ')) + '</p>' : '') +

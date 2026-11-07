@@ -291,6 +291,10 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - Regla de validació `REGLES.curriculum` (error `grup_classe_desconegut`). `curriculum_separa` ara rep `grups` = índexs dels grups de la fila.
 - Columna calculada «Grups» a Grups i distribució; la fila es refà en editar grups-classe, docents o hores.
 
+## PAS 46
+- `curriculumGenera_`: el nom del grup es recalcula sempre (`nomGrup(g)` a partir de `grupsMateria_`); abans es conservava el de la fila i quedaven noms antics (p. ex. «1r ESO A» per a «C+D»). El canvi de nom compta com a fila actualitzada. Camp `grup` de les assignacions amb origen clickedu (no editable).
+- `curriculum_separa` mou les assignacions ja generades dels grups triats a la matèria nova (renumera `num_grup` a totes dues): es conserven especialitat i professor/a.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
