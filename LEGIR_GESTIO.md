@@ -320,6 +320,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Regles**: pesos nous `aula_alternativa` (2) i `aula_qualsevol` (4). El motor prova aula preferent → conjunt alternatiu (penalització i avís) → qualsevol aula de capacitat suficient (penalització més gran i avís).
 - **Exportació**: `conjunts_aules`; docents amb `fixes`/`prohibides`; assignacions amb `id_professor`, `distribucio`, `aula_preferent`, `aules_alternatives`, `fixes`, `prohibides`. El generador d'horaris (Python) les valida.
 
+## PAS 51
+- **Subgrups** (pestanya nova del planificador, entre Aules i Sessions lectives). `config › horaris_subgrups` = {hores_b: [{id B1…, nivell, materies (noms), grups (lletres)}]}; acció `horaris_subgrups_desa` (error `subgrups_invalids`: ≥2 matèries amb les mateixes hores B, múltiple del nombre de subgrups, ≥1 grup, una matèria-grup en un sol bloc).
+- **Hores B**: `horesBExpandit_` expandeix cada bloc per grup-classe: subgrups `1r ESO A-G1`, `-G2`… i `torns` de rotació (sessió k: el subgrup i fa la matèria (i+k) mod n), `mateix_dia: true`. Les sessions d'aquestes assignacions porten `bloc_b`, `hores_b`, `hores_sessions` (= hores − hores B) i la distribució només suma `hores_sessions` (si una distribució desada no hi quadra, es torna a la per defecte).
+- **Blocs paral·lels** (optatives, divisions): ara a la pestanya Subgrups (es continuen desant a `horaris_regles`); avís si un docent hi surt dos cops. La pestanya «Regles i blocs» passa a dir-se «Regles».
+- **Exportació**: `hores_b` (blocs per grup-classe amb torns) i `subgrups` (hores_b i bloc_parallel amb els seus grups-classe); assignacions amb `bloc_b` i `hores_b_bloc`. `horaris_dades` porta `subgrups`, `grups_nivell` i `hores_b_avisos`; `materies` porta `hores_a`, `hores_b`.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

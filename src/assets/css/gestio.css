@@ -437,3 +437,13 @@
 .gs-hor__grid--edit td{ height:38px; text-align:center; font-size:16px; vertical-align:middle; }
 .gs-gr--lliure{ background:#fff; } .gs-gr--fixa{ background:#E3F3EA !important; border-color:#0F9D58 !important; } .gs-gr--prohibida{ background:#FDE8E8 !important; border-color:#C62828 !important; }
 .gs-gr--ll{ display:inline-block; padding:1px 8px; border:1px solid #E1E5EE; border-radius:6px; }
+
+/* PAS 51 · Subgrups (hores B i blocs paral·lels) */
+.gs-hor__rot { margin: 6px 0 4px 18px; padding: 0; font-size: .85rem; }
+.gs-hor__rot li { margin: 2px 0; }
+.gs-hor__sub { font-size: .9rem; margin: 14px 0 6px; color: var(--blau, #1d3b6f); }
+.gs-hor__cob td.is-pend { color: #9a5b00; background: #fff6e5; }
+.gs-hor__sg { margin: 6px 0; font-size: .85rem; }
+.gs-hor__sg ul { margin: 4px 0 0 18px; padding: 0; columns: 2; }
+.gs-hor__b { background: #e7f1fb; }
+@media (max-width: 640px) { .gs-hor__sg ul { columns: 1; } }

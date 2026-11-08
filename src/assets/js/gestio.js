@@ -2663,6 +2663,7 @@
       // PAS 50: sessions lectives i professorat (es desen només les files canviades)
       S.ses = {}; r.sessions.forEach(function (x) { S.ses[x.id] = JSON.parse(JSON.stringify(x)); }); S.sesBrut = {};
       S.hprof = {}; r.professorat.forEach(function (x) { S.hprof[x.id] = JSON.parse(JSON.stringify(x)); }); S.hprofBrut = {};
+      S.subg = JSON.parse(JSON.stringify(r.subgrups));   // PAS 51: blocs d'hores B
       S.horNiv = S.horNiv || r.nivells[0]; S.horEsp = S.horEsp || '';
       S.horTab = S.horTab || 'marc'; S.horBrut = {}; S.d = { files: [], camps: [], nivell: S.modul.nivell };
       pintaHoraris();
@@ -2684,25 +2685,37 @@
     return e;
   }
   function errorsSessions() {
-    var e = []; Object.keys(S.sesBrut).forEach(function (id) { var x = S.ses[id], d = String(x.distribucio || ''); if (d && (!/^[1-9]+$/.test(d) || d.split('').reduce(function (t, c) { return t + Number(c); }, 0) !== x.hores)) e.push(x.nivell + ' ' + x.materia + ' ' + x.grup + ': la distribució ha de sumar ' + fmtH(x.hores) + ' h.'); if (x.fixes.length > (d ? d.length : x.hores)) e.push(x.grup + ' ' + x.materia + ': més posicions fixes que sessions.'); });
+    var e = []; Object.keys(S.sesBrut).forEach(function (id) { var x = S.ses[id], d = String(x.distribucio || ''); if (d && (!/^[1-9]+$/.test(d) || d.split('').reduce(function (t, c) { return t + Number(c); }, 0) !== x.hores_sessions)) e.push(x.nivell + ' ' + x.materia + ' ' + x.grup + ': la distribució ha de sumar ' + fmtH(x.hores_sessions) + ' h' + (x.bloc_b ? ' (les ' + fmtH(x.hores_b) + ' h B van al bloc ' + x.bloc_b + ')' : '') + '.'); if (x.fixes.length > (d ? d.length : x.hores_sessions)) e.push(x.grup + ' ' + x.materia + ': més posicions fixes que sessions.'); });
     return e;
+  }
+  // PAS 51: hores B (cada bloc: dues o més matèries amb les mateixes hores B i almenys un grup-classe)
+  var horesBMat = function (niv, m) { var x = S.hor.materies.filter(function (y) { return y.nivell === niv && y.materia === m; })[0]; return x ? x.hores_b : 0; };
+  function errorsSubgrups() {
+    var e = [], usat = {};
+    S.subg.hores_b.forEach(function (b) { var nom = 'Bloc ' + b.id + ' (' + b.nivell + ')', hs = b.materies.map(function (m) { return horesBMat(b.nivell, m); });
+      if (b.materies.length < 2) e.push(nom + ': calen almenys dues matèries.');
+      if (!b.grups.length) e.push(nom + ': cal triar almenys un grup-classe.');
+      if (hs.some(function (h) { return h !== hs[0]; })) e.push(nom + ': les matèries han de tenir les mateixes hores B.');
+      else if (b.materies.length > 1 && hs[0] % b.materies.length) e.push(nom + ': ' + hs[0] + ' hores B no es poden repartir en ' + b.materies.length + ' subgrups.');
+      b.grups.forEach(function (L) { b.materies.forEach(function (m) { var k = L + '|' + m + '|' + b.nivell; if (usat[k]) e.push(b.nivell + ' ' + L + ': «' + m + '» és a dos blocs.'); usat[k] = 1; }); }); });
+    return e.concat(errorsRegles());
   }
   function errorsRegles() {
     var e = []; S.regles.blocs_parallels.forEach(function (b, i) { if (!b.nom.trim()) e.push('Bloc ' + (i + 1) + ': cal un nom.'); if (b.materies.length < 2) e.push('Bloc «' + (b.nom || i + 1) + '»: calen almenys dues matèries.'); }); return e;
   }
   function pintaHoraris() {
     var R = S.hor, ed = R.pot_desar, tab = S.horTab, brut = Object.keys(S.horBrut).some(function (k) { return S.horBrut[k]; });
-    var pes = { marc: R.per_defecte, aules: R.aules_per_defecte, regles: R.regles_per_defecte }[tab] || false;
-    $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist">' + [['marc', 'Marc horari'], ['aules', 'Aules'], ['sessions', 'Sessions lectives'], ['professorat', 'Professorat'], ['regles', 'Regles i blocs']].map(function (t) { return '<button type="button" role="tab" data-accio="hor-tab" data-tab="' + t[0] + '" aria-selected="' + (tab === t[0]) + '">' + t[1] + (S.horBrut[t[0]] ? ' *' : '') + '</button>'; }).join('') + '</div>' +
+    var pes = { marc: R.per_defecte, aules: R.aules_per_defecte, regles: R.regles_per_defecte, subgrups: R.regles_per_defecte }[tab] || false;
+    $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist">' + [['marc', 'Marc horari'], ['aules', 'Aules'], ['subgrups', 'Subgrups'], ['sessions', 'Sessions lectives'], ['professorat', 'Professorat'], ['regles', 'Regles']].map(function (t) { return '<button type="button" role="tab" data-accio="hor-tab" data-tab="' + t[0] + '" aria-selected="' + (tab === t[0]) + '">' + t[1] + (S.horBrut[t[0]] || (t[0] === 'subgrups' && S.horBrut.blocs) ? ' *' : '') + '</button>'; }).join('') + '</div>' +
       '<span class="gs-espai"></span>' + (tab === 'marc' ? '<label class="prog-btn prog-btn--ghost gs-hor__imp" title="Carrega un marc_horari.json">Importa JSON<input type="file" id="gsHorImp" accept=".json,application/json" hidden></label><button type="button" class="prog-btn prog-btn--ghost" data-accio="hor-json" title="Descarrega marc_horari.json">marc_horari.json</button>' : '') +
       (ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="hor-exporta" title="Descarrega totes les dades per al MOTOR (horaris-dades.json)">Exporta per al motor</button><button type="button" class="prog-btn" data-accio="hor-desa">' + (brut ? 'Desa *' : 'Desa') + '</button>' : '') +
       '<p class="gs-ajuda" style="flex:1 1 100%;margin:4px 0 0"><strong>Planificador</strong> del generador d’horaris (planificador → motor → editor → exportador). ' +
-      { marc: 'Dies lectius i franges horàries (amb els esbarjos). Totes les franges són lectives per a tots els nivells.', aules: 'Les aules del centre (amb el tipus) i els <strong>conjunts d’aules alternatives</strong> que després es poden posar a cada sessió.', sessions: 'Una fila per sessió lectiva (matèria i grup de Currículum › Assignacions): professor/a, <strong>distribució</strong> de les hores (111 = tres sessions d’1 h; 21 = una de 2 h i una d’1 h), <strong>aula preferent</strong>, <strong>aules alternatives</strong> i <strong>graella</strong> amb posicions fixes i prohibides.', professorat: 'Una graella per docent amb les <strong>posicions fixes</strong> (ha de fer classe aquella hora) i <strong>prohibides</strong> (no hi pot fer classe). Per defecte, totes són lliures.', regles: '<strong>Blocs paral·lels</strong>: matèries que s’han de fer a la mateixa hora (optatives, divisions). <strong>Regles</strong>: preferències del motor, amb un pes de 1 (poc) a 5 (molt).' }[tab] +
+      { marc: 'Dies lectius i franges horàries (amb els esbarjos). Totes les franges són lectives per a tots els nivells.', aules: 'Les aules del centre (amb el tipus) i els <strong>conjunts d’aules alternatives</strong> que després es poden posar a cada sessió.', sessions: 'Una fila per sessió lectiva (matèria i grup de Currículum › Assignacions): professor/a, <strong>distribució</strong> de les hores (111 = tres sessions d’1 h; 21 = una de 2 h i una d’1 h), <strong>aula preferent</strong>, <strong>aules alternatives</strong> i <strong>graella</strong> amb posicions fixes i prohibides.', professorat: 'Una graella per docent amb les <strong>posicions fixes</strong> (ha de fer classe aquella hora) i <strong>prohibides</strong> (no hi pot fer classe). Per defecte, totes són lliures.', subgrups: 'Un <strong>subgrup</strong> és una part de l’alumnat que fa una matèria a la mateixa hora que la resta fa una altra. <strong>Hores B</strong>: el grup-classe es divideix en G1 i G2 i les matèries del bloc s’alternen. <strong>Optatives i divisions</strong>: diversos docents alhora, cadascun amb un subgrup i en aules diferents.', regles: '<strong>Regles</strong>: preferències del motor, amb un pes de 1 (poc) a 5 (molt), i les regles obligatòries.' }[tab] +
       (pes ? ' <strong>Encara no s’ha desat: és una proposta per revisar.</strong>' : '') + '</p>';
-    var html = tab === 'marc' ? htmlMarc(ed) : tab === 'aules' ? htmlAules(ed) : tab === 'sessions' ? htmlSessions(ed) : tab === 'professorat' ? htmlProfessoratH(ed) : htmlRegles(ed);
+    var html = tab === 'marc' ? htmlMarc(ed) : tab === 'aules' ? htmlAules(ed) : tab === 'subgrups' ? htmlSubgrups(ed) : tab === 'sessions' ? htmlSessions(ed) : tab === 'professorat' ? htmlProfessoratH(ed) : htmlRegles(ed);
     var t0 = $('gsTaula'); t0.className = 'gs-des gs-hor'; t0.innerHTML = '<div id="gsHorCos">' + html + '<p class="prog-avis" id="gsHorErr" hidden></p></div>';
     ajustaAlcada();
-    var e = tab === 'marc' ? errorsMarc() : tab === 'aules' ? errorsAules() : tab === 'sessions' ? errorsSessions() : tab === 'professorat' ? [] : errorsRegles();
+    var e = tab === 'marc' ? errorsMarc() : tab === 'aules' ? errorsAules() : tab === 'subgrups' ? errorsSubgrups() : tab === 'sessions' ? errorsSessions() : tab === 'professorat' ? [] : errorsRegles();
     $('gsHorErr').hidden = !e.length; $('gsHorErr').innerHTML = e.map(esc).join('<br>');
     lligaHoraris(ed);
   }
@@ -2747,7 +2760,7 @@
       (!S.aules.aules.length ? '<p class="prog-avis">Encara no hi ha aules: doneu-les d’alta a la pestanya Aules.</p>' : '') +
       (ll.length ? '<table class="gs-form-taula gs-informe__taula gs-hor__ses"><thead><tr><th>Matèria</th><th>Grup</th><th>Professor/a</th><th class="gs-cen">h</th><th>Distribució</th><th>Aula preferent</th><th>Aules alternatives</th><th>Graella</th><th></th></tr></thead><tbody>' +
         ll.map(function (x) { var nova = x.id_materia + x.materia !== mat; mat = x.id_materia + x.materia;
-          return '<tr data-ses="' + esc(x.id) + '" class="' + (nova ? 'is-nova' : '') + (S.sesBrut[x.id] ? ' is-brut' : '') + '"><td>' + (nova ? esc(x.materia) + (blocs[x.materia] ? ' <span class="gs-codo" title="Bloc paral·lel">' + esc(blocs[x.materia]) + '</span>' : '') : '') + '</td><td>' + esc(x.grup) + '</td><td>' + (x.professor ? esc(x.professor) : '<span class="gs-gris">—</span>') + '</td><td class="gs-cen">' + fmtH(x.hores) + '</td>' +
+          return '<tr data-ses="' + esc(x.id) + '" class="' + (nova ? 'is-nova' : '') + (S.sesBrut[x.id] ? ' is-brut' : '') + '"><td>' + (nova ? esc(x.materia) + (blocs[x.materia] ? ' <span class="gs-codo" title="Bloc paral·lel">' + esc(blocs[x.materia]) + '</span>' : '') : '') + '</td><td>' + esc(x.grup) + (x.bloc_b ? ' <span class="gs-codo gs-hor__b" title="Hores B amb ' + esc(x.amb_b.join(', ')) + '">' + esc(x.bloc_b) + ' · B</span>' : '') + '</td><td>' + (x.professor ? esc(x.professor) : '<span class="gs-gris">—</span>') + '</td><td class="gs-cen">' + fmtH(x.hores) + (x.bloc_b ? '<br><small class="gs-gris">' + fmtH(x.hores_sessions) + ' + ' + fmtH(x.hores_b) + ' B</small>' : '') + '</td>' +
             '<td><input type="text" data-k="distribucio" value="' + esc(x.distribucio) + '" maxlength="8" inputmode="numeric"' + dis + '></td><td><select data-k="aula"' + dis + '>' + aOpts(x.aula) + '</select></td><td><select data-k="conjunt"' + dis + '>' + cOpts(x.conjunt) + '</select></td>' +
             '<td><button type="button" class="gs-enllac gs-hor__gbtn" data-a="graella-ses">' + resumGraella(x) + '</button></td><td>' + (ed && nova ? '<button type="button" class="gs-hist" data-a="aplica-materia" title="Copia la distribució, les aules i la graella d’aquest grup a tots els grups de la matèria" aria-label="Aplica a tota la matèria">⇣</button>' : '') + '</td></tr>'; }).join('') + '</tbody></table>' : '<p class="gs-gris">Aquest nivell no té assignacions (cal generar-les a Currículum › Assignacions).</p>');
   }
@@ -2783,28 +2796,54 @@
     return pr.then(function (v) { return v ? { fixes: F, prohibides: P } : null; });
   }
     function htmlRegles(ed) {
-    var RG = S.regles, T = RG.toves, dis = ed ? '' : ' disabled', mats = function (niv) { return S.hor.materies.filter(function (m) { return m.nivell === niv; }); };
-    var bloc = function (b, i) {
-      var ms = mats(b.nivell), hores = {}; b.materies.forEach(function (x) { var m = ms.filter(function (y) { return y.materia === x; })[0]; if (m) hores[m.hores] = 1; });
-      var dif = Object.keys(hores).length > 1;
-      return '<div class="gs-hor__bloc" data-b="' + i + '"><div class="gs-form-fila"><label>Nivell <select data-k="nivell"' + dis + '>' + S.hor.nivells.map(function (n) { return '<option' + (n === b.nivell ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select></label><label>Nom <input type="text" data-k="nom" value="' + esc(b.nom) + '" placeholder="P. ex. Optatives"' + dis + '></label>' + (ed ? '<button type="button" class="gs-perill gs-paperera" data-a="treu-bloc" title="Treu el bloc" aria-label="Treu el bloc">' + PAPERERA + '</button>' : '') + '</div>' +
-        '<div class="gs-hor__mats">' + ms.map(function (m) { return '<label class="gs-check' + (m.units ? ' is-units' : '') + '"><input type="checkbox" value="' + esc(m.materia) + '"' + (b.materies.indexOf(m.materia) >= 0 ? ' checked' : '') + dis + '> ' + esc(m.materia) + ' <span class="gs-gris">' + fmtH(m.hores) + ' h</span></label>'; }).join('') + '</div>' +
-        (dif ? '<p class="prog-avis">⚠ Les matèries d’un bloc han de tenir les mateixes hores (ara: ' + Object.keys(hores).join(', ') + ' h).</p>' : '') + '</div>';
-    };
+    var RG = S.regles, T = RG.toves, dis = ed ? '' : ' disabled';
     var pesSel = function (k) { return '<select data-pes="' + k + '"' + dis + '>' + [1, 2, 3, 4, 5].map(function (v) { return '<option' + (v === (T.pesos[k] || 3) ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select>'; };
     var regla = function (k, txt, pk) { return '<tr><td><label class="gs-check"><input type="checkbox" data-t="' + k + '"' + (T[k] ? ' checked' : '') + dis + '> ' + txt + '</label></td><td class="gs-cen">' + pesSel(pk) + '</td></tr>'; };
-    return '<section class="gs-hor__sec"><h3 class="gs-amon__tit">1 · Blocs paral·lels</h3><p class="gs-gris">Matèries d’un mateix nivell que es fan a la mateixa franja (l’alumnat en tria una). Les matèries de grups units (optatives, divisions) surten en negreta.' + (ed ? ' <button type="button" class="gs-enllac" data-a="proposa-blocs">Proposa un bloc d’optatives per nivell</button>' : '') + '</p>' +
-      (RG.blocs_parallels.length ? RG.blocs_parallels.map(bloc).join('') : '<p class="gs-gris">Cap bloc.</p>') + (ed ? '<p><button type="button" class="gs-enllac" data-a="nou-bloc">+ bloc</button></p>' : '') + '</section>' +
-      '<section class="gs-hor__sec"><h3 class="gs-amon__tit">2 · Regles del motor</h3><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Regla</th><th class="gs-cen">Pes (1–5)</th></tr></thead><tbody>' +
+    return '<section class="gs-hor__sec"><h3 class="gs-amon__tit">Regles del motor</h3><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Regla</th><th class="gs-cen">Pes (1–5)</th></tr></thead><tbody>' +
         '<tr><td>Màxim d’hores seguides d’una mateixa matèria <input type="number" data-t="max_hores_seguides_materia" min="1" max="6" value="' + T.max_hores_seguides_materia + '"' + dis + ' style="width:56px"></td><td class="gs-cen">' + pesSel('seguides') + '</td></tr>' +
         regla('repartir_en_dies_diferents', 'Repartir les hores de cada matèria en dies diferents', 'dies') + regla('minimitzar_forats_docents', 'Evitar forats a l’horari del professorat', 'forats') + regla('respectar_desiderata', 'Respectar la desiderata (docent de cada grup)', 'desiderata') +
         '<tr><td>Penalització si una sessió va a una <strong>aula alternativa</strong> (avís)</td><td class="gs-cen">' + pesSel('aula_alternativa') + '</td></tr>' +
         '<tr><td>Penalització si una sessió va a <strong>qualsevol aula</strong> de la mateixa capacitat (avís)</td><td class="gs-cen">' + pesSel('aula_qualsevol') + '</td></tr>' +
-        '</tbody></table><p class="gs-gris">Les regles són preferències: el motor intenta complir més les de pes alt. Les regles obligatòries (un docent, un grup o una aula no poden ser a dos llocs alhora, aula del tipus adequat, blocs a la mateixa franja) no es poden desactivar.</p></section>';
+        '</tbody></table><p class="gs-gris">Les regles són preferències: el motor intenta complir més les de pes alt. Les regles obligatòries no es poden desactivar: un docent, un grup, un subgrup o una aula no poden ser a dos llocs alhora; posicions fixes i prohibides; els blocs paral·lels (optatives, divisions) a la mateixa franja amb docents i aules diferents; les sessions d’un bloc d’hores B, simultànies per als subgrups i totes el mateix dia.</p></section>';
+  }
+  // PAS 51 · Subgrups: hores B (desdoblament en G1, G2… amb rotació de matèries) i blocs paral·lels (optatives, divisions)
+  function htmlSubgrups(ed) {
+    var R = S.hor, niv = S.horNiv, dis = ed ? '' : ' disabled', RG = S.regles;
+    var lletres = (R.grups_nivell[niv] || []).map(function (g) { return g.slice(niv.length).trim(); });
+    var matsB = R.materies.filter(function (m) { return m.nivell === niv && m.hores_b > 0; });
+    var sesDe = function (m, gc) { return Object.keys(S.ses).map(function (k) { return S.ses[k]; }).filter(function (x) { return x.nivell === niv && x.materia === m && (gc === undefined || x.grup === gc); }); };
+    var hb = S.subg.hores_b.map(function (b, i) { return [b, i]; }).filter(function (p) { return p[0].nivell === niv; });
+    var blocB = function (p) { var b = p[0], i = p[1], n = b.materies.length, h = n ? horesBMat(niv, b.materies[0]) : 0;
+      var rot = n > 1 && h ? '<ol class="gs-hor__rot">' + Array.apply(null, Array(h)).map(function (_, k) { return '<li>Sessió B ' + (k + 1) + ': ' + b.materies.map(function (m, j) { return 'G' + (j + 1) + ' ' + esc(b.materies[(j + k) % n]); }).join(' · ') + '</li>'; }).join('') + '</ol><p class="gs-gris">Les ' + h + ' sessions B de cada grup-classe són <strong>el mateix dia</strong> (no cal que siguin seguides).</p>' : '';
+      var xocs = []; b.grups.forEach(function (L) { var ps = {}; b.materies.forEach(function (m) { sesDe(m, niv + ' ' + L).forEach(function (x) { if (x.professor) { if (ps[x.professor]) xocs.push(niv + ' ' + L + ': ' + x.professor + ' fa ' + ps[x.professor] + ' i ' + m); ps[x.professor] = m; } }); }); });
+      return '<div class="gs-hor__bloc" data-hb="' + i + '"><div class="gs-form-fila"><b>Bloc ' + esc(b.id) + '</b><span class="gs-gris">' + (n ? n + ' subgrups (G1' + (n > 1 ? '–G' + n : '') + ')' : '') + '</span>' + (ed ? '<button type="button" class="gs-perill gs-paperera" data-a="treu-hb" title="Treu el bloc" aria-label="Treu el bloc">' + PAPERERA + '</button>' : '') + '</div>' +
+        '<p class="gs-gris">Matèries</p><div class="gs-hor__mats">' + matsB.map(function (m) { return '<label class="gs-check"><input type="checkbox" data-k="mat" value="' + esc(m.materia) + '"' + (b.materies.indexOf(m.materia) >= 0 ? ' checked' : '') + dis + '> ' + esc(m.materia) + ' <span class="gs-gris">' + fmtH(m.hores_b) + ' h B</span></label>'; }).join('') + '</div>' +
+        '<p class="gs-gris">Grups-classe</p><div class="gs-hor__mats">' + lletres.map(function (L) { return '<label class="gs-check"><input type="checkbox" data-k="grup" value="' + esc(L) + '"' + (b.grups.indexOf(L) >= 0 ? ' checked' : '') + dis + '> ' + esc(niv + ' ' + L) + '</label>'; }).join('') + '</div>' + rot +
+        (xocs.length ? '<p class="prog-avis">⚠ El mateix docent no pot fer dues matèries d’un bloc alhora: ' + xocs.map(esc).join('; ') + '.</p>' : '') + '</div>'; };
+    var cob = {}; S.subg.hores_b.forEach(function (b) { if (b.nivell === niv) b.grups.forEach(function (L) { b.materies.forEach(function (m) { cob[L + '|' + m] = b.id; }); }); });
+    var taula = matsB.length ? '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-hor__cob"><thead><tr><th>Grup-classe</th>' + matsB.map(function (m) { return '<th>' + esc(m.materia) + ' <small>(' + fmtH(m.hores_b) + ' h B)</small></th>'; }).join('') + '</tr></thead><tbody>' +
+      lletres.map(function (L) { return '<tr><th>' + esc(niv + ' ' + L) + '</th>' + matsB.map(function (m) { var c = cob[L + '|' + m.materia]; return '<td class="gs-cen' + (c ? '' : ' is-pend') + '">' + (c ? esc(c) : '⚠ sense bloc') + '</td>'; }).join('') + '</tr>'; }).join('') + '</tbody></table><p class="gs-gris">Una matèria amb hores B sense bloc fa totes les hores amb el grup sencer.</p>' : '<p class="gs-gris">Cap matèria de ' + esc(niv) + ' té hores B al currículum.</p>';
+    var mats = R.materies.filter(function (m) { return m.nivell === niv; });
+    var bloc = function (b, i) {
+      var hores = {}; b.materies.forEach(function (x) { var m = mats.filter(function (y) { return y.materia === x; })[0]; if (m) hores[m.hores] = 1; });
+      var sg = [], profs = {}, rep = []; b.materies.forEach(function (m) { sesDe(m).forEach(function (x) { sg.push('<li>' + esc(x.grup + ' · ' + m) + ' <span class="gs-gris">' + (x.professor ? esc(x.professor) : 'sense docent') + '</span></li>'); if (x.professor) { if (profs[x.professor]) rep.push(x.professor); profs[x.professor] = 1; } }); });
+      return '<div class="gs-hor__bloc" data-b="' + i + '"><div class="gs-form-fila"><label>Nom <input type="text" data-k="nom" value="' + esc(b.nom) + '" placeholder="P. ex. Optatives"' + dis + '></label>' + (ed ? '<button type="button" class="gs-perill gs-paperera" data-a="treu-bloc" title="Treu el bloc" aria-label="Treu el bloc">' + PAPERERA + '</button>' : '') + '</div>' +
+        '<div class="gs-hor__mats">' + mats.map(function (m) { return '<label class="gs-check' + (m.units ? ' is-units' : '') + '"><input type="checkbox" value="' + esc(m.materia) + '"' + (b.materies.indexOf(m.materia) >= 0 ? ' checked' : '') + dis + '> ' + esc(m.materia) + ' <span class="gs-gris">' + fmtH(m.hores) + ' h</span></label>'; }).join('') + '</div>' +
+        (sg.length ? '<details class="gs-hor__sg"><summary>' + sg.length + ' subgrups simultanis</summary><ul>' + sg.join('') + '</ul></details>' : '') +
+        (Object.keys(hores).length > 1 ? '<p class="prog-avis">⚠ Les matèries d’un bloc han de tenir les mateixes hores (ara: ' + Object.keys(hores).join(', ') + ' h).</p>' : '') +
+        (rep.length ? '<p class="prog-avis">⚠ Cada subgrup ha de tenir un docent diferent: ' + rep.filter(function (x, j, a) { return a.indexOf(x) === j; }).map(esc).join(', ') + ' hi surt més d’un cop.</p>' : '') + '</div>';
+    };
+    var bp = RG.blocs_parallels.map(function (b, i) { return [b, i]; }).filter(function (p) { return p[0].nivell === niv; });
+    return '<div class="gs-nivells" role="group" aria-label="Nivell">' + R.nivells.map(function (n) { return '<button type="button" class="gs-nivells__btn' + (n === niv ? ' is-actiu' : '') + '" data-a="niv" data-niv="' + esc(n) + '">' + n + '</button>'; }).join('') + '</div>' +
+      '<section class="gs-hor__sec"><h3 class="gs-amon__tit">1 · Hores B (desdoblaments)</h3><p class="gs-gris">A les hores B el grup-classe es divideix en subgrups (G1, G2…) i, a la mateixa hora, cada subgrup fa una matèria del bloc amb el seu docent i a la seva aula. A la sessió següent s’intercanvien.</p>' +
+        (hb.length ? hb.map(blocB).join('') : '<p class="gs-gris">Cap bloc d’hores B en aquest nivell.</p>') + (ed && matsB.length > 1 ? '<p><button type="button" class="gs-enllac" data-a="nou-hb">+ bloc d’hores B</button></p>' : '') +
+        '<h4 class="gs-hor__sub">Hores B de cada grup-classe</h4>' + taula + ((R.hores_b_avisos || []).length ? '<p class="prog-avis">' + R.hores_b_avisos.map(esc).join('<br>') + '</p>' : '') + '</section>' +
+      '<section class="gs-hor__sec"><h3 class="gs-amon__tit">2 · Optatives i divisions (blocs paral·lels)</h3><p class="gs-gris">Matèries que es fan a la mateixa franja: cada una és un subgrup amb el seu docent i la seva aula (p. ex. les optatives, on l’alumnat de diversos grups-classe en tria una). Les de grups units surten en negreta.' + (ed ? ' <button type="button" class="gs-enllac" data-a="proposa-blocs">Proposa un bloc d’optatives per nivell</button>' : '') + '</p>' +
+        (bp.length ? bp.map(function (p) { return bloc(p[0], p[1]); }).join('') : '<p class="gs-gris">Cap bloc en aquest nivell.</p>') + (ed ? '<p><button type="button" class="gs-enllac" data-a="nou-bloc">+ bloc</button></p>' : '') + '</section>';
   }
   function lligaHoraris(ed) {
     var cos = $('gsHorCos'), M = S.marc, A = S.aules, RG = S.regles, tab = S.horTab;
-    var canvia = function (repinta) { S.horBrut[tab] = true; S.brut = true; if (repinta) setTimeout(pintaHoraris, 0); else { var b = document.querySelector('[data-accio="hor-desa"]'); if (b) b.textContent = 'Desa *'; } };
+    var canvia = function (repinta, clau) { S.horBrut[clau || tab] = true; S.brut = true; if (repinta) setTimeout(pintaHoraris, 0); else { var b = document.querySelector('[data-accio="hor-desa"]'); if (b) b.textContent = 'Desa *'; } };
     cos.addEventListener('change', function (e) {
       var x = e.target;
       if (tab === 'marc') {
@@ -2818,9 +2857,12 @@
       } else if (tab === 'professorat') {
         if (x.dataset.a === 'esp-prof') { S.horEsp = x.value; return setTimeout(pintaHoraris, 0); }
         var tp = x.closest('tr[data-prof]'); if (tp && x.dataset.k) { S.hprof[tp.dataset.prof][x.dataset.k] = x.value; S.hprofBrut[tp.dataset.prof] = true; return canvia(false); }
-      } else {
+      } else if (tab === 'subgrups') {
+        var hbx = x.closest('[data-hb]');
+        if (hbx) { var hb = S.subg.hores_b[Number(hbx.dataset.hb)], sel = function (k) { return [].filter.call(hbx.querySelectorAll('input[data-k="' + k + '"]'), function (c) { return c.checked; }).map(function (c) { return c.value; }); }; hb.materies = sel('mat'); hb.grups = sel('grup'); return canvia(true, 'subgrups'); }
         var bl = x.closest('[data-b]');
-        if (bl) { var b = RG.blocs_parallels[Number(bl.dataset.b)]; if (x.dataset.k === 'nivell') { b.nivell = x.value; b.materies = []; } else if (x.dataset.k === 'nom') b.nom = x.value; else if (x.type === 'checkbox') b.materies = [].filter.call(bl.querySelectorAll('.gs-hor__mats input'), function (c) { return c.checked; }).map(function (c) { return c.value; }); return canvia(true); }
+        if (bl) { var b = RG.blocs_parallels[Number(bl.dataset.b)]; if (x.dataset.k === 'nom') b.nom = x.value; else if (x.type === 'checkbox') b.materies = [].filter.call(bl.querySelectorAll('.gs-hor__mats input'), function (c) { return c.checked; }).map(function (c) { return c.value; }); return canvia(true, 'blocs'); }
+      } else {
         if (x.dataset.t) { RG.toves[x.dataset.t] = x.type === 'checkbox' ? x.checked : Number(x.value) || 1; return canvia(true); }
         if (x.dataset.pes) { RG.toves.pesos[x.dataset.pes] = Number(x.value); return canvia(true); }
       }
@@ -2828,7 +2870,7 @@
     cos.addEventListener('click', function (e) {
       var b = e.target.closest('[data-a]'); if (!b) return;
       if (b.dataset.a === 'niv') { S.horNiv = b.dataset.niv; return pintaHoraris(); }
-      if (b.dataset.a === 'graella-ses') { var xs = S.ses[b.closest('tr').dataset.ses]; return editaGraella('Graella · ' + xs.nivell + ' · ' + xs.materia + ' · ' + xs.grup, xs, (xs.distribucio || '').length || Math.round(xs.hores), ed).then(function (g) { if (!g) return; xs.fixes = g.fixes; xs.prohibides = g.prohibides; S.sesBrut[xs.id] = true; canvia(true); }); }
+      if (b.dataset.a === 'graella-ses') { var xs = S.ses[b.closest('tr').dataset.ses]; return editaGraella('Graella · ' + xs.nivell + ' · ' + xs.materia + ' · ' + xs.grup, xs, (xs.distribucio || '').length || Math.round(xs.hores_sessions), ed).then(function (g) { if (!g) return; xs.fixes = g.fixes; xs.prohibides = g.prohibides; S.sesBrut[xs.id] = true; canvia(true); }); }
       if (b.dataset.a === 'graella-prof') { var xp = S.hprof[b.closest('tr').dataset.prof]; return editaGraella('Graella · ' + xp.nom, xp, 0, ed).then(function (g) { if (!g) return; xp.fixes = g.fixes; xp.prohibides = g.prohibides; S.hprofBrut[xp.id] = true; canvia(true); }); }
       if (!ed) return;
       var a = b.dataset.a, ult = M.franges[M.franges.length - 1], ini = ult ? ult.fi : '08:00', mes = function (t, m) { var v = hm(t) + m; return ('0' + Math.floor(v / 60)).slice(-2) + ':' + ('0' + v % 60).slice(-2); };
@@ -2840,16 +2882,18 @@
       else if (a === 'nou-conjunt') A.conjunts.push({ id: nouCodiConjunt(), nom: '', aules: [] });
       else if (a === 'treu-conjunt') A.conjunts.splice(Number(b.closest('[data-cj]').dataset.cj), 1);
       else if (a === 'proposa-conjunts') S.hor.tipus_aula.forEach(function (t) { var ll = A.aules.filter(function (x) { return x.tipus === t && x.id; }).map(function (x) { return x.id; }); if (ll.length > 1 && !A.conjunts.some(function (c) { return c.nom === 'Aules: ' + NOMS_AULA[t].toLowerCase(); })) A.conjunts.push({ id: nouCodiConjunt(), nom: 'Aules: ' + NOMS_AULA[t].toLowerCase(), aules: ll }); });
-      else if (a === 'aplica-materia') { var x0 = S.ses[b.closest('tr').dataset.ses]; Object.keys(S.ses).forEach(function (k) { var y = S.ses[k]; if (y !== x0 && y.nivell === x0.nivell && y.id_materia === x0.id_materia && y.materia === x0.materia && y.hores === x0.hores) { y.distribucio = x0.distribucio; y.aula = x0.aula; y.conjunt = x0.conjunt; y.fixes = x0.fixes.slice(); y.prohibides = x0.prohibides.slice(); S.sesBrut[k] = true; } }); }
-      else if (a === 'nou-bloc') RG.blocs_parallels.push({ nivell: S.hor.nivells[0], nom: '', materies: [] });
-      else if (a === 'treu-bloc') RG.blocs_parallels.splice(Number(b.closest('[data-b]').dataset.b), 1);
+      else if (a === 'aplica-materia') { var x0 = S.ses[b.closest('tr').dataset.ses]; Object.keys(S.ses).forEach(function (k) { var y = S.ses[k]; if (y !== x0 && y.nivell === x0.nivell && y.id_materia === x0.id_materia && y.materia === x0.materia && y.hores_sessions === x0.hores_sessions) { y.distribucio = x0.distribucio; y.aula = x0.aula; y.conjunt = x0.conjunt; y.fixes = x0.fixes.slice(); y.prohibides = x0.prohibides.slice(); S.sesBrut[k] = true; } }); }
+      else if (a === 'nou-bloc') { RG.blocs_parallels.push({ nivell: S.horNiv, nom: '', materies: [] }); return canvia(true, 'blocs'); }
+      else if (a === 'treu-bloc') { RG.blocs_parallels.splice(Number(b.closest('[data-b]').dataset.b), 1); return canvia(true, 'blocs'); }
+      else if (a === 'nou-hb') { var mx = 0; S.subg.hores_b.forEach(function (y) { var m = /^B(\d+)$/.exec(y.id || ''); if (m) mx = Math.max(mx, Number(m[1])); }); S.subg.hores_b.push({ id: 'B' + (mx + 1), nivell: S.horNiv, materies: [], grups: [] }); return canvia(true, 'subgrups'); }
+      else if (a === 'treu-hb') { S.subg.hores_b.splice(Number(b.closest('[data-hb]').dataset.hb), 1); return canvia(true, 'subgrups'); }
       else if (a === 'proposa-blocs') S.hor.nivells.forEach(function (n) {
         var opt = S.hor.materies.filter(function (m) { return m.nivell === n && /^Optativa/i.test(m.materia); }).map(function (m) { return m.materia; });
         if (opt.length > 1 && !RG.blocs_parallels.some(function (x) { return x.nivell === n && x.nom === 'Optatives'; })) RG.blocs_parallels.push({ nivell: n, nom: 'Optatives', materies: opt });
       });
       else return;
       if (tab === 'marc') renumeraFranges();
-      canvia(true);
+      canvia(true, tab === 'subgrups' ? 'blocs' : undefined);
     });
     if ($('gsHorImp')) $('gsHorImp').addEventListener('change', function () {
       var f = this.files[0]; if (!f) return;
@@ -2868,13 +2912,14 @@
     var parts = [['marc', errorsMarc, 'horaris_marc_desa', function () { return { marc: marcNet() }; }, function (r) { S.hor.marc = r.marc; S.hor.per_defecte = false; }],
       ['aules', errorsAules, 'horaris_aules_desa', function () { return { aules: S.aules }; }, function (r) { S.aules = r.aules; S.hor.aules = JSON.parse(JSON.stringify(r.aules)); S.hor.aules_per_defecte = false; }],
       ['regles', errorsRegles, 'horaris_regles_desa', function () { return { regles: S.regles }; }, function (r) { S.regles = r.regles; S.hor.regles = JSON.parse(JSON.stringify(r.regles)); S.hor.regles_per_defecte = false; }],
+      ['subgrups', errorsSubgrups, 'horaris_subgrups_desa', function () { return { subgrups: S.subg }; }, function (r) { S.subg = r.subgrups; S.hor.subgrups = JSON.parse(JSON.stringify(r.subgrups)); S.horRecarrega = true; }],
       ['sessions', errorsSessions, 'horaris_sessions_desa', function () { return { canvis: Object.keys(S.sesBrut).map(function (id) { var x = S.ses[id]; return { id: id, distribucio: x.distribucio, aula: x.aula, conjunt: x.conjunt, fixes: x.fixes, prohibides: x.prohibides }; }) }; }, function () { S.sesBrut = {}; }],
       ['professorat', function () { return []; }, 'horaris_professorat_desa', function () { return { canvis: Object.keys(S.hprofBrut).map(function (id) { var x = S.hprof[id]; return { id: id, fixes: x.fixes, prohibides: x.prohibides, observacions: x.observacions }; }) }; }, function () { S.hprofBrut = {}; }]];
-    var pend = parts.filter(function (p) { return S.horBrut[p[0]] || (p[0] === S.horTab && { marc: S.hor.per_defecte, aules: S.hor.aules_per_defecte, regles: S.hor.regles_per_defecte }[p[0]]); });
+    var pend = parts.filter(function (p) { return S.horBrut[p[0]] || (p[0] === 'regles' && S.horBrut.blocs) || (p[0] === S.horTab && { marc: S.hor.per_defecte, aules: S.hor.aules_per_defecte, regles: S.hor.regles_per_defecte }[p[0]]); });
     if (!pend.length) return toast('No hi ha canvis.');
     for (var i = 0; i < pend.length; i++) { var e = pend[i][1](); if (e.length) { S.horTab = pend[i][0]; pintaHoraris(); return toast('Hi ha errors: ' + e[0], true); } }
     var seg = function (k) {
-      if (k >= pend.length) { S.brut = false; pintaHoraris(); return toast('Desat: ' + pend.map(function (p) { return { marc: 'marc horari', aules: 'aules', regles: 'regles i blocs', sessions: 'sessions lectives', professorat: 'professorat' }[p[0]]; }).join(', ') + '.'); }
+      if (k >= pend.length) { S.brut = false; S.horBrut.blocs = false; if (S.horRecarrega) { S.horRecarrega = false; carregaHoraris(); } else pintaHoraris(); return toast('Desat: ' + pend.map(function (p) { return { marc: 'marc horari', aules: 'aules', regles: 'regles i blocs', subgrups: 'subgrups (hores B)', sessions: 'sessions lectives', professorat: 'professorat' }[p[0]]; }).join(', ') + '.'); }
       var p = pend[k];
       api(p[2], p[3](), 'Desant…').then(function (r) {
         if (!r.ok) { S.horTab = p[0]; pintaHoraris(); return toast(r.errors ? r.errors.join(' ') : text(r.error), true); }
