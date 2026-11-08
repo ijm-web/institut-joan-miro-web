@@ -30,6 +30,9 @@ BLAU, TARONJA, TEXT, GRIS, VORA = HexColor("#1C0CBC"), HexColor("#E8600C"), HexC
 for w, n in ((300, "M-L"), (400, "M-R"), (600, "M-S"), (700, "M-B")):
     pdfmetrics.registerFont(TTFont(n, os.path.join(LIB, "fonts", f"Montserrat-{w}.ttf")))
 pdfmetrics.registerFontFamily("M-R", normal="M-R", bold="M-S", italic="M-R", boldItalic="M-S")
+# PAS 49: Montserrat no té ✓, ⚠, ⅔ ni fletxes: aquests caràcters surten amb DejaVu Sans
+pdfmetrics.registerFont(TTFont("DJ", os.path.join(LIB, "fonts", "DejaVuSans.ttf")))
+SIMBOLS = "✓⚠✗⅔←→↔×"
 
 W, H = A4
 MX = 20 * mm
@@ -47,7 +50,8 @@ E = {
 def html(t):
     t = t.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
     t = re.sub(r"\*\*(.+?)\*\*", r"<b>\1</b>", t)
-    return re.sub(r"\*(.+?)\*", r"<i>\1</i>", t)
+    t = re.sub(r"\*(.+?)\*", r"<i>\1</i>", t)
+    return re.sub("([" + SIMBOLS + "])", r'<font name="DJ">\1</font>', t)
 
 
 def tema(n, t):

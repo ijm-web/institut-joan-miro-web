@@ -308,6 +308,11 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Horaris · planificador** (mòdul `horaris`, ordre 10, només admin per defecte): marc horari a `config › horaris_marc` (`marcHorari_`, `validaMarc_`), accions `horaris_dades`, `horaris_marc_desa`, `horaris_exporta` (retorna l'exportació completa al navegador; `exportaHoraris` la desa a Drive). L'exportació «horaris-dades» porta `marc_horari`.
 - **Web**: preinscripció de batxillerat amb la icona de formulari «No actiu»; sense l'avís «Fons groc» (preinscripció i ESO); distintiu «Properament disponibles» dins de la caixa; pàgines noves `accessibilitat.html` (ca/es/en, enllaç al peu), `404.html`, `sitemap.xml` (filtre `dataISO`) i `robots.txt`.
 
+## PAS 49
+- **Portada agrupada**: columna `grup` a la pestanya `moduls` (Personal, Alumnat, Organització del curs, Administració; `configura` l'omple si és buida). `inici` retorna `grup`; el client mostra seccions i pestanyes de grup (es recorda a localStorage `gestio_grup`).
+- **Horaris · planificador**: el marc horari ja no té franges no lectives ni reunions (es buiden en llegir i desar). Pestanyes noves **Aules** (`config › horaris_aules`: aules {id, nom, tipus, capacitat} i `aula_materia` per nom base de matèria; `TIPUS_AULA`) i **Regles i blocs** (`config › horaris_regles`: `blocs_parallels` {nivell, nom, materies} i `toves` amb pesos 1–5). Accions `horaris_aules_desa`, `horaris_regles_desa`; `horaris_dades` porta `materies` (`materiesHoraris_`). L'exportació porta `aules` i `regles` (amb `aula_materia`).
+- Manuals i guies: els símbols ✓ ⚠ ⅔ → surten amb DejaVu Sans (`lib/fonts/DejaVuSans.ttf`); guia de la Desiderata reescrita.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

@@ -408,3 +408,21 @@
 .gs-hor__grid{ table-layout:fixed; }
 .gs-hor__grid thead th:first-child, .gs-hor__grid tbody th{ width:110px; }
 .gs-hor .gs-form-fila select{ width:auto; min-width:200px; max-width:280px; }
+/* PAS 49 · planificador: aules i regles */
+.gs-hor__au input[type="text"]{ width:150px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-hor__au input[type="number"]{ width:70px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; }
+.gs-hor select{ padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-hor__bloc{ border:1px solid #E1E5EE; border-radius:12px; padding:10px 14px; margin:0 0 10px; background:#FAFAFD; }
+.gs-hor__bloc input[type="text"]{ width:200px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-hor__mats{ display:flex; flex-wrap:wrap; gap:4px 16px; margin-top:6px; }
+.gs-hor__mats .is-units{ font-weight:700; }
+.gs-hor .is-ok{ color:#0F9D58; } .gs-hor .is-pend{ color:#C62828; font-weight:700; }
+/* PAS 49 · portada agrupada */
+#gsModuls.prog-apartats{ display:block; }
+.gs-portada__tabs{ margin:0 0 18px; flex-wrap:wrap; }
+.gs-portada__n{ display:inline-block; min-width:20px; padding:0 6px; margin-left:4px; border-radius:999px; background:rgba(28,12,188,.1); font-size:12px; }
+.gs-portada__tabs [aria-selected="true"] .gs-portada__n{ background:rgba(255,255,255,.25); }
+.gs-portada__grup{ margin:0 0 28px; }
+.gs-portada__titol{ margin:0 0 12px; font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#E8600C; border-bottom:1px solid #E1E5EE; padding-bottom:6px; }
+.gs-portada__targetes{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px; }
+.gs-hor__bloc .gs-paperera{ align-self:flex-end; height:34px; }

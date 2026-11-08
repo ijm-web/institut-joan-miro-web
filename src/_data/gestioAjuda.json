@@ -1,9 +1,18 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 48 · 8 de novembre de 2026",
+  "versio": "PAS 49 · 8 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
+      {
+        "id": "comu-portada",
+        "titol": "Portada: mòduls agrupats",
+        "claus": "portada grups pestanyes mòduls personal alumnat organització administració",
+        "text": [
+          "A la portada, els mòduls surten agrupats: **Personal**, **Alumnat**, **Organització del curs** i **Administració**. A dalt hi ha pestanyes per veure'n només un grup (es recorda per a la propera vegada) o **Tots**.",
+          "El grup de cada mòdul es pot canviar a la pestanya «moduls» del full de GESTIO (columna grup). Un mòdul nou sense grup surt a «Altres»."
+        ]
+      },
       {
         "id": "acces",
         "titol": "Entrar i sortir",
@@ -934,43 +943,48 @@
     "horaris": {
       "titol": "Horaris · planificador",
       "graella": false,
-      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). Ara hi ha el marc horari i l'exportació de dades per al motor; les aules i les regles vindran després.",
+      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). El planificador té tres pestanyes: Marc horari, Aules i Regles i blocs.",
       "temes": [
         {
-          "id": "hor-dies",
-          "titol": "Dies i franges",
-          "claus": "dies franges esbarjo hores inici final marc horari",
+          "id": "hor-marc",
+          "titol": "Marc horari",
+          "claus": "dies franges esbarjo hores inici final marc horari graella",
           "text": [
-            "**1 · Dies lectius**: marqueu els dies de la setmana amb classe.",
-            "**2 · Franges i esbarjos**: l'hora d'inici i de final de cada franja. **+ franja lectiva** i **+ esbarjo** n'afegeixen una al final (comença on acaba l'anterior). La casella **Esbarjo** converteix una franja en esbarjo i al revés.",
-            "Els codis es posen sols: F1, F2… les lectives i E1, E2… els esbarjos. Les franges han d'anar en ordre i no es poden encavalcar (si n'hi ha, surt un avís a sota)."
+            "**1 · Dies lectius**: els dies de la setmana amb classe.",
+            "**2 · Franges i esbarjos**: l'hora d'inici i de final de cada franja. **+ franja** i **+ esbarjo** n'afegeixen una al final (comença on acaba l'anterior). La casella **Esbarjo** converteix una franja en esbarjo i al revés. Els codis es posen sols: F1, F2… les franges i E1, E2… els esbarjos.",
+            "Les franges han d'anar en ordre i no es poden encavalcar (si n'hi ha, surt un avís a sota).",
+            "**3 · Graella setmanal**: com queda la setmana i quantes franges lectives hi ha. Totes les franges són lectives per a tots els nivells.",
+            "**Importa JSON** carrega un marc_horari.json; **marc_horari.json** el descarrega."
           ]
         },
         {
-          "id": "hor-graella",
-          "titol": "Graella i franges no lectives",
-          "claus": "graella no lectiva nivell batxillerat tarda",
+          "id": "hor-aules",
+          "titol": "Aules",
+          "claus": "aules tipus laboratori gimnàs música taller informàtica capacitat",
           "text": [
-            "**3 · Graella setmanal**: com quedarà la setmana. Per marcar les franges en què un nivell **no té classe** (p. ex. el batxillerat que entra més tard), trieu el nivell al desplegable i feu clic a les caselles (ratllades = no lectiva). Torneu a fer clic per desfer-ho.",
-            "Amb «Cap» al desplegable, la graella mostra quins nivells no tenen classe a cada franja. A sota, el nombre de franges lectives de cada nivell."
+            "**1 · Aules del centre**: codi (p. ex. A01, LAB1, GIM), nom o ubicació, **tipus** (ordinària, laboratori, informàtica, música, gimnàs/pista, taller, plàstica, desdoblament, altres) i capacitat. **+ aula** n'afegeix una.",
+            "**2 · Tipus d'aula de cada matèria**: el tipus d'aula que necessita cada matèria del currículum (si no es diu res, ordinària), amb les hores setmanals que en fa el centre. **Proposa els tipus segons el nom** omple els evidents (Educació Física → gimnàs, Música → música, Tecnologia → taller…).",
+            "**3 · Hi ha prou aules?**: per a cada tipus, les hores disponibles (aules × franges lectives de la setmana) i les que calen. ⚠ si en falten."
           ]
         },
         {
-          "id": "hor-reunions",
-          "titol": "Reunions",
-          "claus": "reunions equips docents departaments franja reservada",
+          "id": "hor-regles",
+          "titol": "Regles i blocs",
+          "claus": "blocs paral·lels optatives divisions regles pesos forats hores seguides",
           "text": [
-            "**4 · Reunions**: franges reservades (p. ex. equips docents dimarts F6). El motor no hi posarà classes del professorat que hi ha d'anar."
+            "**1 · Blocs paral·lels**: matèries d'un mateix nivell que s'han de fer a la mateixa franja perquè l'alumnat en tria una (optatives) o perquè es fan alhora (divisions). Cada bloc té un nivell, un nom i les matèries marcades; les de grups units surten en negreta. Totes han de tenir les mateixes hores (si no, ⚠).",
+            "**Proposa un bloc d'optatives per nivell** crea un bloc «Optatives» amb les matèries optatives de cada nivell, per revisar.",
+            "**2 · Regles del motor**: preferències amb un **pes** de 1 (poc important) a 5 (molt important): màxim d'hores seguides d'una matèria, repartir les hores en dies diferents, evitar forats al professorat i respectar la desiderata.",
+            "Les regles obligatòries (un docent, un grup o una aula no poden ser a dos llocs alhora, aula del tipus adequat, blocs a la mateixa franja) sempre es compleixen."
           ]
         },
         {
           "id": "hor-desa",
-          "titol": "Desar, importar i exportar",
-          "claus": "desa json exporta motor importa marc_horari",
+          "titol": "Desar i exportar",
+          "claus": "desa json exporta motor",
           "text": [
-            "**Desa**: guarda el marc horari a GESTIO (configuració). Mentre hi ha canvis sense desar, el botó diu **Desa \\***.",
-            "**marc_horari.json**: descarrega només el marc horari. **Importa JSON** carrega un marc_horari.json (o una exportació completa) per revisar-lo i desar-lo.",
-            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents i hores, assignacions, desiderata i marc horari). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori. També es pot fer amb la funció `exportaHoraris` de l'Apps Script, que el desa a Drive."
+            "**Desa** guarda totes les pestanyes que tenen canvis (marcades amb \\*).",
+            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents i hores, assignacions, desiderata, marc horari, aules i regles). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori."
           ]
         }
       ]
@@ -1009,14 +1023,14 @@
             "Premeu **+ docent**, trieu el docent al desplegable i escriviu **quants grups** fa.",
             "No cal dir quins grups concrets (A, B…): ho decideix després la direcció.",
             "Una assignació es pot repartir entre diversos docents (p. ex. 2 grups cadascun). Si cal, podeu triar docents d'altres especialitats o departaments/àmbits.",
-            "La columna **Pendents** ha de quedar en ✓. Per treure un docent, premeu la paperera."
+            "La columna **Pendents** ha d'acabar amb la marca verda ✓ (cap grup pendent); si surt un número, són els grups que encara falten. Per treure un docent, premeu la icona de la **paperera** de la seva fila."
           ]
         },
         {
           "titol": "Revisar els comptadors i els docents",
           "text": [
             "A dalt: **hores a assignar**, **assignades** i **pendents**. L'objectiu és tenir 0 hores pendents.",
-            "A la taula **Docents**, cada docent ha de tenir tantes hores assignades com hores lectives amb alumnat (✓). Si surt ⚠: li falten hores, en té de més o no té hores lectives a la fitxa (aviseu la direcció)."
+            "A la taula **Docents**, les hores assignades a cada docent han de coincidir amb les seves hores lectives amb alumnat: aleshores surt la marca verda ✓. Si surt el triangle d'avís ⚠, vol dir que al docent li falten hores, que en té de més o que no té hores lectives a la fitxa del professorat; en aquest darrer cas, aviseu la direcció."
           ]
         },
         {
