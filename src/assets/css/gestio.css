@@ -426,3 +426,14 @@
 .gs-portada__titol{ margin:0 0 12px; font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#E8600C; border-bottom:1px solid #E1E5EE; padding-bottom:6px; }
 .gs-portada__targetes{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px; }
 .gs-hor__bloc .gs-paperera{ align-self:flex-end; height:34px; }
+/* PAS 50 · sessions lectives i professorat */
+.gs-hor__ses td, .gs-hor__prof td{ vertical-align:middle; }
+.gs-hor__ses tr.is-nova td{ border-top:2px solid #E1E5EE; }
+.gs-hor__ses tr.is-brut td, .gs-hor__prof tr.is-brut td{ background:#FFFBEA; }
+.gs-hor__ses input[type="text"]{ width:64px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; text-align:center; }
+.gs-hor__ses select{ max-width:170px; }
+.gs-hor__prof input[type="text"]{ width:220px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-hor__gbtn{ white-space:nowrap; }
+.gs-hor__grid--edit td{ height:38px; text-align:center; font-size:16px; vertical-align:middle; }
+.gs-gr--lliure{ background:#fff; } .gs-gr--fixa{ background:#E3F3EA !important; border-color:#0F9D58 !important; } .gs-gr--prohibida{ background:#FDE8E8 !important; border-color:#C62828 !important; }
+.gs-gr--ll{ display:inline-block; padding:1px 8px; border:1px solid #E1E5EE; border-radius:6px; }

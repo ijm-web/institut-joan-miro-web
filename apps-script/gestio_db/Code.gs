@@ -37,12 +37,15 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments', hses: 'horaris_sessions', hprof: 'horaris_professorat' };
 const CAP = {
   // PAS 47: una fila per especialitat; «dades» = JSON {clau assignació: [{prof, grups}]}
   desiderata: ['especialitat', 'dades', 'observacions', 'data', 'desat_per'],
   // PAS 48: departaments/àmbits (especialitats separades per |) i el seu cap (codi del professorat)
   departaments: ['id_departament', 'nom', 'especialitats', 'cap', 'data', 'desat_per'],
+  // PAS 50: planificador d'horaris (posicions = «dia F1» separades per |)
+  horaris_sessions: ['id_assignacio', 'distribucio', 'aula', 'conjunt', 'fixes', 'prohibides', 'data', 'desat_per'],
+  horaris_professorat: ['id_professor', 'fixes', 'prohibides', 'observacions', 'data', 'desat_per'],
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu', 'grups'],
   membres: ['id_equip', 'id_membre', 'carrec'],
   moduls: ['id_modul', 'nom', 'descripcio', 'ordre', 'actiu', 'grup'],
@@ -50,7 +53,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 49;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 50;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -592,6 +595,8 @@ function doPost(e) {
       case 'horaris_marc_desa': return json_(horarisMarcDesa_(ctx, req));
       case 'horaris_aules_desa': return json_(horarisAulesDesa_(ctx, req));
       case 'horaris_regles_desa': return json_(horarisReglesDesa_(ctx, req));
+      case 'horaris_sessions_desa': return json_(horarisSessionsDesa_(ctx, req));
+      case 'horaris_professorat_desa': return json_(horarisProfessoratDesa_(ctx, req));
       case 'horaris_exporta': return json_(horarisExporta_(ctx, req));
       case 'departaments_desa': return json_(departamentsDesa_(ctx, req));
       case 'curriculum_aplica_desiderata': return json_(aplicaDesiderata_(ctx, req));
@@ -3203,13 +3208,17 @@ function validaMarc_(m) {
   return err;
 }
 // PAS 49 · Aules i Regles i blocs (PLANIFICADOR). Mateix format que generador-horaris/dades/aules.json i regles.json
-const TIPUS_AULA = ['ordinaria', 'laboratori', 'informatica', 'musica', 'gimnas', 'taller', 'plastica', 'desdoblament', 'altres'];
+const TIPUS_AULA = ['ordinaria', 'laboratori', 'informatica', 'idiomes', 'musica', 'gimnas', 'taller', 'dibuix', 'desdoblament', 'altres'];   // PAS 50: + idiomes; plàstica → dibuix
 const REGLES_PER_DEFECTE = { blocs_parallels: [], toves: { max_hores_seguides_materia: 2, repartir_en_dies_diferents: true, minimitzar_forats_docents: true, respectar_desiderata: true,
-  pesos: { forats: 3, seguides: 5, dies: 4, desiderata: 2 } } };
+  pesos: { forats: 3, seguides: 5, dies: 4, desiderata: 2, aula_alternativa: 2, aula_qualsevol: 4 } } };
 const baseMateria_ = (m) => String(m || '').replace(/^Optativa:\s*/, '').split(' (')[0].trim();
+// PAS 50: aules + conjunts d'aules alternatives ({id: 'C1', nom, aules: [codis]}); l'aula de cada matèria va a Sessions lectives
 function aulesHoraris_(cfg) {
-  try { const a = JSON.parse(String((cfg || llegeixConfig_()).horaris_aules || '')); if (a && Array.isArray(a.aules)) return { aules: a.aules, aula_materia: a.aula_materia || {} }; } catch (e) { /* buides */ }
-  return { aules: [], aula_materia: {} };
+  try {
+    const a = JSON.parse(String((cfg || llegeixConfig_()).horaris_aules || ''));
+    if (a && Array.isArray(a.aules)) return { aules: a.aules.map((x) => Object.assign({}, x, { tipus: x.tipus === 'plastica' ? 'dibuix' : x.tipus })), conjunts: Array.isArray(a.conjunts) ? a.conjunts : [] };
+  } catch (e) { /* buides */ }
+  return { aules: [], conjunts: [] };
 }
 function reglesHoraris_(cfg) {
   try { const r = JSON.parse(String((cfg || llegeixConfig_()).horaris_regles || '')); if (r && Array.isArray(r.blocs_parallels)) return { blocs_parallels: r.blocs_parallels, toves: Object.assign({}, REGLES_PER_DEFECTE.toves, r.toves || {}, { pesos: Object.assign({}, REGLES_PER_DEFECTE.toves.pesos, (r.toves || {}).pesos || {}) }) }; } catch (e) { /* per defecte */ }
@@ -3223,12 +3232,82 @@ function materiesHoraris_(cfg) {
     return { nivell: m.nivell, materia: m.materia, base: baseMateria_(m.materia), hores: h, grups: GM.length, docents: d, units: GM.some((g) => g.lletres.length > 1), hores_setmana: h * GM.length };
   });
 }
+// PAS 50 · Sessions lectives (una per assignació: matèria, grup, professor/a, hores) i restriccions del professorat
+const posicionsValides_ = (marc) => { const o = {}; (marc.franges || []).filter((f) => !f.esbarjo).forEach((f) => (marc.dies || []).forEach((d) => { o[d + ' ' + f.id] = 1; })); return o; };
+const llistaPos_ = (x) => (Array.isArray(x) ? x : String(x || '').split('|')).map((p) => String(p).trim()).filter(Boolean);
+function sessionsHoraris_(cfg) {
+  const desat = {}; const sh = SpreadsheetApp.getActive().getSheetByName(FULL.hses);
+  if (sh && sh.getLastRow() > 1) llegeix_(FULL.hses).forEach((r) => { desat[r.id_assignacio] = r; });
+  const ss = llegeix_(FULL.curg).filter((r) => r.id_assignacio).map((r) => {
+    const d = desat[r.id_assignacio] || {}, h = numCur_(r.hores);
+    return { id: r.id_assignacio, nivell: r.nivell, materia: r.materia, grup: r.grup, id_materia: r.id_materia || '', num_grup: Number(r.num_grup) || 1, hores: h, especialitat: r.especialitat || '', professor: r.professor || '',
+      distribucio: String(d.distribucio || '') || (h > 0 && h === Math.round(h) ? '1'.repeat(h) : ''), aula: String(d.aula || ''), conjunt: String(d.conjunt || ''), fixes: llistaPos_(d.fixes), prohibides: llistaPos_(d.prohibides) };
+  });
+  const o = NIVELLS_ESO.concat(NIVELLS_BAT);
+  return ss.sort((a, b) => (o.indexOf(a.nivell) - o.indexOf(b.nivell)) || String(a.id_materia).localeCompare(String(b.id_materia)) || a.num_grup - b.num_grup || String(a.id).localeCompare(String(b.id)));
+}
+function professoratHorarisH_() {
+  const desat = {}; const sh = SpreadsheetApp.getActive().getSheetByName(FULL.hprof);
+  if (sh && sh.getLastRow() > 1) llegeix_(FULL.hprof).forEach((r) => { desat[r.id_professor] = r; });
+  const hores = {}; llegeix_(FULL.curg).forEach((r) => { if (r.professor) hores[r.professor] = (hores[r.professor] || 0) + numCur_(r.hores); });
+  return professoratHores_().map((p) => { const d = desat[p.id] || {};
+    return { id: p.id, nom: p.nom, especialitat: p.especialitat, jornada: p.jornada, hores_lectives: p.hores_lectives, hores_assignades: Math.round((hores[p.nom] || 0) * 100) / 100,
+      fixes: llistaPos_(d.fixes), prohibides: llistaPos_(d.prohibides), observacions: String(d.observacions || '') }; });
+}
+// Desa files (upsert per codi) d'un full del planificador
+function desaFilesHoraris_(nomFull, clau, files, email) {
+  const sh = assegura_(nomFull), ara = ara_(), vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), ci = cap.indexOf(clau), fila = {};
+  for (let i = 1; i < vals.length; i++) fila[String(vals[i][ci])] = i + 1;
+  const noves = [];
+  files.forEach((f) => { const r = cap.map((k) => (k === 'data' ? ara : k === 'desat_per' ? email : (f[k] == null ? '' : f[k]))); if (fila[f[clau]]) sh.getRange(fila[f[clau]], 1, 1, cap.length).setValues([r]); else noves.push(r); });
+  if (noves.length) sh.getRange(sh.getLastRow() + 1, 1, noves.length, cap.length).setValues(noves);
+}
+function horarisSessionsDesa_(ctx, req) {
+  if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const cfg = ctx.cfg || llegeixConfig_(), pos = posicionsValides_(marcHorari_(cfg)), A = aulesHoraris_(cfg), aules = {}, conj = {};
+  A.aules.forEach((a) => { aules[a.id] = 1; }); A.conjunts.forEach((c) => { conj[c.id] = 1; });
+  const ses = {}; sessionsHoraris_(cfg).forEach((x) => { ses[x.id] = x; });
+  const err = [], files = [];
+  (req.canvis || []).forEach((c) => {
+    const s0 = ses[c.id]; if (!s0) return;
+    const nom = s0.nivell + ' ' + s0.materia + ' ' + s0.grup, dist = String(c.distribucio || '').trim(), fx = llistaPos_(c.fixes), pr = llistaPos_(c.prohibides);
+    if (dist && (!/^[1-9]+$/.test(dist) || dist.split('').reduce((t, x) => t + Number(x), 0) !== s0.hores)) err.push(nom + ': la distribució ha de sumar ' + s0.hores + ' h (p. ex. ' + '1'.repeat(Math.max(1, Math.round(s0.hores))) + ').');
+    if (c.aula && !aules[c.aula]) err.push(nom + ': aula desconeguda.');
+    if (c.conjunt && !conj[c.conjunt]) err.push(nom + ': conjunt d\'aules desconegut.');
+    fx.concat(pr).forEach((p) => { if (!pos[p]) err.push(nom + ': posició no vàlida «' + p + '».'); });
+    if (fx.some((p) => pr.indexOf(p) >= 0)) err.push(nom + ': una posició no pot ser fixa i prohibida alhora.');
+    if (fx.length > (dist ? dist.length : s0.hores)) err.push(nom + ': més posicions fixes que sessions.');
+    files.push({ id_assignacio: c.id, distribucio: dist, aula: c.aula || '', conjunt: c.conjunt || '', fixes: fx.join('|'), prohibides: pr.join('|') });
+  });
+  if (err.length) return { ok: false, error: 'sessions_invalides', errors: err.slice(0, 20) };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try { desaFilesHoraris_(FULL.hses, 'id_assignacio', files, ctx.email); } finally { lock.releaseLock(); }
+  historial_(ctx.email, 'horaris_sessions', FULL.hses, '', files.length + ' sessions');
+  return { ok: true, desades: files.length };
+}
+function horarisProfessoratDesa_(ctx, req) {
+  if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const pos = posicionsValides_(marcHorari_(ctx.cfg || llegeixConfig_())), profs = {}; professoratHores_().forEach((p) => { profs[p.id] = p.nom; });
+  const err = [], files = [];
+  (req.canvis || []).forEach((c) => {
+    if (!profs[c.id]) return;
+    const fx = llistaPos_(c.fixes), pr = llistaPos_(c.prohibides);
+    fx.concat(pr).forEach((p) => { if (!pos[p]) err.push(profs[c.id] + ': posició no vàlida «' + p + '».'); });
+    if (fx.some((p) => pr.indexOf(p) >= 0)) err.push(profs[c.id] + ': una posició no pot ser fixa i prohibida alhora.');
+    files.push({ id_professor: c.id, fixes: fx.join('|'), prohibides: pr.join('|'), observacions: String(c.observacions || '').slice(0, 500) });
+  });
+  if (err.length) return { ok: false, error: 'professorat_invalid', errors: err.slice(0, 20) };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try { desaFilesHoraris_(FULL.hprof, 'id_professor', files, ctx.email); } finally { lock.releaseLock(); }
+  historial_(ctx.email, 'horaris_professorat', FULL.hprof, '', files.length + ' docents');
+  return { ok: true, desats: files.length };
+}
 function horarisDades_(ctx) {
   if (!pot_(ctx, 'horaris', 'consulta')) return { ok: false, error: 'sense_permis' };
   const cfg = ctx.cfg || llegeixConfig_();
   return { ok: true, marc: marcHorari_(cfg), per_defecte: !String(cfg.horaris_marc || '').trim(), nivells: NIVELLS_ESO.concat(NIVELLS_BAT), dies: DIES_SETMANA, pot_desar: pot_(ctx, 'horaris', 'edicio'),
     aules: aulesHoraris_(cfg), aules_per_defecte: !String(cfg.horaris_aules || '').trim(), regles: reglesHoraris_(cfg), regles_per_defecte: !String(cfg.horaris_regles || '').trim(),
-    tipus_aula: TIPUS_AULA, materies: materiesHoraris_(cfg) };
+    tipus_aula: TIPUS_AULA, materies: materiesHoraris_(cfg), sessions: sessionsHoraris_(cfg), professorat: professoratHorarisH_() };
 }
 function horarisAulesDesa_(ctx, req) {
   if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
@@ -3240,9 +3319,14 @@ function horarisAulesDesa_(ctx, req) {
     if (TIPUS_AULA.indexOf(x.tipus) < 0) err.push('Aula ' + x.id + ': tipus desconegut.');
     if (x.capacitat > 200) err.push('Aula ' + x.id + ': capacitat massa gran.');
   });
-  const am = {}; Object.keys(a.aula_materia || {}).forEach((k) => { const t = String(a.aula_materia[k]); if (t && t !== 'ordinaria') { if (TIPUS_AULA.indexOf(t) < 0) err.push('Matèria ' + k + ': tipus d\'aula desconegut.'); else am[k] = t; } });
+  // Codis estables (C1, C2…): les sessions hi fan referència; els nous prenen el número següent
+  let maxC = 0; (a.conjunts || []).forEach((c) => { const m = /^C(\d+)$/.exec(String(c.id || '')); if (m) maxC = Math.max(maxC, Number(m[1])); });
+  const vistC = {};
+  const conjunts = (a.conjunts || []).map((c) => { let id = String(c.id || ''); if (!/^C\d+$/.test(id) || vistC[id]) id = 'C' + (++maxC); vistC[id] = 1;
+    return { id: id, nom: String(c.nom || '').trim(), aules: (c.aules || []).map((x) => String(x).toUpperCase()).filter((x, j, ll) => ids[x] && ll.indexOf(x) === j) }; });
+  conjunts.forEach((c, i) => { if (!c.nom) err.push('Conjunt ' + (i + 1) + ': cal un nom.'); if (!c.aules.length) err.push('Conjunt «' + (c.nom || i + 1) + '»: cal almenys una aula.'); });
   if (err.length) return { ok: false, error: 'aules_invalides', errors: err };
-  const net = { aules: aules, aula_materia: am };
+  const net = { aules: aules, conjunts: conjunts };
   posaConfig_('horaris_aules', JSON.stringify(net));
   historial_(ctx.email, 'horaris_aules', 'config', 'horaris_aules', aules.length + ' aules');
   return { ok: true, aules: net };
@@ -3261,7 +3345,7 @@ function horarisReglesDesa_(ctx, req) {
   const t = r.toves || {}, n = (x, a, b, d) => { const v = Math.round(Number(x)); return isNaN(v) ? d : Math.min(b, Math.max(a, v)); };
   const toves = { max_hores_seguides_materia: n(t.max_hores_seguides_materia, 1, 6, 2), repartir_en_dies_diferents: !!t.repartir_en_dies_diferents, minimitzar_forats_docents: !!t.minimitzar_forats_docents,
     respectar_desiderata: !!t.respectar_desiderata, pesos: {} };
-  ['forats', 'seguides', 'dies', 'desiderata'].forEach((k) => { toves.pesos[k] = n((t.pesos || {})[k], 1, 5, REGLES_PER_DEFECTE.toves.pesos[k]); });
+  ['forats', 'seguides', 'dies', 'desiderata', 'aula_alternativa', 'aula_qualsevol'].forEach((k) => { toves.pesos[k] = n((t.pesos || {})[k], 1, 5, REGLES_PER_DEFECTE.toves.pesos[k]); });
   if (err.length) return { ok: false, error: 'regles_invalides', errors: err };
   const net = { blocs_parallels: blocs, toves: toves };
   posaConfig_('horaris_regles', JSON.stringify(net));
@@ -3296,10 +3380,17 @@ function dadesHoraris_() {
       hores_a: numCur_(m.hores_a), hores_b: numCur_(m.hores_b), especialitat: r.especialitat || '', especialitat_materia: m.especialitat || '',
       docents_aula: Math.max(1, Math.round(numCur_(m.docents)) || 1), professor: r.professor || '' };
   });
-  const docents = professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, jornada: p.jornada, lectives_alumnat: p.hores_lectives === '' ? null : p.hores_lectives, total_lectives: p.total_lectives === '' ? null : p.total_lectives }));
+  // PAS 50: restriccions del professorat i de cada sessió (aula preferent, conjunt d'alternatives, distribució i posicions)
+  const rp = {}; professoratHorarisH_().forEach((p) => { rp[p.id] = p; });
+  const docents = professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, jornada: p.jornada, lectives_alumnat: p.hores_lectives === '' ? null : p.hores_lectives, total_lectives: p.total_lectives === '' ? null : p.total_lectives,
+    fixes: (rp[p.id] || {}).fixes || [], prohibides: (rp[p.id] || {}).prohibides || [] }));
+  const ses = {}; sessionsHoraris_(cfg).forEach((x) => { ses[x.id] = x; });
+  const conj = {}; aulesHoraris_(cfg).conjunts.forEach((c) => { conj[c.id] = c.aules; });
+  const perNom = {}; professoratHores_().forEach((p) => { perNom[p.nom] = p.id; });
+  assignacions.forEach((a) => { const x = ses[a.id] || {}; Object.assign(a, { id_professor: perNom[a.professor] || '', distribucio: x.distribucio || '', aula_preferent: x.aula || '', aules_alternatives: conj[x.conjunt] || [], fixes: x.fixes || [], prohibides: x.prohibides || [] }); });
   const desiderata = {}; llegeix_(FULL.des).forEach((r) => { try { desiderata[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
-  return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, marc_horari: marcHorari_(cfg), aules: aulesHoraris_(cfg).aules,
-    regles: Object.assign({ aula_materia: aulesHoraris_(cfg).aula_materia }, reglesHoraris_(cfg)), docents: docents, assignacions: assignacions, desiderata: desiderata };
+  return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, marc_horari: marcHorari_(cfg), aules: aulesHoraris_(cfg).aules, conjunts_aules: aulesHoraris_(cfg).conjunts,
+    regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata };
 }
 function exportaHoraris() {
   const cfg = llegeixConfig_(), dades = dadesHoraris_(), id = (String(cfg.carpeta_horaris || '').match(/[-\w]{25,}/) || [''])[0];

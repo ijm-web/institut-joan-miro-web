@@ -313,6 +313,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Horaris · planificador**: el marc horari ja no té franges no lectives ni reunions (es buiden en llegir i desar). Pestanyes noves **Aules** (`config › horaris_aules`: aules {id, nom, tipus, capacitat} i `aula_materia` per nom base de matèria; `TIPUS_AULA`) i **Regles i blocs** (`config › horaris_regles`: `blocs_parallels` {nivell, nom, materies} i `toves` amb pesos 1–5). Accions `horaris_aules_desa`, `horaris_regles_desa`; `horaris_dades` porta `materies` (`materiesHoraris_`). L'exportació porta `aules` i `regles` (amb `aula_materia`).
 - Manuals i guies: els símbols ✓ ⚠ ⅔ → surten amb DejaVu Sans (`lib/fonts/DejaVuSans.ttf`); guia de la Desiderata reescrita.
 
+## PAS 50
+- **Aules**: tipus nous `idiomes` i `dibuix` (abans `plastica`, es converteix en llegir). `config › horaris_aules` porta `conjunts` {id C1, C2…, nom, aules} (conjunts d'aules alternatives; ids estables al client i al servidor). Ja no hi ha `aula_materia`: l'aula es tria a Sessions lectives.
+- **Sessions lectives** (full `horaris_sessions`: id_assignacio, distribucio, aula, conjunt, fixes, prohibides): una fila per fila de `curriculum_grups` (`sessionsHoraris_`). Distribució («111», «21») ha de sumar les hores; posicions «dia F1» separades per |. Acció `horaris_sessions_desa` (error `sessions_invalides`).
+- **Professorat** (full `horaris_professorat`: id_professor, fixes, prohibides, observacions): acció `horaris_professorat_desa` (error `professorat_invalid`). Franges disponibles = franges lectives − prohibides.
+- **Regles**: pesos nous `aula_alternativa` (2) i `aula_qualsevol` (4). El motor prova aula preferent → conjunt alternatiu (penalització i avís) → qualsevol aula de capacitat suficient (penalització més gran i avís).
+- **Exportació**: `conjunts_aules`; docents amb `fixes`/`prohibides`; assignacions amb `id_professor`, `distribucio`, `aula_preferent`, `aules_alternatives`, `fixes`, `prohibides`. El generador d'horaris (Python) les valida.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

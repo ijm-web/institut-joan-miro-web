@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 49 · 8 de novembre de 2026",
+  "versio": "PAS 50 · 8 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -943,7 +943,7 @@
     "horaris": {
       "titol": "Horaris · planificador",
       "graella": false,
-      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). El planificador té tres pestanyes: Marc horari, Aules i Regles i blocs.",
+      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). El planificador té cinc pestanyes: Marc horari, Aules, Sessions lectives, Professorat i Regles i blocs.",
       "temes": [
         {
           "id": "hor-marc",
@@ -960,22 +960,47 @@
         {
           "id": "hor-aules",
           "titol": "Aules",
-          "claus": "aules tipus laboratori gimnàs música taller informàtica capacitat",
+          "claus": "aules tipus laboratori gimnàs música taller informàtica idiomes dibuix capacitat conjunts alternatives",
           "text": [
-            "**1 · Aules del centre**: codi (p. ex. A01, LAB1, GIM), nom o ubicació, **tipus** (ordinària, laboratori, informàtica, música, gimnàs/pista, taller, plàstica, desdoblament, altres) i capacitat. **+ aula** n'afegeix una.",
-            "**2 · Tipus d'aula de cada matèria**: el tipus d'aula que necessita cada matèria del currículum (si no es diu res, ordinària), amb les hores setmanals que en fa el centre. **Proposa els tipus segons el nom** omple els evidents (Educació Física → gimnàs, Música → música, Tecnologia → taller…).",
-            "**3 · Hi ha prou aules?**: per a cada tipus, les hores disponibles (aules × franges lectives de la setmana) i les que calen. ⚠ si en falten."
+            "**1 · Aules del centre**: codi (p. ex. A01, LAB1, GIM), nom o ubicació, **tipus** (ordinària, laboratori, informàtica, idiomes, música, gimnàs/pista, taller, dibuix, desdoblament, altres) i capacitat. **+ aula** n'afegeix una.",
+            "**2 · Conjunts d'aules alternatives**: grups d'aules que poden substituir l'aula preferent d'una sessió quan és ocupada (p. ex. «Laboratoris»: LAB1 i LAB2). Cada conjunt té un nom i les aules marcades. **+ conjunt** n'afegeix un; **Proposa un conjunt per a cada tipus d'aula** en crea un per tipus amb totes les aules d'aquell tipus.",
+            "L'aula de cada matèria ja no es tria aquí: es tria a la pestanya **Sessions lectives** (aula preferent i aules alternatives).",
+            "**3 · Hi ha prou aules?**: per a cada tipus, les hores disponibles (aules × franges lectives de la setmana) i les que calen segons l'aula preferent de les sessions. ⚠ si en falten."
+          ]
+        },
+        {
+          "id": "hor-sessions",
+          "titol": "Sessions lectives",
+          "claus": "sessions distribució aula preferent alternatives graella fixa prohibida lliure matèria grup",
+          "text": [
+            "Una fila per matèria i grup (de Currículum › Grups i assignacions). Els botons de dalt trien el nivell.",
+            "**Distribució**: com es reparteixen les hores en sessions. Cada xifra és una sessió i el seu valor, les hores seguides: «111» = tres sessions d'una hora; «21» = una sessió de dues hores i una d'una. Ha de sumar les hores de la matèria.",
+            "**Aula preferent**: l'aula on el motor intentarà posar la sessió. **Aules alternatives**: el conjunt d'aules que pot fer servir si la preferent és ocupada.",
+            "El motor prova per ordre: 1) l'aula preferent; 2) una aula del conjunt alternatiu (penalització i avís); 3) qualsevol aula lliure de capacitat suficient (penalització més gran i avís).",
+            "**Graella**: obre la setmana (dies × franges). Cada clic canvia la casella: lliure → 📌 fixa (la sessió hi ha d'anar) → ⛔ prohibida (no hi pot anar) → lliure. **Totes lliures** les buida. No hi pot haver més fixes que sessions.",
+            "**⇣** copia la distribució, les aules i la graella de la fila a tots els grups del mateix nivell i matèria."
+          ]
+        },
+        {
+          "id": "hor-professorat",
+          "titol": "Professorat",
+          "claus": "professorat docents graella fixa prohibida disponibilitat franges observacions",
+          "text": [
+            "Una fila per docent amb hores assignades (Currículum › Assignacions). El filtre de dalt tria l'especialitat.",
+            "**Franges disponibles**: franges lectives de la setmana menys les prohibides. ⚠ si són menys que les hores assignades.",
+            "**Graella**: com a les sessions, cada clic canvia la casella: lliure → 📌 fixa (ha de fer classe aquella hora) → ⛔ prohibida (no pot fer classe; p. ex. jornada parcial o una reunió fixa).",
+            "**Observacions**: notes per a qui fa l'horari. La desiderata (mòdul Desiderata) es continua respectant com a regla tova."
           ]
         },
         {
           "id": "hor-regles",
           "titol": "Regles i blocs",
-          "claus": "blocs paral·lels optatives divisions regles pesos forats hores seguides",
+          "claus": "blocs paral·lels optatives divisions regles pesos forats hores seguides aula alternativa penalització",
           "text": [
             "**1 · Blocs paral·lels**: matèries d'un mateix nivell que s'han de fer a la mateixa franja perquè l'alumnat en tria una (optatives) o perquè es fan alhora (divisions). Cada bloc té un nivell, un nom i les matèries marcades; les de grups units surten en negreta. Totes han de tenir les mateixes hores (si no, ⚠).",
             "**Proposa un bloc d'optatives per nivell** crea un bloc «Optatives» amb les matèries optatives de cada nivell, per revisar.",
-            "**2 · Regles del motor**: preferències amb un **pes** de 1 (poc important) a 5 (molt important): màxim d'hores seguides d'una matèria, repartir les hores en dies diferents, evitar forats al professorat i respectar la desiderata.",
-            "Les regles obligatòries (un docent, un grup o una aula no poden ser a dos llocs alhora, aula del tipus adequat, blocs a la mateixa franja) sempre es compleixen."
+            "**2 · Regles del motor**: preferències amb un **pes** de 1 (poc important) a 5 (molt important): màxim d'hores seguides d'una matèria, repartir les hores en dies diferents, evitar forats al professorat, respectar la desiderata i les penalitzacions d'aula: **usar una aula alternativa** (per defecte 2) i **usar qualsevol aula** (per defecte 4).",
+            "Les regles obligatòries (un docent, un grup o una aula no poden ser a dos llocs alhora, posicions fixes i prohibides, blocs a la mateixa franja) sempre es compleixen."
           ]
         },
         {
@@ -984,7 +1009,7 @@
           "claus": "desa json exporta motor",
           "text": [
             "**Desa** guarda totes les pestanyes que tenen canvis (marcades amb \\*).",
-            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents i hores, assignacions, desiderata, marc horari, aules i regles). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori."
+            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents amb posicions fixes i prohibides, assignacions amb distribució, aules i graella, desiderata, marc horari, aules, conjunts d'aules i regles). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori."
           ]
         }
       ]
