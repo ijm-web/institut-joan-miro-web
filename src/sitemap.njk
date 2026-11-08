@@ -1,0 +1,19 @@
+---
+permalink: "sitemap.xml"
+eleventyExcludeFromCollections: true
+---
+{#- PAS 48: mapa del web per als cercadors (només les pàgines públiques; sense GESTIO, Programacions ni fitxers de dades) -#}
+{%- set web = "https://institutjoanmiro.cat" -%}
+<?xml version="1.0" encoding="utf-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+{%- for p in collections.all %}
+{%- if p.url and p.url.endsWith('.html') or p.url == '/' or p.url == '/es/' or p.url == '/en/' %}
+{%- if not ('/gestio' in p.url or '/programacions' in p.url or p.data.sitemapExclou) %}
+  <url>
+    <loc>{{ web }}{{ p.url }}</loc>
+    <lastmod>{{ p.date | dataISO }}</lastmod>
+  </url>
+{%- endif %}
+{%- endif %}
+{%- endfor %}
+</urlset>

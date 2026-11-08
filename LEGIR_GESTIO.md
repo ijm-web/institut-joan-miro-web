@@ -301,6 +301,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Generador d'horaris, fase 0**: `exportaHoraris()` (manual) desa un JSON «horaris-dades» v1 a `config › carpeta_horaris` (o «GESTIO · Horaris»). El generador és un projecte a part (carpeta `generador-horaris`, Python).
 - **Web**: avís del curs 2026-2027 a Preinscripció (`preinscripcio.json › comuns.banner26`); criteris de qualificació desactivats (`eso.json › qual.criterisDisponibles: false`, «Properament disponibles»); pàgina nova **Projectes › Erasmus+** (`projectes-erasmus.html`, ca/es/en) amb el que hi havia a Llengües estrangeres › 04, que ara hi enllaça; menú i tornada de les mobilitats a Erasmus+.
 
+## PAS 48
+- **Departaments/àmbits** (Desiderata, admin): full `departaments` (id_departament, nom, especialitats amb |, cap). Accions `departaments` i `departaments_desa` (sincronitza els membres d'EQ-CAPS amb els caps). `desiderataEsps_`: el cap gestiona totes les especialitats dels seus departaments/àmbits (si no n'hi ha, la de la fitxa). `desiderata_dades` porta `departament`; l'anàlisi, el departament/àmbit de cada especialitat.
+- **Aplica la desiderata** (Currículum › Assignacions): acció `curriculum_aplica_desiderata` {prova, sobreescriu}: posa el professor/a de cada grup per ordre de grup segons els grups de cada docent.
+- Desiderata: contenidor amb desplaçament propi (`ajustaAlcada`), exportacions PDF/Excel amb tot el que es veu i la llista d'incoherències, botó Guia (`guia-desiderata.pdf`, generada per `manual.py` des de `gestioAjuda.json › guies`). Nomenclatura «departament/àmbit» i «cap de departament/àmbit».
+- **Horaris · planificador** (mòdul `horaris`, ordre 10, només admin per defecte): marc horari a `config › horaris_marc` (`marcHorari_`, `validaMarc_`), accions `horaris_dades`, `horaris_marc_desa`, `horaris_exporta` (retorna l'exportació completa al navegador; `exportaHoraris` la desa a Drive). L'exportació «horaris-dades» porta `marc_horari`.
+- **Web**: preinscripció de batxillerat amb la icona de formulari «No actiu»; sense l'avís «Fons groc» (preinscripció i ESO); distintiu «Properament disponibles» dins de la caixa; pàgines noves `accessibilitat.html` (ca/es/en, enllaç al peu), `404.html`, `sitemap.xml` (filtre `dataISO`) i `robots.txt`.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

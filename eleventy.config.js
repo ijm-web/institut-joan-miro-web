@@ -7,6 +7,7 @@ module.exports = function (eleventyConfig) {
   eleventyConfig.addFilter("llistaNoms", (noms, lang) =>
     noms.length < 2 ? noms.join("") : noms.slice(0, -1).join(", ") + (conj[lang] || conj.ca) + noms[noms.length - 1]);
   eleventyConfig.addFilter("majuscula", (s) => s.charAt(0).toUpperCase() + s.slice(1));
+  eleventyConfig.addFilter("dataISO", (d) => { try { return new Date(d).toISOString().slice(0, 10); } catch (e) { return ""; } });   // PAS 48: sitemap.xml
   eleventyConfig.addFilter("minuscula", (s) => s.charAt(0).toLowerCase() + s.slice(1));
 
   // Any del copyright del peu: s'actualitza sol en cada build

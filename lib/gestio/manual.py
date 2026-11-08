@@ -110,6 +110,18 @@ def manual(dades, ids, fitxer, titol, kicker):
     return fitxer
 
 
+def guia(dades, g, fitxer):
+    os.makedirs(SORTIDA, exist_ok=True)
+    doc = BaseDocTemplate(os.path.join(SORTIDA, fitxer), pagesize=A4, title=g["titol"], author="Institut Joan Miró",
+                          leftMargin=MX, rightMargin=MX, topMargin=36 * mm, bottomMargin=22 * mm)
+    doc.addPageTemplates([PageTemplate(id="p", frames=[Frame(MX, 22 * mm, W - 2 * MX, H - 58 * mm, id="f")], onPage=pagina(g.get("kicker", g["titol"])))])
+    h = [Paragraph(html(g["titol"]), E["titol"]), Paragraph("Versió: " + html(dades["versio"]), E["sub"]), Paragraph(html(g["intro"]), E["intro"])]
+    for n, t in enumerate(g["temes"], 1):
+        h.append(tema(n, t))
+    doc.build(h)
+    return fitxer
+
+
 if __name__ == "__main__":
     with open(DADES, encoding="utf-8") as f:
         dades = json.load(f)
@@ -117,4 +129,7 @@ if __name__ == "__main__":
     for mid, m in dades["moduls"].items():
         fets.append(manual(dades, [mid], "manual-" + mid.replace("_", "-") + ".pdf", "Manual de GESTIO · " + m["titol"], "Manual · " + m["titol"]))
     fets.append(manual(dades, list(dades["moduls"].keys()), "manual-gestio.pdf", "Manual de GESTIO", "Manual de GESTIO"))
+    # PAS 48: guies pas a pas per a un públic concret (p. ex. la Desiderata per als caps de departament/àmbit)
+    for gid, g in dades.get("guies", {}).items():
+        fets.append(guia(dades, g, "guia-" + gid + ".pdf"))
     print("PDF fets a src/assets/docs/gestio/: " + ", ".join(fets))

@@ -246,3 +246,6 @@ a.doc-card:focus-visible{ background: var(--color-orange); }
 .pi-banner svg{ flex:none; width:28px; height:28px; color:#E8600C; margin-top:1px; }
 .pi-banner p{ margin:0; }
 .pi-banner strong{ color:#B54700; }
+/* PAS 48 · icona de formulari no actiu */
+.pi-form-off{ display:inline-flex; align-items:center; gap:6px; margin-left:4px; padding:2px 10px 2px 6px; border:1px dashed #B8BDCC; border-radius:999px; color:#7A8094; background:#F4F5FA; font-size:.85em; font-weight:600; white-space:nowrap; cursor:not-allowed; vertical-align:middle; }
+.pi-form-off svg{ width:18px; height:18px; flex:none; }

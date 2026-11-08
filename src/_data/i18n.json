@@ -68,7 +68,8 @@
     "footer": {
       "avisLegal": "Avís legal",
       "politicaPrivacitat": "Política de privacitat",
-      "politicaCookies": "Política de cookies"
+      "politicaCookies": "Política de cookies",
+      "accessibilitat": "Accessibilitat"
     },
     "estudis": {
       "esoTitle": "ESO",
@@ -181,7 +182,8 @@
     "footer": {
       "avisLegal": "Aviso legal",
       "politicaPrivacitat": "Política de privacidad",
-      "politicaCookies": "Política de cookies"
+      "politicaCookies": "Política de cookies",
+      "accessibilitat": "Accesibilidad"
     },
     "estudis": {
       "esoTitle": "ESO",
@@ -294,7 +296,8 @@
     "footer": {
       "avisLegal": "Legal notice",
       "politicaPrivacitat": "Privacy policy",
-      "politicaCookies": "Cookie policy"
+      "politicaCookies": "Cookie policy",
+      "accessibilitat": "Accessibility"
     },
     "estudis": {
       "esoTitle": "ESO",

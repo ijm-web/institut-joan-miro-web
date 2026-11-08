@@ -912,14 +912,14 @@
         },
         "paras": [
           {
-            "ca": "Si voleu continuar al centre, no cal fer la preinscripció general: cal fer la <span class=\"tbd\">preinscripció interna, omplint el formulari de tria de modalitat i matèries de 1r de Batxillerat (dates i enllaç pendents)</span>.",
-            "es": "Si queréis continuar en el centro, no hace falta hacer la preinscripción general: hay que hacer la <span class=\"tbd\">preinscripción interna, rellenando el formulario de elección de modalidad y materias de 1.º de Bachillerato (fechas y enlace pendientes)</span>.",
-            "en": "If you want to stay at the school, you do not need to complete the general application: you must complete the <span class=\"tbd\">internal application by filling in the 1st Batxillerat pathway and subject choice form (dates and link to be confirmed)</span>."
+            "ca": "Si voleu continuar al centre, no cal fer la preinscripció general: cal fer la preinscripció interna, omplint el formulari de tria de modalitat i matèries de 1r de Batxillerat <span class=\"pi-form-off\" aria-disabled=\"true\" title=\"Formulari · No actiu\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 8h8M8 12h8M8 16h5\"/></svg>No actiu</span>",
+            "es": "Si queréis continuar en el centro, no hace falta hacer la preinscripción general: hay que hacer la preinscripción interna, rellenando el formulario de elección de modalidad y materias de 1.º de Bachillerato <span class=\"pi-form-off\" aria-disabled=\"true\" title=\"Formulario · No activo\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 8h8M8 12h8M8 16h5\"/></svg>No activo</span>",
+            "en": "If you want to stay at the school, you do not need to complete the general application: you must complete the internal application by filling in the 1st Batxillerat pathway and subject choice form <span class=\"pi-form-off\" aria-disabled=\"true\" title=\"Form · Not active\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 8h8M8 12h8M8 16h5\"/></svg>Not active</span>"
           },
           {
-            "ca": "Un cop aprovada l’ESO, cal formalitzar la matrícula del 18 al 30 de juny.",
-            "es": "Una vez aprobada la ESO, hay que formalizar la matrícula del 18 al 30 de junio.",
-            "en": "Once ESO has been passed, enrolment must be completed between 18 and 30 June."
+            "ca": "Un cop aprovada l’ESO, cal formalitzar la matrícula.",
+            "es": "Una vez aprobada la ESO, hay que formalizar la matrícula.",
+            "en": "Once you have passed ESO, you must complete enrolment."
           }
         ]
       },
@@ -993,9 +993,9 @@
           "en": "Submit the application. You will receive a receipt by email."
         },
         {
-          "ca": "<span class=\"tbd\">Omple el formulari de tria de modalitat i matèries de 1r o 2n de Batxillerat.</span>",
-          "es": "<span class=\"tbd\">Rellena el formulario de elección de modalidad y materias de 1.º o 2.º de Bachillerato.</span>",
-          "en": "<span class=\"tbd\">Fill in the pathway and subject choice form for 1st or 2nd Batxillerat.</span>"
+          "ca": "Omple el formulari de tria de modalitat i matèries de 1r o 2n de Batxillerat <span class=\"pi-form-off\" aria-disabled=\"true\" title=\"Formulari · No actiu\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 8h8M8 12h8M8 16h5\"/></svg>No actiu</span>",
+          "es": "Rellena el formulario de elección de modalidad y materias de 1.º o 2.º de Bachillerato <span class=\"pi-form-off\" aria-disabled=\"true\" title=\"Formulario · No activo\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 8h8M8 12h8M8 16h5\"/></svg>No activo</span>",
+          "en": "Fill in the pathway and subject choice form for 1st or 2nd Batxillerat <span class=\"pi-form-off\" aria-disabled=\"true\" title=\"Form · Not active\"><svg viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.8\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><rect x=\"4\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M8 8h8M8 12h8M8 16h5\"/></svg>Not active</span>"
         }
       ],
       "ralc": {

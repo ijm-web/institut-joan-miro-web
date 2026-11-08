@@ -37,10 +37,12 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments' };
 const CAP = {
   // PAS 47: una fila per especialitat; «dades» = JSON {clau assignació: [{prof, grups}]}
   desiderata: ['especialitat', 'dades', 'observacions', 'data', 'desat_per'],
+  // PAS 48: departaments/àmbits (especialitats separades per |) i el seu cap (codi del professorat)
+  departaments: ['id_departament', 'nom', 'especialitats', 'cap', 'data', 'desat_per'],
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu', 'grups'],
   membres: ['id_equip', 'id_membre', 'carrec'],
   moduls: ['id_modul', 'nom', 'descripcio', 'ordre', 'actiu'],
@@ -48,7 +50,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 47;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 48;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -69,6 +71,7 @@ const CONFIG_PER_DEFECTE = [
   ['consell_poblacio', 'Cornellà', 'Consell orientador: població que surt al peu dels PDF («Cornellà, 18 de juny de 2026»).'],
   ['font_consell_final', 'https://docs.google.com/spreadsheets/d/1RsFMoB7uaPRA1Lb14ZRfLQnFRL42boQQ7E4w97Ht388/edit', 'Per a importaConsellFinal: URL del full amb el consell orientador final del curs anterior.'],
   ['carpeta_copies', '', 'Per a copiaSeguretat: URL de la carpeta de Drive on es desen les còpies (en blanc = es crea «GESTIO · còpies de seguretat»).'],
+  ['horaris_marc', '', 'Horaris › Marc horari (JSON). Es canvia des del web (mòdul Horaris · planificador).'],
   ['carpeta_horaris', '', 'Per a exportaHoraris: URL de la carpeta de Drive on es desa el JSON per al generador d\'horaris (en blanc = es crea «GESTIO · Horaris»).'],
   ['curriculum_grups_classe', '', 'Currículum: grups-classe de cada nivell (JSON {"1r ESO": "A, B, C, D", …}). Es canvia des del web (Currículum › Grups-classe); en blanc = els de sempre.'],
   ['font_hores_lectives', 'https://docs.google.com/spreadsheets/d/1Rhz9uHF8PtJFjvS5LqaqUIF4NcaHYPw1h9Z3G9b7Gcc/edit?gid=1977250486', 'Per a importaHoresLectives: URL del full de plantilla amb les hores lectives de cada docent (la pestanya del gid de l\'URL; sense gid, la que té «Total lectives»).'],
@@ -91,7 +94,8 @@ const MODULS_PER_DEFECTE = [
   ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta qualsevol docent; registre, PDF per a la família, avisos i anàlisi.', 7, 'si'],
   ['curriculum', 'Currículum', 'Disseny curricular d\'ESO i batxillerat: matèries de cada nivell amb hores, especialitat i grups; assignació de cada matèria i grup a una especialitat i document dels equips docents.', 9, 'si'],
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si'],
-  ['desiderata', 'Desiderata', 'Proposta de cada cap de departament: quin docent imparteix cada assignació de la seva especialitat, observacions pedagògiques i coherència amb les hores lectives.', 9, 'si'],
+  ['desiderata', 'Desiderata', 'Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit, observacions pedagògiques i coherència amb les hores lectives.', 9, 'si'],
+  ['horaris', 'Horaris · planificador', 'Generador d\'horaris, fase PLANIFICADOR: marc horari (dies, franges, esbarjos, franges no lectives de cada nivell i reunions) i exportació de les dades per al MOTOR.', 10, 'si'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
@@ -581,6 +585,12 @@ function doPost(e) {
       case 'desiderata_dades': return json_(desiderataDades_(ctx, req));
       case 'desiderata_desa': return json_(desiderataDesa_(ctx, req));
       case 'desiderata_analisi': return json_(desiderataAnalisi_(ctx));
+      case 'departaments': return json_(departamentsDades_(ctx));
+      case 'horaris_dades': return json_(horarisDades_(ctx));
+      case 'horaris_marc_desa': return json_(horarisMarcDesa_(ctx, req));
+      case 'horaris_exporta': return json_(horarisExporta_(ctx, req));
+      case 'departaments_desa': return json_(departamentsDesa_(ctx, req));
+      case 'curriculum_aplica_desiderata': return json_(aplicaDesiderata_(ctx, req));
       case 'curriculum_classes_desa': return json_(curriculumClassesDesa_(ctx, req));
       case 'curriculum_separa': return json_(curriculumSepara_(ctx, req));
       case 'curriculum_professorat': return json_(curriculumProfessorat_(ctx));
@@ -632,7 +642,7 @@ function baseContext_() {
 }
 function invalidaCtx_() { CTX_CFG_ = null; try { CacheService.getScriptCache().remove(CLAU_CTX_); } catch (e) { /* res */ } }
 const TAULES_CTX_ = () => [FULL.prof, FULL.pas, FULL.memb, FULL.eq, FULL.perm, FULL.conf];
-const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa'];
+const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa', 'departaments_desa', 'horaris_marc_desa'];
 function context_(email) {
   const B = baseContext_();
   const cfg = B.cfg; CTX_CFG_ = cfg;
@@ -1701,7 +1711,13 @@ function configura() {
   migraGrupsPAS45_();
   // PAS 47: Desiderata (full, equip «Caps de departament» sense membres i el seu permís d'edició)
   assegura_(FULL.des);
-  if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-CAPS')) SpreadsheetApp.getActive().getSheetByName(FULL.eq).appendRow(['EQ-CAPS', 'Caps de departament', 'gestio', 'Caps de departament i d\'àmbit: mòdul Desiderata', 'si', '']);
+  assegura_(FULL.dep);
+  // PAS 48: nomenclatura «departament/àmbit»
+  const shEq = SpreadsheetApp.getActive().getSheetByName(FULL.eq), veq = shEq.getDataRange().getValues();
+  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && veq[i][1] === 'Caps de departament') shEq.getRange(i + 1, 2, 1, 3).setValues([['Caps de departament/àmbit', veq[i][2], 'Caps de departament/àmbit: mòdul Desiderata (els membres es posen sols des de Desiderata › Departaments/àmbits)']]);
+  const shMod = SpreadsheetApp.getActive().getSheetByName(FULL.mod), vmod = shMod.getDataRange().getValues();
+  for (let i = 1; i < vmod.length; i++) if (vmod[i][0] === 'desiderata') shMod.getRange(i + 1, 3).setValues([[MODULS_PER_DEFECTE.filter((m) => m[0] === 'desiderata')[0][2]]]);
+  if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-CAPS')) SpreadsheetApp.getActive().getSheetByName(FULL.eq).appendRow(['EQ-CAPS', 'Caps de departament/àmbit', 'gestio', 'Caps de departament/àmbit: mòdul Desiderata (els membres es posen sols des de Desiderata › Departaments/àmbits)', 'si', '']);
   if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'desiderata')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'desiderata', 'edicio']);
   actualitzaCamp_('curriculum', 'grups', { actiu: 'no' });
   sincronitzaCamps_('curriculum_grups', CAMPS_CURR_GRUPS);
@@ -2998,7 +3014,92 @@ function especialitatDe_(ctx) {
 }
 function desiderataEsps_(ctx) {
   if (pot_(ctx, 'desiderata', 'admin')) { const s = {}; ESPECIALITATS.forEach((e) => { s[e] = 1; }); llegeix_(FULL.curg).forEach((r) => { if (r.especialitat) s[r.especialitat] = 1; }); return Object.keys(s).sort((a, b) => a.localeCompare(b, 'ca')); }
-  const e = especialitatDe_(ctx); return e ? [e] : [];
+  // PAS 48: el cap gestiona totes les especialitats dels departaments/àmbits dels quals és cap
+  const id = ctx.persona && String(ctx.persona.id || ''), s = {};
+  departaments_().filter((d) => d.cap && d.cap === id).forEach((d) => d.especialitats.forEach((e) => { s[e] = 1; }));
+  const ll = Object.keys(s).sort((a, b) => a.localeCompare(b, 'ca'));
+  if (ll.length) return ll;
+  const e = especialitatDe_(ctx); return e ? [e] : [];   // encara sense departaments/àmbits definits: la de la seva fitxa
+}
+function departaments_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.dep);
+  if (!sh || sh.getLastRow() < 2) return [];
+  return llegeix_(FULL.dep).filter((d) => d.nom).map((d) => ({ id: d.id_departament, nom: d.nom, especialitats: String(d.especialitats || '').split('|').map((x) => x.trim()).filter(Boolean), cap: String(d.cap || '') }));
+}
+// Proposta inicial (es pot canviar del tot des del web)
+const DEPARTAMENTS_PROPOSTA = [['Llengua catalana i literatura', ['Català']], ['Llengua castellana i literatura', ['Castellà']], ['Llengües estrangeres', ['Anglès', 'Francès', 'Alemany', 'Italià']],
+  ['Matemàtiques', ['Matemàtiques']], ['Ciències experimentals', ['Biologia', 'Física i Química']], ['Ciències socials', ['Història', 'Economia', 'Filosofia', 'Religió', 'Clàssiques']],
+  ['Tecnologia', ['Tecnologia']], ['Educació física', ['Educació Física']], ['Expressió artística', ['Dibuix', 'Música']], ['Orientació', ['Orientació']]];
+function departamentsDades_(ctx) {
+  if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
+  const esps = {}; ESPECIALITATS.forEach((e) => { esps[e] = 1; }); llegeix_(FULL.curg).forEach((r) => { if (r.especialitat) esps[r.especialitat] = 1; });
+  return { ok: true, departaments: departaments_(), especialitats: Object.keys(esps).sort((a, b) => a.localeCompare(b, 'ca')),
+    professorat: professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat })), proposta: DEPARTAMENTS_PROPOSTA.map((x) => ({ nom: x[0], especialitats: x[1], cap: '' })) };
+}
+// Desa els departaments/àmbits i posa com a membres d'EQ-CAPS exactament els caps (així tenen accés a Desiderata)
+function departamentsDesa_(ctx, req) {
+  if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
+  const ll = Array.isArray(req.departaments) ? req.departaments : [], profs = {}; professoratHores_().forEach((p) => { profs[p.id] = 1; });
+  const vistes = {}, errors = [];
+  const nets = ll.map((d) => ({ nom: String(d.nom || '').trim(), especialitats: (Array.isArray(d.especialitats) ? d.especialitats : []).map(String).filter(Boolean), cap: String(d.cap || '') })).filter((d) => d.nom);
+  nets.forEach((d) => { d.especialitats.forEach((e) => { if (vistes[e]) errors.push(e + ' (' + vistes[e] + ' i ' + d.nom + ')'); vistes[e] = d.nom; }); if (d.cap && !profs[d.cap]) d.cap = ''; });
+  if (errors.length) return { ok: false, error: 'especialitat_repetida', detall: errors };
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const sh = assegura_(FULL.dep), ara = ara_(), cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getValues()[0].map(norm_);
+    if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, cap.length).clearContent();
+    const files = nets.map((d, i) => cap.map((k) => ({ id_departament: 'DEP-' + String(i + 1).padStart(2, '0'), nom: d.nom, especialitats: d.especialitats.join('|'), cap: d.cap, data: ara, desat_per: ctx.email })[k] || ''));
+    if (files.length) sh.getRange(2, 1, files.length, cap.length).setValues(files);
+    // Membres d'EQ-CAPS = els caps
+    const caps = {}; nets.forEach((d) => { if (d.cap) caps[d.cap] = 1; });
+    const shM = SpreadsheetApp.getActive().getSheetByName(FULL.memb), vm = shM.getDataRange().getValues(), cm = vm[0].map(norm_);
+    const ie = cm.indexOf('id_equip'), im = cm.indexOf('id_membre'), ic = cm.indexOf('carrec');
+    for (let i = vm.length - 1; i >= 1; i--) if (vm[i][ie] === 'EQ-CAPS' && !caps[vm[i][im]]) shM.deleteRow(i + 1);
+    const ja = {}; shM.getDataRange().getValues().slice(1).forEach((r) => { if (r[ie] === 'EQ-CAPS') ja[r[im]] = 1; });
+    Object.keys(caps).filter((c) => !ja[c]).forEach((c) => { const r = cm.map(() => ''); r[ie] = 'EQ-CAPS'; r[im] = c; if (ic >= 0) r[ic] = 'Cap de departament/àmbit'; shM.appendRow(r); });
+    invalidaCtx_();
+    historial_(ctx.email, 'departaments', FULL.dep, '', nets.length + ' departaments/àmbits · ' + Object.keys(caps).length + ' caps');
+    return { ok: true, departaments: departaments_() };
+  } finally { lock.releaseLock(); }
+}
+// PAS 48 · La direcció passa la desiderata a Currículum › Assignacions: a cada grup de l'assignació, el professor/a
+// (per ordre de grup, tants grups com n'hi ha posats a cada docent). Només omple els grups sense professor/a, si no
+// es demana «sobreescriu». {prova: true} = només compta.
+function aplicaDesiderata_(ctx, req) {
+  if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const noms = {}; professoratHores_().forEach((p) => { noms[p.id] = p.nom; });
+  const des = {}; llegeix_(FULL.des).forEach((r) => { try { des[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
+  const lock = LockService.getScriptLock();
+  lock.waitLock(20000);
+  try {
+    const MG = MODULS.curriculum_grups, sh = fullModul_(MG, campsDe_('curriculum_grups', true));
+    if (sh.getLastRow() < 2) return { ok: true, posats: 0, canviats: 0, sobren: [] };
+    const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), col = (k) => cap.indexOf(k);
+    const per = {};
+    vals.slice(1).forEach((r, i) => { const k = String(r[col('especialitat')]) + '¦' + (r[col('id_materia')] || (r[col('nivell')] + '·' + r[col('materia')])) + '|' + numCur_(r[col('hores')]); (per[k] = per[k] || []).push(i + 1); });
+    let posats = 0, canviats = 0; const sobren = [], ara = ara_();
+    Object.keys(des).forEach((esp) => Object.keys(des[esp]).forEach((clau) => {
+      const files = (per[esp + '¦' + clau] || []).sort((a, b) => (Number(vals[a][col('num_grup')]) || 0) - (Number(vals[b][col('num_grup')]) || 0) || String(vals[a][col('grup')]).localeCompare(String(vals[b][col('grup')])));
+      const llista = []; des[esp][clau].forEach((x) => { for (let g = 0; g < (Number(x.grups) || 0); g++) llista.push(noms[x.prof] || ''); });
+      if (llista.length > files.length) sobren.push(esp + ' ' + clau);
+      files.forEach((f, j) => {
+        const nou = llista[j]; if (!nou) return;
+        const ara0 = String(vals[f][col('professor')] || '');
+        if (ara0 === nou) return;
+        if (ara0 && !req.sobreescriu) return;
+        if (ara0) canviats++; else posats++;
+        vals[f][col('professor')] = nou; vals[f][col('data')] = ara; vals[f][col('desat_per')] = ctx.email;
+      });
+    }));
+    if (!req.prova && posats + canviats) {
+      ['professor', 'data', 'desat_per'].forEach((k) => { const c = col(k); if (c >= 0) sh.getRange(2, c + 1, vals.length - 1, 1).setValues(vals.slice(1).map((r) => [r[c]])); });
+      historial_(ctx.email, 'aplica_desiderata', MG.full, '', posats + ' posats, ' + canviats + ' canviats');
+      marcaVersio_('curriculum_grups', ctx.email);
+    }
+    return { ok: true, prova: !!req.prova, posats: posats, canviats: canviats, sobren: sobren };
+  } finally { lock.releaseLock(); }
 }
 function desiderataDades_(ctx, req) {
   if (!pot_(ctx, 'desiderata', 'edicio')) return { ok: false, error: 'sense_permis' };
@@ -3007,7 +3108,8 @@ function desiderataDades_(ctx, req) {
   const esp = esps.indexOf(String(req.especialitat || '')) >= 0 ? String(req.especialitat) : esps[0];
   const fet = llegeix_(FULL.des).filter((r) => r.especialitat === esp)[0] || {};
   let dades = {}; try { dades = JSON.parse(fet.dades || '{}') || {}; } catch (e) { dades = {}; }
-  return { ok: true, especialitat: esp, especialitats: esps, admin: pot_(ctx, 'desiderata', 'admin'), obert: obert_(ctx),
+  const dep = departaments_().filter((d) => d.especialitats.indexOf(esp) >= 0)[0] || null;
+  return { ok: true, especialitat: esp, especialitats: esps, admin: pot_(ctx, 'desiderata', 'admin'), obert: obert_(ctx), departament: dep ? { nom: dep.nom, especialitats: dep.especialitats, cap: dep.cap } : null,
     assignacions: assignacionsEsp_(esp), professorat: professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, hores_lectives: p.hores_lectives, jornada: p.jornada })),
     dades: dades, observacions: fet.observacions || '', data: fet.data || '', desat_per: fet.desat_per || '' };
 }
@@ -3040,13 +3142,14 @@ function desiderataDesa_(ctx, req) {
 function desiderataAnalisi_(ctx) {
   if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
   const desats = {}; llegeix_(FULL.des).forEach((r) => { let d = {}; try { d = JSON.parse(r.dades || '{}'); } catch (e) { d = {}; } desats[r.especialitat] = { d: d, data: r.data, per: r.desat_per, obs: r.observacions || '' }; });
-  const profs = professoratHores_(), perProf = {};
+  const profs = professoratHores_(), perProf = {}, deps = departaments_();
   const files = desiderataEsps_(ctx).map((e) => {
     const as = assignacionsEsp_(e), D = desats[e] || { d: {} };
     const total = as.reduce((t, a) => t + a.grups * a.hores, 0);
     let fetes = 0, sobre = [];
     as.forEach((a) => { const ll = D.d[a.clau] || []; const g = ll.reduce((t, x) => t + x.grups, 0); fetes += Math.min(g, a.grups) * a.hores; if (g > a.grups) sobre.push(a.nivell + ' ' + a.materia); ll.forEach((x) => { perProf[x.prof] = (perProf[x.prof] || 0) + x.grups * a.hores; }); });
-    return { especialitat: e, a_assignar: total, assignades: fetes, pendents: Math.round((total - fetes) * 100) / 100, sobreassignades: sobre, data: D.data || '', desat_per: D.per || '', te_obs: !!D.obs, docents: profs.filter((p) => p.especialitat === e).length };
+    const dep = deps.filter((d) => d.especialitats.indexOf(e) >= 0)[0];
+    return { especialitat: e, departament: dep ? dep.nom : '', a_assignar: total, assignades: fetes, pendents: Math.round((total - fetes) * 100) / 100, sobreassignades: sobre, data: D.data || '', desat_per: D.per || '', te_obs: !!D.obs, docents: profs.filter((p) => p.especialitat === e).length };
   }).filter((f) => f.a_assignar > 0 || f.data);
   // Docents de les especialitats amb desiderata desada (o amb grups assignats) amb hores que no quadren amb les lectives amb alumnat
   const incoherents = profs.filter((p) => desats[p.especialitat] || perProf[p.id] !== undefined)
@@ -3058,6 +3161,62 @@ function desiderataAnalisi_(ctx) {
 // Execució manual: exporta en un JSON (format «horaris-dades» v1) el que el generador d'horaris necessita de GESTIO:
 // grups-classe de cada nivell, docents (codi, nom, especialitat, jornada, hores lectives), assignacions (Currículum ›
 // Assignacions, amb els grups-classe de cada grup i la codocència) i la desiderata desada. El desa a config › carpeta_horaris.
+// PAS 48 · Marc horari (PLANIFICADOR): el mateix format que generador-horaris/dades/marc_horari.json
+const DIES_SETMANA = ['dilluns', 'dimarts', 'dimecres', 'dijous', 'divendres'];
+const MARC_PER_DEFECTE = { dies: DIES_SETMANA.slice(), franges: [
+  { id: 'F1', inici: '08:00', fi: '09:00' }, { id: 'F2', inici: '09:00', fi: '10:00' }, { id: 'F3', inici: '10:00', fi: '11:00' },
+  { id: 'E1', inici: '11:00', fi: '11:30', esbarjo: true }, { id: 'F4', inici: '11:30', fi: '12:30' }, { id: 'F5', inici: '12:30', fi: '13:30' },
+  { id: 'E2', inici: '13:30', fi: '13:45', esbarjo: true }, { id: 'F6', inici: '13:45', fi: '14:45' }], no_lectives: {}, reunions: [] };
+function marcHorari_(cfg) {
+  try { const m = JSON.parse(String((cfg || llegeixConfig_()).horaris_marc || '')); if (m && Array.isArray(m.franges)) return m; } catch (e) { /* per defecte */ }
+  return JSON.parse(JSON.stringify(MARC_PER_DEFECTE));
+}
+// Comprova el marc: dies, franges (HH:MM, ordenades i sense encavalcar-se, identificadors únics), no lectives i reunions
+function validaMarc_(m) {
+  const err = [], hm = (t) => (/^([01]\d|2[0-3]):[0-5]\d$/.test(String(t)) ? Number(t.slice(0, 2)) * 60 + Number(t.slice(3)) : null);
+  if (!m || !Array.isArray(m.dies) || !m.dies.length || m.dies.some((d) => DIES_SETMANA.indexOf(d) < 0)) err.push('Cal triar almenys un dia (de dilluns a divendres).');
+  const fr = Array.isArray(m && m.franges) ? m.franges : [], ids = {};
+  if (!fr.some((f) => !f.esbarjo)) err.push('Cal almenys una franja lectiva.');
+  let ant = -1;
+  fr.forEach((f, i) => {
+    const a = hm(f.inici), b = hm(f.fi);
+    if (!/^[A-Z][A-Z0-9]{0,3}$/.test(String(f.id || ''))) err.push('Franja ' + (i + 1) + ': identificador no vàlid.');
+    if (ids[f.id]) err.push('Franja ' + f.id + ' repetida.'); ids[f.id] = 1;
+    if (a === null || b === null) err.push('Franja ' + (f.id || i + 1) + ': hores no vàlides (HH:MM).');
+    else { if (a >= b) err.push('Franja ' + f.id + ': l\'hora d\'inici ha de ser abans de la de final.'); if (a < ant) err.push('Franja ' + f.id + ': comença abans que acabi l\'anterior.'); ant = b; }
+  });
+  const nivells = NIVELLS_ESO.concat(NIVELLS_BAT);
+  Object.keys((m && m.no_lectives) || {}).forEach((n) => {
+    if (n.charAt(0) === '_') return;
+    if (nivells.indexOf(n) < 0) err.push('Franges no lectives: nivell desconegut «' + n + '».');
+    (m.no_lectives[n] || []).forEach((x) => { const p = String(x).split(' '); if (DIES_SETMANA.indexOf(p[0]) < 0 || !ids[p[1]]) err.push('Franja no lectiva no vàlida: ' + n + ' · ' + x + '.'); });
+  });
+  ((m && m.reunions) || []).forEach((r) => { if (!String(r.nom || '').trim() || DIES_SETMANA.indexOf(r.dia) < 0 || !ids[r.franja]) err.push('Reunió no vàlida: ' + (r.nom || '(sense nom)') + '.'); });
+  return err;
+}
+function horarisDades_(ctx) {
+  if (!pot_(ctx, 'horaris', 'consulta')) return { ok: false, error: 'sense_permis' };
+  const cfg = ctx.cfg || llegeixConfig_();
+  return { ok: true, marc: marcHorari_(cfg), per_defecte: !String(cfg.horaris_marc || '').trim(), nivells: NIVELLS_ESO.concat(NIVELLS_BAT), dies: DIES_SETMANA, pot_desar: pot_(ctx, 'horaris', 'edicio') };
+}
+function horarisMarcDesa_(ctx, req) {
+  if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const m = req.marc || {};
+  const net = { dies: DIES_SETMANA.filter((d) => (m.dies || []).indexOf(d) >= 0), franges: (m.franges || []).map((f) => Object.assign({ id: String(f.id || ''), inici: String(f.inici || ''), fi: String(f.fi || '') }, f.esbarjo ? { esbarjo: true } : {})),
+    no_lectives: {}, reunions: (m.reunions || []).map((r) => ({ nom: String(r.nom || '').trim(), dia: String(r.dia || ''), franja: String(r.franja || '') })) };
+  Object.keys(m.no_lectives || {}).forEach((n) => { const ll = (m.no_lectives[n] || []).map(String); if (ll.length) net.no_lectives[n] = ll; });
+  const err = validaMarc_(net);
+  if (err.length) return { ok: false, error: 'marc_invalid', errors: err };
+  posaConfig_('horaris_marc', JSON.stringify(net));
+  historial_(ctx.email, 'horaris_marc', 'config', 'horaris_marc', net.franges.length + ' franges · ' + net.dies.length + ' dies');
+  return { ok: true, marc: net };
+}
+// Exportació per al MOTOR des del web: retorna el JSON (el navegador el descarrega) i, si es demana, el desa a Drive
+function horarisExporta_(ctx, req) {
+  if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const dades = dadesHoraris_();
+  return { ok: true, dades: dades, url: req.drive ? exportaHoraris() : '' };
+}
 function dadesHoraris_() {
   const cfg = llegeixConfig_(), GN = grupsNivell_(cfg);
   const mats = {}; llegeix_(FULL.cur).forEach((m) => { mats[m.id_materia] = m; });
@@ -3070,7 +3229,7 @@ function dadesHoraris_() {
   });
   const docents = professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, jornada: p.jornada, lectives_alumnat: p.hores_lectives === '' ? null : p.hores_lectives, total_lectives: p.total_lectives === '' ? null : p.total_lectives }));
   const desiderata = {}; llegeix_(FULL.des).forEach((r) => { try { desiderata[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
-  return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, docents: docents, assignacions: assignacions, desiderata: desiderata };
+  return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, marc_horari: marcHorari_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata };
 }
 function exportaHoraris() {
   const cfg = llegeixConfig_(), dades = dadesHoraris_(), id = (String(cfg.carpeta_horaris || '').match(/[-\w]{25,}/) || [''])[0];

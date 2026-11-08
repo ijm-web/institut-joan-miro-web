@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 47 · 7 de novembre de 2026",
+  "versio": "PAS 48 · 8 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -185,7 +185,7 @@
           "claus": "llistat signatures reunió claustre pdf full de signatures",
           "text": [
             "El botó **Llistat** (des d'edició) genera un PDF amb el logo del centre per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
-            "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament, filtreu abans per especialitat.",
+            "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament/àmbit, filtreu abans per especialitat.",
             "Només hi surt el professorat amb estat **actiu** (ni baixes, ni baixes laborals, ni permisos). El PDF ocupa **dues cares** d'un full A4: el professorat es reparteix entre les dues cares i l'alçada de les files i la lletra s'ajusten perquè l'espai quedi ben aprofitat."
           ]
         },
@@ -542,7 +542,7 @@
           "claus": "nou equip crear codi modificar canviar esborrar eliminar paperera inactiu",
           "text": [
             "**Crear**: botó **+ Afegeix equip** → s'obre una finestra. El **codi** comença per EQ- i només cal escriure la resta amb lletres i xifres, sense espais ni accents (p. ex. ADM → EQ-ADM). No es pot repetir ni canviar després. Escriviu el nom, trieu el tipus i **Crea l'equip**. Després hi afegiu els membres i, a la pestanya Permisos, l'accés als mòduls.",
-            "**Tipus**: **Gestió** per als equips de direcció, coordinació, secretaria, administració o consergeria (p. ex. les administratives i els conserges); **Docent** per als equips de nivell o de grup i els departaments. Només serveix per classificar i filtrar: tots dos funcionen igual.",
+            "**Tipus**: **Gestió** per als equips de direcció, coordinació, secretaria, administració o consergeria (p. ex. les administratives i els conserges); **Docent** per als equips de nivell o de grup i els departaments/àmbits. Només serveix per classificar i filtrar: tots dos funcionen igual.",
             "**Modificar**: cliqueu la cel·la que voleu canviar (nom, tipus, descripció, actiu o grups) i deseu amb **Desa els canvis** a la barra de dalt. El codi no es pot canviar.",
             "**Esborrar**: la **paperera** de la fila. S'esborren l'equip, els seus membres i els seus permisos (les persones no). No es pot desfer. Si el voleu conservar sense que doni accés, poseu **Actiu = no**. L'equip directiu (EQ-DIR) no es pot esborrar."
           ]
@@ -815,7 +815,8 @@
             "Per canviar moltes files alhora, marqueu-les i feu servir «Aplica a la selecció».",
             "El nom del **grup** no s'edita aquí: surt dels grups-classe de la matèria (pestanya Grups i distribució). El **professor/a** és opcional (desplegable del professorat actual).",
             "Les files de **codocència** (o **cotutoria**, si és una tutoria) es marquen amb una etiqueta (p. ex. «Codocència ×2»): n'hi ha una per docent, cadascuna amb totes les hores, i no és un error.",
-            "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT)."
+            "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT).",
+            "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata)."
           ]
         },
         {
@@ -837,7 +838,7 @@
           "titol": "Document per especialitat",
           "claus": "document departament cap especialitat cedides assignades balanç pdf",
           "text": [
-            "**Document per especialitat** (pestanya Assignacions): el document per al cap de departament. Trieu l'especialitat i surt:",
+            "**Document per especialitat** (pestanya Assignacions): el document per al cap de departament/àmbit. Trieu l'especialitat i surt:",
             "- **Matèries de l'especialitat**: les matèries que tenen aquesta especialitat, amb grups, hores A, hores B, total i a qui estan assignades.",
             "- **Cedides**: hores de matèries de l'especialitat que imparteixen altres especialitats.",
             "- **Assignades d'altres especialitats**: hores de matèries d'altres especialitats que ha d'impartir aquesta.",
@@ -870,26 +871,27 @@
     "desiderata": {
       "titol": "Desiderata",
       "graella": false,
-      "intro": "Proposta de cada cap de departament o d'àmbit: quin docent imparteix cada assignació de la seva especialitat i quants grups fa cadascun, amb observacions pedagògiques. Només hi tenen accés els caps (equip «Caps de departament», nivell edició) i la direcció.",
+      "intro": "Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit i quants grups fa cadascun, amb observacions pedagògiques. Només hi tenen accés els caps de departament/àmbit i la direcció. Hi ha una guia en PDF per als caps (botó «Guia»).",
       "temes": [
         {
-          "id": "des-acces",
-          "titol": "Qui hi té accés",
-          "claus": "accés caps departament equip permís especialitat",
+          "id": "des-departaments",
+          "titol": "Departaments/àmbits i caps (direcció)",
+          "claus": "departament àmbit cap especialitats definir equip",
           "text": [
-            "Hi entren els membres de l'equip **Caps de departament** (EQ-CAPS, el crea «configura» sense membres: la direcció hi afegeix els caps a **Equips i permisos**).",
-            "Cada cap veu **la seva especialitat** (la de la seva fitxa del professorat). La direcció (nivell admin) pot triar qualsevol especialitat al desplegable de dalt."
+            "La direcció (nivell admin) defineix els **departaments/àmbits** amb el botó **Departaments/àmbits**: nom, **especialitats** que hi pertanyen i **cap** (un docent del claustre).",
+            "La primera vegada surt una proposta de partida per revisar. Una especialitat només pot ser d'un departament/àmbit; a sota s'indiquen les especialitats que encara no en tenen.",
+            "En desar, els caps passen a ser l'equip **Caps de departament/àmbit** (el manté sol: no cal tocar Equips i permisos) i cada cap gestiona **totes les especialitats** del seu departament/àmbit."
           ]
         },
         {
           "id": "des-assignacions",
           "titol": "Repartir les assignacions",
-          "claus": "assignació docent grups repartir comptadors pendents",
+          "claus": "assignació docent grups repartir comptadors pendents especialitat",
           "text": [
-            "Surt una fila per a cada assignació de l'especialitat (Currículum › Assignacions), agrupada per matèria i hores per grup: nivell, matèria (amb els grups), hores per grup i nombre de grups.",
-            "Amb **+ docent** s'afegeix un docent i **quants grups** fa (no cal dir quins: els grups-classe concrets els assigna després la direcció). Es poden posar docents d'altres especialitats.",
-            "La columna **Pendents** diu els grups que falten (✓ si quadra; ⚠ si se n'han posat de més).",
-            "A dalt, els **comptadors**: hores a assignar, assignades i pendents."
+            "A dalt surt el departament/àmbit i un desplegable amb les seves especialitats.",
+            "Una fila per a cada assignació de l'especialitat (Currículum › Assignacions), agrupada per matèria i hores per grup: nivell, matèria (amb els grups), hores per grup i nombre de grups.",
+            "Amb **+ docent** s'afegeix un docent i **quants grups** fa. No cal dir quins: després la direcció ho passa a les assignacions (vegeu «Aplica la desiderata»). Al desplegable surten primer els docents de l'especialitat, després els de la resta del departament/àmbit i després tots els altres.",
+            "La columna **Pendents** diu els grups que falten (✓ si quadra; ⚠ si se n'han posat de més). A dalt, els comptadors d'hores a assignar, assignades i pendents."
           ]
         },
         {
@@ -897,25 +899,149 @@
           "titol": "Coherència amb les hores lectives",
           "claus": "docents hores lectives incoherència més menys",
           "text": [
-            "La taula **Docents** compara les hores assignades de cada docent amb les seves **hores lectives amb alumnat** (fitxa del professorat). ⚠ si en té de més, de menys o si no té hores lectives a la fitxa."
+            "La taula **Docents** compara les hores assignades de cada docent amb les seves **hores lectives amb alumnat** (fitxa del professorat). ⚠ si té més hores lectives que assignades, menys, o si no té hores lectives a la fitxa."
           ]
         },
         {
           "id": "des-desa",
           "titol": "Observacions, desar i exportar",
-          "claus": "observacions pedagògiques desar avís pdf excel",
+          "claus": "observacions pedagògiques desar avís pdf excel incoherències",
           "text": [
-            "**Observacions pedagògiques**: text lliure (criteris del departament, continuïtat amb els grups…).",
+            "**Observacions pedagògiques**: text lliure (criteris del departament/àmbit, continuïtat amb els grups…).",
             "**Desa**: si queden hores pendents, grups de més o files sense docent, surt un avís; es pot desar igualment i acabar més tard.",
-            "**PDF** i **Excel**: les assignacions amb els docents, les **incoherències** (docents amb més o menys hores assignades que lectives) i les observacions."
+            "**PDF** i **Excel**: tot el que es veu a la pantalla (resum, assignacions amb els docents i els pendents, tots els docents amb el seu estat) i una llista de **totes les incoherències** (grups pendents o de més, files sense docent, docents amb més o menys hores lectives que assignades, docents sense hores a la fitxa), i les observacions."
+          ]
+        },
+        {
+          "id": "des-aplica",
+          "titol": "De la desiderata als grups (direcció)",
+          "claus": "aplica desiderata grups professor assignacions direcció",
+          "text": [
+            "A **Currículum › Assignacions**, el botó **Aplica la desiderata** posa el **professor/a de cada grup** segons la desiderata desada: per ordre de grup (1r ESO A, B, C…), tants grups com n'hi ha posats a cada docent.",
+            "Per defecte només omple els grups sense professor/a; es pot marcar que substitueixi també els que ja en tenen. Després es pot canviar qualsevol grup a mà a la columna Professor/a."
           ]
         },
         {
           "id": "des-analisi",
-          "titol": "Anàlisi (administració)",
+          "titol": "Anàlisi (direcció)",
           "claus": "anàlisi balanç departaments direcció",
           "text": [
-            "Amb nivell **admin**, el botó **Anàlisi** mostra totes les especialitats (hores a assignar, assignades, pendents, excés i data de desat) i els docents amb hores que no quadren. Amb PDF."
+            "Amb nivell **admin**, el botó **Anàlisi** mostra totes les especialitats agrupades per departament/àmbit (hores a assignar, assignades, pendents, excés i data de desat) i els docents amb hores que no quadren. Amb PDF."
+          ]
+        }
+      ]
+    },
+    "horaris": {
+      "titol": "Horaris · planificador",
+      "graella": false,
+      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). Ara hi ha el marc horari i l'exportació de dades per al motor; les aules i les regles vindran després.",
+      "temes": [
+        {
+          "id": "hor-dies",
+          "titol": "Dies i franges",
+          "claus": "dies franges esbarjo hores inici final marc horari",
+          "text": [
+            "**1 · Dies lectius**: marqueu els dies de la setmana amb classe.",
+            "**2 · Franges i esbarjos**: l'hora d'inici i de final de cada franja. **+ franja lectiva** i **+ esbarjo** n'afegeixen una al final (comença on acaba l'anterior). La casella **Esbarjo** converteix una franja en esbarjo i al revés.",
+            "Els codis es posen sols: F1, F2… les lectives i E1, E2… els esbarjos. Les franges han d'anar en ordre i no es poden encavalcar (si n'hi ha, surt un avís a sota)."
+          ]
+        },
+        {
+          "id": "hor-graella",
+          "titol": "Graella i franges no lectives",
+          "claus": "graella no lectiva nivell batxillerat tarda",
+          "text": [
+            "**3 · Graella setmanal**: com quedarà la setmana. Per marcar les franges en què un nivell **no té classe** (p. ex. el batxillerat que entra més tard), trieu el nivell al desplegable i feu clic a les caselles (ratllades = no lectiva). Torneu a fer clic per desfer-ho.",
+            "Amb «Cap» al desplegable, la graella mostra quins nivells no tenen classe a cada franja. A sota, el nombre de franges lectives de cada nivell."
+          ]
+        },
+        {
+          "id": "hor-reunions",
+          "titol": "Reunions",
+          "claus": "reunions equips docents departaments franja reservada",
+          "text": [
+            "**4 · Reunions**: franges reservades (p. ex. equips docents dimarts F6). El motor no hi posarà classes del professorat que hi ha d'anar."
+          ]
+        },
+        {
+          "id": "hor-desa",
+          "titol": "Desar, importar i exportar",
+          "claus": "desa json exporta motor importa marc_horari",
+          "text": [
+            "**Desa**: guarda el marc horari a GESTIO (configuració). Mentre hi ha canvis sense desar, el botó diu **Desa \\***.",
+            "**marc_horari.json**: descarrega només el marc horari. **Importa JSON** carrega un marc_horari.json (o una exportació completa) per revisar-lo i desar-lo.",
+            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents i hores, assignacions, desiderata i marc horari). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori. També es pot fer amb la funció `exportaHoraris` de l'Apps Script, que el desa a Drive."
+          ]
+        }
+      ]
+    }
+  },
+  "guies": {
+    "desiderata": {
+      "titol": "Guia de la Desiderata per als caps de departament/àmbit",
+      "kicker": "Guia · Desiderata",
+      "intro": "La desiderata és la proposta de cada departament/àmbit sobre quin docent farà cada matèria i grup el curs vinent. Aquesta guia explica, pas a pas, com omplir-la a GESTIO.",
+      "temes": [
+        {
+          "titol": "Entrar a la Desiderata",
+          "text": [
+            "Obriu **institutjoanmiro.netlify.app/gestio** i entreu amb el vostre compte **@institutjoanmiro.cat**.",
+            "A la pàgina d'inici, obriu el mòdul **Desiderata**. Si no el veieu, la direcció encara no us ha posat com a cap del vostre departament/àmbit."
+          ]
+        },
+        {
+          "titol": "Triar l'especialitat",
+          "text": [
+            "A dalt surt el nom del vostre **departament/àmbit** i les especialitats que en formen part.",
+            "Si n'hi ha més d'una, trieu-la al desplegable **Especialitat**. Cada especialitat es desa per separat: deseu abans de canviar-ne."
+          ]
+        },
+        {
+          "titol": "Entendre la taula",
+          "text": [
+            "Cada fila és una **assignació** de l'especialitat: un nivell i una matèria, amb les **hores per grup** i el **nombre de grups** (a sota de la matèria, els noms dels grups).",
+            "Exemple: Anglès · 1r ESO · 4 h/grup · 4 grups = 16 hores per repartir."
+          ]
+        },
+        {
+          "titol": "Posar els docents",
+          "text": [
+            "Premeu **+ docent**, trieu el docent al desplegable i escriviu **quants grups** fa.",
+            "No cal dir quins grups concrets (A, B…): ho decideix després la direcció.",
+            "Una assignació es pot repartir entre diversos docents (p. ex. 2 grups cadascun). Si cal, podeu triar docents d'altres especialitats o departaments/àmbits.",
+            "La columna **Pendents** ha de quedar en ✓. Per treure un docent, premeu la paperera."
+          ]
+        },
+        {
+          "titol": "Revisar els comptadors i els docents",
+          "text": [
+            "A dalt: **hores a assignar**, **assignades** i **pendents**. L'objectiu és tenir 0 hores pendents.",
+            "A la taula **Docents**, cada docent ha de tenir tantes hores assignades com hores lectives amb alumnat (✓). Si surt ⚠: li falten hores, en té de més o no té hores lectives a la fitxa (aviseu la direcció)."
+          ]
+        },
+        {
+          "titol": "Observacions pedagògiques",
+          "text": [
+            "Escriviu-hi el que la direcció ha de tenir en compte: criteris del departament/àmbit, continuïtat de docents amb grups, preferències de nivells, desdoblaments…"
+          ]
+        },
+        {
+          "titol": "Desar",
+          "text": [
+            "Premeu **Desa**. Si encara queden hores pendents o hi ha alguna incoherència, surt un avís: podeu desar igualment i acabar més tard.",
+            "Mentre hi ha canvis sense desar, el botó diu **Desa \\***."
+          ]
+        },
+        {
+          "titol": "Exportar",
+          "text": [
+            "**PDF** i **Excel** recullen tot el que es veu a la pantalla i una llista de totes les **incoherències**. És el document per a la reunió de departament/àmbit o per lliurar a la direcció."
+          ]
+        },
+        {
+          "titol": "Dubtes",
+          "text": [
+            "Al botó **?** de GESTIO hi ha l'ajuda de cada pantalla. Per a qualsevol dubte, adreceu-vos a la direcció."
           ]
         }
       ]

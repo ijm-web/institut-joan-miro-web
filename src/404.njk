@@ -1,0 +1,33 @@
+---
+layout: base.njk
+title: "Pàgina no trobada — Institut Joan Miró"
+permalink: "404.html"
+lang: ca
+slug: ""
+eleventyExcludeFromCollections: true
+pageStyles: |
+  /* ============ PAS 48 · 404 ============ */
+  .e404{ max-width: 880px; margin: 0 auto; padding: clamp(56px, 9vw, 120px) clamp(16px, 4vw, 48px); text-align: center; }
+  .e404__num{ display: block; font-size: clamp(88px, 16vw, 160px); font-weight: 200; line-height: 1; color: var(--color-blue); letter-spacing: .04em; }
+  .e404__num span{ color: var(--color-orange); }
+  .e404 h1{ margin: 18px 0 10px; font-size: clamp(22px, 3vw, 30px); font-weight: 500; color: var(--color-blue); }
+  .e404 p{ margin: 0 auto 8px; max-width: 620px; color: var(--color-text); line-height: 1.6; }
+  .e404 p[lang]{ color: #5A6070; font-size: 15px; }
+  .e404__links{ display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; margin-top: 28px; }
+  .e404__links a{ padding: 12px 22px; border-radius: 999px; border: 1.5px solid var(--color-blue); color: var(--color-blue); font-weight: 700; text-decoration: none; }
+  .e404__links a:first-child{ background: var(--color-blue); color: #fff; }
+  .e404__links a:hover{ background: var(--color-orange); border-color: var(--color-orange); color: #fff; }
+---
+<div class="e404">
+  <span class="e404__num">4<span>0</span>4</span>
+  <h1>No trobem aquesta pàgina</h1>
+  <p>Potser l’enllaç és antic o l’adreça té alguna errada. Podeu tornar a l’inici o fer servir el cercador de dalt.</p>
+  <p lang="es">No encontramos esta página. Puede que el enlace sea antiguo o que la dirección tenga algún error.</p>
+  <p lang="en">We can’t find this page. The link may be out of date or the address may contain a typo.</p>
+  <div class="e404__links">
+    <a href="/">Inici</a>
+    <a href="/es/" lang="es">Inicio</a>
+    <a href="/en/" lang="en">Home</a>
+    <a href="/contacte.html">Contacte</a>
+  </div>
+</div>

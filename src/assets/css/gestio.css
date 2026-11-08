@@ -383,3 +383,28 @@
 .gs-des__doc input{ width:56px; padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; text-align:center; }
 .gs-des__obs{ width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #D5D9E6; border-radius:10px; font:inherit; }
 .gs-des .gs-cen{ text-align:center; }
+/* PAS 48 */
+.gs-des__dep{ flex:1 1 100%; margin:0 0 4px; font-size:14px; color:#1E1E2A; }
+.gs-dep__taula td{ vertical-align:top; }
+.gs-dep__taula input[type="text"]{ width:220px; padding:5px 8px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-dep__taula select{ max-width:260px; padding:5px 8px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-dep__esps{ display:flex; flex-wrap:wrap; gap:4px 12px; max-width:520px; }
+.gs-dep__esps .gs-check{ margin:0; font-size:13px; }
+/* PAS 48 · Horaris · planificador */
+.gs-hor__sec{ margin:0 0 22px; }
+.gs-hor__fr input[type="time"]{ padding:4px 6px; border:1px solid #D5D9E6; border-radius:6px; font:inherit; }
+.gs-hor__fr tr.is-esb td{ background:#FFF4E5; }
+.gs-hor__grid{ border-collapse:separate; border-spacing:4px; width:100%; max-width:980px; }
+.gs-hor__grid th{ font-size:12px; text-align:left; color:#5A6070; font-weight:600; padding:4px 6px; white-space:nowrap; }
+.gs-hor__grid th small{ display:block; font-weight:400; }
+.gs-hor__grid td{ height:44px; border:1px solid #E1E5EE; border-radius:8px; background:#fff; padding:3px 6px; font-size:11px; vertical-align:top; }
+.gs-hor__grid td.is-clic{ cursor:pointer; } .gs-hor__grid td.is-clic:hover{ border-color:#1C0CBC; }
+.gs-hor__grid td.is-nl{ background:repeating-linear-gradient(45deg,#F1F2F7,#F1F2F7 6px,#E3E5EE 6px,#E3E5EE 12px); }
+.gs-hor__grid tr.is-esb td{ height:auto; background:#FFF4E5; border-color:#F6D9BF; color:#B54700; text-align:center; font-weight:600; }
+.gs-hor__nl{ display:block; color:#5A6070; font-weight:700; } .gs-hor__nls{ display:block; color:#7A8094; }
+.gs-hor__reu{ display:block; margin-top:2px; padding:1px 6px; border-radius:6px; background:#ECEAFD; color:#1C0CBC; font-weight:600; }
+.gs-hor__resum{ display:flex; flex-wrap:wrap; gap:6px 18px; margin:10px 0 0; padding:0; list-style:none; font-size:13px; }
+.gs-hor__imp{ cursor:pointer; }
+.gs-hor__grid{ table-layout:fixed; }
+.gs-hor__grid thead th:first-child, .gs-hor__grid tbody th{ width:110px; }
+.gs-hor .gs-form-fila select{ width:auto; min-width:200px; max-width:280px; }
