@@ -505,7 +505,9 @@
   var ordreNivell = function (v) { var o = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'], i = o.indexOf(String(v || '').replace(/\bBat\b/i, 'BAT')); return i < 0 ? (v ? 50 : 99) : i; };
   function filtreDe(c, compacte) {
     var opts = c.tipus === 'si_no' ? function () { return [{ v: 'sí', t: 'sí' }, { v: '', t: 'no' }]; }
-      : c.tipus === 'llista' ? function () { return c.valors.split('|').map(function (x) { x = x.trim(); return { v: x, t: x }; }).concat([BUIT]); }
+      // PAS 53: també els valors que hi ha a les dades i que ja no són a la llista (p. ex. un docent que ja no és en actiu)
+      : c.tipus === 'llista' ? function () { var ll = c.valors.split('|').map(function (x) { return x.trim(); }); return ll.map(function (x) { return { v: x, t: x }; })
+        .concat(valorsDiferents(c.clau).filter(function (o) { return o !== BUIT && ll.indexOf(o.v) < 0; }).map(function (o) { return { v: o.v, t: o.t + ' (fora de la llista)' }; })).concat([BUIT]); }
       : c.tipus === 'data' ? function () { return valorsDiferents(c.clau).map(function (o) { return o === BUIT ? o : { v: o.v, t: dataVista(o.v) }; }); }
       : function () { return valorsDiferents(c.clau); };
     // PAS 47: el filtre Nivell, en l'ordre de les etapes (ESO i després batxillerat), no alfabètic
@@ -1813,12 +1815,12 @@
     api('curriculum_comprova_desiderata', {}, 'Comprovant la desiderata…').then(function (r) {
       if (!r.ok) return toast(text(r.error), true);
       if (!r.incoherencies.length && silenciosSiOk) return;
-      var T = { falta: 'Falten grups', fora: 'No és a la desiderata', diferent: 'Grups diferents', no_actiu: 'Docent no en actiu' };
+      var T = { falta: 'Falten grups', fora: 'No és a la desiderata', diferent: 'Grups diferents', no_actiu: 'Docent no en actiu', fora_no_actiu: 'No és a la desiderata i ja no és en actiu' };
       var B = r.bloqueig || {};
       pregunta('Comprova la desiderata', (B.bloquejada ? '' : '<p class="gs-des__estat is-avis">⚠ La desiderata no està bloquejada: els caps encara la poden canviar.</p>') +
         '<p><b>' + r.correctes + '</b> assignacions coincideixen amb la desiderata' + (r.sense_desiderata ? ' · <b>' + r.sense_desiderata + '</b> sense desiderata desada' : '') + '.</p>' +
         (r.incoherencies.length ? '<p class="prog-avis">' + r.incoherencies.length + ' incoherències:</p><div class="gs-comprova"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Assignació</th><th>Docent</th><th class="gs-cen">Desiderata</th><th class="gs-cen">Assignats</th><th>Què passa</th></tr></thead><tbody>' +
-          r.incoherencies.map(function (x) { return '<tr><td>' + esc(x.assignacio) + '<br><small class="gs-gris">' + esc(x.especialitat) + '</small></td><td>' + esc(x.docent) + '</td><td class="gs-cen">' + x.desiderata + '</td><td class="gs-cen">' + x.assignats + '</td><td>' + esc(T[x.tipus] || x.tipus) + '</td></tr>'; }).join('') + '</tbody></table></div>'
+          r.incoherencies.map(function (x) { return '<tr><td>' + esc(x.assignacio) + '<br><small class="gs-gris">' + esc(x.especialitat) + '</small></td><td>' + esc(x.docent) + (x.grups && x.grups.length ? '<br><small class="gs-gris">' + esc(x.grups.join(', ')) + '</small>' : '') + '</td><td class="gs-cen">' + x.desiderata + '</td><td class="gs-cen">' + x.assignats + '</td><td>' + esc(T[x.tipus] || x.tipus) + '</td></tr>'; }).join('') + '</tbody></table></div>'
           : r.correctes ? '<p class="is-ok">✓ Les assignacions coincideixen amb la desiderata.</p>' : '<p class="gs-gris">Encara no hi ha cap desiderata desada per comparar.</p>'),
         [{ t: 'Tanca', valor: 0 }], false);
     });

@@ -3141,7 +3141,7 @@ function comprovaDesiderata_(ctx) {
   const per = {};
   llegeix_(FULL.curg).forEach((r) => { const k = String(r.especialitat || '') + '¦' + (r.id_materia || (r.nivell + '·' + r.materia)) + '|' + numCur_(r.hores);
     const x = per[k] = per[k] || { nivell: r.nivell, materia: r.materia, hores: numCur_(r.hores), especialitat: r.especialitat || '', grups: 0, profs: {} };
-    x.grups++; if (r.professor) x.profs[r.professor] = (x.profs[r.professor] || 0) + 1; });
+    x.grups++; if (r.professor) { x.profs[r.professor] = (x.profs[r.professor] || 0) + 1; ((x.grupsDe = x.grupsDe || {})[r.professor] = x.grupsDe[r.professor] || []).push(r.grup); } });
   const inc = [], ok = { assignacions: 0 };
   Object.keys(per).forEach((k) => {
     const x = per[k], esp = x.especialitat, clau = k.split('¦')[1], d = (des[esp] || {})[clau];
@@ -3151,9 +3151,11 @@ function comprovaDesiderata_(ctx) {
     let be = true;
     Object.keys(vol).concat(Object.keys(x.profs)).filter((n, i, a) => a.indexOf(n) === i).forEach((n) => {
       const v = vol[n] || 0, t = x.profs[n] || 0;
-      if (v !== t) { be = false; inc.push({ tipus: v && !t ? 'falta' : !v ? 'fora' : 'diferent', especialitat: esp, assignacio: nom, docent: n, desiderata: v, assignats: t }); }
+      // Una sola línia per docent: si ja no és en actiu, es diu (amb els grups on surt, per trobar-lo a la graella)
+      const g = (x.grupsDe || {})[n] || [];
+      if (t && !actius[n]) { be = false; inc.push({ tipus: v ? 'no_actiu' : 'fora_no_actiu', especialitat: esp, assignacio: nom, docent: n, desiderata: v, assignats: t, grups: g }); return; }
+      if (v !== t) { be = false; inc.push({ tipus: v && !t ? 'falta' : !v ? 'fora' : 'diferent', especialitat: esp, assignacio: nom, docent: n, desiderata: v, assignats: t, grups: g }); }
     });
-    Object.keys(x.profs).forEach((n) => { if (!actius[n]) { be = false; inc.push({ tipus: 'no_actiu', especialitat: esp, assignacio: nom, docent: n, desiderata: vol[n] || 0, assignats: x.profs[n] }); } });
     if (be) ok.assignacions++;
   });
   const sense = Object.keys(per).filter((k) => { const x = per[k]; return !((des[x.especialitat] || {})[k.split('¦')[1]]); }).length;

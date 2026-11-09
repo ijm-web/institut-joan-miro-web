@@ -826,7 +826,7 @@
             "Les files de **codocència** (o **cotutoria**, si és una tutoria) es marquen amb una etiqueta (p. ex. «Codocència ×2»): n'hi ha una per docent, cadascuna amb totes les hores, i no és un error.",
             "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT).",
             "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata).",
-            "**Comprova la desiderata**: compara les assignacions (també els canvis fets a mà) amb la desiderata: per a cada assignació i docent, els grups de la desiderata i els assignats. Avisa de grups que falten o sobren, docents que no són a la desiderata i docents que ja no són en actiu.",
+            "**Comprova la desiderata**: compara les assignacions (també els canvis fets a mà) amb la desiderata: per a cada assignació i docent, els grups de la desiderata i els assignats. Avisa de grups que falten o sobren, docents que no són a la desiderata i docents que ja no són en actiu. Per a cada docent amb incoherències surten els grups on és assignat, per trobar-lo a la graella. Al filtre de la columna Professor/a, els docents que ja no són en actiu surten amb «(fora de la llista)». Per substituir-los pel docent de la desiderata, feu **Aplica la desiderata** amb «Substitueix també els que ja tenen professor/a».",
             "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes)."
           ]
         },
