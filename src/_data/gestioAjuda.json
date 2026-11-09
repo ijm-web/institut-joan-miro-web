@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 52 · 9 de novembre de 2026",
+  "versio": "PAS 53 · 9 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -815,7 +815,7 @@
         {
           "id": "cur-grups",
           "titol": "Assignacions",
-          "claus": "assignacions grup especialitat professor repartir dividir tisores parts",
+          "claus": "assignacions grup especialitat professor repartir dividir tisores parts comprova desiderata incoherències",
           "text": [
             "Pestanya **Assignacions** (abans «Grups i especialitats»): cada grup de cada matèria amb l'**especialitat que l'imparteix**. Per defecte és la de la matèria; es pot canviar (p. ex. Lectura impartida per Matemàtiques).",
             "**Repartir les hores d'un grup** (botó de les **tisores**): una part es queda amb les hores que indiqueu i la resta passa a una part nova amb l'especialitat que trieu. Es pot repetir amb qualsevol part. Exemple: Optativa d'Anglès de 1r ESO A (3 h) → 1 h Anglès + 1 h Alemany + 1 h Matemàtiques.",
@@ -825,7 +825,9 @@
             "El nom del **grup** no s'edita aquí: surt dels grups-classe de la matèria (pestanya Grups i distribució). El **professor/a** és opcional (desplegable del professorat actual).",
             "Les files de **codocència** (o **cotutoria**, si és una tutoria) es marquen amb una etiqueta (p. ex. «Codocència ×2»): n'hi ha una per docent, cadascuna amb totes les hores, i no és un error.",
             "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT).",
-            "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata)."
+            "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata).",
+            "**Comprova la desiderata**: compara les assignacions (també els canvis fets a mà) amb la desiderata: per a cada assignació i docent, els grups de la desiderata i els assignats. Avisa de grups que falten o sobren, docents que no són a la desiderata i docents que ja no són en actiu.",
+            "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes)."
           ]
         },
         {
@@ -893,6 +895,16 @@
           ]
         },
         {
+          "id": "des-tancament",
+          "titol": "Data de tancament i bloqueig",
+          "claus": "tancament bloqueig bloquejada data límit consulta",
+          "text": [
+            "La direcció fixa la **data de tancament** i pot **bloquejar** la desiderata amb el botó **Tancament** (només administració).",
+            "Els caps de departament/àmbit veuen a dalt la data de tancament i els dies que queden. Si està **bloquejada** (🔒), només la poden consultar: no hi poden fer canvis. L'administració la pot continuar editant.",
+            "Al Currículum, **Aplica la desiderata** i **Comprova la desiderata** avisen si la desiderata encara no està bloquejada (els caps la poden canviar)."
+          ]
+        },
+        {
           "id": "des-assignacions",
           "titol": "Repartir les assignacions",
           "claus": "assignació docent grups repartir comptadors pendents especialitat",
@@ -900,7 +912,8 @@
             "A dalt surt el departament/àmbit i un desplegable amb les seves especialitats.",
             "Una fila per a cada assignació de l'especialitat (Currículum › Assignacions), agrupada per matèria i hores per grup: nivell, matèria (amb els grups), hores per grup i nombre de grups.",
             "Amb **+ docent** s'afegeix un docent i **quants grups** fa. No cal dir quins: després la direcció ho passa a les assignacions (vegeu «Aplica la desiderata»). Al desplegable surten primer els docents de l'especialitat, després els de la resta del departament/àmbit i després tots els altres.",
-            "La columna **Pendents** diu els grups que falten (✓ si quadra; ⚠ si se n'han posat de més). A dalt, els comptadors d'hores a assignar, assignades i pendents."
+            "La columna **Pendents** diu els grups que falten (✓ si quadra; ⚠ si se n'han posat de més). A dalt, els comptadors d'hores a assignar, assignades i pendents.",
+            "A la llista de docents només hi surt el **professorat en actiu**: estat «actiu» o «substitut». No hi surten els que estan de baixa, de baixa laboral o de permís, ni els que tenen un substitut en actiu (hi surt el substitut)."
           ]
         },
         {
@@ -927,7 +940,8 @@
           "claus": "aplica desiderata grups professor assignacions direcció",
           "text": [
             "A **Currículum › Assignacions**, el botó **Aplica la desiderata** posa el **professor/a de cada grup** segons la desiderata desada: per ordre de grup (1r ESO A, B, C…), tants grups com n'hi ha posats a cada docent.",
-            "Per defecte només omple els grups sense professor/a; es pot marcar que substitueixi també els que ja en tenen. Després es pot canviar qualsevol grup a mà a la columna Professor/a."
+            "Per defecte només omple els grups sense professor/a; es pot marcar que substitueixi també els que ja en tenen. Després es pot canviar qualsevol grup a mà a la columna Professor/a.",
+            "Després d'aplicar-la, es fa sola la comprovació (**Comprova la desiderata**) i, si hi ha incoherències, es mostren."
           ]
         },
         {
@@ -960,9 +974,10 @@
         {
           "id": "hor-aules",
           "titol": "Aules",
-          "claus": "aules tipus laboratori gimnàs música taller informàtica idiomes dibuix capacitat conjunts alternatives",
+          "claus": "aules tipus laboratori gimnàs música taller informàtica idiomes dibuix capacitat conjunts alternatives clickedu clau",
           "text": [
-            "**1 · Aules del centre**: codi (p. ex. A01, LAB1, GIM), nom o ubicació, **tipus** (ordinària, laboratori, informàtica, idiomes, música, gimnàs/pista, taller, dibuix, desdoblament, altres) i capacitat. **+ aula** n'afegeix una.",
+            "**1 · Aules del centre**: codi (fins a 16 caràcters; p. ex. A11, LBIOLOGIA, GIMNAS), nom o ubicació, **tipus** (ordinària, laboratori, informàtica, idiomes, música, gimnàs/pista, taller, dibuix, desdoblament, altres) i capacitat. **+ aula** n'afegeix una.",
+            "**Claus de Clickedu**: cada aula té el **nom a Clickedu** i la **clau** de Clickedu, que calen per importar l'horari a Clickedu. El botó **Claus de Clickedu (XML)** llegeix el fitxer d'exportació de Clickedu (o un resultat de Peñalara), relaciona cada aula de Clickedu amb la de GESTIO (pel codi o el nom), proposa les aules que falten amb el tipus i, si el fitxer en porta, els conjunts d'aules. Primer es mostra la proposta; res no es desa fins que premeu **Desa**.",
             "**2 · Conjunts d'aules alternatives**: grups d'aules que poden substituir l'aula preferent d'una sessió quan és ocupada (p. ex. «Laboratoris»: LAB1 i LAB2). Cada conjunt té un nom i les aules marcades. **+ conjunt** n'afegeix un; **Proposa un conjunt per a cada tipus d'aula** en crea un per tipus amb totes les aules d'aquell tipus.",
             "L'aula de cada matèria ja no es tria aquí: es tria a la pestanya **Sessions lectives** (aula preferent i aules alternatives).",
             "**3 · Hi ha prou aules?**: per a cada tipus, les hores disponibles (aules × franges lectives de la setmana) i les que calen segons l'aula preferent de les sessions. ⚠ si en falten."
@@ -1063,6 +1078,13 @@
           ]
         },
         {
+          "titol": "Data de tancament i bloqueig",
+          "text": [
+            "A dalt de tot veureu la **data de tancament** que ha fixat la direcció i els dies que queden. Cal desar la desiderata abans d'aquesta data.",
+            "Quan la direcció la **bloqueja** (🔒 Desiderata bloquejada), ja no s'hi poden fer canvis: només es pot consultar i exportar en PDF o Excel."
+          ]
+        },
+        {
           "titol": "Entendre la taula",
           "text": [
             "Cada fila és una **assignació** de l'especialitat: un nivell i una matèria, amb les **hores per grup** i el **nombre de grups** (a sota de la matèria, els noms dels grups).",
@@ -1075,7 +1097,8 @@
             "Premeu **+ docent**, trieu el docent al desplegable i escriviu **quants grups** fa.",
             "No cal dir quins grups concrets (A, B…): ho decideix després la direcció.",
             "Una assignació es pot repartir entre diversos docents (p. ex. 2 grups cadascun). Si cal, podeu triar docents d'altres especialitats o departaments/àmbits.",
-            "La columna **Pendents** ha d'acabar amb la marca verda ✓ (cap grup pendent); si surt un número, són els grups que encara falten. Per treure un docent, premeu la icona de la **paperera** de la seva fila."
+            "La columna **Pendents** ha d'acabar amb la marca verda ✓ (cap grup pendent); si surt un número, són els grups que encara falten. Per treure un docent, premeu la icona de la **paperera** de la seva fila.",
+            "Al desplegable només hi surt el **professorat en actiu**: si un docent té un substitut, hi surt el substitut."
           ]
         },
         {

@@ -330,6 +330,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Catàleg de regles del motor** (`reglesMotor_`): `regles_motor` a `horaris_dades` i a l'exportació = {obligatories: [{id, text, dades}], toves: [{id, text, unitat, activa, pes}], penalitzacio}. La pestanya Regles el mostra (regles obligatòries i taula de penalitzacions). Vegeu `generador-horaris/REGLES.md`.
 - **Clickedu** (al generador d'horaris, Python): `horaris/clickedu.py` llegeix i escriu el format GHC XML (claus `claveDeExportacion`, secció `<horario>` per importar a Clickedu, com Peñalara) i `horaris/correspondencies.py` relaciona GESTIO amb les claus de Clickedu. Els XML reals no es pugen mai (`.gitignore`).
 
+## PAS 53
+- **Professorat en actiu per planificar** (`actiusPlanificacio_`): currículum (desplegable del professor/a), desiderata, hores i horaris només fan servir el professorat amb estat «actiu» o «substitut» que no estigui substituït per un substitut en actiu (camp «Substitueix a»). Fora: baixa, baixa laboral, permís.
+- **Desiderata**: config `desiderata_tancament` (AAAA-MM-DD) i `desiderata_bloquejada` (si/no). Acció `desiderata_config` (administració, botó «Tancament»). `desiderata_dades` porta `bloqueig`; `desiderata_desa` torna `desiderata_bloquejada` si no és administració. Els caps veuen l'estat a dalt.
+- **Currículum › Assignacions**: botó «Comprova la desiderata» (acció `curriculum_comprova_desiderata`: incoherències falta / fora / diferent / no_actiu per assignació i docent). «Aplica la desiderata» mostra si està bloquejada i en acabar fa la comprovació.
+- **Horaris · planificador**: `horaris_dades` porta `esquema`; si l'Apps Script desplegat és anterior, el client ho diu (abans la pantalla quedava buida) i un error en pintar una pestanya es mostra en lloc de deixar-la buida. Aules amb `nom_clickedu` i `clau_clickedu` (codis de fins a 16 caràcters; clau única) i botó «Claus de Clickedu (XML)» (llegeix el GHC al navegador, proposa i no desa fins a Desa).
+- **Web**: Recollida de títols (cursos fins al 2025-2026 i avís de consultar la secretaria); Sol·licitud de títols (dos documents informatius i el bloc «Després de fer el tràmit»: 48 h i documentació).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

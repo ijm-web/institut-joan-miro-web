@@ -34,7 +34,7 @@ pdfmetrics.registerFontFamily("M-R", normal="M-R", bold="M-S", italic="M-R", bol
 pdfmetrics.registerFont(TTFont("DJ", os.path.join(LIB, "fonts", "DejaVuSans.ttf")))
 SIMBOLS = "✓⚠✗⅔←→↔×⇣"
 # PAS 50: cap de les dues fonts té 📌 ni ⛔ (emoji): al PDF es treuen i el text ja diu «fixa» i «prohibida»
-EMOJI = {"📌 ": "", "⛔ ": ""}
+EMOJI = {"📌 ": "", "⛔ ": "", "🔒 ": "", " (🔒)": ""}
 
 W, H = A4
 MX = 20 * mm
