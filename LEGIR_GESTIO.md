@@ -326,6 +326,10 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Blocs paral·lels** (optatives, divisions): ara a la pestanya Subgrups (es continuen desant a `horaris_regles`); avís si un docent hi surt dos cops. La pestanya «Regles i blocs» passa a dir-se «Regles».
 - **Exportació**: `hores_b` (blocs per grup-classe amb torns) i `subgrups` (hores_b i bloc_parallel amb els seus grups-classe); assignacions amb `bloc_b` i `hores_b_bloc`. `horaris_dades` porta `subgrups`, `grups_nivell` i `hores_b_avisos`; `materies` porta `hores_a`, `hores_b`.
 
+## PAS 52
+- **Catàleg de regles del motor** (`reglesMotor_`): `regles_motor` a `horaris_dades` i a l'exportació = {obligatories: [{id, text, dades}], toves: [{id, text, unitat, activa, pes}], penalitzacio}. La pestanya Regles el mostra (regles obligatòries i taula de penalitzacions). Vegeu `generador-horaris/REGLES.md`.
+- **Clickedu** (al generador d'horaris, Python): `horaris/clickedu.py` llegeix i escriu el format GHC XML (claus `claveDeExportacion`, secció `<horario>` per importar a Clickedu, com Peñalara) i `horaris/correspondencies.py` relaciona GESTIO amb les claus de Clickedu. Els XML reals no es pugen mai (`.gitignore`).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

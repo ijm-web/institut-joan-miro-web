@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 51 · 8 de novembre de 2026",
+  "versio": "PAS 52 · 9 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -1011,11 +1011,23 @@
         {
           "id": "hor-regles",
           "titol": "Regles",
-          "claus": "regles pesos forats hores seguides aula alternativa penalització obligatòries",
+          "claus": "regles pesos forats hores seguides aula alternativa penalització obligatòries catàleg penalització obligatòries toves",
           "text": [
             "**Regles del motor**: preferències amb un **pes** de 1 (poc important) a 5 (molt important): màxim d'hores seguides d'una matèria, repartir les hores en dies diferents, evitar forats al professorat, respectar la desiderata i les penalitzacions d'aula: **usar una aula alternativa** (per defecte 2) i **usar qualsevol aula** (per defecte 4).",
             "Les regles obligatòries sempre es compleixen: un docent, un grup, un subgrup o una aula no poden ser a dos llocs alhora; posicions fixes i prohibides; blocs paral·lels a la mateixa franja amb docents i aules diferents; sessions d'un bloc d'hores B simultànies per als subgrups i totes el mateix dia.",
+            "**Regles obligatòries** i **Penalitzacions de les regles toves**: el catàleg complet tal com va a l'exportació per al motor (`regles_motor`). Penalització total = suma de pes × unitats (p. ex. cada hora buida d'un docent, cada hora fora de l'aula preferent); el motor busca l'horari amb la penalització més baixa i compleix sempre les obligatòries.",
             "Els blocs paral·lels (optatives i divisions) són a la pestanya **Subgrups**."
+          ]
+        },
+        {
+          "id": "hor-clickedu",
+          "titol": "Clickedu i el motor",
+          "claus": "clickedu peñalara ghc xml claus importar exportar correspondències",
+          "text": [
+            "Clickedu i el generador d'horaris es comuniquen amb el format **GHC XML**, el mateix que fa servir Peñalara.",
+            "**Entrada**: Clickedu exporta el fitxer GHC amb aules, professorat, matèries, grups i sessions; cada element porta la seva **clau de Clickedu**. El generador (Python) les relaciona amb GESTIO i escriu un fitxer de correspondències per revisar.",
+            "**Sortida**: un cop fet l'horari, el generador escriu el mateix fitxer GHC amb la secció de l'horari (per a cada franja i aula, la sessió i el docent). Clickedu l'importa com feia amb el de Peñalara i reconeix cada element per la clau.",
+            "Els fitxers de Clickedu i de Peñalara contenen noms del professorat: no es pugen mai a cap repositori."
           ]
         },
         {
@@ -1024,7 +1036,7 @@
           "claus": "desa json exporta motor",
           "text": [
             "**Desa** guarda totes les pestanyes que tenen canvis (marcades amb \\*).",
-            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents amb posicions fixes i prohibides, assignacions amb distribució, aules i graella, desiderata, marc horari, aules, conjunts d'aules, regles, blocs d'hores B amb la rotació i la llista de subgrups). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori."
+            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents amb posicions fixes i prohibides, assignacions amb distribució, aules i graella, desiderata, marc horari, aules, conjunts d'aules, regles, blocs d'hores B amb la rotació la llista de subgrups i el catàleg de regles del motor). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori."
           ]
         }
       ]

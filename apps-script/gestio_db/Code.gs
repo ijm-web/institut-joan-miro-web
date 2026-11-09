@@ -53,7 +53,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 51;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 52;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -3367,7 +3367,7 @@ function horarisDades_(ctx) {
   return { ok: true, marc: marcHorari_(cfg), per_defecte: !String(cfg.horaris_marc || '').trim(), nivells: NIVELLS_ESO.concat(NIVELLS_BAT), dies: DIES_SETMANA, pot_desar: pot_(ctx, 'horaris', 'edicio'),
     aules: aulesHoraris_(cfg), aules_per_defecte: !String(cfg.horaris_aules || '').trim(), regles: reglesHoraris_(cfg), regles_per_defecte: !String(cfg.horaris_regles || '').trim(),
     tipus_aula: TIPUS_AULA, materies: materiesHoraris_(cfg), sessions: sessionsHoraris_(cfg), professorat: professoratHorarisH_(),
-    subgrups: subgrupsHoraris_(cfg), grups_nivell: grupsNivell_(cfg), hores_b_avisos: horesBExpandit_(cfg).avisos };
+    subgrups: subgrupsHoraris_(cfg), grups_nivell: grupsNivell_(cfg), hores_b_avisos: horesBExpandit_(cfg).avisos, regles_motor: reglesMotor_(cfg) };
 }
 function horarisAulesDesa_(ctx, req) {
   if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
@@ -3450,7 +3450,34 @@ function dadesHoraris_() {
   assignacions.forEach((a) => { const x = ses[a.id] || {}; Object.assign(a, { id_professor: perNom[a.professor] || '', bloc_b: x.bloc_b || '', hores_b_bloc: x.bloc_b ? x.hores_b : 0, distribucio: x.distribucio || '', aula_preferent: x.aula || '', aules_alternatives: conj[x.conjunt] || [], fixes: x.fixes || [], prohibides: x.prohibides || [] }); });
   const desiderata = {}; llegeix_(FULL.des).forEach((r) => { try { desiderata[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
   return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, marc_horari: marcHorari_(cfg), aules: aulesHoraris_(cfg).aules, conjunts_aules: aulesHoraris_(cfg).conjunts,
-    regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata, hores_b: horesBExpandit_(cfg).llista, subgrups: subgrupsExport_(cfg, assignacions) };
+    regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata, hores_b: horesBExpandit_(cfg).llista, subgrups: subgrupsExport_(cfg, assignacions), regles_motor: reglesMotor_(cfg) };
+}
+// PAS 52 · Catàleg de regles del motor: obligatòries (no es poden incomplir) i toves (cada incompliment suma pes × unitats
+// a la penalització total, que el motor minimitza). «dades» = on són al fitxer d'exportació.
+function reglesMotor_(cfg) {
+  const T = reglesHoraris_(cfg).toves, P = T.pesos;
+  const ob = [
+    ['docent', 'Un docent no pot fer dues sessions alhora (també a la codocència).', 'assignacions[].id_professor · docents_aula'],
+    ['grup', 'Un grup-classe no pot tenir dues sessions alhora; un subgrup ocupa el seu grup-classe.', 'assignacions[].grups_classe · subgrups[]'],
+    ['aula', 'Una aula només pot tenir una sessió alhora.', 'aules[]'],
+    ['hores', 'Cada sessió fa totes les seves hores, en blocs segons la distribució (un bloc de 2 h és en franges seguides, sense esbarjo entremig).', 'assignacions[].hores · distribucio'],
+    ['marc', 'Només es fan servir les franges lectives del marc horari.', 'marc_horari'],
+    ['fixes_sessio', 'Les posicions fixes d\'una sessió s\'han de fer servir; les prohibides, no.', 'assignacions[].fixes · prohibides'],
+    ['fixes_docent', 'El docent fa classe a les seves posicions fixes i mai a les prohibides.', 'docents[].fixes · prohibides'],
+    ['blocs_parallels', 'Les matèries d\'un bloc paral·lel (optatives, divisions) es fan a la mateixa franja, amb docents i aules diferents.', 'regles.blocs_parallels · subgrups[bloc_parallel]'],
+    ['hores_b', 'A cada sessió B, els subgrups del bloc fan simultàniament una matèria diferent (rotació), amb docents i aules diferents.', 'hores_b[].torns'],
+    ['hores_b_dia', 'Totes les sessions B d\'un grup-classe són el mateix dia (no cal que siguin seguides).', 'hores_b[].mateix_dia'],
+    ['aula_capacitat', 'Si no hi ha lloc a l\'aula preferent ni a les alternatives, l\'aula ha de tenir prou capacitat.', 'aules[].capacitat']
+  ].map((r) => ({ id: r[0], text: r[1], dades: r[2] }));
+  const tv = [
+    ['seguides', 'Màxim de ' + T.max_hores_seguides_materia + ' h seguides d\'una mateixa matèria.', 'per cada hora de més', T.max_hores_seguides_materia > 0],
+    ['dies', 'Repartir les hores de cada matèria en dies diferents.', 'per cada sessió de més el mateix dia', T.repartir_en_dies_diferents],
+    ['forats', 'Evitar forats a l\'horari del professorat.', 'per cada hora buida entre classes, per docent i dia', T.minimitzar_forats_docents],
+    ['desiderata', 'Respectar la desiderata (docent de cada grup).', 'per cada grup amb un docent diferent del demanat', T.respectar_desiderata],
+    ['aula_alternativa', 'Sessió en una aula del conjunt alternatiu (avís).', 'per cada hora fora de l\'aula preferent', true],
+    ['aula_qualsevol', 'Sessió en qualsevol aula de capacitat suficient (avís).', 'per cada hora fora de la preferent i de les alternatives', true]
+  ].map((r) => ({ id: r[0], text: r[1], unitat: r[2], activa: !!r[3], pes: P[r[0]] || 0 }));
+  return { obligatories: ob, toves: tv, penalitzacio: 'Σ pes × unitats de totes les regles toves actives; el motor busca l\'horari amb la penalització més baixa.' };
 }
 // PAS 51 · Llista de subgrups per al motor: els de les hores B (G1, G2…) i un per assignació de cada bloc paral·lel (optatives, divisions)
 function subgrupsExport_(cfg, assignacions) {

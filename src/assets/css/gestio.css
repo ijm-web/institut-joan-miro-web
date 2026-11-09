@@ -447,3 +447,5 @@
 .gs-hor__sg ul { margin: 4px 0 0 18px; padding: 0; columns: 2; }
 .gs-hor__b { background: #e7f1fb; }
 @media (max-width: 640px) { .gs-hor__sg ul { columns: 1; } }
+.gs-hor__regles { margin: 6px 0 12px 28px; padding: 0; font-size: .88rem; }
+.gs-hor__regles li { margin: 3px 0; }
