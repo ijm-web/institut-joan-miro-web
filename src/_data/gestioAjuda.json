@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 53 · 9 de novembre de 2026",
+  "versio": "PAS 54 · 9 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -985,31 +985,29 @@
         },
         {
           "id": "hor-subgrups",
-          "titol": "Subgrups: hores B i optatives",
-          "claus": "subgrups hores B desdoblament G1 G2 rotació optatives divisions blocs paral·lels simultanis",
+          "titol": "Subgrups",
+          "claus": "subgrups grups-classe claus clickedu peñalara diversitat hores B optatives importar",
           "text": [
-            "Un **subgrup** és una part de l'alumnat que fa una matèria a la mateixa hora que la resta en fa una altra. Els botons de dalt trien el nivell.",
-            "**1 · Hores B**: el grup-classe es divideix en subgrups (G1, G2…) i, a la mateixa hora, cada subgrup fa una matèria del bloc amb el seu docent i a la seva aula. A la sessió següent s'intercanvien (p. ex. sessió 1: G1 Anglès · G2 Tecnologia; sessió 2: G1 Tecnologia · G2 Anglès).",
-            "**+ bloc d'hores B** en crea un: marqueu les matèries (totes amb les mateixes hores B al currículum) i els grups-classe on es fa. Una matèria d'un grup només pot ser en un bloc.",
-            "Regla obligatòria del motor: totes les sessions B d'un grup-classe són **el mateix dia** (no cal que siguin seguides).",
-            "La taula **Hores B de cada grup-classe** mostra el bloc de cada matèria amb hores B; ⚠ sense bloc vol dir que totes les seves hores es faran amb el grup sencer.",
-            "⚠ si el mateix docent hauria de fer dues matèries d'un bloc alhora.",
-            "**2 · Optatives i divisions (blocs paral·lels)**: matèries que es fan a la mateixa franja; cada una és un subgrup amb el seu docent i la seva aula (a les optatives, l'alumnat de diversos grups-classe en tria una). **Subgrups simultanis** els llista. Totes han de tenir les mateixes hores i docents diferents (si no, ⚠).",
-            "**Proposa un bloc d'optatives per nivell** crea un bloc «Optatives» amb les optatives de cada nivell, per revisar."
+            "Un **subgrup** és tot conjunt d'alumnes d'un nivell que no coincideix amb cap grup-classe. N'hi ha de quatre tipus: **diversitat** (Català, Castellà i Matemàtiques fora del grup-classe: LC1-A, LC1-AB-DIV…), **hores B** (meitat d'un grup-classe: 1ESOA-G1, 1ESOA-G2), **optativa** (alumnat de tots els grups-classe: OSA1, OSI1…) i **altres**.",
+            "**1 · Grups-classe**: el nom i la clau de cada grup-classe a Clickedu.",
+            "**2 · Subgrups**: nom a Clickedu, clau, tipus i de quins grups-classe surt l'alumnat (les lletres). La columna Sessions diu quantes parts el fan servir.",
+            "El botó **Grups de Clickedu/Peñalara (CSV/XML)** importa les llistes de grups i de subgrups de Peñalara (CSV) o l'exportació de Clickedu (XML). Primer mostra la proposta; res no es desa fins que premeu **Desa**.",
+            "Les **claus dels grups-classe** que valen són les de l'exportació de Clickedu: si importeu un fitxer de Peñalara i ja hi ha una clau, es manté.",
+            "Quines sessions fa cada subgrup i quines són simultànies es diu a **Sessions lectives**."
           ]
         },
         {
           "id": "hor-sessions",
           "titol": "Sessions lectives",
-          "claus": "sessions distribució aula preferent alternatives graella fixa prohibida lliure matèria grup",
+          "claus": "sessions parts distribució aula preferent alternatives graella blocs simultanis hores B diversitat optatives",
           "text": [
-            "Una fila per matèria i grup (de Currículum › Grups i assignacions). Els botons de dalt trien el nivell.",
-            "**Distribució**: com es reparteixen les hores en sessions. Cada xifra és una sessió i el seu valor, les hores seguides: «111» = tres sessions d'una hora; «21» = una sessió de dues hores i una d'una. Ha de sumar les hores de la matèria.",
-            "Si la matèria és en un bloc d'hores B, la fila mostra l'etiqueta del bloc (p. ex. **B1 · B**) i les hores com «2 + 2 B»: la distribució només reparteix les hores de grup sencer; les hores B les col·loca el motor segons el bloc.",
-            "**Aula preferent**: l'aula on el motor intentarà posar la sessió. **Aules alternatives**: el conjunt d'aules que pot fer servir si la preferent és ocupada.",
-            "El motor prova per ordre: 1) l'aula preferent; 2) una aula del conjunt alternatiu (penalització i avís); 3) qualsevol aula lliure de capacitat suficient (penalització més gran i avís).",
-            "**Graella**: obre la setmana (dies × franges). Cada clic canvia la casella: lliure → 📌 fixa (la sessió hi ha d'anar) → ⛔ prohibida (no hi pot anar) → lliure. **Totes lliures** les buida. No hi pot haver més fixes que sessions.",
-            "**⇣** copia la distribució, les aules i la graella de la fila a tots els grups del mateix nivell i matèria."
+            "**1 · Sessions de cada matèria**: cada matèria i grup (de Currículum › Assignacions) es pot partir en **parts**. Cada part la fa un **grup-classe o un subgrup** (columna «La fa») i té les seves hores, distribució, aula preferent, aules alternatives i graella.",
+            "**✂** parteix una part (n'hi treu 1 h per a una part nova); **×** treu una part (les hores tornen a la primera); **B** fa les hores B d'un grup-classe: grup sencer + la meitat de les hores B per a G1 + l'altra meitat per a G2 (cal tenir els subgrups G1 i G2 a la pestanya Subgrups); **⇣** copia les parts a tots els grups de la matèria, amb el subgrup equivalent de cada grup.",
+            "**Assigna els subgrups automàticament** posa el subgrup de diversitat (LC, LS, MA) i d'optativa (OSA, OSI, OSF, OAN, OMA, OTE, OEF…) segons el nom.",
+            "**Distribució**: «111» = tres sessions d'una hora; «21» = una de dues hores i una d'una. Ha de sumar les hores de la part.",
+            "**Graella**: cada clic canvia la casella: lliure → 📌 fixa → ⛔ prohibida → lliure.",
+            "**2 · Blocs simultanis**: sessions que es fan **a la mateixa hora, en aules diferents** i amb docents diferents: diversitat (Català A + Català B + Català AB-DIV), hores B (G1 Experimentals + G2 Tecnologia…) i optatives. Totes han de tenir les mateixes hores.",
+            "**Proposa els blocs del nivell** crea els de diversitat, optatives i hores B (amb rotació: a cada bloc, G1 i G2 fan matèries diferents). L'etiqueta **Mateix dia que** fa que els blocs amb la mateixa etiqueta es facin el mateix dia (p. ex. les hores B d'un grup-classe)."
           ]
         },
         {
@@ -1029,9 +1027,8 @@
           "claus": "regles pesos forats hores seguides aula alternativa penalització obligatòries catàleg penalització obligatòries toves",
           "text": [
             "**Regles del motor**: preferències amb un **pes** de 1 (poc important) a 5 (molt important): màxim d'hores seguides d'una matèria, repartir les hores en dies diferents, evitar forats al professorat, respectar la desiderata i les penalitzacions d'aula: **usar una aula alternativa** (per defecte 2) i **usar qualsevol aula** (per defecte 4).",
-            "Les regles obligatòries sempre es compleixen: un docent, un grup, un subgrup o una aula no poden ser a dos llocs alhora; posicions fixes i prohibides; blocs paral·lels a la mateixa franja amb docents i aules diferents; sessions d'un bloc d'hores B simultànies per als subgrups i totes el mateix dia.",
-            "**Regles obligatòries** i **Penalitzacions de les regles toves**: el catàleg complet tal com va a l'exportació per al motor (`regles_motor`). Penalització total = suma de pes × unitats (p. ex. cada hora buida d'un docent, cada hora fora de l'aula preferent); el motor busca l'horari amb la penalització més baixa i compleix sempre les obligatòries.",
-            "Els blocs paral·lels (optatives i divisions) són a la pestanya **Subgrups**."
+            "Les regles obligatòries sempre es compleixen: un docent, un grup, un subgrup o una aula no poden ser a dos llocs alhora; posicions fixes i prohibides; les sessions d'un bloc simultani a la mateixa hora amb docents i aules diferents; els blocs amb la mateixa etiqueta «mateix dia», el mateix dia.",
+            "**Regles obligatòries** i **Penalitzacions de les regles toves**: el catàleg complet tal com va a l'exportació per al motor (`regles_motor`). Penalització total = suma de pes × unitats (p. ex. cada hora buida d'un docent, cada hora fora de l'aula preferent); el motor busca l'horari amb la penalització més baixa i compleix sempre les obligatòries."
           ]
         },
         {

@@ -337,6 +337,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Horaris · planificador**: `horaris_dades` porta `esquema`; si l'Apps Script desplegat és anterior, el client ho diu (abans la pantalla quedava buida) i un error en pintar una pestanya es mostra en lloc de deixar-la buida. Aules amb `nom_clickedu` i `clau_clickedu` (codis de fins a 16 caràcters; clau única) i botó «Claus de Clickedu (XML/CSV)» (llegeix al navegador el GHC o la llista d'aules de Peñalara en CSV amb «;», proposa i no desa fins a Desa).
 - **Web**: Recollida de títols (cursos fins al 2025-2026 i avís de consultar la secretaria); Sol·licitud de títols (dos documents informatius i el bloc «Després de fer el tràmit»: 48 h i documentació).
 
+## PAS 54
+- **Subgrups redissenyats**: `config › horaris_subgrups` = {classes: {"1r ESO A": {nom, clau}}, subgrups: [{id S1…, nivell, nom, clau, tipus diversitat|hores_b|optativa|altres, grups: [lletra]}], blocs: [{id B1…, nivell, nom, tipus, parts: ["ASG-…#P1"], mateix_dia}]}. Substitueix les hores B del PAS 51 (`hores_b`) i els blocs paral·lels (que es queden a `horaris_regles` però ja no es fan servir).
+- **Importació** de grups i subgrups (al navegador): llistes de Peñalara en CSV (`;`, Windows-1252: «Grupos…Clave externa…Curso» i «Subgrupo…Clave externa…El subgrupo forma parte…Curso») o GHC XML. Les claus dels grups-classe de l'exportació de Clickedu manen; les de Peñalara no en substitueixen cap.
+- **Sessions lectives per parts**: columna `parts` (JSON) al full `horaris_sessions`: [{id P1…, grup (grup-classe o id de subgrup), hores, distribucio, aula, conjunt, fixes, prohibides}]. Per defecte, una part; si la matèria és d'un sol grup-classe, el fa aquest grup. Les columnes antigues guarden la primera part.
+- **Blocs simultanis** a Sessions lectives (proposta automàtica de diversitat, optatives i hores B amb rotació).
+- **Exportació**: `classes_clickedu`, `subgrups` (nom, clau, tipus, grups_classe), `blocs_simultanis` i `assignacions[].parts`. Regles: `subgrups`, `blocs_simultanis`, `mateix_dia` (substitueixen `blocs_parallels`, `hores_b`, `hores_b_dia`).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
