@@ -1157,9 +1157,10 @@
           "claus": "importa full calendari 26-27 font_calendari",
           "text": [
             "**Importa del full** (administració) llegeix el full del calendari (config › font_calendari; pestanyes de config › font_calendari_pestanyes; columna J = data, K = esdeveniment) i hi mostra quants esdeveniments nous hi ha abans d'afegir-los.",
-            "Entén dates com 1/9, 14-16/9, 15/9-15/10, 25/1 al 26/2, 1 a 3/6, 08/03/2027 i 19, 20, 23 i 24/11. Si la data és buida, és la de la fila anterior. L'hora del principi del text (8:15, 9:00-14:00) va al camp Hora.",
+            "Entén dates com 1/9, 14-16/9, 15/9-15/10, 25/1 al 26/2, 1 a 3/6, 08/03/2027 i 19, 20, 23 i 24/11 (dies seguits = un sol esdeveniment de diversos dies). Si la data és buida, és la de la fila anterior. L'hora del principi del text (8:15, 9:00-14:00) o del final («… - 11:45») va al camp Hora.",
             "La categoria i els nivells es dedueixen del text (famílies, inici, exàmens, PAU, intercanvis… = General): **reviseu-los**, sobretot els generals, abans de publicar.",
-            "No es repeteixen els que ja hi són (mateixa data i descripció) ni els festius, que són a les dates clau. Es pot tornar a importar sense duplicar res."
+            "«Inici segon trimestre» i «Inici classes 3r trimestre» posen l'inici del 2n i del 3r trimestre a les dates clau. No s'importen els festius, la lliure disposició, les festes locals, «Inici vacances» ni «Inici 1r trimestre», que ja són dates clau.",
+            "No es repeteixen els que ja hi són (mateixa data i descripció). Es pot tornar a importar sense duplicar res. La pestanya «3r Trimestre» (del curs 2024-2025) no es llegeix."
           ]
         }
       ]

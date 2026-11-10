@@ -4030,10 +4030,10 @@ const DATES_CAL_PER_DEFECTE_ = { curs: '2026-2027', dates: [
   { des: '2026-09-11', tipus: 'festiu', nom: { ca: 'Diada Nacional de Catalunya', es: 'Diada Nacional de Cataluña', en: 'Catalonia National Day' } },
   { des: '2026-10-09', tipus: 'lliure' },
   { des: '2026-10-12', tipus: 'festiu', nom: { ca: 'Festa Nacional d’Espanya', es: 'Fiesta Nacional de España', en: 'Spanish National Day' } },
+  { des: '2026-12-01', tipus: 'trimestre2' },
   { des: '2026-12-07', tipus: 'lliure' },
   { des: '2026-12-08', tipus: 'festiu', nom: { ca: 'La Immaculada', es: 'La Inmaculada', en: 'Immaculate Conception' } },
   { des: '2026-12-22', fins: '2027-01-07', tipus: 'vacances', nom: { ca: 'Vacances de Nadal', es: 'Vacaciones de Navidad', en: 'Christmas holidays' } },
-  { des: '2027-01-08', tipus: 'trimestre2' },
   { des: '2027-02-08', tipus: 'lliure' },
   { des: '2027-03-08', tipus: 'trimestre3' },
   { des: '2027-03-20', fins: '2027-03-29', tipus: 'vacances', nom: { ca: 'Vacances de Setmana Santa', es: 'Vacaciones de Semana Santa', en: 'Easter holidays' } },
@@ -4179,20 +4179,26 @@ function parseDataCal_(txt, curs) {
 }
 function separaHoraCal_(t) {
   const s = String(t || '').replace(/\s+/g, ' ').trim(), m = /^(\d{1,2}[:.]\d{2})(?:\s*-\s*(\d{1,2}[:.]\d{2}))?\s+(.*)$/.exec(s);
-  return m ? { hora: m[1].replace('.', ':') + (m[2] ? '-' + m[2].replace('.', ':') : ''), text: m[3].trim() } : { hora: '', text: s };
+  if (m) return { hora: m[1].replace('.', ':') + (m[2] ? '-' + m[2].replace('.', ':') : ''), text: m[3].trim() };
+  const f = /^(.*\S)\s*-\s*(\d{1,2}:\d{2})$/.exec(s);   // «Xerrada … - 11:45»
+  return f ? { hora: f[2], text: f[1].trim() } : { hora: '', text: s };
 }
 function nivellsCal_(t) {
   let s = ' ' + String(t || '').replace(/batxillerat|batx\.?|\bbat\b/gi, 'BAT') + ' ';
   const out = {}, ord = { 1: '1r', 2: '2n', 3: '3r', 4: '4t' };
-  s = s.replace(/((?:\b[1-4](?:r|n|t|er|º)?\s*(?:,|\bi\b|\by\b|-|\/)?\s*)+)(?:de\s+)?(ESO|BAT)\b/gi, (tot, nums, etapa) => {
-    const E = etapa.toUpperCase(); (nums.match(/[1-4]/g) || []).forEach((n) => { if (E === 'BAT' && n > 2) return; out[ord[n] + ' ' + E] = 1; }); return ' '; });
+  s = s.replace(/((?:\b[1-4](?:r|n|t|er|º)?\s*(?:,|\bi\b|\by\b|\ba\b|-|\/)?\s*)+)(?:de\s+)?(ESO|BAT)\b/gi, (tot, nums, etapa) => {
+    const E = etapa.toUpperCase(); let ns = (nums.match(/[1-4]/g) || []).map(Number); const iv = /([1-4])\D*\ba\b\D*([1-4])/.exec(nums);
+    if (iv) for (let k = Number(iv[1]); k <= Number(iv[2]); k++) ns.push(k);
+    ns.forEach((n) => { if (E === 'BAT' && n > 2) return; out[ord[n] + ' ' + E] = 1; }); return ' '; });
   if (/\bESO\b/i.test(s)) NIVELLS_CAL_.slice(0, 4).forEach((n) => { out[n] = 1; });
   if (/\bBAT\b/.test(s)) NIVELLS_CAL_.slice(4).forEach((n) => { out[n] = 1; });
   return NIVELLS_CAL_.filter((n) => out[n]);
 }
 // General = el que interessa a les famílies (es publica); la resta, Intern. Es revisa després al web.
-const GENERAL_CAL_ = /\binici\b|\bfi del\b|final classes|acaben les classes|[uú]ltim dia de classes|vacances|fam[ií]lies|portes obertes|sant jordi|castanyada|carnestoltes|\bPAU\b|intercanvi|ex[aà]mens|recuperaci|proves|butllet|festa local/i;
-const CLAU_CAL_ = /^(festiu|lliure disposici[oó]|festa local)\s*$/i;   // ja són a les dates clau
+const GENERAL_CAL_ = /\binici (de )?classes|\binici .{0,12}trimestre|\bfi del .{0,4}trimestre|final classes|acaben les classes|[uú]ltim dia de classes|vacances|fam[ií]lies|portes obertes|sant jordi|castanyada|carnestoltes|\bPAU\b|intercanvi|ex[aà]mens|recuperaci|proves|butllet|festa local/i;
+const CLAU_CAL_ = /^(festiu|lliure disposici[oó]|festa local|inici vacances|inici 1r trimestre.*)\s*$/i;
+// «Inici segon trimestre» / «Inici classes 3r trimestre» → dates clau trimestre2 i trimestre3
+const TRIM_CAL_ = [[/^inici (?:de )?(?:classes )?(?:del? )?(?:segon|2n) trimestre/i, 'trimestre2'], [/^inici (?:de )?(?:classes )?(?:del? )?(?:tercer|3r) trimestre/i, 'trimestre3']];   // ja són a les dates clau
 function llegeixFullCalendari_(cfg) {
   const id = (String(cfg.font_calendari || '').match(/[-\w]{25,}/) || [''])[0];
   if (!id) throw new Error('Falta config › font_calendari');
@@ -4205,7 +4211,7 @@ function llegeixFullCalendari_(cfg) {
 }
 // files: [[data, text]] → esdeveniments nets (sense els que ja hi són: mateixa data i descripció)
 function esdevenimentsDeFull_(files, curs, existents) {
-  const vist = {}, nous = [], dubtes = [];
+  const vist = {}, nous = [], dubtes = [], trimestres = {};
   (existents || []).forEach((e) => { vist[e.data_inici + '|' + normNom_(e.descripcio)] = 1; });
   let ant = [];
   files.forEach((r) => {
@@ -4215,12 +4221,23 @@ function esdevenimentsDeFull_(files, curs, existents) {
     if (d && !ant.length) { dubtes.push(d + ' · ' + t); return; }
     if (!ant.length || CLAU_CAL_.test(t)) return;
     const h = separaHoraCal_(t);
+    TRIM_CAL_.forEach((tr) => { if (tr[0].test(h.text) && !trimestres[tr[1]]) trimestres[tr[1]] = ant[0].des; });
     ant.forEach((x) => {
       const k = x.des + '|' + normNom_(h.text); if (vist[k]) return; vist[k] = 1;
       nous.push({ data_inici: x.des, data_fi: x.fins || '', hora: h.hora, categoria: GENERAL_CAL_.test(h.text) ? 'General' : 'Intern', nivells: nivellsCal_(h.text), descripcio: h.text });
     });
   });
-  return { nous: nous, dubtes: dubtes };
+  return { nous: nous, dubtes: dubtes, trimestres: trimestres };
+}
+// Posa a les dates clau l'inici del 2n i del 3r trimestre trobats al full (si canvien)
+function aplicaTrimestresCal_(cfg, trim, email) {
+  const D = datesCalendari_(cfg); let canvi = false;
+  Object.keys(trim || {}).forEach((t) => { const x = D.dates.filter((d) => d.tipus === t)[0];
+    if (x && x.des !== trim[t]) { x.des = trim[t]; canvi = true; } else if (!x) { D.dates.push({ des: trim[t], tipus: t }); canvi = true; } });
+  if (!canvi) return null;
+  const r = netDatesCal_(D); if (r.errors.length) return null;
+  posaConfig_('calendari_dates', JSON.stringify(r.net)); historial_(email, 'calendari_dates', 'config', 'calendari_dates', 'trimestres del full: ' + JSON.stringify(trim));
+  return trim;
 }
 function calendariImporta_(ctx, req) {
   if (!pot_(ctx, 'calendari', 'admin')) return { ok: false, error: 'sense_permis' };
@@ -4228,16 +4245,18 @@ function calendariImporta_(ctx, req) {
   let files; try { files = llegeixFullCalendari_(cfg); } catch (e) { return { ok: false, error: 'font_inaccessible', detall: String(e.message || e) }; }
   const r = esdevenimentsDeFull_(files, D.curs || cfg.curs, esdevenimentsCal_());
   const resum = { general: r.nous.filter((e) => e.categoria === 'General').length, intern: r.nous.filter((e) => e.categoria === 'Intern').length };
-  if (req.prova) return { ok: true, prova: true, n: r.nous.length, resum: resum, mostra: r.nous.slice(0, 8), dubtes: r.dubtes.slice(0, 20) };
-  if (!r.nous.length) return { ok: true, n: 0, resum: resum, dubtes: r.dubtes.slice(0, 20), esdeveniments: esdevenimentsCal_() };
+  if (req.prova) return { ok: true, prova: true, n: r.nous.length, resum: resum, mostra: r.nous.slice(0, 8), dubtes: r.dubtes.slice(0, 20), trimestres: r.trimestres };
+  const trim = aplicaTrimestresCal_(cfg, r.trimestres, ctx.email);
+  if (!r.nous.length) return { ok: true, n: 0, resum: resum, dubtes: r.dubtes.slice(0, 20), esdeveniments: esdevenimentsCal_(), trimestres: trim, dates: datesCalendari_(llegeixConfig_()) };
   const d = calendariDesa_(ctx, { esdeveniments: r.nous });
   if (!d.ok) return d;
-  return { ok: true, n: r.nous.length, resum: resum, dubtes: r.dubtes.slice(0, 20), esdeveniments: d.esdeveniments };
+  return { ok: true, n: r.nous.length, resum: resum, dubtes: r.dubtes.slice(0, 20), esdeveniments: d.esdeveniments, trimestres: trim, dates: datesCalendari_(llegeixConfig_()) };
 }
 // Execució manual des de l'editor (la mateixa importació que el botó «Importa del full» del web)
 function importaCalendari() {
   const cfg = llegeixConfig_(), D = datesCalendari_(cfg), r = esdevenimentsDeFull_(llegeixFullCalendari_(cfg), D.curs || cfg.curs, esdevenimentsCal_());
   const ctx = { email: 'importaCalendari', nivell: () => 'admin', cfg: cfg, global: true };
   if (r.nous.length) calendariDesa_(ctx, { esdeveniments: r.nous });
+  aplicaTrimestresCal_(cfg, r.trimestres, 'importaCalendari');
   Logger.log('Calendari: ' + r.nous.length + ' esdeveniments nous.' + (r.dubtes.length ? ' Dates no reconegudes: ' + r.dubtes.join(' | ') : ''));
 }

@@ -2949,7 +2949,8 @@
         if (!ok) return;
         return api('calendari_importa', {}, 'Important…').then(function (r2) {
           if (!r2.ok) { toast(r2.errors ? r2.errors.join(' ') : text(r2.error), true); return; }
-          S.cal.r.esdeveniments = r2.esdeveniments; toast(r2.n + ' esdeveniments importats.'); pintaCalendari();
+          S.cal.r.esdeveniments = r2.esdeveniments; if (r2.dates) S.cal.r.dates = r2.dates; S.cal.datesEd = null;
+          toast(r2.n + ' esdeveniments importats.' + (r2.trimestres ? ' Inici dels trimestres posat a les dates clau segons el full.' : '')); pintaCalendari();
         });
       });
     });
