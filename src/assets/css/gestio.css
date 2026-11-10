@@ -455,3 +455,13 @@
 .gs-des__estat { flex: 1 1 100%; margin: 4px 0 0; padding: 6px 10px; border-radius: 6px; background: #e7f1fb; font-size: .9rem; }
 .gs-des__estat.is-avis { background: #fff6e5; } .gs-des__estat.is-bloc { background: #fbebeb; }
 .gs-comprova { max-height: 55vh; overflow: auto; margin: 6px 0; }
+
+/* PAS 55 */
+.gs-hor__ord { background: none; border: 0; padding: 0; font: inherit; color: inherit; cursor: pointer; text-transform: inherit; letter-spacing: inherit; }
+.gs-hor__ord:hover { text-decoration: underline; }
+.gs-hor__tot { background: none; border: 0; padding: 2px 4px; font: inherit; cursor: pointer; border-radius: 4px; }
+.gs-hor__tot:hover { background: #e7f1fb; }
+.gs-hor__grid--guard td { padding: 3px; white-space: nowrap; }
+.gs-hor__gq { display: inline-flex; align-items: center; gap: 2px; margin: 0 2px; font-size: .75rem; font-weight: 600; }
+.gs-hor__gq input { width: 3.2em; padding: 2px 4px; }
+.gs-hor__gq--o span { color: #1d3b6f; } .gs-hor__gq--b span { color: #6b4fa0; } .gs-hor__gq--p span { color: #2f7d32; }

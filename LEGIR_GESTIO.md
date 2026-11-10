@@ -344,6 +344,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Blocs simultanis** a Sessions lectives (proposta automàtica de diversitat, optatives i hores B amb rotació).
 - **Exportació**: `classes_clickedu`, `subgrups` (nom, clau, tipus, grups_classe), `blocs_simultanis` i `assignacions[].parts`. Regles: `subgrups`, `blocs_simultanis`, `mateix_dia` (substitueixen `blocs_parallels`, `hores_b`, `hores_b_dia`).
 
+## PAS 55
+- **Planificador**: aules ordenables per columna; sessions lectives per matèria i grup; a les graelles de posicions, el nom d'un dia o d'una franja canvia tota la columna o fila.
+- **Professorat del planificador**: full `horaris_professorat` amb `clau_clickedu`, `guardies_o`, `guardies_b`, `guardies_p`; botó «Claus de Clickedu (CSV)» (llista del professorat de Peñalara, al navegador). Clau única.
+- **Guàrdies** (pestanya nova): `config › horaris_guardies` = {demanda: {"dia F1": {o}, "dia E1": {b, p}}}; acció `horaris_guardies_desa` (ordinàries només a les lectives; biblioteca i pati a l'esbarjo). Cobertura global (demanda vs professorat). Exportació: `guardies`, `docents[].guardies`, `docents[].clau_clickedu`; regla obligatòria `guardies`.
+- **Professorat (mòdul)**: botó «Carrega dades des del Currículum» (acció `professorat_carrega_curriculum` {prova}): lectives ESO/Bat, atenció individual, tutories i càrrec (només si és buit o de tutoria/cap); no toca els docents sense grups.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

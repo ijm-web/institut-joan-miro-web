@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 54 · 9 de novembre de 2026",
+  "versio": "PAS 55 · 10 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -226,10 +226,11 @@
         {
           "id": "prof-hores-lectives",
           "titol": "Hores lectives de classe",
-          "claus": "hores lectives classe currículum reduccions jornada total",
+          "claus": "hores lectives classe currículum reduccions jornada total carrega currículum tutoria atenció individual càrrec",
           "text": [
             "Columnes d'**hores lectives**: les lectives amb alumnat (matèries ESO i Bat, atenció individual, tutories) i les reduccions (tutoria 1r/2n, càrrec directiu, coordinació, coordinació de nivell, reducció de 55 anys). Venen del full de plantilla (importaHoresLectives) i es poden editar aquí o des del Currículum.",
-            "**Total lectives alumnat** i **Total lectives** es calculen sols. **⚠** al Total lectives: no coincideix amb les hores de la jornada (sencera 18, ⅔ 12, mitja 9)."
+            "**Total lectives alumnat** i **Total lectives** es calculen sols. **⚠** al Total lectives: no coincideix amb les hores de la jornada (sencera 18, ⅔ 12, mitja 9).",
+            "**Carrega dades des del Currículum** (botó de dalt) calcula, a partir del professor/a de cada grup a Currículum › Assignacions: lectives matèries ESO i Bat (sense tutoria ni atenció individual), atenció individual (matèries «Atenció individual»), tutoria (matèria) ESO 1r/2n, 3r/4t i Bat, i el càrrec (tutor/a del grup i cap de departament/àmbit; els altres càrrecs no es toquen). Primer mostra què canvia; els docents sense cap grup assignat no es toquen. Després es pot continuar editant a mà."
           ]
         }
       ]
@@ -957,7 +958,7 @@
     "horaris": {
       "titol": "Horaris · planificador",
       "graella": false,
-      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). El planificador té sis pestanyes: Marc horari, Aules, Subgrups, Sessions lectives, Professorat i Regles.",
+      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). El planificador té set pestanyes: Marc horari, Aules, Subgrups, Sessions lectives, Professorat, Guàrdies i Regles.",
       "temes": [
         {
           "id": "hor-marc",
@@ -977,6 +978,7 @@
           "claus": "aules tipus laboratori gimnàs música taller informàtica idiomes dibuix capacitat conjunts alternatives clickedu clau",
           "text": [
             "**1 · Aules del centre**: codi (fins a 16 caràcters; p. ex. A11, LBIOLOGIA, GIMNAS), nom o ubicació, **tipus** (ordinària, laboratori, informàtica, idiomes, música, gimnàs/pista, taller, dibuix, desdoblament, altres) i capacitat. **+ aula** n'afegeix una.",
+            "Les columnes de la taula d'aules (Codi, Nom, Tipus, Capacitat, Clickedu, Clau) s'ordenen fent clic al títol; un segon clic n'inverteix l'ordre.",
             "**Claus de Clickedu**: cada aula té el **nom a Clickedu** i la **clau** de Clickedu, que calen per importar l'horari a Clickedu. El botó **Claus de Clickedu (XML/CSV)** llegeix el fitxer d'exportació de Clickedu (XML), un resultat de Peñalara (XML) o la llista d'aules de Peñalara (CSV), relaciona cada aula de Clickedu amb la de GESTIO (pel codi o el nom), proposa les aules que falten amb el tipus i, si el fitxer en porta, els conjunts d'aules. Primer es mostra la proposta; res no es desa fins que premeu **Desa**.",
             "**2 · Conjunts d'aules alternatives**: grups d'aules que poden substituir l'aula preferent d'una sessió quan és ocupada (p. ex. «Laboratoris»: LAB1 i LAB2). Cada conjunt té un nom i les aules marcades. **+ conjunt** n'afegeix un; **Proposa un conjunt per a cada tipus d'aula** en crea un per tipus amb totes les aules d'aquell tipus.",
             "L'aula de cada matèria ja no es tria aquí: es tria a la pestanya **Sessions lectives** (aula preferent i aules alternatives).",
@@ -1002,10 +1004,11 @@
           "claus": "sessions parts distribució aula preferent alternatives graella blocs simultanis hores B diversitat optatives",
           "text": [
             "**1 · Sessions de cada matèria**: cada matèria i grup (de Currículum › Assignacions) es pot partir en **parts**. Cada part la fa un **grup-classe o un subgrup** (columna «La fa») i té les seves hores, distribució, aula preferent, aules alternatives i graella.",
+            "Les files surten per **matèria** i, dins de cada matèria, per **grup**.",
             "**✂** parteix una part (n'hi treu 1 h per a una part nova); **×** treu una part (les hores tornen a la primera); **B** fa les hores B d'un grup-classe: grup sencer + la meitat de les hores B per a G1 + l'altra meitat per a G2 (cal tenir els subgrups G1 i G2 a la pestanya Subgrups); **⇣** copia les parts a tots els grups de la matèria, amb el subgrup equivalent de cada grup.",
             "**Assigna els subgrups automàticament** posa el subgrup de diversitat (LC, LS, MA) i d'optativa (OSA, OSI, OSF, OAN, OMA, OTE, OEF…) segons el nom.",
             "**Distribució**: «111» = tres sessions d'una hora; «21» = una de dues hores i una d'una. Ha de sumar les hores de la part.",
-            "**Graella**: cada clic canvia la casella: lliure → 📌 fixa → ⛔ prohibida → lliure.",
+            "**Graella**: cada clic canvia la casella: lliure → 📌 fixa → ⛔ prohibida → lliure. El nom d'un **dia** (a dalt) o d'una **franja** (a l'esquerra) canvia tota la columna o tota la fila alhora.",
             "**2 · Blocs simultanis**: sessions que es fan **a la mateixa hora, en aules diferents** i amb docents diferents: diversitat (Català A + Català B + Català AB-DIV), hores B (G1 Experimentals + G2 Tecnologia…) i optatives. Totes han de tenir les mateixes hores.",
             "**Proposa els blocs del nivell** crea els de diversitat, optatives i hores B (amb rotació: a cada bloc, G1 i G2 fan matèries diferents). L'etiqueta **Mateix dia que** fa que els blocs amb la mateixa etiqueta es facin el mateix dia (p. ex. les hores B d'un grup-classe)."
           ]
@@ -1018,7 +1021,20 @@
             "Una fila per docent amb hores assignades (Currículum › Assignacions). El filtre de dalt tria l'especialitat.",
             "**Franges disponibles**: franges lectives de la setmana menys les prohibides. ⚠ si són menys que les hores assignades.",
             "**Graella**: com a les sessions, cada clic canvia la casella: lliure → 📌 fixa (ha de fer classe aquella hora) → ⛔ prohibida (no pot fer classe; p. ex. jornada parcial o una reunió fixa).",
-            "**Observacions**: notes per a qui fa l'horari. La desiderata (mòdul Desiderata) es continua respectant com a regla tova."
+            "**Observacions**: notes per a qui fa l'horari. La desiderata (mòdul Desiderata) es continua respectant com a regla tova.",
+            "**Clau Clickedu**: la clau de cada docent a Clickedu (cal per importar l'horari). El botó **Claus de Clickedu (CSV)** llegeix la llista del professorat de Peñalara i relaciona cada docent pel nom; opcionalment, també posa les guàrdies («Guardias» → ordinàries, «Guardias en recreos» → pati). Res no es desa fins que premeu **Desa**.",
+            "A la graella de cada docent, el nom d'un dia o d'una franja canvia tota la columna o la fila."
+          ]
+        },
+        {
+          "id": "hor-guardies",
+          "titol": "Guàrdies",
+          "claus": "guàrdies ordinàries biblioteca pati esbarjo cobertura",
+          "text": [
+            "Tres tipus de guàrdies: **ordinàries** (O, a les franges lectives), **biblioteca** (B) i **pati** (P), a l'esbarjo.",
+            "**1 · Guàrdies que calen a cada franja**: a cada casella de la graella (dies × franges, amb els esbarjos), quants docents de guàrdia calen de cada tipus. **Omple totes les caselles** posa el mateix nombre a totes les franges lectives (O) o a tots els esbarjos (B i P).",
+            "**2 · Cobertura**: per a cada tipus, les guàrdies demanades (suma de la graella) i les del professorat (suma de la llista). ✓ cobertes o ⚠ si en falten o en sobren. La cobertura de cada franja concreta la calcularà el motor en fer l'horari.",
+            "**3 · Guàrdies de cada docent**: quantes en fa de cada tipus. El motor les posa en franges on el docent no té classe."
           ]
         },
         {
