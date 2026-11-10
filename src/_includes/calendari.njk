@@ -68,6 +68,21 @@
     </ul>
     <p class="cal-note">{{ c.textos.nota[L] }}</p>
   </section>
+  {%- if c.actes[L] | length %}
+  <!-- PAS 56: activitats i esdeveniments publicats des de GESTIO › Calendari -->
+  <section aria-labelledby="cal-actes" class="cal-actes">
+    <h2 class="cal-ttl" id="cal-actes">{{ c.textos.esdeveniments[L] }}</h2>
+    {%- if c.textos.esdevenimentsNota[L] %}<p class="cal-note">{{ c.textos.esdevenimentsNota[L] }}</p>{% endif %}
+    {%- for g in c.actes[L] %}
+    <h3 class="cal-actes__mes">{{ g.nom }}</h3>
+    <ul class="cal-actes__llista">
+      {%- for e in g.llista %}
+      <li><span class="cal-actes__data">{{ e.data }}{% if e.hora %} · {{ e.hora }}{% endif %}</span><span class="cal-actes__text">{{ e.text }}{% if e.nivells %} <span class="cal-actes__niv">{{ e.nivells }}</span>{% endif %}</span></li>
+      {%- endfor %}
+    </ul>
+    {%- endfor %}
+  </section>
+  {%- endif %}
 </div>
 
 </div>

@@ -45,23 +45,37 @@
 
 </div>
 
-{% raw %}
 <script>
-  // Professorat: filtre per nom o especialitat (sense accents ni majúscules)
+  // Professorat: la llista es llegeix de GESTIO › Professorat (PAS 56; la del build és la reserva) i es filtra per nom o
+  // especialitat (sense accents ni majúscules)
   (function(){
-    var input = document.getElementById('profSearch');
-    if (!input) return;
-    var rows = Array.prototype.slice.call(document.querySelectorAll('#profBody tr'));
-    var count = document.getElementById('profCount');
-    var empty = document.getElementById('profEmpty');
-    function norm(s){ return s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); }
-    var texts = rows.map(function(r){ return norm(r.querySelector('.prof-name').textContent + ' ' + r.querySelector('.prof-esp').textContent); });
-    input.addEventListener('input', function(){
+    var input = document.getElementById('profSearch'), body = document.getElementById('profBody');
+    if (!input || !body) return;
+    var L = {{ L | dump | safe }}, ESP = {{ d.especialitats | dump | safe }};
+    var count = document.getElementById('profCount'), empty = document.getElementById('profEmpty');
+    var rows = [], texts = [];
+    function norm(s){ return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase(); }
+    function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function indexa(){
+      rows = Array.prototype.slice.call(body.querySelectorAll('tr'));
+      texts = rows.map(function(r){ return norm(r.querySelector('.prof-name').textContent + ' ' + r.querySelector('.prof-esp').textContent); });
+    }
+    function filtra(){
       var q = norm(input.value.trim()), n = 0;
       rows.forEach(function(r, i){ var on = !q || texts[i].indexOf(q) !== -1; r.hidden = !on; if (on) n++; });
       count.textContent = n;
       empty.hidden = n !== 0;
-    });
+    }
+    indexa();
+    input.addEventListener('input', filtra);
+    fetch('/api/gestio-publics?quin=professorat').then(function(r){ return r.json(); }).then(function(d){
+      if (!d || !d.ok || !d.persones || !d.persones.length) return;
+      body.innerHTML = d.persones.map(function(p){
+        var e = ESP[p.especialitat] || Object.keys(ESP).map(function(k){ return ESP[k]; }).filter(function(x){ return x.ca === p.especialitat; })[0], esp = e ? e[L] : p.especialitat;
+        return '<tr><th scope="row" class="prof-name">' + esc(p.nom) + '</th><td class="prof-esp">' + esc(esp || '') + '</td><td class="prof-mail">' +
+          (p.email ? '<a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a>' : '<span aria-hidden="true">—</span>') + '</td></tr>';
+      }).join('');
+      indexa(); filtra();
+    }).catch(function(){ /* sense connexió amb GESTIO: es manté la llista del build */ });
   })();
 </script>
-{% endraw %}

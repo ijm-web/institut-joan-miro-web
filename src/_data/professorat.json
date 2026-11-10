@@ -611,5 +611,103 @@
       },
       "email": "raquel.vilda@institutjoanmiro.cat"
     }
-  ]
+  ],
+  "_comentari_especialitats": "PAS 56: la llista de la pàgina es carrega de GESTIO › Professorat (persones en actiu; els substituts en lloc de les persones substituïdes) amb /api/gestio-publics. «especialitats» tradueix l'especialitat de GESTIO; «persones» és la reserva si GESTIO no respon.",
+  "especialitats": {
+    "Alemany": {
+      "ca": "Alemany",
+      "es": "Alemán",
+      "en": "German"
+    },
+    "Anglès": {
+      "ca": "Anglès",
+      "es": "Inglés",
+      "en": "English"
+    },
+    "Biologia": {
+      "ca": "Biologia i geologia",
+      "es": "Biología y geología",
+      "en": "Biology and geology"
+    },
+    "Castellà": {
+      "ca": "Llengua castellana",
+      "es": "Lengua castellana",
+      "en": "Spanish"
+    },
+    "Català": {
+      "ca": "Llengua catalana",
+      "es": "Lengua catalana",
+      "en": "Catalan"
+    },
+    "Clàssiques": {
+      "ca": "Llatí i grec",
+      "es": "Latín y griego",
+      "en": "Classics"
+    },
+    "Dibuix": {
+      "ca": "Dibuix",
+      "es": "Dibujo",
+      "en": "Art and design"
+    },
+    "Economia": {
+      "ca": "Economia",
+      "es": "Economía",
+      "en": "Economics"
+    },
+    "Educació Física": {
+      "ca": "Educació física",
+      "es": "Educación física",
+      "en": "Physical education"
+    },
+    "Filosofia": {
+      "ca": "Filosofia",
+      "es": "Filosofía",
+      "en": "Philosophy"
+    },
+    "Física i Química": {
+      "ca": "Física i química",
+      "es": "Física y química",
+      "en": "Physics and chemistry"
+    },
+    "Francès": {
+      "ca": "Francès",
+      "es": "Francés",
+      "en": "French"
+    },
+    "Història": {
+      "ca": "Geografia i història",
+      "es": "Geografía e historia",
+      "en": "Geography and history"
+    },
+    "Italià": {
+      "ca": "Italià",
+      "es": "Italiano",
+      "en": "Italian"
+    },
+    "Matemàtiques": {
+      "ca": "Matemàtiques",
+      "es": "Matemáticas",
+      "en": "Mathematics"
+    },
+    "Música": {
+      "ca": "Música",
+      "es": "Música",
+      "en": "Music"
+    },
+    "Orientació": {
+      "ca": "Orientació educativa",
+      "es": "Orientación educativa",
+      "en": "Educational guidance"
+    },
+    "Religió": {
+      "ca": "Religió",
+      "es": "Religión",
+      "en": "Religion"
+    },
+    "Tecnologia": {
+      "ca": "Tecnologia",
+      "es": "Tecnología",
+      "en": "Technology"
+    }
+  }
 }

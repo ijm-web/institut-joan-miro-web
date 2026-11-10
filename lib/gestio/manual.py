@@ -32,7 +32,7 @@ for w, n in ((300, "M-L"), (400, "M-R"), (600, "M-S"), (700, "M-B")):
 pdfmetrics.registerFontFamily("M-R", normal="M-R", bold="M-S", italic="M-R", boldItalic="M-S")
 # PAS 49: Montserrat no té ✓, ⚠, ⅔ ni fletxes: aquests caràcters surten amb DejaVu Sans
 pdfmetrics.registerFont(TTFont("DJ", os.path.join(LIB, "fonts", "DejaVuSans.ttf")))
-SIMBOLS = "✓⚠✗⅔←→↔×⇣"
+SIMBOLS = "✓⚠✗⅔←→↔×⇣◀▶"
 # PAS 50: cap de les dues fonts té 📌 ni ⛔ (emoji): al PDF es treuen i el text ja diu «fixa» i «prohibida»
 EMOJI = {"📌 ": "", "⛔ ": "", "🔒 ": "", " (🔒)": ""}
 

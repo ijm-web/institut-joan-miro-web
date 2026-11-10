@@ -1,4 +1,7 @@
-module.exports = function (eleventyConfig) {
+module.exports = async function (eleventyConfig) {
+  // PAS 56: calendari publicat des de GESTIO (si n'hi ha), abans de llegir src/_data/calendari.js
+  await require("./lib/calendari-publicat.js").descarrega();
+
   eleventyConfig.addPassthroughCopy("src/assets");
   eleventyConfig.addPassthroughCopy({ "src/favicon.ico": "favicon.ico" });   // PAS 31: icona del web (motiu Miró: punt verd i estrella)
 

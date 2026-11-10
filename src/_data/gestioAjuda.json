@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 55 · 10 de novembre de 2026",
+  "versio": "PAS 56 · 10 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -195,7 +195,8 @@
           "text": [
             "El botó **Llistat** (des d'edició) genera un PDF amb el logo del centre per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
             "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament/àmbit, filtreu abans per especialitat.",
-            "Només hi surt el professorat amb estat **actiu** (ni baixes, ni baixes laborals, ni permisos). El PDF ocupa **dues cares** d'un full A4: el professorat es reparteix entre les dues cares i l'alçada de les files i la lletra s'ajusten perquè l'espai quedi ben aprofitat."
+            "Només hi surt el professorat amb estat **actiu** (ni baixes, ni baixes laborals, ni permisos). El PDF ocupa **dues cares** d'un full A4: el professorat es reparteix entre les dues cares i l'alçada de les files i la lletra s'ajusten perquè l'espai quedi ben aprofitat.",
+            "PAS 56: les línies de la taula del PDF són més gruixudes i fosques, perquè es vegin bé en imprimir-lo."
           ]
         },
         {
@@ -231,6 +232,29 @@
             "Columnes d'**hores lectives**: les lectives amb alumnat (matèries ESO i Bat, atenció individual, tutories) i les reduccions (tutoria 1r/2n, càrrec directiu, coordinació, coordinació de nivell, reducció de 55 anys). Venen del full de plantilla (importaHoresLectives) i es poden editar aquí o des del Currículum.",
             "**Total lectives alumnat** i **Total lectives** es calculen sols. **⚠** al Total lectives: no coincideix amb les hores de la jornada (sencera 18, ⅔ 12, mitja 9).",
             "**Carrega dades des del Currículum** (botó de dalt) calcula, a partir del professor/a de cada grup a Currículum › Assignacions: lectives matèries ESO i Bat (sense tutoria ni atenció individual), atenció individual (matèries «Atenció individual»), tutoria (matèria) ESO 1r/2n, 3r/4t i Bat, i el càrrec (tutor/a del grup i cap de departament/àmbit; els altres càrrecs no es toquen). Primer mostra què canvia; els docents sense cap grup assignat no es toquen. Després es pot continuar editant a mà."
+          ]
+        },
+        {
+          "id": "prof-substitucions",
+          "titol": "Substitucions",
+          "claus": "substitut substitueix substitució hereta lectives reduccions càrrec guàrdies fixes prohibides planificador",
+          "text": [
+            "Quan una fitxa té **Situació laboral = Substitut** i **Substitueix a** (Cognoms, Nom de la persona substituïda), en desar el substitut **hereta** les dades d'ocupació de la persona substituïda:",
+            "- les **hores lectives** i les **reduccions** (només les que el substitut té buides);",
+            "- el **càrrec** (si el substitut no en té);",
+            "- al planificador d'horaris, les **guàrdies** i les **posicions fixes i prohibides** (si el substitut encara no en té cap);",
+            "- els **grups del Currículum**: on hi diu la persona substituïda, el planificador, l'exportació per al motor i la comprovació de la desiderata compten el substitut.",
+            "La persona substituïda (baixa laboral, permís…) surt de les llistes de planificació i de la pàgina pública del professorat; quan torna, n'hi ha prou de treure-li el substitut.",
+            "En desar surt un avís amb quantes dades s'han heretat."
+          ]
+        },
+        {
+          "id": "prof-web",
+          "titol": "Pàgina pública del professorat",
+          "claus": "web pàgina pública el nostre centre professorat llista",
+          "text": [
+            "La pàgina **El nostre centre › Professorat** del web es llegeix d'aquest mòdul: hi surten les persones en actiu (estat «actiu» o «substitut», sense les fitxes de prova ni les persones substituïdes), amb el **nom**, l'**especialitat** (traduïda al castellà i l'anglès) i el **correu del centre**.",
+            "Els canvis surten al web al cap de 5 minuts com a molt. Si GESTIO no respon, la pàgina mostra la darrera llista guardada al web."
           ]
         }
       ]
@@ -1065,6 +1089,77 @@
           "text": [
             "**Desa** guarda totes les pestanyes que tenen canvis (marcades amb \\*).",
             "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents amb posicions fixes i prohibides, assignacions amb distribució, aules i graella, desiderata, marc horari, aules, conjunts d'aules, regles, blocs d'hores B amb la rotació la llista de subgrups i el catàleg de regles del motor). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori."
+          ]
+        }
+      ]
+    },
+    "calendari": {
+      "titol": "Calendari",
+      "graella": false,
+      "intro": "Calendari del curs: esdeveniments **General** (es publiquen al web, Secretaria › Calendari escolar) i **Intern** (només GESTIO), amb els nivells de l'alumnat als quals afecten; dates clau i festius; vistes de llista, dia, setmana, mes i trimestre, totes amb PDF.",
+      "temes": [
+        {
+          "id": "cal-vistes",
+          "titol": "Vistes i filtres",
+          "claus": "llista dia setmana mes trimestre vista avui anterior següent filtre categoria nivell cerca",
+          "text": [
+            "Les pestanyes canvien la vista: **Llista** (tot el curs, per mesos, amb cerca), **Dia**, **Setmana**, **Mes**, **Trimestre** (els mesos en petit, amb punts de colors, i la llista del trimestre) i **Dates clau**.",
+            "Amb ◀ **Avui** ▶ i el calendari petit es canvia de dia, setmana, mes o trimestre. Un clic en el número d'un dia obre la vista del dia.",
+            "Els filtres **Categoria** i **Nivell** valen per a totes les vistes i per als PDF. Amb un nivell triat surten també els esdeveniments sense nivell (són de tot el centre).",
+            "Colors: blau = General, taronja = Intern. Els dies de festiu, lliure disposició, festa local i vacances surten acolorits, i a la cel·la hi diu quin dia és.",
+            "La vista i els filtres es recorden en aquest navegador."
+          ]
+        },
+        {
+          "id": "cal-edita",
+          "titol": "Afegir, canviar i esborrar esdeveniments",
+          "claus": "nou esdeveniment afegeix edita canvia duplica esborra data hora descripció categoria nivells general intern",
+          "text": [
+            "**Afegir**: **+ Nou esdeveniment**, un clic en un espai buit d'un dia (mes o setmana) o la fila ràpida de la llista i del dia (data, hora, descripció, categoria i nivell; Retorn per afegir).",
+            "**Canviar**: un clic en l'esdeveniment obre la fitxa: data, **fins a** (si dura uns quants dies), hora (9:00 o 9:00-11:00), descripció, **categoria** i **nivells** (cap = tot el centre; ESO / Batx. / cap marquen de cop).",
+            "**Duplica** desa una còpia (amb els canvis de la fitxa) i l'obre per canviar-la: útil per a reunions que es repeteixen.",
+            "**Esborra**: des de la fitxa o amb la paperera de la llista (demana confirmació).",
+            "Cada canvi es desa de seguida (no cal cap botó Desa). Cal permís d'edició del mòdul."
+          ]
+        },
+        {
+          "id": "cal-dates",
+          "titol": "Dates clau i festius",
+          "claus": "dates clau festius inici final classes trimestre vacances nadal setmana santa lliure disposició festa local curs",
+          "text": [
+            "La pestanya **Dates clau** té el curs i una fila per data: **tipus**, data, **fins a** (per a les vacances) i, opcionalment, el nom en català, castellà i anglès (en blanc = el del tipus).",
+            "Tipus: inici de classes, darrer dia d'ESO, darrer dia de 1r de Batx., festiu, festa local, lliure disposició, vacances (Nadal, Setmana Santa…) i **inici del 2n i del 3r trimestre** (marquen els trimestres de la vista Trimestre; no es publiquen).",
+            "**+ data** afegeix una fila; **Desa les dates clau** les desa (cal un inici de classes i un darrer dia d'ESO)."
+          ]
+        },
+        {
+          "id": "cal-pdf",
+          "titol": "PDF",
+          "claus": "pdf imprimir exporta",
+          "text": [
+            "**PDF** fa el de la vista actual, amb els filtres i el logo: **Llista**, **Dia** i **Trimestre** en forma de llista per mesos (amb les dates clau); **Setmana** i **Mes** en graella apaïsada, amb els festius acolorits. (G) = General."
+          ]
+        },
+        {
+          "id": "cal-publica",
+          "titol": "Publicar al web",
+          "claus": "publica web secretaria calendari escolar build hook netlify",
+          "text": [
+            "**Publica** (administració del mòdul) envia al web les **dates clau** i els esdeveniments **General**; els interns no surten mai.",
+            "La pàgina **Secretaria › Calendari escolar** (català, castellà i anglès) i el seu PDF es fan de nou amb aquestes dades i hi surt la secció **Activitats i esdeveniments**.",
+            "Si config › **netlify_build_hook** té l'URL d'un *build hook* de Netlify, el web es torna a construir sol i el canvi surt al cap d'uns minuts; si no, surt en el proper desplegament.",
+            "A la barra hi diu quan es va publicar per darrer cop. Després de canviar esdeveniments generals o dates clau, cal tornar a publicar."
+          ]
+        },
+        {
+          "id": "cal-importa",
+          "titol": "Importar del full del calendari",
+          "claus": "importa full calendari 26-27 font_calendari",
+          "text": [
+            "**Importa del full** (administració) llegeix el full del calendari (config › font_calendari; pestanyes de config › font_calendari_pestanyes; columna J = data, K = esdeveniment) i hi mostra quants esdeveniments nous hi ha abans d'afegir-los.",
+            "Entén dates com 1/9, 14-16/9, 15/9-15/10, 25/1 al 26/2, 1 a 3/6, 08/03/2027 i 19, 20, 23 i 24/11. Si la data és buida, és la de la fila anterior. L'hora del principi del text (8:15, 9:00-14:00) va al camp Hora.",
+            "La categoria i els nivells es dedueixen del text (famílies, inici, exàmens, PAU, intercanvis… = General): **reviseu-los**, sobretot els generals, abans de publicar.",
+            "No es repeteixen els que ja hi són (mateixa data i descripció) ni els festius, que són a les dates clau. Es pot tornar a importar sense duplicar res."
           ]
         }
       ]

@@ -37,7 +37,7 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments', hses: 'horaris_sessions', hprof: 'horaris_professorat' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments', hses: 'horaris_sessions', hprof: 'horaris_professorat' , cal: 'calendari' };
 const CAP = {
   // PAS 47: una fila per especialitat; «dades» = JSON {clau assignació: [{prof, grups}]}
   desiderata: ['especialitat', 'dades', 'observacions', 'data', 'desat_per'],
@@ -46,6 +46,8 @@ const CAP = {
   // PAS 50: planificador d'horaris (posicions = «dia F1» separades per |)
   horaris_sessions: ['id_assignacio', 'distribucio', 'aula', 'conjunt', 'fixes', 'prohibides', 'parts', 'data', 'desat_per'],   // PAS 54: parts = JSON
   horaris_professorat: ['id_professor', 'fixes', 'prohibides', 'observacions', 'clau_clickedu', 'guardies_o', 'guardies_b', 'guardies_p', 'data', 'desat_per'],   // PAS 55: clau de Clickedu i guàrdies
+  // PAS 56: calendari del curs (una fila per esdeveniment; dates AAAA-MM-DD; nivells separats per |)
+  calendari: ['id_event', 'data_inici', 'data_fi', 'hora', 'categoria', 'nivells', 'descripcio', 'data', 'desat_per'],
   equips: ['id_equip', 'nom', 'tipus', 'descripcio', 'actiu', 'grups'],
   membres: ['id_equip', 'id_membre', 'carrec'],
   moduls: ['id_modul', 'nom', 'descripcio', 'ordre', 'actiu', 'grup'],
@@ -53,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 55;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 56;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -91,6 +93,11 @@ const CONFIG_PER_DEFECTE = [
   ['amonestacions_avis_bat', '2', 'Amonestacions: nombre d\'amonestacions (batxillerat) que activa l\'avís (NOFC 5.3.2: dues al batxillerat).'],
   ['amonestacions_periode', 'tot el curs', 'Amonestacions: període de l\'avís (1 setmana, 2 setmanes, 3 setmanes, 1 mes, 2 mesos, 3 mesos o tot el curs).'],
   ['logo_pdf', 'https://institutjoanmiro.netlify.app/assets/programacions/logo-ijm.png', 'Logo que surt als PDF que fa l\'Apps Script (amonestacions).'],
+  ['calendari_dates', '', 'Calendari › Dates clau (JSON: curs, inici i final de classes, trimestres, festius, lliure disposició, festes locals i vacances). Es canvia des del web; en blanc = les del curs 2026-2027.'],
+  ['calendari_publicat', '', 'Calendari › darrera publicació (JSON amb les dates clau i els esdeveniments «General»). La posa el botó «Publica» del web: no la canvieu a mà.'],
+  ['font_calendari', 'https://docs.google.com/spreadsheets/d/1SelRalLXDda9N81vVuMQop1LzwAu_ad2HogWG5UO5GQ/edit', 'Per a importaCalendari: URL del full del calendari del curs (columnes J = data i K = esdeveniment).'],
+  ['font_calendari_pestanyes', '1r Trimestre|2n Trimestre-PER REVISAR|3r_Trimestre-PER REVISAR', 'Per a importaCalendari: pestanyes que es llegeixen (separades per |).'],
+  ['netlify_build_hook', '', 'Calendari › Publica: URL d\'un «build hook» de Netlify (Site configuration › Build & deploy › Build hooks). Si hi és, en publicar es torna a construir el web i el calendari surt al cap d\'uns minuts.'],
   ['copia_tancament_batxillerat', '', 'La posa el tancament de curs del batxillerat (per a desfesTancamentBatxillerat).'],
 ];
 const MODULS_PER_DEFECTE = [
@@ -105,6 +112,7 @@ const MODULS_PER_DEFECTE = [
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si', 'Alumnat'],
   ['desiderata', 'Desiderata', 'Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit, observacions pedagògiques i coherència amb les hores lectives.', 9, 'si', 'Organització del curs'],
   ['horaris', 'Horaris · planificador', 'Generador d\'horaris, fase PLANIFICADOR: marc horari, aules, regles i blocs paral·lels, i exportació de les dades per al MOTOR.', 10, 'si', 'Organització del curs'],
+  ['calendari', 'Calendari', 'Calendari del curs: esdeveniments generals i interns (per nivells), dates clau i festius; vistes de dia, setmana, mes i trimestre amb PDF, i publicació al web (Secretaria › Calendari escolar).', 11, 'si', 'Organització del curs'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si', 'Administració'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
@@ -568,13 +576,15 @@ function doPost(e) {
   try {
     const email = String(req.email || '').trim().toLowerCase();
     if (req.action === 'ping') return json_({ ok: true, missatge: 'Connexió correcta amb ijm_nucli_db' });
+    // PAS 56: dades públiques (professorat en actiu i calendari publicat) per al web; només amb el secret, sense correu
+    if (req.action === 'publics') return json_(publics_(req.quin));
     if (!email) return json_({ ok: false, error: 'peticio_invalida' });
     if (ACCIONS_CTX_.indexOf(req.action) >= 0) invalidaCtx_();
     const ctx = context_(email);
     switch (req.action) {
       case 'inici':        return json_(inici_(ctx));
       case 'dades':        return json_(dades_(ctx, req.modul));
-      case 'desa':         return json_(desa_(ctx, req));
+      case 'desa':         return json_(ambHerencia_(desa_(ctx, req), req.modul === 'professorat', ctx));
       case 'esborra':      return json_(esborra_(ctx, req));
       case 'camps_desa':   return json_(campsDesa_(ctx, req));
       case 'permisos':     return json_(permisos_(ctx, req.modul));
@@ -619,9 +629,14 @@ function doPost(e) {
       case 'nou_professor':  return json_(nouProfessor_(ctx));
       case 'entrada_alumnes': return json_(entradaAlumnes_(ctx));
       case 'entrada_nova':   return json_(entradaNova_(ctx, req));
-      case 'alta_professor': return json_(altaProfessor_(ctx, req));
+      case 'alta_professor': return json_(ambHerencia_(altaProfessor_(ctx, req), true, ctx));
       case 'historial_fila': return json_(historialFila_(ctx, req));
       case 'retards_desa':   return json_(retardsDesa_(ctx, req));
+      case 'calendari_dades': return json_(calendariDades_(ctx));
+      case 'calendari_desa': return json_(calendariDesa_(ctx, req));
+      case 'calendari_dates_desa': return json_(calendariDatesDesa_(ctx, req));
+      case 'calendari_publica': return json_(calendariPublica_(ctx));
+      case 'calendari_importa': return json_(calendariImporta_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -660,7 +675,7 @@ function baseContext_() {
 }
 function invalidaCtx_() { CTX_CFG_ = null; try { CacheService.getScriptCache().remove(CLAU_CTX_); } catch (e) { /* res */ } }
 const TAULES_CTX_ = () => [FULL.prof, FULL.pas, FULL.memb, FULL.eq, FULL.perm, FULL.conf];
-const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa', 'departaments_desa', 'horaris_marc_desa', 'horaris_aules_desa', 'horaris_regles_desa', 'horaris_subgrups_desa', 'desiderata_config', 'horaris_guardies_desa'];
+const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa', 'departaments_desa', 'horaris_marc_desa', 'horaris_aules_desa', 'horaris_regles_desa', 'horaris_subgrups_desa', 'desiderata_config', 'horaris_guardies_desa', 'calendari_dates_desa', 'calendari_publica'];
 function context_(email) {
   const B = baseContext_();
   const cfg = B.cfg; CTX_CFG_ = cfg;
@@ -1751,6 +1766,7 @@ function configura() {
   CAMPS_PROFESSORAT.filter((c) => c[0] === 'hores_lectives' || c[0] === 'total_lectives').forEach((c) => actualitzaCamp_('professorat', c[0], { nom: c[1], tipus: c[2], valors: c[3] }));
   fullModul_(MODULS.professorat, campsDe_('professorat', true));
   ordenaLlistes_([['professorat', 'especialitat'], ['curriculum', 'especialitat'], ['curriculum_grups', 'especialitat']]);
+  fullCalendari_();   // PAS 56
   posaConfig_('esquema', String(ESQUEMA));
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = ss.getSheetByName(n); if (f && f.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(f); });
   Logger.log('Fet. Pestanyes: ' + ss.getSheets().map((s) => s.getName()).join(', '));
@@ -3092,6 +3108,7 @@ function aplicaDesiderata_(ctx, req) {
   if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
   const noms = {}; professoratHores_().forEach((p) => { noms[p.id] = p.nom; });
+  const AL = aliesSubstitucio_(); Object.keys(AL).forEach((k) => { if (!/, /.test(k) && !noms[k]) noms[k] = AL[k].nom; });   // PAS 56
   const des = {}; llegeix_(FULL.des).forEach((r) => { try { des[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
@@ -3139,12 +3156,14 @@ function desiderataConfig_(ctx, req) {
 function comprovaDesiderata_(ctx) {
   if (!pot_(ctx, 'curriculum', 'consulta')) return { ok: false, error: 'sense_permis' };
   const noms = {}; professoratHores_().forEach((p) => { noms[p.id] = p.nom; });
+  const AL = aliesSubstitucio_(); Object.keys(AL).forEach((k) => { if (!/, /.test(k) && !noms[k]) noms[k] = AL[k].nom; });   // PAS 56: la desiderata de la persona substituïda és del substitut
   const actius = {}; Object.keys(noms).forEach((k) => { actius[noms[k]] = 1; });
   const des = {}; llegeix_(FULL.des).forEach((r) => { try { des[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
   const per = {};
   llegeix_(FULL.curg).forEach((r) => { const k = String(r.especialitat || '') + '¦' + (r.id_materia || (r.nivell + '·' + r.materia)) + '|' + numCur_(r.hores);
     const x = per[k] = per[k] || { nivell: r.nivell, materia: r.materia, hores: numCur_(r.hores), especialitat: r.especialitat || '', grups: 0, profs: {} };
-    x.grups++; if (r.professor) { x.profs[r.professor] = (x.profs[r.professor] || 0) + 1; ((x.grupsDe = x.grupsDe || {})[r.professor] = x.grupsDe[r.professor] || []).push(r.grup); } });
+    const pr = r.professor && AL[r.professor] ? AL[r.professor].nom : r.professor;
+    x.grups++; if (pr) { x.profs[pr] = (x.profs[pr] || 0) + 1; ((x.grupsDe = x.grupsDe || {})[pr] = x.grupsDe[pr] || []).push(r.grup); } });
   const inc = [], ok = { assignacions: 0 };
   Object.keys(per).forEach((k) => {
     const x = per[k], esp = x.especialitat, clau = k.split('¦')[1], d = (des[esp] || {})[clau];
@@ -3362,7 +3381,7 @@ function horarisSubgrupsDesa_(ctx, req) {
 function professoratHorarisH_() {
   const desat = {}; const sh = SpreadsheetApp.getActive().getSheetByName(FULL.hprof);
   if (sh && sh.getLastRow() > 1) llegeix_(FULL.hprof).forEach((r) => { desat[r.id_professor] = r; });
-  const hores = {}; llegeix_(FULL.curg).forEach((r) => { if (r.professor) hores[r.professor] = (hores[r.professor] || 0) + numCur_(r.hores); });
+  const AL = aliesSubstitucio_(), hores = {}; llegeix_(FULL.curg).forEach((r) => { const n = r.professor && AL[r.professor] ? AL[r.professor].nom : r.professor; if (n) hores[n] = (hores[n] || 0) + numCur_(r.hores); });
   return professoratHores_().map((p) => { const d = desat[p.id] || {};
     return { id: p.id, nom: p.nom, especialitat: p.especialitat, jornada: p.jornada, hores_lectives: p.hores_lectives, hores_assignades: Math.round((hores[p.nom] || 0) * 100) / 100,
       fixes: llistaPos_(d.fixes), prohibides: llistaPos_(d.prohibides), observacions: String(d.observacions || ''),
@@ -3583,6 +3602,7 @@ function dadesHoraris_() {
   const ses = {}; sessionsHoraris_(cfg).forEach((x) => { ses[x.id] = x; });
   const conj = {}; aulesHoraris_(cfg).conjunts.forEach((c) => { conj[c.id] = c.aules; });
   const perNom = {}; professoratHores_().forEach((p) => { perNom[p.nom] = p.id; });
+  const AL = aliesSubstitucio_(); Object.keys(AL).forEach((k) => { if (!perNom[k] && /, /.test(k)) perNom[k] = AL[k].id; });   // PAS 56: grups de la persona substituïda → substitut
   // PAS 54: parts de cada assignació (grup-classe o subgrup, hores, distribució, aules i graella)
   const SG = subgrupsHoraris_(cfg), sgId = {}; SG.subgrups.forEach((x) => { sgId[x.id] = x; });
   assignacions.forEach((a) => { const x = ses[a.id] || { parts: [] };
@@ -3762,6 +3782,46 @@ function actiusPlanificacio_() {
   const substituits = {}; tots.forEach((p) => { if (estatOk(p) && String(p.substitueix || '').trim()) substituits[normNom_(p.substitueix)] = 1; });
   return tots.filter((p) => p.nom && !esProva_(p) && estatOk(p) && !substituits[nomDe(p)]);
 }
+// PAS 56 · Substitucions: el substitut (estat actiu o substitut, amb «Substitueix a») hereta les dades d'ocupació de la
+// persona substituïda: hores lectives i reduccions (si les seves són buides), el càrrec (si és buit), les guàrdies, les
+// posicions fixes i prohibides del planificador i els grups que tenia assignats al Currículum (per nom).
+function substitucions_() {
+  const tots = llegeix_(FULL.prof), perNom = {};
+  tots.forEach((p) => { if (p.nom) perNom[normNom_([p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom)] = p; });
+  return tots.filter((p) => { const e = norm_(p.estat || 'actiu'); return (e === 'actiu' || e === 'substitut') && String(p.substitueix || '').trim() && p.nom && !esProva_(p); })
+    .map((p) => ({ substitut: p, substituit: perNom[normNom_(p.substitueix)] })).filter((x) => x.substituit && x.substituit !== x.substitut);
+}
+const nomCognoms_ = (p) => [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom;
+// {nom o codi de la persona substituïda: {nom, id} del substitut}
+function aliesSubstitucio_() {
+  const o = {}; substitucions_().forEach((x) => { const v = { nom: nomCognoms_(x.substitut), id: x.substitut.id_professor }; o[nomCognoms_(x.substituit)] = v; o[x.substituit.id_professor] = v; });
+  return o;
+}
+function heretaSubstitucions_(email) {
+  const parells = substitucions_(); if (!parells.length) return 0;
+  const MP = MODULS.professorat, sh = fullModul_(MP, campsDe_('professorat', true)), vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), col = (k) => cap.indexOf(k);
+  const fila = {}; vals.forEach((r, i) => { if (i) fila[String(r[col('id_professor')])] = i + 1; });
+  const camps = CLAUS_LECTIVES_().concat(['carrec']).filter((k) => col(k) >= 0);
+  let n = 0;
+  parells.forEach((x) => { const f = fila[x.substitut.id_professor]; if (!f) return;
+    camps.forEach((k) => { const v = x.substituit[k], buit = x.substitut[k] === '' || x.substitut[k] == null;
+      if (buit && v !== '' && v != null) { sh.getRange(f, col(k) + 1).setValues([[v]]); x.substitut[k] = v; n++; } }); });
+  // Planificador: guàrdies i posicions fixes/prohibides, si el substitut encara no en té
+  const hp = SpreadsheetApp.getActive().getSheetByName(FULL.hprof);
+  if (hp && hp.getLastRow() > 1) {
+    const desat = {}; llegeix_(FULL.hprof).forEach((r) => { desat[r.id_professor] = r; });
+    const buit = (r) => !r || !(['guardies_o', 'guardies_b', 'guardies_p', 'fixes', 'prohibides'].some((k) => String(r[k] || '').trim() && String(r[k]) !== '0'));
+    const files = parells.filter((x) => buit(desat[x.substitut.id_professor]) && !buit(desat[x.substituit.id_professor])).map((x) => { const d = desat[x.substituit.id_professor], a = desat[x.substitut.id_professor] || {};
+      return { id_professor: x.substitut.id_professor, fixes: d.fixes || '', prohibides: d.prohibides || '', observacions: a.observacions || ('Substitueix ' + nomCognoms_(x.substituit)), clau_clickedu: a.clau_clickedu || '',
+        guardies_o: d.guardies_o || 0, guardies_b: d.guardies_b || 0, guardies_p: d.guardies_p || 0 }; });
+    if (files.length) { desaFilesHoraris_(FULL.hprof, 'id_professor', files, email || 'substitucio'); n += files.length; }
+  }
+  return n;
+}
+function ambHerencia_(r, cal, ctx) {
+  if (cal && r && r.ok) { try { const n = heretaSubstitucions_(ctx.email); if (n) r.herencia = n; } catch (e) { r.herencia_error = String(e && e.message || e); } }
+  return r;
+}
 function professoratHores_() {
   return actiusPlanificacio_().map((p) => {
     const o = { id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, especialitat: p.especialitat || '', carrec: p.carrec || '', jornada: p.jornada || '' };
@@ -3935,4 +3995,249 @@ function sembraCurriculum_() {
   });
   sh.getRange(2, 1, files.length, cap.length).setValues(files);
   Logger.log('Currículum: ' + files.length + ' matèries inicials (del document d\'equips docents 26-27). Reviseu-les al web.');
+}
+
+// =============================================================================================
+// PAS 56 · Dades públiques (web) i mòdul CALENDARI
+// =============================================================================================
+// Dades públiques: les demana Netlify (gestio-publics i el build del web) només amb el secret. No hi ha cap dada personal
+// que no surti ja al web: nom, especialitat i correu del centre del professorat en actiu, i el calendari publicat.
+function publics_(quin) {
+  if (quin === 'professorat') return { ok: true, persones: professoratPublic_() };
+  if (quin === 'calendari') {
+    let c = null; try { c = JSON.parse(llegeixConfig_().calendari_publicat || 'null'); } catch (e) { c = null; }
+    return c ? Object.assign({ ok: true }, c) : { ok: false, error: 'no_publicat' };
+  }
+  return { ok: false, error: 'peticio_invalida' };
+}
+// Professorat en actiu (els substituts en lloc de les persones substituïdes), per ordre del primer cognom
+function professoratPublic_() {
+  return actiusPlanificacio_().map((p) => ({
+    nom: [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '),
+    especialitat: String(p.especialitat || ''),
+    email: /@institutjoanmiro\.cat$/i.test(String(p.email || '').trim()) ? String(p.email).trim().toLowerCase() : '',
+    ordre: normNom_([p.cognom1, p.cognom2, p.nom].filter(Boolean).join(' '))
+  })).sort((a, b) => a.ordre.localeCompare(b.ordre, 'ca')).map((p) => ({ nom: p.nom, especialitat: p.especialitat, email: p.email }));
+}
+
+// ------------------------------------------------------------------ CALENDARI
+const NIVELLS_CAL_ = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'];
+const CATEGORIES_CAL_ = ['General', 'Intern'];
+// Tipus de data clau: els set primers són els de la pàgina Secretaria › Calendari escolar; els trimestres, només interns
+const TIPUS_DATA_CAL_ = ['inici', 'darrer', 'darrerBat', 'festiu', 'local', 'lliure', 'vacances', 'trimestre2', 'trimestre3'];
+const DATES_CAL_PER_DEFECTE_ = { curs: '2026-2027', dates: [
+  { des: '2026-09-08', tipus: 'inici' },
+  { des: '2026-09-11', tipus: 'festiu', nom: { ca: 'Diada Nacional de Catalunya', es: 'Diada Nacional de Cataluña', en: 'Catalonia National Day' } },
+  { des: '2026-10-09', tipus: 'lliure' },
+  { des: '2026-10-12', tipus: 'festiu', nom: { ca: 'Festa Nacional d’Espanya', es: 'Fiesta Nacional de España', en: 'Spanish National Day' } },
+  { des: '2026-12-07', tipus: 'lliure' },
+  { des: '2026-12-08', tipus: 'festiu', nom: { ca: 'La Immaculada', es: 'La Inmaculada', en: 'Immaculate Conception' } },
+  { des: '2026-12-22', fins: '2027-01-07', tipus: 'vacances', nom: { ca: 'Vacances de Nadal', es: 'Vacaciones de Navidad', en: 'Christmas holidays' } },
+  { des: '2027-01-08', tipus: 'trimestre2' },
+  { des: '2027-02-08', tipus: 'lliure' },
+  { des: '2027-03-08', tipus: 'trimestre3' },
+  { des: '2027-03-20', fins: '2027-03-29', tipus: 'vacances', nom: { ca: 'Vacances de Setmana Santa', es: 'Vacaciones de Semana Santa', en: 'Easter holidays' } },
+  { des: '2027-05-01', tipus: 'festiu', nom: { ca: 'Festa del Treball', es: 'Fiesta del Trabajo', en: 'Labour Day' } },
+  { des: '2027-05-17', tipus: 'local' },
+  { des: '2027-05-27', tipus: 'lliure' },
+  { des: '2027-05-28', tipus: 'local' },
+  { des: '2027-06-17', tipus: 'darrerBat' },
+  { des: '2027-06-21', tipus: 'darrer' }] };
+const isoValid_ = (s) => { const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(s || '')); if (!m) return false; const d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3])); return d.getUTCMonth() === +m[2] - 1 && d.getUTCDate() === +m[3]; };
+const pad2_ = (n) => (n < 10 ? '0' : '') + n;
+function datesCalendari_(cfg) {
+  let d = null; try { d = JSON.parse((cfg || llegeixConfig_()).calendari_dates || 'null'); } catch (e) { d = null; }
+  return d && Array.isArray(d.dates) && d.dates.length ? d : JSON.parse(JSON.stringify(DATES_CAL_PER_DEFECTE_));
+}
+function fullCalendari_() {
+  const ss = SpreadsheetApp.getActive(), nou = !ss.getSheetByName(FULL.cal), sh = assegura_(FULL.cal);
+  if (nou) sh.getRange(1, 1, sh.getMaxRows(), sh.getMaxColumns()).setNumberFormat('@');   // dates com a text (AAAA-MM-DD)
+  return sh;
+}
+const filaCal_ = (r) => ({ id: r.id_event, data_inici: r.data_inici, data_fi: r.data_fi || '', hora: r.hora || '', categoria: r.categoria || 'Intern',
+  nivells: String(r.nivells || '').split('|').map((x) => x.trim()).filter(Boolean), descripcio: r.descripcio || '', data: r.data || '', desat_per: r.desat_per || '' });
+const esdevenimentsCal_ = () => llegeix_(FULL.cal).filter((r) => r.id_event && r.data_inici).map(filaCal_)
+  .sort((a, b) => (a.data_inici + (a.hora || '99')).localeCompare(b.data_inici + (b.hora || '99')));
+function calendariDades_(ctx) {
+  if (!pot_(ctx, 'calendari', 'consulta')) return { ok: false, error: 'sense_permis' };
+  const cfg = ctx.cfg || llegeixConfig_();
+  let pub = null; try { pub = JSON.parse(cfg.calendari_publicat || 'null'); } catch (e) { pub = null; }
+  return { ok: true, esquema: ESQUEMA, nivell: ctx.nivell('calendari'), obert: obert_(ctx), nivells: NIVELLS_CAL_, tipus: TIPUS_DATA_CAL_,
+    esdeveniments: esdevenimentsCal_(), dates: datesCalendari_(cfg), publicat: pub ? { data: pub.publicat, per: pub.per, n: (pub.esdeveniments || []).length } : null,
+    build_hook: !!String(cfg.netlify_build_hook || '').trim() };
+}
+// Valida i normalitza un esdeveniment (retorna { e } o { error })
+function netEsdeveniment_(x) {
+  const e = { id: String(x.id || '').trim(), data_inici: String(x.data_inici || '').trim(), data_fi: String(x.data_fi || '').trim(), hora: String(x.hora || '').trim().slice(0, 20),
+    categoria: CATEGORIES_CAL_.indexOf(x.categoria) >= 0 ? x.categoria : '', descripcio: String(x.descripcio || '').replace(/\s+/g, ' ').trim().slice(0, 300),
+    nivells: (Array.isArray(x.nivells) ? x.nivells : String(x.nivells || '').split('|')).map((n) => String(n).trim()).filter((n) => NIVELLS_CAL_.indexOf(n) >= 0) };
+  const nom = e.descripcio || e.data_inici || 'Esdeveniment';
+  if (!isoValid_(e.data_inici)) return { error: nom + ': cal una data d\'inici vàlida.' };
+  if (e.data_fi && (!isoValid_(e.data_fi) || e.data_fi < e.data_inici)) return { error: nom + ': la data final ha de ser igual o posterior a la d\'inici.' };
+  if (e.data_fi === e.data_inici) e.data_fi = '';
+  if (!e.categoria) return { error: nom + ': cal triar la categoria (General o Intern).' };
+  if (!e.descripcio) return { error: e.data_inici + ': cal una descripció.' };
+  e.nivells = NIVELLS_CAL_.filter((n) => e.nivells.indexOf(n) >= 0);
+  return { e: e };
+}
+// Desa de cop els esdeveniments nous o canviats (sense id = nou) i esborra els de req.esborra
+function calendariDesa_(ctx, req) {
+  if (!pot_(ctx, 'calendari', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const nets = [], err = [];
+  (req.esdeveniments || []).slice(0, 500).forEach((x) => { const r = netEsdeveniment_(x || {}); if (r.error) err.push(r.error); else nets.push(r.e); });
+  if (err.length) return { ok: false, error: 'calendari_invalid', errors: err.slice(0, 20) };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const sh = fullCalendari_(), vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), ci = cap.indexOf('id_event'), fila = {};
+    let max = 0;
+    for (let i = 1; i < vals.length; i++) { const id = String(vals[i][ci] || ''); if (id) fila[id] = i + 1; max = Math.max(max, Number(id.replace(/\D/g, '')) || 0); }
+    const ids = [], ara = ara_(), nous = [];
+    nets.forEach((e) => {
+      if (!e.id || !fila[e.id]) e.id = 'EV-' + ('00000' + (++max)).slice(-5);
+      const o = { id_event: e.id, data_inici: e.data_inici, data_fi: e.data_fi, hora: e.hora, categoria: e.categoria, nivells: e.nivells.join('|'), descripcio: e.descripcio, data: ara, desat_per: ctx.email };
+      const r = cap.map((k) => (o[k] == null ? '' : o[k]));
+      if (fila[e.id]) sh.getRange(fila[e.id], 1, 1, cap.length).setValues([r]); else nous.push(r);
+      ids.push(e.id);
+    });
+    if (nous.length) sh.getRange(sh.getLastRow() + 1, 1, nous.length, cap.length).setNumberFormat('@').setValues(nous);
+    const esb = (req.esborra || []).map(String).filter((id) => fila[id]).map((id) => fila[id]).sort((a, b) => b - a);
+    esb.forEach((f) => sh.deleteRow(f));
+    if (ids.length || esb.length) { historial_(ctx.email, 'calendari_desa', FULL.cal, ids.concat((req.esborra || []).filter((id) => fila[id])).join(' ').slice(0, 200), ids.length + ' desats, ' + esb.length + ' esborrats'); marcaVersio_('calendari', ctx.email); }
+    return { ok: true, ids: ids, esborrats: esb.length, esdeveniments: esdevenimentsCal_() };
+  } finally { lock.releaseLock(); }
+}
+function netDatesCal_(d) {
+  const err = [], net = { curs: String(d && d.curs || '').trim(), dates: [] };
+  if (!/^\d{4}-\d{4}$/.test(net.curs) || Number(net.curs.slice(5)) !== Number(net.curs.slice(0, 4)) + 1) err.push('El curs ha de tenir la forma 2026-2027.');
+  ((d && d.dates) || []).forEach((x, i) => {
+    const e = { des: String(x.des || '').trim(), tipus: String(x.tipus || '') }, n = 'Fila ' + (i + 1);
+    if (TIPUS_DATA_CAL_.indexOf(e.tipus) < 0) return err.push(n + ': tipus desconegut.');
+    if (!isoValid_(e.des)) return err.push(n + ': cal una data vàlida.');
+    const fins = String(x.fins || '').trim();
+    if (fins && fins !== e.des) { if (!isoValid_(fins) || fins < e.des) return err.push(n + ': la data final ha de ser posterior a la inicial.'); e.fins = fins; }
+    const nom = {}; ['ca', 'es', 'en'].forEach((L) => { const t = String((x.nom || {})[L] || '').trim().slice(0, 120); if (t) nom[L] = t; });
+    if (Object.keys(nom).length) { if (!nom.ca) return err.push(n + ': si poseu un nom, cal en català.'); nom.es = nom.es || nom.ca; nom.en = nom.en || nom.ca; e.nom = nom; }
+    net.dates.push(e);
+  });
+  ['inici', 'darrer'].forEach((t) => { const k = net.dates.filter((x) => x.tipus === t).length; if (k !== 1) err.push(t === 'inici' ? 'Cal exactament un «Inici de classes».' : 'Cal exactament un «Darrer dia de classe d\'ESO».'); });
+  net.dates.sort((a, b) => a.des.localeCompare(b.des));
+  return { net: net, errors: err };
+}
+function calendariDatesDesa_(ctx, req) {
+  if (!pot_(ctx, 'calendari', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const r = netDatesCal_(req.dates || {});
+  if (r.errors.length) return { ok: false, error: 'calendari_invalid', errors: r.errors.slice(0, 20) };
+  posaConfig_('calendari_dates', JSON.stringify(r.net));
+  historial_(ctx.email, 'calendari_dates', 'config', 'calendari_dates', r.net.dates.length + ' dates');
+  marcaVersio_('calendari', ctx.email);
+  return { ok: true, dates: r.net };
+}
+// Publica: dates clau (sense els trimestres) i esdeveniments «General» → config › calendari_publicat (el llegeix el build del web)
+function snapshotCalendari_(cfg) {
+  const D = datesCalendari_(cfg), pub = ['inici', 'darrer', 'darrerBat', 'festiu', 'local', 'lliure', 'vacances'];
+  const dates = D.dates.filter((x) => pub.indexOf(x.tipus) >= 0);
+  const mesDe = (s) => ({ any: Number(s.slice(0, 4)), mes: Number(s.slice(5, 7)) });
+  const ini = dates.filter((x) => x.tipus === 'inici')[0], fi = dates.filter((x) => x.tipus === 'darrer')[0];
+  const esd = esdevenimentsCal_().filter((e) => e.categoria === 'General').map((e) => {
+    const o = { des: e.data_inici, text: e.descripcio }; if (e.data_fi) o.fins = e.data_fi; if (e.hora) o.hora = e.hora; if (e.nivells.length) o.nivells = e.nivells; return o; });
+  return { curs: D.curs, inici: ini ? mesDe(ini.des) : null, final: fi ? mesDe(fi.des) : null, dates: dates, esdeveniments: esd };
+}
+function calendariPublica_(ctx) {
+  if (!pot_(ctx, 'calendari', 'admin')) return { ok: false, error: 'sense_permis' };
+  const cfg = llegeixConfig_(), s = snapshotCalendari_(cfg);
+  if (!s.inici || !s.final) return { ok: false, error: 'calendari_invalid', errors: ['Falten l\'inici de classes o el darrer dia d\'ESO a les dates clau.'] };
+  s.publicat = ara_(); s.per = ctx.email;
+  posaConfig_('calendari_publicat', JSON.stringify(s));
+  historial_(ctx.email, 'calendari_publica', 'config', 'calendari_publicat', s.esdeveniments.length + ' esdeveniments, ' + s.dates.length + ' dates');
+  let build = 'sense_hook';
+  const hook = String(cfg.netlify_build_hook || '').trim();
+  if (/^https:\/\/api\.netlify\.com\/build_hooks\//.test(hook)) {
+    try { const r = UrlFetchApp.fetch(hook, { method: 'post', muteHttpExceptions: true, payload: '' }); build = r.getResponseCode() < 300 ? 'iniciat' : 'error_' + r.getResponseCode(); } catch (e) { build = 'error'; }
+  } else if (hook) build = 'hook_invalid';
+  return { ok: true, n: s.esdeveniments.length, dates: s.dates.length, build: build, publicat: { data: s.publicat, per: s.per, n: s.esdeveniments.length } };
+}
+
+// Importació del full del calendari (columnes J = data, K = esdeveniment). La data buida = la de la fila anterior.
+// Formats: 1/9 · 14-16/9 · 15/9-15/10 · 25/1 al 26/2 · 10 al 17/12 · 1 a 3/6 · 08/03/2027 · 19, 20,23 i 24/11
+function anyCal_(curs, mes) { const a = Number(String(curs || '').slice(0, 4)) || 2026; return mes >= 8 ? a : a + 1; }
+function parseDataCal_(txt, curs) {
+  const s = String(txt || '').trim().replace(/\s+(?:al|a)\s+/gi, '-').replace(/\s*-\s*/g, '-').replace(/\s*\/\s*/g, '/');
+  const iso = (d, m, y) => { const yy = y ? Number(y) : anyCal_(curs, Number(m)), r = yy + '-' + pad2_(Number(m)) + '-' + pad2_(Number(d)); return isoValid_(r) ? r : ''; };
+  let m;
+  if ((m = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?-(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/.exec(s))) { const a = iso(m[1], m[2], m[3]), b = iso(m[4], m[5], m[6]); return a && b && b >= a ? [{ des: a, fins: b }] : []; }
+  if ((m = /^(\d{1,2})-(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/.exec(s))) { const a = iso(m[1], m[3], m[4]), b = iso(m[2], m[3], m[4]); return a && b && b >= a ? [{ des: a, fins: b }] : []; }
+  if ((m = /^(\d{1,2})\/(\d{1,2})(?:\/(\d{4}))?$/.exec(s))) { const a = iso(m[1], m[2], m[3]); return a ? [{ des: a }] : []; }
+  if ((m = /^([\d\s,i]+)\/(\d{1,2})(?:\/(\d{4}))?$/.exec(s))) {
+    const dies = m[1].split(/\s*(?:,|\bi\b)\s*/).map(Number).filter((x) => x > 0).sort((a, b) => a - b), out = [];
+    dies.forEach((d) => { const a = iso(d, m[2], m[3]); if (!a) return; const u = out[out.length - 1];
+      if (u && Number((u.fins || u.des).slice(8)) === d - 1) u.fins = a; else out.push({ des: a }); });
+    return out;
+  }
+  return [];
+}
+function separaHoraCal_(t) {
+  const s = String(t || '').replace(/\s+/g, ' ').trim(), m = /^(\d{1,2}[:.]\d{2})(?:\s*-\s*(\d{1,2}[:.]\d{2}))?\s+(.*)$/.exec(s);
+  return m ? { hora: m[1].replace('.', ':') + (m[2] ? '-' + m[2].replace('.', ':') : ''), text: m[3].trim() } : { hora: '', text: s };
+}
+function nivellsCal_(t) {
+  let s = ' ' + String(t || '').replace(/batxillerat|batx\.?|\bbat\b/gi, 'BAT') + ' ';
+  const out = {}, ord = { 1: '1r', 2: '2n', 3: '3r', 4: '4t' };
+  s = s.replace(/((?:\b[1-4](?:r|n|t|er|º)?\s*(?:,|\bi\b|\by\b|-|\/)?\s*)+)(?:de\s+)?(ESO|BAT)\b/gi, (tot, nums, etapa) => {
+    const E = etapa.toUpperCase(); (nums.match(/[1-4]/g) || []).forEach((n) => { if (E === 'BAT' && n > 2) return; out[ord[n] + ' ' + E] = 1; }); return ' '; });
+  if (/\bESO\b/i.test(s)) NIVELLS_CAL_.slice(0, 4).forEach((n) => { out[n] = 1; });
+  if (/\bBAT\b/.test(s)) NIVELLS_CAL_.slice(4).forEach((n) => { out[n] = 1; });
+  return NIVELLS_CAL_.filter((n) => out[n]);
+}
+// General = el que interessa a les famílies (es publica); la resta, Intern. Es revisa després al web.
+const GENERAL_CAL_ = /\binici\b|\bfi del\b|final classes|acaben les classes|[uú]ltim dia de classes|vacances|fam[ií]lies|portes obertes|sant jordi|castanyada|carnestoltes|\bPAU\b|intercanvi|ex[aà]mens|recuperaci|proves|butllet|festa local/i;
+const CLAU_CAL_ = /^(festiu|lliure disposici[oó]|festa local)\s*$/i;   // ja són a les dates clau
+function llegeixFullCalendari_(cfg) {
+  const id = (String(cfg.font_calendari || '').match(/[-\w]{25,}/) || [''])[0];
+  if (!id) throw new Error('Falta config › font_calendari');
+  const ss = SpreadsheetApp.openById(id), files = [];
+  String(cfg.font_calendari_pestanyes || '').split('|').map((x) => x.trim()).filter(Boolean).forEach((nom) => {
+    const sh = ss.getSheetByName(nom); if (!sh || sh.getLastRow() < 1) return;
+    sh.getRange(1, 10, sh.getLastRow(), 2).getDisplayValues().forEach((r) => files.push([r[0], r[1]]));
+  });
+  return files;
+}
+// files: [[data, text]] → esdeveniments nets (sense els que ja hi són: mateixa data i descripció)
+function esdevenimentsDeFull_(files, curs, existents) {
+  const vist = {}, nous = [], dubtes = [];
+  (existents || []).forEach((e) => { vist[e.data_inici + '|' + normNom_(e.descripcio)] = 1; });
+  let ant = [];
+  files.forEach((r) => {
+    const d = String(r[0] || '').trim(), t = String(r[1] || '').trim();
+    if (d) ant = parseDataCal_(d, curs);
+    if (!t) return;
+    if (d && !ant.length) { dubtes.push(d + ' · ' + t); return; }
+    if (!ant.length || CLAU_CAL_.test(t)) return;
+    const h = separaHoraCal_(t);
+    ant.forEach((x) => {
+      const k = x.des + '|' + normNom_(h.text); if (vist[k]) return; vist[k] = 1;
+      nous.push({ data_inici: x.des, data_fi: x.fins || '', hora: h.hora, categoria: GENERAL_CAL_.test(h.text) ? 'General' : 'Intern', nivells: nivellsCal_(h.text), descripcio: h.text });
+    });
+  });
+  return { nous: nous, dubtes: dubtes };
+}
+function calendariImporta_(ctx, req) {
+  if (!pot_(ctx, 'calendari', 'admin')) return { ok: false, error: 'sense_permis' };
+  const cfg = llegeixConfig_(), D = datesCalendari_(cfg);
+  let files; try { files = llegeixFullCalendari_(cfg); } catch (e) { return { ok: false, error: 'font_inaccessible', detall: String(e.message || e) }; }
+  const r = esdevenimentsDeFull_(files, D.curs || cfg.curs, esdevenimentsCal_());
+  const resum = { general: r.nous.filter((e) => e.categoria === 'General').length, intern: r.nous.filter((e) => e.categoria === 'Intern').length };
+  if (req.prova) return { ok: true, prova: true, n: r.nous.length, resum: resum, mostra: r.nous.slice(0, 8), dubtes: r.dubtes.slice(0, 20) };
+  if (!r.nous.length) return { ok: true, n: 0, resum: resum, dubtes: r.dubtes.slice(0, 20), esdeveniments: esdevenimentsCal_() };
+  const d = calendariDesa_(ctx, { esdeveniments: r.nous });
+  if (!d.ok) return d;
+  return { ok: true, n: r.nous.length, resum: resum, dubtes: r.dubtes.slice(0, 20), esdeveniments: d.esdeveniments };
+}
+// Execució manual des de l'editor (la mateixa importació que el botó «Importa del full» del web)
+function importaCalendari() {
+  const cfg = llegeixConfig_(), D = datesCalendari_(cfg), r = esdevenimentsDeFull_(llegeixFullCalendari_(cfg), D.curs || cfg.curs, esdevenimentsCal_());
+  const ctx = { email: 'importaCalendari', nivell: () => 'admin', cfg: cfg, global: true };
+  if (r.nous.length) calendariDesa_(ctx, { esdeveniments: r.nous });
+  Logger.log('Calendari: ' + r.nous.length + ' esdeveniments nous.' + (r.dubtes.length ? ' Dates no reconegudes: ' + r.dubtes.join(' | ') : ''));
 }

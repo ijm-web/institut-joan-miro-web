@@ -4,12 +4,18 @@
 // Els dies de cada mes es calculen automàticament (no cal copiar la graella del full de càlcul).
 // Font 2026-2027: Calendari_26-27.xlsx, pestanya «Complet».
 
-const curs = "2026-2027";
-const inici = { any: 2026, mes: 9 };   // primer mes que es mostra
-const final = { any: 2027, mes: 6 };   // darrer mes que es mostra
+// PAS 56: si GESTIO › Calendari ha publicat el calendari (botó «Publica»), el build el descarrega a
+// .cache/calendari-publicat.json (lib/calendari-publicat.js) i aquí substitueix curs, mesos i dates; a més hi afegeix
+// els esdeveniments de categoria «General». Les dades d'aquest fitxer són la reserva si no n'hi ha.
+const publicat = require("../../lib/calendari-publicat.js").llegeix();
+const TIPUS = ["inici", "darrer", "darrerBat", "festiu", "local", "lliure", "vacances"];
+
+let curs = "2026-2027";
+let inici = { any: 2026, mes: 9 };   // primer mes que es mostra
+let final = { any: 2027, mes: 6 };   // darrer mes que es mostra
 
 // tipus: inici | darrer | darrerBat | festiu | local | lliure | vacances
-const dates = [
+let dates = [
   { des: "2026-09-08", tipus: "inici" },
   { des: "2026-09-11", tipus: "festiu", nom: { ca: "Diada Nacional de Catalunya", es: "Diada Nacional de Cataluña", en: "Catalonia National Day" } },
   { des: "2026-10-09", tipus: "lliure" },
@@ -26,6 +32,12 @@ const dates = [
   { des: "2027-06-17", tipus: "darrerBat" },
   { des: "2027-06-21", tipus: "darrer" }
 ];
+let esdeveniments = [];
+if (publicat) {
+  curs = publicat.curs; inici = publicat.inici; final = publicat.final;
+  dates = publicat.dates.filter((d) => TIPUS.includes(d.tipus));
+  esdeveniments = (publicat.esdeveniments || []).filter((e) => /^\d{4}-\d{2}-\d{2}$/.test(e.des) && e.text);
+}
 
 const tipusText = {
   inici:     { ca: "Inici de classes ESO i Batxillerat", es: "Inicio de clases ESO y Bachillerato", en: "First day of classes (ESO and Batxillerat)" },
@@ -61,6 +73,8 @@ const textos = {
   mesAMes: { ca: "Mes a mes", es: "Mes a mes", en: "Month by month" },
   llegenda: { ca: "Llegenda", es: "Leyenda", en: "Key" },
   festius: { ca: "Festius i dies sense classe", es: "Festivos y días sin clase", en: "Holidays and days off" },
+  esdeveniments: { ca: "Activitats i esdeveniments", es: "Actividades y acontecimientos", en: "Activities and events" },
+  esdevenimentsNota: { ca: "", es: "Las descripciones se publican en catalán.", en: "Descriptions are published in Catalan." },
   descarrega: { ca: "Descarrega el calendari (PDF)", es: "Descarga el calendario (PDF)", en: "Download the calendar (PDF)" },
   nota: {
     ca: "Els dies de lliure disposició i les festes locals no són lectius. Qualsevol canvi es comunicarà a les famílies per Clickedu.",
@@ -133,6 +147,22 @@ for (const L of langs) {
     .map((e) => ({ data: etiqueta(e, L), tipus: e.tipus, text: e.nom ? e.nom[L] : tipusText[e.tipus][L] }));
 }
 
+// PAS 56: esdeveniments «General» publicats des de GESTIO, per mesos
+const ordinal = { "1r ESO": "1r ESO", "2n ESO": "2n ESO", "3r ESO": "3r ESO", "4t ESO": "4t ESO", "1r BAT": "1r Batx.", "2n BAT": "2n Batx." };
+const actes = {};
+for (const L of langs) {
+  const perMes = [];
+  for (const e of esdeveniments.slice().sort((a, b) => (a.des + (a.hora || "")).localeCompare(b.des + (b.hora || "")))) {
+    const [y, m] = e.des.split("-").map(Number);
+    let g = perMes[perMes.length - 1];
+    if (!g || g.any !== y || g.mes !== m) { g = { any: y, mes: m, nom: mesos[L][m - 1] + " " + y, llista: [] }; perMes.push(g); }
+    const niv = e.nivells || [];
+    g.llista.push({ data: etiqueta(e, L), hora: e.hora || "", text: e.text,
+      nivells: niv.length === 6 ? "" : niv.length === 4 && niv.every((n) => /ESO/.test(n)) ? "ESO" : niv.length === 2 && niv.every((n) => /BAT/.test(n)) ? (L === "ca" ? "Batxillerat" : L === "es" ? "Bachillerato" : "Batxillerat") : niv.map((n) => ordinal[n] || n).join(", ") });
+  }
+  actes[L] = perMes;
+}
+
 // PDF del calendari: el genera sol lib/calendari-pdf.js en cada build (no cal fer res a mà).
 const pdf = {
   ca: `/assets/docs/calendari/calendari-escolar-${curs}-ca.pdf`,
@@ -150,5 +180,7 @@ module.exports = {
   calendari: construirMesos(),
   llista,
   clau,
+  actes,
+  publicat: publicat ? publicat.publicat : "",
   llegenda: ["inici", "darrer", "darrerBat", "festiu", "local", "lliure", "vacances"]
 };

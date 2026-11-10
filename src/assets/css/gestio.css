@@ -465,3 +465,60 @@
 .gs-hor__gq { display: inline-flex; align-items: center; gap: 2px; margin: 0 2px; font-size: .75rem; font-weight: 600; }
 .gs-hor__gq input { width: 3.2em; padding: 2px 4px; }
 .gs-hor__gq--o span { color: #1d3b6f; } .gs-hor__gq--b span { color: #6b4fa0; } .gs-hor__gq--p span { color: #2f7d32; }
+
+/* PAS 56 · Calendari */
+.gs-cal__nav{ display: inline-flex; gap: 4px; align-items: center; }
+.gs-cal__salta{ font: inherit; font-size: 13px; padding: 4px 6px; border: 1px solid #D5D9E6; border-radius: 8px; }
+.gs-cal__cerca{ font: inherit; padding: 6px 10px; border: 1px solid #D5D9E6; border-radius: 8px; min-width: 180px; }
+#gsEines select[data-cal]{ font: inherit; font-size: 13px; padding: 6px 8px; border: 1px solid #D5D9E6; border-radius: 8px; background: #fff; }
+.gs-cal__ajuda{ flex: 1 1 100%; margin: 4px 0 0; }
+.gs-cal__pub{ color: #4A5266; font-style: italic; }
+.gs-cal__titol{ margin: 6px 0 10px; font-size: 18px; color: var(--color-blue); text-transform: none; }
+.gs-cal__ll{ display: inline-block; padding: 0 8px; border-radius: 10px; font-size: 12px; font-weight: 600; line-height: 1.6; }
+.gs-cal__ll--General, .gs-cal__ev--General{ background: #E7E5FF; color: #1C0CBC; }
+.gs-cal__ll--Intern, .gs-cal__ev--Intern{ background: #FFF1D6; color: #8A4B00; }
+.gs-cal__graella{ width: 100%; border-collapse: collapse; table-layout: fixed; }
+.gs-cal__graella th{ padding: 6px; font-size: 12.5px; color: #4A5266; background: #F4F6FB; border: 1px solid #D5D9E6; }
+.gs-cal__dia{ vertical-align: top; height: 108px; padding: 3px; border: 1px solid #D5D9E6; background: #fff; cursor: copy; overflow: hidden; }
+.gs-cal--mes .gs-cal__dia{ cursor: copy; }
+.gs-cal__dia.is-fora{ background: #FAFAFC; cursor: default; }
+.gs-cal__dia.is-we, .gs-cal__col.is-we{ background: #F6F7FA; }
+.is-festiu.gs-cal__dia, .is-festiu.gs-cal__col, .is-festiu.gs-cal__mdia{ background: #FDE2E2; }
+.is-local.gs-cal__dia, .is-lliure.gs-cal__dia, .is-local.gs-cal__col, .is-lliure.gs-cal__col, .is-local.gs-cal__mdia, .is-lliure.gs-cal__mdia{ background: #FFEDD5; }
+.is-vacances.gs-cal__dia, .is-vacances.gs-cal__col, .is-vacances.gs-cal__mdia{ background: #E6E9F0; }
+.is-inici.gs-cal__dia, .is-darrer.gs-cal__dia, .is-darrerBat.gs-cal__dia, .is-inici.gs-cal__mdia, .is-darrer.gs-cal__mdia, .is-darrerBat.gs-cal__mdia{ background: #DDF3E4; }
+.gs-cal__dia.is-avui, .gs-cal__col.is-avui{ box-shadow: inset 0 0 0 2px var(--color-blue); }
+.gs-cal__num{ display: flex; flex-wrap: wrap; gap: 4px; align-items: baseline; margin-bottom: 2px; }
+.gs-cal__num .gs-enllac{ font-weight: 700; font-size: 13px; }
+.gs-cal__clau{ font-size: 10.5px; font-weight: 600; color: #4A5266; }
+.gs-cal__clau--festiu{ color: #A31515; } .gs-cal__clau--local, .gs-cal__clau--lliure{ color: #A3420A; } .gs-cal__clau--inici, .gs-cal__clau--darrer, .gs-cal__clau--darrerBat{ color: #136B3A; }
+.gs-cal__clau--trimestre2, .gs-cal__clau--trimestre3{ color: var(--color-blue); }
+.gs-cal__ev{ display: block; width: 100%; margin: 1px 0; padding: 1px 5px; border: 0; border-radius: 5px; font: 12px/1.35 var(--font-main); text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; }
+.gs-cal__ev:hover, .gs-cal__ev:focus-visible{ outline: 2px solid currentColor; outline-offset: -1px; }
+.gs-cal__mes{ font-size: 12px; }
+.gs-cal__setmana{ display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)) repeat(2, minmax(0, .6fr)); gap: 6px; }
+.gs-cal__col{ min-height: 300px; padding: 6px; border: 1px solid #D5D9E6; border-radius: 8px; background: #fff; cursor: copy; }
+.gs-cal__col h4{ margin: 0 0 6px; font-size: 13px; text-transform: capitalize; }
+.gs-cal__col .gs-cal__ev{ white-space: normal; margin: 3px 0; padding: 3px 6px; }
+.gs-cal__claus{ display: flex; gap: 10px; }
+.gs-cal__minis{ display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px; margin-bottom: 14px; }
+.gs-cal__graella--mini caption{ font-weight: 700; color: var(--color-blue); text-transform: capitalize; padding-bottom: 4px; }
+.gs-cal__graella--mini th{ padding: 2px; font-size: 11px; }
+.gs-cal__mdia{ height: 30px; padding: 2px; border: 1px solid #E6EBF2; font-size: 12px; text-align: center; vertical-align: top; cursor: pointer; }
+.gs-cal__mdia.is-fora{ cursor: default; background: #FAFAFC; }
+.gs-cal__punts{ display: flex; justify-content: center; gap: 2px; }
+.gs-cal__punt{ width: 5px; height: 5px; border-radius: 50%; }
+.gs-cal__punt--General{ background: #1C0CBC; } .gs-cal__punt--Intern{ background: #D48A00; }
+.gs-cal__afegeix{ display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: 0 0 12px; padding: 8px; border: 1px dashed #B9C0D6; border-radius: 10px; background: #FAFBFE; }
+.gs-cal__afegeix input, .gs-cal__afegeix select{ font: inherit; font-size: 13px; padding: 5px 7px; border: 1px solid #D5D9E6; border-radius: 7px; }
+.gs-cal__afegeix [name="descripcio"]{ flex: 1 1 260px; }
+.gs-cal__llista .gs-cal__mesfila th{ text-align: left; background: #EEF0FF; color: var(--color-blue); text-transform: capitalize; }
+.gs-cal__ld{ white-space: nowrap; font-weight: 600; }
+.gs-cal__lt{ border: 0; background: none; padding: 0; font: inherit; text-align: left; color: inherit; cursor: pointer; }
+.gs-cal__lt:hover{ color: var(--color-blue); text-decoration: underline; }
+.gs-cal__fs{ border: 1px solid #E6EBF2; border-radius: 8px; margin: 8px 0; padding: 6px 10px; }
+.gs-cal__dates tr.is-festiu td:first-child{ box-shadow: inset 4px 0 #E25A5A; } .gs-cal__dates tr.is-vacances td:first-child{ box-shadow: inset 4px 0 #8A93A8; }
+.gs-cal__dates tr.is-lliure td:first-child, .gs-cal__dates tr.is-local td:first-child{ box-shadow: inset 4px 0 #E08A3C; }
+@media (max-width: 900px){ .gs-cal__setmana{ grid-template-columns: minmax(0, 1fr); } .gs-cal__col{ min-height: 0; } .gs-cal__dia{ height: 72px; } .gs-cal__ev{ font-size: 11px; } }
+.gs-cal__dia.is-fora .gs-cal__num{ color: #B9C0D6; font-size: 12px; }
+@media (max-width: 700px){ #gsEines .gs-pestanyes{ max-width: 100%; overflow-x: auto; } #gsEines .gs-pestanyes button{ padding: 7px 11px; white-space: nowrap; } }

@@ -373,6 +373,7 @@
     if (m.id === 'nou_professor') return carregaNouProfessor();
     if (m.id === 'desiderata') return carregaDesiderata();
     if (m.id === 'horaris') return carregaHoraris();
+    if (m.id === 'calendari') return carregaCalendari();   // PAS 56
     // Les dades ja llegides en aquesta pàgina es reutilitzen: tornar al mòdul no torna a cridar el full
     if (S.cache[m.id]) return mostraDades(S.cache[m.id]);
     carregaDades();
@@ -1193,6 +1194,8 @@
         document.querySelectorAll('#gsTaula .gs-canviat').forEach(function (el) { el.classList.remove('gs-canviat'); });
         S.taula.getRows().forEach(function (rw) { rw.reformat(); });
         aplicaFiltre();
+        // PAS 56: el substitut ha heretat dades de la persona substituïda (es tornen a llegir per veure-les a la graella)
+        if (r.herencia) { toast('Desat. El substitut ha heretat ' + r.herencia + ' dades d’ocupació (lectives, càrrec, guàrdies…) de la persona substituïda.'); delete S.cache[S.modul.id]; carregaDades(); return; }
         toast('Desat correctament.');
         return;
       }
@@ -1473,7 +1476,7 @@
       var cognoms = function (d) { return [d.cognom1, d.cognom2].filter(Boolean).join(' ') + (d.nom ? ', ' + d.nom : ''); };
       pdfInforme('Professorat', gent.length + ' persones', ['', 'Professor/a', 'Signatura'], gent.map(function (d, i) { return [String(i + 1), cognoms(d), '']; }), 'llistat-professorat', {
         vertical: true, esquerra: true, sensAlternes: true, duesCares: true,
-        estils: { fontSize: 10, minCellHeight: 10, cellPadding: 2 },
+        estils: { fontSize: 10, minCellHeight: 10, cellPadding: 2, lineColor: [70, 72, 90], lineWidth: 0.35 },   // PAS 56: línies més gruixudes i fosques (es veuen en imprimir)
         columnes: { 0: { cellWidth: 12, halign: 'right' }, 1: { cellWidth: 95 }, 2: { cellWidth: 'auto' } },
         capcalera: function (doc, M, W) {
           doc.setFont('helvetica', 'bold'); doc.setFontSize(10); doc.setTextColor(30, 30, 42);
@@ -2714,6 +2717,345 @@
   // paral·lels i regles amb pes). Cada part es desa a la configuració i va dins de l'exportació per al motor.
   var DIES_H = ['dilluns', 'dimarts', 'dimecres', 'dijous', 'divendres'];
   var NOMS_AULA = { ordinaria: 'Ordinària', laboratori: 'Laboratori', informatica: 'Informàtica', idiomes: 'Idiomes', musica: 'Música', gimnas: 'Gimnàs / pista', taller: 'Taller', dibuix: 'Dibuix', desdoblament: 'Desdoblament', altres: 'Altres' };
+  // ------------------------------------------------------------------ PAS 56 · CALENDARI
+  // Esdeveniments del curs (General = es publica al web; Intern = només GESTIO, amb nivells opcionals), dates clau i festius,
+  // vistes de llista, dia, setmana, mes i trimestre (totes amb PDF) i publicació a Secretaria › Calendari escolar.
+  var MESOS_CAL = ['gener', 'febrer', 'març', 'abril', 'maig', 'juny', 'juliol', 'agost', 'setembre', 'octubre', 'novembre', 'desembre'];
+  var DIES_CAL = ['Dl', 'Dt', 'Dc', 'Dj', 'Dv', 'Ds', 'Dg'], DIES_CAL_LL = ['dilluns', 'dimarts', 'dimecres', 'dijous', 'divendres', 'dissabte', 'diumenge'];
+  var TIPUS_CAL = { inici: 'Inici de classes (ESO i Batx.)', darrer: 'Darrer dia de classe d’ESO', darrerBat: 'Darrer dia de 1r de Batx.', festiu: 'Festiu', local: 'Festa local',
+    lliure: 'Lliure disposició', vacances: 'Vacances', trimestre2: 'Inici del 2n trimestre', trimestre3: 'Inici del 3r trimestre' };
+  var SENSE_CLASSE = { festiu: 1, local: 1, lliure: 1, vacances: 1 };
+  var VISTES_CAL = [['llista', 'Llista'], ['dia', 'Dia'], ['setmana', 'Setmana'], ['mes', 'Mes'], ['trimestre', 'Trimestre'], ['dates', 'Dates clau']];
+  var p2 = function (n) { return (n < 10 ? '0' : '') + n; };
+  var isoDe = function (d) { return d.getUTCFullYear() + '-' + p2(d.getUTCMonth() + 1) + '-' + p2(d.getUTCDate()); };
+  var dataDe = function (iso) { var p = String(iso).split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])); };
+  var mesDies = function (iso, n) { var d = dataDe(iso); d.setUTCDate(d.getUTCDate() + n); return isoDe(d); };
+  var diaSet = function (iso) { return (dataDe(iso).getUTCDay() + 6) % 7; };   // dilluns = 0
+  var avuiIso = function () { var d = new Date(); return d.getFullYear() + '-' + p2(d.getMonth() + 1) + '-' + p2(d.getDate()); };
+  var deMes = function (m) { return (/^[aeiou]/.test(MESOS_CAL[m]) ? 'd’' : 'de ') + MESOS_CAL[m]; };
+  var dataLl = function (iso, ambDia) { var d = dataDe(iso); return (ambDia ? DIES_CAL_LL[diaSet(iso)] + ' ' : '') + d.getUTCDate() + ' ' + deMes(d.getUTCMonth()) + ' de ' + d.getUTCFullYear(); };
+  var dataCurta = function (iso) { var d = dataDe(iso); return d.getUTCDate() + '/' + (d.getUTCMonth() + 1); };
+  var rangCal = function (a, b) { return b && b !== a ? dataCurta(a) + ' – ' + dataCurta(b) : dataCurta(a); };
+  var nivellsText = function (n) { n = n || []; if (!n.length || n.length === 6) return n.length ? 'Tots' : ''; if (n.length === 4 && n.every(function (x) { return /ESO/.test(x); })) return 'ESO'; if (n.length === 2 && n.every(function (x) { return /BAT/.test(x); })) return 'Batxillerat'; return n.join(', '); };
+  function carregaCalendari() {
+    S.cal = S.cal || guarda.llegeix('calendari') || {};
+    S.cal.vista = S.cal.vista || 'mes'; S.cal.data = S.cal.data || avuiIso(); S.cal.cat = S.cal.cat || ''; S.cal.niv = S.cal.niv || ''; S.cal.q = '';
+    return api('calendari_dades', {}, 'Carregant el calendari…').then(function (r) {
+      if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
+      S.cal.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert };
+      // fora del curs (p. ex. a l'estiu): s'obre a l'inici de classes
+      var D = datesCal(); if (!guarda.llegeix('calendari') && D.inici && (S.cal.data < D.inici || S.cal.data > D.final)) S.cal.data = D.inici;
+      lligaCalendari(); pintaCalendari();
+    });
+  }
+  var edCal = function () { return S.cal.r && nivellIdx(S.cal.r.nivell) >= 1 && S.cal.r.obert; };
+  var adminCal = function () { return S.cal.r && S.cal.r.nivell === 'admin'; };
+  function datesCal() {
+    var dd = (S.cal.r.dates && S.cal.r.dates.dates) || [], u = function (t) { return (dd.filter(function (x) { return x.tipus === t; })[0] || {}).des; };
+    var inici = u('inici'), fi = u('darrer'), t2 = u('trimestre2'), t3 = u('trimestre3');
+    var a = Number(String(S.cal.r.dates.curs || '').slice(0, 4)) || dataDe(inici || avuiIso()).getUTCFullYear();
+    inici = inici || a + '-09-01'; fi = fi || (a + 1) + '-06-30';
+    t2 = t2 || (a + 1) + '-01-01'; t3 = t3 || (a + 1) + '-04-01';
+    return { inici: inici, final: fi, trimestres: [[inici, mesDies(t2, -1)], [t2, mesDies(t3, -1)], [t3, fi]] };
+  }
+  function clauDelDia(iso) { return ((S.cal.r.dates && S.cal.r.dates.dates) || []).filter(function (x) { return iso >= x.des && iso <= (x.fins || x.des); }); }
+  function evFiltrats() {
+    var q = S.cal.vista === 'llista' ? normCal(S.cal.q || '') : '';   // la cerca només és a la llista
+    return S.cal.r.esdeveniments.filter(function (e) {
+      if (S.cal.cat && e.categoria !== S.cal.cat) return false;
+      if (S.cal.niv && e.nivells.length && e.nivells.indexOf(S.cal.niv) < 0) return false;
+      return !q || normCal(e.descripcio + ' ' + e.hora + ' ' + e.nivells.join(' ')).indexOf(q) >= 0;
+    });
+  }
+  var normCal = function (s) { return String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase(); };
+  var ordreEv = function (a, b) { return (a.data_inici + (a.hora || '99')).localeCompare(b.data_inici + (b.hora || '99')) || a.descripcio.localeCompare(b.descripcio, 'ca'); };
+  function evDelDia(iso, ll) { return (ll || evFiltrats()).filter(function (e) { return iso >= e.data_inici && iso <= (e.data_fi || e.data_inici); }).sort(function (a, b) { return String(a.hora || '99').localeCompare(String(b.hora || '99')); }); }
+  function evEntre(a, b) { return evFiltrats().filter(function (e) { return e.data_inici <= b && (e.data_fi || e.data_inici) >= a; }).sort(ordreEv); }
+  // Interval de la vista actual i el seu títol
+  function intervalCal() {
+    var d = S.cal.data, v = S.cal.vista, D = datesCal();
+    if (v === 'dia') return { a: d, b: d, titol: dataLl(d, true) };
+    if (v === 'setmana') { var a = mesDies(d, -diaSet(d)), b = mesDies(a, 6); return { a: a, b: b, titol: 'Setmana del ' + dataCurta(a) + ' al ' + dataLl(b) }; }
+    if (v === 'mes') { var x = dataDe(d), a2 = x.getUTCFullYear() + '-' + p2(x.getUTCMonth() + 1) + '-01'; var u = new Date(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + 1, 0)); return { a: a2, b: isoDe(u), titol: MESOS_CAL[x.getUTCMonth()].replace(/^./, function (c) { return c.toUpperCase(); }) + ' de ' + x.getUTCFullYear() }; }
+    if (v === 'trimestre') { var i = trimestreDe(d), t = D.trimestres[i]; return { a: t[0], b: t[1], i: i, titol: ['1r', '2n', '3r'][i] + ' trimestre (' + dataCurta(t[0]) + ' – ' + dataCurta(t[1]) + ')' }; }
+    return { a: D.inici, b: D.final, titol: 'Curs ' + (S.cal.r.dates.curs || '') };
+  }
+  function trimestreDe(iso) { var T = datesCal().trimestres; for (var i = 0; i < 3; i++) if (iso <= T[i][1]) return i; return 2; }
+  function mouCal(n) {
+    var v = S.cal.vista, d = S.cal.data;
+    if (v === 'dia') d = mesDies(d, n); else if (v === 'setmana') d = mesDies(d, 7 * n);
+    else if (v === 'mes') { var x = dataDe(d); d = isoDe(new Date(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + n, 1))); }
+    else if (v === 'trimestre') { var i = trimestreDe(d) + n, T = datesCal().trimestres; if (i < 0 || i > 2) return; d = T[i][0]; }
+    S.cal.data = d; pintaCalendari();
+  }
+  function desaPrefCal() { guarda.desa('calendari', { vista: S.cal.vista, data: S.cal.data, cat: S.cal.cat, niv: S.cal.niv }); }
+  function pintaCalendari() {
+    desaPrefCal();
+    var R = S.cal.r, v = S.cal.vista, ed = edCal(), I = intervalCal(), nav = v !== 'llista' && v !== 'dates';
+    $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist">' + VISTES_CAL.map(function (x) { return '<button type="button" role="tab" data-cal="vista" data-v="' + x[0] + '" aria-selected="' + (x[0] === v) + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+      (nav ? '<span class="gs-cal__nav"><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-cal="ant" aria-label="Anterior">◀</button><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-cal="avui">Avui</button><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-cal="seg" aria-label="Següent">▶</button>' +
+        '<input type="date" class="gs-cal__salta" data-cal="salta" value="' + esc(S.cal.data) + '" aria-label="Vés a la data"></span>' : '') +
+      (v !== 'dates' ? '<select data-cal="cat" aria-label="Categoria"><option value="">Totes les categories</option><option value="General"' + (S.cal.cat === 'General' ? ' selected' : '') + '>General</option><option value="Intern"' + (S.cal.cat === 'Intern' ? ' selected' : '') + '>Intern</option></select>' +
+        '<select data-cal="niv" aria-label="Nivell"><option value="">Tots els nivells</option>' + R.nivells.map(function (n) { return '<option' + (S.cal.niv === n ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select>' : '') +
+      (v === 'llista' ? '<input type="search" class="gs-cal__cerca" data-cal="cerca" placeholder="Cerca…" value="' + esc(S.cal.q || '') + '">' : '') +
+      '<span class="gs-espai"></span>' +
+      (ed && v !== 'dates' ? '<button type="button" class="prog-btn" data-cal="nou">+ Nou esdeveniment</button>' : '') +
+      (v !== 'dates' ? '<button type="button" class="prog-btn prog-btn--ghost" data-cal="pdf" title="PDF de la vista actual (amb els filtres)">PDF</button>' : '') +
+      (adminCal() ? '<button type="button" class="prog-btn prog-btn--ghost" data-cal="importa" title="Afegeix els esdeveniments del full del calendari (config › font_calendari) que encara no hi són">Importa del full</button>' +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-cal="publica" title="Publica les dates clau i els esdeveniments «General» a Secretaria › Calendari escolar">Publica</button>' : '') +
+      '<p class="gs-ajuda gs-cal__ajuda">' + (v === 'dates' ? 'Inici i final de classes, inici dels trimestres, festius, dies de lliure disposició, festes locals i vacances. Surten a totes les vistes i, en publicar, al web (els trimestres, no).' :
+        '<span class="gs-cal__ll gs-cal__ll--General">General</span> es publica al web · <span class="gs-cal__ll gs-cal__ll--Intern">Intern</span> només a GESTIO. ' + (ed ? 'Cliqueu un dia per afegir-hi un esdeveniment i un esdeveniment per canviar-lo.' : '')) +
+        (R.publicat ? ' <span class="gs-cal__pub">Publicat el ' + esc(String(R.publicat.data).slice(0, 16)) + ' (' + R.publicat.n + ' esdeveniments).</span>' : adminCal() ? ' <span class="gs-cal__pub">Encara no s’ha publicat.</span>' : '') + '</p>';
+    var html;
+    try {
+      html = v === 'dates' ? htmlDatesCal(ed) : (nav ? '<h3 class="gs-cal__titol">' + esc(I.titol) + '</h3>' : '') +
+        (v === 'llista' ? htmlLlistaCal(evFiltrats().sort(ordreEv), ed, true) : v === 'dia' ? htmlDiaCal(I.a, ed) : v === 'setmana' ? htmlSetmanaCal(I.a) : v === 'mes' ? htmlMesCal(I.a, false) : htmlTrimestreCal(I));
+    } catch (er) { if (window.console) console.error(er); html = '<p class="prog-avis">No s’ha pogut mostrar el calendari: ' + esc(er && er.message || er) + '</p>'; }
+    var t = $('gsTaula'); t.className = 'gs-cal gs-cal--' + v; t.innerHTML = html;
+    ajustaAlcada();
+  }
+  var chipCal = function (e, curt) { return '<button type="button" class="gs-cal__ev gs-cal__ev--' + e.categoria + '" data-cal="edita" data-id="' + esc(e.id) + '" title="' + esc((e.hora ? e.hora + ' · ' : '') + e.descripcio + (e.nivells.length ? ' (' + nivellsText(e.nivells) + ')' : '') + ' · ' + e.categoria) + '">' + (e.hora && !curt ? '<b>' + esc(e.hora.split('-')[0]) + '</b> ' : '') + esc(e.descripcio) + '</button>'; };
+  var classeDia = function (iso) { return clauDelDia(iso).map(function (x) { return ' is-' + x.tipus; }).join('') + (diaSet(iso) >= 5 ? ' is-we' : '') + (iso === avuiIso() ? ' is-avui' : ''); };
+  var marcaClau = function (iso) { return clauDelDia(iso).map(function (x) { return '<span class="gs-cal__clau gs-cal__clau--' + x.tipus + '">' + esc(x.nom && x.nom.ca || TIPUS_CAL[x.tipus]) + '</span>'; }).join(''); };
+  function htmlMesCal(a, mini) {
+    var x = dataDe(a), primer = x.getUTCFullYear() + '-' + p2(x.getUTCMonth() + 1) + '-01', ini = mesDies(primer, -diaSet(primer)), ll = evFiltrats(), h = '';
+    for (var s = 0; s < 6; s++) {
+      var w = mesDies(ini, 7 * s); if (s && dataDe(w).getUTCMonth() !== x.getUTCMonth()) break;
+      h += '<tr>' + [0, 1, 2, 3, 4, 5, 6].map(function (k) {
+        var iso = mesDies(w, k), fora = dataDe(iso).getUTCMonth() !== x.getUTCMonth(), evs = fora ? [] : evDelDia(iso, ll);
+        if (mini) return '<td class="gs-cal__mdia' + (fora ? ' is-fora' : classeDia(iso)) + '"' + (fora ? '' : ' data-cal="dia" data-d="' + iso + '" title="' + esc(evs.length + ' esdeveniments' + (clauDelDia(iso).length ? ' · ' + clauDelDia(iso).map(function (c) { return TIPUS_CAL[c.tipus]; }).join(', ') : '')) + '"') + '>' + (fora ? '' : dataDe(iso).getUTCDate() + (evs.length ? '<i class="gs-cal__punts">' + evs.slice(0, 3).map(function (e) { return '<span class="gs-cal__punt gs-cal__punt--' + e.categoria + '"></span>'; }).join('') + '</i>' : '')) + '</td>';
+        return '<td class="gs-cal__dia' + (fora ? ' is-fora' : classeDia(iso)) + '"' + (fora ? '' : ' data-cal="cel" data-d="' + iso + '"') + '><div class="gs-cal__num">' + (fora ? '<span>' + dataDe(iso).getUTCDate() + '</span>' : '<button type="button" class="gs-enllac" data-cal="dia" data-d="' + iso + '" title="Vista del dia">' + dataDe(iso).getUTCDate() + '</button>' + marcaClau(iso)) + '</div>' +
+          evs.slice(0, 4).map(function (e) { return chipCal(e); }).join('') + (evs.length > 4 ? '<button type="button" class="gs-enllac gs-cal__mes" data-cal="dia" data-d="' + iso + '">+' + (evs.length - 4) + ' més</button>' : '') + '</td>';
+      }).join('') + '</tr>';
+    }
+    return '<table class="gs-cal__graella' + (mini ? ' gs-cal__graella--mini' : '') + '">' + (mini ? '<caption>' + MESOS_CAL[x.getUTCMonth()] + ' ' + x.getUTCFullYear() + '</caption>' : '') + (mini ? '' : '<colgroup>' + DIES_CAL.map(function (d, k) { return '<col style="width:' + (k >= 5 ? 10 : 16) + '%">'; }).join('') + '</colgroup>') + '<thead><tr>' + DIES_CAL.map(function (d) { return '<th>' + d + '</th>'; }).join('') + '</tr></thead><tbody>' + h + '</tbody></table>';
+  }
+  function htmlSetmanaCal(a) {
+    var ll = evFiltrats();
+    return '<div class="gs-cal__setmana">' + [0, 1, 2, 3, 4, 5, 6].map(function (k) {
+      var iso = mesDies(a, k), evs = evDelDia(iso, ll);
+      return '<section class="gs-cal__col' + classeDia(iso) + '" data-cal="cel" data-d="' + iso + '"><h4><button type="button" class="gs-enllac" data-cal="dia" data-d="' + iso + '">' + DIES_CAL_LL[k] + ' ' + dataCurta(iso) + '</button></h4>' + marcaClau(iso) +
+        evs.map(function (e) { return chipCal(e); }).join('') + '</section>';
+    }).join('') + '</div>';
+  }
+  function htmlDiaCal(iso, ed) {
+    var evs = evDelDia(iso), clau = marcaClau(iso);
+    return (clau ? '<p class="gs-cal__claus">' + clau + '</p>' : '') + (ed ? htmlAfegeixCal(iso) : '') + (evs.length ? htmlLlistaCal(evs, ed, false) : '<p class="gs-ajuda">Cap esdeveniment aquest dia' + (S.cal.cat || S.cal.niv ? ' (amb els filtres triats)' : '') + '.</p>');
+  }
+  function htmlTrimestreCal(I) {
+    var mesos = [], x = dataDe(I.a);
+    while (isoDe(x) <= I.b) { mesos.push(isoDe(x)); x = new Date(Date.UTC(x.getUTCFullYear(), x.getUTCMonth() + 1, 1)); }
+    var evs = evEntre(I.a, I.b);
+    return '<div class="gs-cal__minis">' + mesos.map(function (m) { return htmlMesCal(m, true); }).join('') + '</div><p class="gs-ajuda"><b>' + evs.length + '</b> esdeveniments en aquest trimestre (' + evs.filter(function (e) { return e.categoria === 'General'; }).length + ' generals).</p>' + htmlLlistaCal(evs, edCal(), true);
+  }
+  function htmlAfegeixCal(iso) {
+    return '<form class="gs-cal__afegeix" data-cal="afegeix"><input type="date" name="data_inici" value="' + esc(iso || '') + '" required aria-label="Data"><input type="text" name="hora" placeholder="Hora (9:00)" aria-label="Hora" size="9">' +
+      '<input type="text" name="descripcio" placeholder="Nou esdeveniment… (Retorn per afegir)" aria-label="Descripció" required>' +
+      '<select name="categoria" aria-label="Categoria"><option>Intern</option><option>General</option></select>' +
+      '<select name="nivells" aria-label="Nivells"><option value="">Sense nivell</option><option value="ESO">Tota l’ESO</option><option value="BAT">Tot el batxillerat</option>' + S.cal.r.nivells.map(function (n) { return '<option>' + n + '</option>'; }).join('') + '</select>' +
+      '<button type="submit" class="prog-btn prog-btn--sm">Afegeix</button></form>';
+  }
+  function htmlLlistaCal(evs, ed, perMes) {
+    var mes = '', files = '';
+    evs.forEach(function (e) {
+      var m = e.data_inici.slice(0, 7);
+      if (perMes && m !== mes) { mes = m; files += '<tr class="gs-cal__mesfila"><th colspan="6">' + MESOS_CAL[Number(m.slice(5)) - 1] + ' ' + m.slice(0, 4) + '</th></tr>'; }
+      files += '<tr data-id="' + esc(e.id) + '"><td class="gs-cal__ld">' + esc(rangCal(e.data_inici, e.data_fi)) + ' <small>' + DIES_CAL[diaSet(e.data_inici)] + '</small></td><td>' + esc(e.hora) + '</td><td><button type="button" class="gs-cal__lt" data-cal="edita" data-id="' + esc(e.id) + '">' + esc(e.descripcio) + '</button></td>' +
+        '<td><span class="gs-cal__ll gs-cal__ll--' + e.categoria + '">' + e.categoria + '</span></td><td>' + esc(nivellsText(e.nivells)) + '</td><td class="gs-cen">' + (ed ? '<button type="button" class="gs-perill gs-paperera" data-cal="esborra" data-id="' + esc(e.id) + '" title="Esborra" aria-label="Esborra">🗑</button>' : '') + '</td></tr>';
+    });
+    return (S.cal.vista === 'llista' && ed ? htmlAfegeixCal(S.cal.data) : '') + (evs.length ? '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-cal__llista"><thead><tr><th>Data</th><th>Hora</th><th>Esdeveniment</th><th>Categoria</th><th>Nivells</th><th></th></tr></thead><tbody>' + files + '</tbody></table>' : (S.cal.vista === 'dia' ? '' : '<p class="gs-ajuda">Cap esdeveniment' + (S.cal.cat || S.cal.niv || S.cal.q ? ' amb els filtres triats' : '') + '.</p>'));
+  }
+  function htmlDatesCal(ed) {
+    var D = S.cal.datesEd || (S.cal.datesEd = JSON.parse(JSON.stringify(S.cal.r.dates))), dis = ed ? '' : ' disabled';
+    var T = datesCal().trimestres;
+    return '<section class="gs-hor__sec"><p><label>Curs <input type="text" data-dk="curs" value="' + esc(D.curs || '') + '" size="10"' + dis + '></label> · ' +
+      T.map(function (t, i) { return '<b>' + ['1r', '2n', '3r'][i] + ' trimestre</b>: ' + dataCurta(t[0]) + ' – ' + dataCurta(t[1]); }).join(' · ') + '</p>' +
+      '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-cal__dates"><thead><tr><th>Tipus</th><th>Data</th><th>Fins a (opcional)</th><th>Nom (català)</th><th>Castellà</th><th>Anglès</th><th></th></tr></thead><tbody>' +
+      D.dates.map(function (x, i) {
+        return '<tr data-i="' + i + '" class="is-' + esc(x.tipus) + '"><td><select data-dk="tipus"' + dis + '>' + Object.keys(TIPUS_CAL).map(function (t) { return '<option value="' + t + '"' + (t === x.tipus ? ' selected' : '') + '>' + TIPUS_CAL[t] + '</option>'; }).join('') + '</select></td>' +
+          '<td><input type="date" data-dk="des" value="' + esc(x.des) + '"' + dis + '></td><td><input type="date" data-dk="fins" value="' + esc(x.fins || '') + '"' + dis + '></td>' +
+          ['ca', 'es', 'en'].map(function (L) { return '<td><input type="text" data-dk="nom_' + L + '" value="' + esc((x.nom || {})[L] || '') + '" placeholder="' + (L === 'ca' ? esc(TIPUS_CAL[x.tipus] || '') : '') + '"' + dis + '></td>'; }).join('') +
+          '<td>' + (ed ? '<button type="button" class="gs-perill gs-paperera" data-cal="treu-data" title="Treu" aria-label="Treu">🗑</button>' : '') + '</td></tr>';
+      }).join('') + '</tbody></table>' +
+      (ed ? '<p><button type="button" class="gs-enllac" data-cal="nova-data">+ data</button></p><p><button type="button" class="prog-btn" data-cal="desa-dates">Desa les dates clau</button> <button type="button" class="prog-btn prog-btn--ghost" data-cal="refes-dates">Descarta els canvis</button></p>' : '') +
+      '<p class="gs-ajuda">El nom és opcional (per defecte, el del tipus). Si només l’escriviu en català, al web en castellà i anglès sortirà igual.</p></section>';
+  }
+  // ---- edició
+  function editaCal(e, nou) {
+    var ed = edCal(); e = e || {}; var niv = e.nivells || [], dis = ed ? '' : ' disabled';
+    var html = '<div class="gs-form-fila gs-cal__form"><label>Data <input type="date" id="calDi" value="' + esc(e.data_inici || S.cal.data) + '"' + dis + '></label><label>Fins a (opcional) <input type="date" id="calDf" value="' + esc(e.data_fi || '') + '"' + dis + '></label>' +
+      '<label>Hora <input type="text" id="calHo" value="' + esc(e.hora || '') + '" placeholder="9:00 o 9:00-11:00" size="12"' + dis + '></label></div>' +
+      '<p><label>Descripció<br><textarea id="calDe" rows="2" maxlength="300" style="width:100%"' + dis + '>' + esc(e.descripcio || '') + '</textarea></label></p>' +
+      '<fieldset class="gs-cal__fs"><legend>Categoria</legend>' + ['General', 'Intern'].map(function (c) { return '<label class="gs-check"><input type="radio" name="calCat" value="' + c + '"' + ((e.categoria || 'Intern') === c ? ' checked' : '') + dis + '> <span class="gs-cal__ll gs-cal__ll--' + c + '">' + c + '</span> ' + (c === 'General' ? '(es publica al web)' : '(només GESTIO)') + '</label>'; }).join(' ') + '</fieldset>' +
+      '<fieldset class="gs-cal__fs"><legend>Nivells (cap = tot el centre)</legend>' + S.cal.r.nivells.map(function (n) { return '<label class="gs-check"><input type="checkbox" class="calNiv" value="' + n + '"' + (niv.indexOf(n) >= 0 ? ' checked' : '') + dis + '> ' + n + '</label>'; }).join(' ') +
+      (ed ? ' <button type="button" class="gs-enllac" id="calNivEso">ESO</button> · <button type="button" class="gs-enllac" id="calNivBat">Batx.</button> · <button type="button" class="gs-enllac" id="calNivCap">cap</button>' : '') + '</fieldset>' +
+      (e.desat_per ? '<p class="gs-ajuda">Desat per ' + esc(e.desat_per) + ' (' + esc(String(e.data).slice(0, 16)) + ')</p>' : '') + '<p class="prog-avis" id="calErr" hidden></p>';
+    var llegeix = function () { return { id: nou ? '' : e.id, data_inici: $('calDi').value, data_fi: $('calDf').value, hora: $('calHo').value.trim(), descripcio: $('calDe').value.trim(),
+      categoria: (document.querySelector('input[name="calCat"]:checked') || {}).value, nivells: [].map.call(document.querySelectorAll('.calNiv:checked'), function (c) { return c.value; }) }; };
+    var valida = function () { var x = llegeix(), m = !x.data_inici ? 'Cal la data.' : x.data_fi && x.data_fi < x.data_inici ? 'La data final ha de ser igual o posterior a la inicial.' : !x.descripcio ? 'Cal una descripció.' : '';
+      $('calErr').textContent = m; $('calErr').hidden = !m; return !m; };
+    var botons = ed ? [{ t: nou ? 'Afegeix' : 'Desa', valor: 'desa', abans: valida }].concat(nou ? [] : [{ t: 'Duplica', tipus: 'ghost', valor: 'duplica', abans: valida }, { t: 'Esborra', tipus: 'ghost', valor: 'esborra' }]).concat([{ t: 'Cancel·la', tipus: 'ghost', valor: null }]) : [{ t: 'Tanca', valor: null }];
+    var p = pregunta(nou ? 'Nou esdeveniment' : 'Esdeveniment', html, botons, false), dades = null;
+    setTimeout(function () {
+      var marca = function (f) { [].forEach.call(document.querySelectorAll('.calNiv'), function (c) { c.checked = f(c.value); }); };
+      if ($('calNivEso')) { $('calNivEso').onclick = function () { marca(function (v) { return /ESO/.test(v); }); }; $('calNivBat').onclick = function () { marca(function (v) { return /BAT/.test(v); }); }; $('calNivCap').onclick = function () { marca(function () { return false; }); }; }
+      [].forEach.call($('gsModalBtns').querySelectorAll('button'), function (b) { b.addEventListener('click', function () { if ($('calDi')) dades = llegeix(); }, true); });
+      if (nou && $('calDe')) $('calDe').focus();
+    }, 0);
+    return p.then(function (v) {
+      if (v === 'desa') return desaCal([dades], [], nou ? 'Esdeveniment afegit.' : 'Esdeveniment desat.');
+      if (v === 'duplica') { dades.id = ''; return desaCal([dades], [], 'Esdeveniment duplicat: ara el podeu canviar.').then(function (r) { if (r && r.ids) editaCal(S.cal.r.esdeveniments.filter(function (x) { return x.id === r.ids[0]; })[0]); }); }
+      if (v === 'esborra') return esborraCal(e);
+    });
+  }
+  function desaCal(evs, esborra, msg) {
+    return api('calendari_desa', { esdeveniments: evs, esborra: esborra }, 'Desant…').then(function (r) {
+      if (!r.ok) { toast(r.errors ? r.errors.join(' ') : text(r.error), true); return r; }
+      S.cal.r.esdeveniments = r.esdeveniments; toast(msg || 'Desat.'); pintaCalendari(); return r;
+    });
+  }
+  function esborraCal(e) {
+    return pregunta('Esborra l’esdeveniment', '<p>Segur que voleu esborrar <b>' + esc(e.descripcio) + '</b> (' + esc(rangCal(e.data_inici, e.data_fi)) + ')?</p>', [{ t: 'Esborra', valor: true }, { t: 'Cancel·la', tipus: 'ghost', valor: false }])
+      .then(function (ok) { if (ok) return desaCal([], [e.id], 'Esdeveniment esborrat.'); });
+  }
+  function desaDatesCal() {
+    var D = S.cal.datesEd;
+    return api('calendari_dates_desa', { dates: D }, 'Desant les dates clau…').then(function (r) {
+      if (!r.ok) { toast(r.errors ? r.errors.join(' ') : text(r.error), true); return; }
+      S.cal.r.dates = r.dates; S.cal.datesEd = null; S.brut = false; toast('Dates clau desades.'); pintaCalendari();
+    });
+  }
+  function publicaCal() {
+    var gen = S.cal.r.esdeveniments.filter(function (e) { return e.categoria === 'General'; }).length;
+    return pregunta('Publica el calendari', '<p>Es publicaran a <b>Secretaria › Calendari escolar</b> les <b>dates clau</b> (sense els trimestres) i els <b>' + gen + '</b> esdeveniments de categoria <b>General</b>. Els interns no surten mai al web.</p>' +
+      '<p>' + (S.cal.r.build_hook ? 'El web es tornarà a construir sol: la pàgina i el PDF del calendari s’actualitzen al cap d’uns minuts.' : 'Encara no hi ha <code>config › netlify_build_hook</code>: el calendari publicat sortirà al web en el proper desplegament.') + '</p>',
+      [{ t: 'Publica', valor: true }, { t: 'Cancel·la', tipus: 'ghost', valor: false }]).then(function (ok) {
+      if (!ok) return;
+      return api('calendari_publica', {}, 'Publicant…').then(function (r) {
+        if (!r.ok) { toast(r.errors ? r.errors.join(' ') : text(r.error), true); return; }
+        S.cal.r.publicat = r.publicat;
+        toast('Publicat: ' + r.n + ' esdeveniments i ' + r.dates + ' dates clau. ' + ({ iniciat: 'El web s’està tornant a construir.', sense_hook: 'Sortirà al web en el proper desplegament.' }[r.build] || 'No s’ha pogut avisar Netlify (' + r.build + '): sortirà en el proper desplegament.'), r.build !== 'iniciat' && r.build !== 'sense_hook');
+        pintaCalendari();
+      });
+    });
+  }
+  function importaCal() {
+    return api('calendari_importa', { prova: true }, 'Llegint el full del calendari…').then(function (r) {
+      if (!r.ok) { toast(text(r.error) + (r.detall ? ' (' + r.detall + ')' : ''), true); return; }
+      if (!r.n) { toast('No hi ha esdeveniments nous al full.' + (r.dubtes.length ? ' Dates no reconegudes: ' + r.dubtes.length + '.' : '')); return; }
+      return pregunta('Importa del full del calendari', '<p>S’afegiran <b>' + r.n + '</b> esdeveniments nous (<b>' + r.resum.general + '</b> generals i <b>' + r.resum.intern + '</b> interns). Els que ja hi són (mateixa data i descripció) no es repeteixen; els festius i dies de lliure disposició ja són a les dates clau.</p>' +
+        '<p class="gs-ajuda">La categoria i els nivells es dedueixen del text: reviseu-los després (sobretot els generals, que es publiquen).</p><ul>' + r.mostra.map(function (e) { return '<li>' + esc(rangCal(e.data_inici, e.data_fi)) + ' · ' + esc(e.descripcio) + ' <span class="gs-cal__ll gs-cal__ll--' + e.categoria + '">' + e.categoria + '</span></li>'; }).join('') + (r.n > r.mostra.length ? '<li>…</li>' : '') + '</ul>' +
+        (r.dubtes.length ? '<p class="prog-avis">Files amb una data que no s’entén (no s’importen): ' + r.dubtes.map(esc).join(' · ') + '</p>' : ''), [{ t: 'Importa', valor: true }, { t: 'Cancel·la', tipus: 'ghost', valor: false }], false).then(function (ok) {
+        if (!ok) return;
+        return api('calendari_importa', {}, 'Important…').then(function (r2) {
+          if (!r2.ok) { toast(r2.errors ? r2.errors.join(' ') : text(r2.error), true); return; }
+          S.cal.r.esdeveniments = r2.esdeveniments; toast(r2.n + ' esdeveniments importats.'); pintaCalendari();
+        });
+      });
+    });
+  }
+  // ---- PDF (amb el logo): llista per a la llista, el dia i el trimestre; graella per a la setmana i el mes
+  function pdfCal() {
+    var v = S.cal.vista, I = intervalCal(), filtre = [S.cal.cat, S.cal.niv].filter(Boolean).join(' · ');
+    var sub = (v === 'llista' ? 'Curs ' + (S.cal.r.dates.curs || '') : I.titol) + (filtre ? ' · ' + filtre : '') + (v === 'llista' && S.cal.q ? ' · «' + S.cal.q + '»' : '');
+    if (v === 'setmana' || v === 'mes') return pdfGraellaCal(I, sub);
+    var evs = v === 'llista' ? evFiltrats().sort(ordreEv) : evEntre(I.a, I.b), files = [], mes = '';
+    if (v !== 'dia') ((S.cal.r.dates || {}).dates || []).filter(function (x) { return x.des <= I.b && (x.fins || x.des) >= I.a && x.tipus !== 'trimestre2' && x.tipus !== 'trimestre3'; })
+      .forEach(function (x) { evs.push({ data_inici: x.des, data_fi: x.fins || '', hora: '', descripcio: (x.nom && x.nom.ca) || TIPUS_CAL[x.tipus], categoria: 'Data clau', nivells: [] }); });
+    evs.sort(ordreEv).forEach(function (e) {
+      var m = e.data_inici.slice(0, 7);
+      if (v !== 'dia' && m !== mes) { mes = m; files.push({ s: MESOS_CAL[Number(m.slice(5)) - 1].toUpperCase() + ' ' + m.slice(0, 4) }); }
+      files.push([rangCal(e.data_inici, e.data_fi) + ' ' + DIES_CAL[diaSet(e.data_inici)], e.hora || '', e.descripcio, e.categoria, nivellsText(e.nivells)]);
+    });
+    if (!files.length) return toast('No hi ha cap esdeveniment per posar al PDF.', true);
+    return pdfInforme('Calendari', sub, ['Data', 'Hora', 'Esdeveniment', 'Categoria', 'Nivells'], files, 'calendari-' + v, { vertical: true, esquerra: true,
+      columnes: { 0: { cellWidth: 26 }, 1: { cellWidth: 20 }, 3: { cellWidth: 20 }, 4: { cellWidth: 30 } } });
+  }
+  function pdfGraellaCal(I, sub) {
+    var mes = S.cal.vista === 'mes', ll = evFiltrats(), setmanes = [], ini = mesDies(I.a, -diaSet(I.a));
+    for (var w = ini; w <= I.b; w = mesDies(w, 7)) setmanes.push(w);
+    var colors = { festiu: [253, 226, 226], local: [255, 237, 213], lliure: [255, 237, 213], vacances: [230, 233, 240], inici: [221, 243, 228], darrer: [221, 243, 228], darrerBat: [221, 243, 228] };
+    var crida = logoPdf().then(function (logo) {
+      var doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M = 10;
+      var data = new Date().toLocaleDateString('ca-ES', { day: 'numeric', month: 'long', year: 'numeric' }), fons = [];
+      var cos = setmanes.map(function (w, si) {
+        fons[si] = [];
+        return [0, 1, 2, 3, 4, 5, 6].map(function (k) {
+          var iso = mesDies(w, k), fora = mes && dataDe(iso).getUTCMonth() !== dataDe(I.a).getUTCMonth();
+          if (fora) { fons[si][k] = [250, 250, 252]; return ''; }
+          var cl = clauDelDia(iso).filter(function (x) { return TIPUS_CAL[x.tipus] && x.tipus.indexOf('trimestre') < 0; });
+          fons[si][k] = cl.length && colors[cl[0].tipus] ? colors[cl[0].tipus] : diaSet(iso) >= 5 ? [246, 247, 250] : null;
+          return [String(dataDe(iso).getUTCDate()) + (mes ? '' : ' ' + MESOS_CAL[dataDe(iso).getUTCMonth()])].concat(cl.map(function (x) { return '[' + ((x.nom && x.nom.ca) || TIPUS_CAL[x.tipus]) + ']'; }),
+            evDelDia(iso, ll).map(function (e) { return '• ' + (e.hora ? e.hora.split('-')[0] + ' ' : '') + e.descripcio + (e.categoria === 'Intern' ? '' : ' (G)'); })).join('\n');
+        });
+      });
+      var alt = (H - Y_TAULA - 14 - 8) / setmanes.length;
+      doc.autoTable({ head: [DIES_CAL_LL.map(function (d) { return d.charAt(0).toUpperCase() + d.slice(1); })], body: cos, startY: Y_TAULA, margin: { top: Y_TAULA, left: M, right: M, bottom: 12 },
+        styles: { font: 'helvetica', fontSize: mes ? 6.6 : 8, cellPadding: 1.2, overflow: 'linebreak', valign: 'top', lineColor: [70, 72, 90], lineWidth: 0.25, minCellHeight: mes ? alt : H - Y_TAULA - 30 },
+        headStyles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold', halign: 'center', valign: 'middle', minCellHeight: 7 }, columnStyles: (function () { var cw = (W - 2 * M - 52) / 5, o = { 5: { cellWidth: 26 }, 6: { cellWidth: 26 } }; for (var k = 0; k < 5; k++) o[k] = { cellWidth: cw }; return o; })(),
+        didParseCell: function (d) { if (d.section === 'body' && fons[d.row.index] && fons[d.row.index][d.column.index]) d.cell.styles.fillColor = fons[d.row.index][d.column.index]; },
+        didDrawPage: function () { capPdf(doc, logo, 'CALENDARI · Institut Joan Miró', data + ' · ' + sub + ' · (G) = General', M, W);
+          doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(90, 96, 120); doc.text('Pàgina ' + doc.internal.getNumberOfPages(), W - M, H - 6, { align: 'right' }); } });
+      doc.save('calendari-' + S.cal.vista + '-' + I.a + '.pdf');
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
+  }
+  // ---- esdeveniments (una sola vegada: els contenidors no canvien)
+  function lligaCalendari() {
+    if (lligaCalendari.fet) return; lligaCalendari.fet = true;
+    var actiu = function () { return S.modul && S.modul.id === 'calendari' && S.cal && S.cal.r; };
+    $('gsEines').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-cal]'); if (!b || !actiu()) return;
+      var a = b.dataset.cal;
+      if (a === 'vista') { if (S.cal.datesEd && S.cal.vista === 'dates' && b.dataset.v !== 'dates') S.cal.datesEd = null; S.cal.vista = b.dataset.v; pintaCalendari(); }
+      else if (a === 'ant') mouCal(-1); else if (a === 'seg') mouCal(1);
+      else if (a === 'avui') { S.cal.data = avuiIso(); pintaCalendari(); }
+      else if (a === 'nou') editaCal({ data_inici: S.cal.vista === 'mes' || S.cal.vista === 'trimestre' ? '' : S.cal.data, nivells: S.cal.niv ? [S.cal.niv] : [], categoria: S.cal.cat || 'Intern' }, true);
+      else if (a === 'pdf') pdfCal(); else if (a === 'publica') publicaCal(); else if (a === 'importa') importaCal();
+    });
+    $('gsEines').addEventListener('change', function (e) {
+      var x = e.target, a = x.dataset && x.dataset.cal; if (!a || !actiu()) return;
+      if (a === 'cat') S.cal.cat = x.value; else if (a === 'niv') S.cal.niv = x.value; else if (a === 'salta' && x.value) S.cal.data = x.value; else return;
+      pintaCalendari();
+    });
+    $('gsEines').addEventListener('input', function (e) {
+      if (!actiu() || e.target.dataset.cal !== 'cerca') return;
+      S.cal.q = e.target.value; clearTimeout(lligaCalendari.t);
+      lligaCalendari.t = setTimeout(function () { var t = $('gsTaula'); t.innerHTML = htmlLlistaCal(evFiltrats().sort(ordreEv), edCal(), true); }, 200);
+    });
+    $('gsTaula').addEventListener('click', function (e) {
+      if (!actiu()) return;
+      var b = e.target.closest('[data-cal]'); if (!b) return;
+      var a = b.dataset.cal, ev = function () { return S.cal.r.esdeveniments.filter(function (x) { return x.id === b.dataset.id; })[0]; };
+      if (a === 'edita') { e.stopPropagation(); if (ev()) editaCal(ev()); }
+      else if (a === 'esborra') { if (ev()) esborraCal(ev()); }
+      else if (a === 'dia') { e.stopPropagation(); S.cal.data = b.dataset.d; S.cal.vista = 'dia'; pintaCalendari(); }
+      else if (a === 'cel') { if (edCal()) editaCal({ data_inici: b.dataset.d, nivells: S.cal.niv ? [S.cal.niv] : [], categoria: S.cal.cat || 'Intern' }, true); }
+      else if (a === 'nova-data') { S.cal.datesEd.dates.push({ des: S.cal.data, tipus: 'festiu' }); S.brut = true; pintaCalendari(); }
+      else if (a === 'treu-data') { S.cal.datesEd.dates.splice(Number(b.closest('tr').dataset.i), 1); S.brut = true; pintaCalendari(); }
+      else if (a === 'desa-dates') desaDatesCal();
+      else if (a === 'refes-dates') { S.cal.datesEd = null; S.brut = false; pintaCalendari(); }
+    });
+    $('gsTaula').addEventListener('change', function (e) {
+      if (!actiu() || S.cal.vista !== 'dates') return;
+      var x = e.target, k = x.dataset.dk; if (!k) return;
+      var D = S.cal.datesEd; S.brut = true;
+      if (k === 'curs') { D.curs = x.value.trim(); return; }
+      var f = D.dates[Number(x.closest('tr').dataset.i)];
+      if (k.indexOf('nom_') === 0) { f.nom = f.nom || {}; f.nom[k.slice(4)] = x.value.trim(); }
+      else if (k === 'fins') { if (x.value) f.fins = x.value; else delete f.fins; }
+      else { f[k] = x.value; if (k === 'tipus') pintaCalendari(); }
+    });
+    $('gsTaula').addEventListener('submit', function (e) {
+      if (!actiu() || e.target.dataset.cal !== 'afegeix') return;
+      e.preventDefault();
+      var f = e.target, n = f.nivells.value, x = { data_inici: f.data_inici.value, hora: f.hora.value.trim(), descripcio: f.descripcio.value.trim(), categoria: f.categoria.value,
+        nivells: n === 'ESO' ? S.cal.r.nivells.slice(0, 4) : n === 'BAT' ? S.cal.r.nivells.slice(4) : n ? [n] : [] };
+      if (!x.data_inici || !x.descripcio) return toast('Cal la data i la descripció.', true);
+      S.cal.data = x.data_inici;
+      desaCal([x], [], 'Esdeveniment afegit.').then(function (r) { var d = r && r.ok && document.querySelector('.gs-cal__afegeix [name="descripcio"]'); if (d) d.focus(); });
+    });
+  }
   function carregaHoraris() {
     api('horaris_dades', {}, 'Carregant el planificador…').then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }

@@ -15,3 +15,6 @@ Guia pas a pas - *.pdf
 
 # Carpeta local de Netlify (la crea «netlify link»)
 .netlify
+
+# PAS 56: còpia del calendari publicat des de GESTIO (la descarrega el build)
+.cache/

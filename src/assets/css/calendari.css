@@ -103,3 +103,12 @@
   .cal-list__text{ grid-column: 2; }
   .cal-ttl::before, .cal-ttl::after{ max-width: 40px; }
 }
+
+/* --- PAS 56: activitats i esdeveniments (publicats des de GESTIO › Calendari) --- */
+.cal-actes{ margin-top: 48px; }
+.cal-actes__mes{ margin: 28px 0 6px; font-size: 17px; color: var(--color-blue); text-transform: capitalize; }
+.cal-actes__llista{ list-style: none; margin: 0; padding: 0; }
+.cal-actes__llista li{ display: grid; grid-template-columns: minmax(170px, 300px) minmax(0, 1fr); gap: 16px; padding: 10px 4px; border-bottom: 1px solid #E6EBF2; font-size: 15px; }
+.cal-actes__data{ font-weight: 600; color: #1E1E2A; }
+.cal-actes__niv{ display: inline-block; margin-left: 6px; padding: 1px 8px; border-radius: 10px; background: #EEF0FF; color: var(--color-blue); font-size: 12.5px; font-weight: 600; }
+@media (max-width: 640px){ .cal-actes__llista li{ grid-template-columns: minmax(0, 1fr); row-gap: 2px; } }
