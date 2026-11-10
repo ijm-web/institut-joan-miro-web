@@ -522,3 +522,33 @@
 @media (max-width: 900px){ .gs-cal__setmana{ grid-template-columns: minmax(0, 1fr); } .gs-cal__col{ min-height: 0; } .gs-cal__dia{ height: 72px; } .gs-cal__ev{ font-size: 11px; } }
 .gs-cal__dia.is-fora .gs-cal__num{ color: #B9C0D6; font-size: 12px; }
 @media (max-width: 700px){ #gsEines .gs-pestanyes{ max-width: 100%; overflow-x: auto; } #gsEines .gs-pestanyes button{ padding: 7px 11px; white-space: nowrap; } }
+
+/* PAS 57 · Ocupació */
+#gsTaula.gs-ocu{ overflow: auto; border: 1px solid #E1E5EE; border-radius: 10px; background: #fff; }
+#gsTaula.gs-cal{ overflow-y: auto; }
+.gs-ocu__taula{ border-collapse: separate; border-spacing: 0; font-size: 13px; min-width: 100%; }
+.gs-ocu__taula th, .gs-ocu__taula td{ padding: 3px 4px; border-bottom: 1px solid #E6EBF2; border-right: 1px solid #EEF1F6; white-space: nowrap; }
+.gs-ocu__taula thead th{ position: sticky; top: 0; z-index: 2; background: #F4F6FB; color: #4A5266; font-size: 11.5px; font-weight: 700; text-align: center; }
+.gs-ocu__taula thead tr:nth-child(2) th{ top: 26px; }
+.gs-ocu__taula .gs-ocu__grups th{ height: 26px; color: var(--color-blue); }
+.gs-ocu__nom{ position: sticky; left: 0; z-index: 1; background: #fff; text-align: left !important; min-width: 210px; max-width: 260px; white-space: normal !important; }
+thead .gs-ocu__nom{ z-index: 3; background: #F4F6FB; }
+.gs-ocu__nom small{ display: block; font-weight: 400; color: #6A7086; font-size: 11.5px; }
+.gs-ocu__n input{ width: 3.3em; padding: 3px 4px; border: 1px solid #D5D9E6; border-radius: 6px; font: inherit; text-align: right; }
+.gs-ocu__n input.is-auto::placeholder{ color: #1C0CBC; font-style: italic; opacity: .8; }
+.gs-ocu__n.is-brut input{ background: #FFF8E1; border-color: #F0B94A; }
+.gs-ocu__s{ text-align: right; color: #4A5266; background: #FAFBFE; }
+.gs-ocu__t{ text-align: right; font-weight: 700; background: #F4F6FB; }
+.gs-ocu__t small{ font-weight: 400; color: #6A7086; }
+.gs-ocu__c{ max-width: 220px; }
+.gs-ocu__cb{ display: block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; border: 0; background: none; padding: 2px; font: inherit; font-size: 12px; text-align: left; cursor: pointer; color: inherit; }
+.gs-ocu__cb:hover:not(:disabled){ color: var(--color-blue); text-decoration: underline; }
+.gs-ocu__e{ white-space: nowrap; }
+.gs-ocu__sem{ display: inline-block; width: 12px; height: 12px; border-radius: 50%; vertical-align: -1px; margin-right: 5px; }
+.gs-ocu__sem--ok{ background: #0F9D58; } .gs-ocu__sem--reparteix{ background: #F2A900; } .gs-ocu__sem--no{ background: #D93025; }
+.gs-ocu__et{ font-size: 12px; }
+tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-ocu__nom{ box-shadow: inset 3px 0 #F2A900; }
+.gs-ocu__llc{ display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 2px 12px; margin: 6px 0; }
+.gs-cal__trim{ max-width: 420px; }
+.gs-hor__chip{ display: inline-block; margin: 1px 2px; padding: 1px 8px; border-radius: 10px; background: #EEF0FF; font-size: 12px; }
+.gs-hor__reun td{ vertical-align: top; }

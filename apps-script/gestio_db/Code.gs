@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 56;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 57;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -97,6 +97,9 @@ const CONFIG_PER_DEFECTE = [
   ['calendari_publicat', '', 'Calendari › darrera publicació (JSON amb les dates clau i els esdeveniments «General»). La posa el botó «Publica» del web: no la canvieu a mà.'],
   ['font_calendari', 'https://docs.google.com/spreadsheets/d/1SelRalLXDda9N81vVuMQop1LzwAu_ad2HogWG5UO5GQ/edit', 'Per a importaCalendari: URL del full del calendari del curs (columnes J = data i K = esdeveniment).'],
   ['font_calendari_pestanyes', '1r Trimestre|2n Trimestre-PER REVISAR|3r_Trimestre-PER REVISAR', 'Per a importaCalendari: pestanyes que es llegeixen (separades per |).'],
+  ['carrecs', '', 'Ocupació › Càrrecs (JSON: llista de noms). Es canvia des del web; en blanc = la llista per defecte. Els de tutoria (Tutor/a 1r ESO A…) hi surten sols.'],
+  ['reduccio_55_referencia', '09-01', 'Ocupació: dia (MM-DD) de l\'inici del curs en què es miren els 55 anys per a la reducció automàtica (per defecte, l\'1 de setembre).'],
+  ['horaris_reunions', '', 'Horaris › Reunions fixes (JSON: reunions de nivell amb els docents que hi van, a la mateixa franja cada setmana). Es canvia des del web.'],
   ['netlify_build_hook', '', 'Calendari › Publica: URL d\'un «build hook» de Netlify (Site configuration › Build & deploy › Build hooks). Si hi és, en publicar es torna a construir el web i el calendari surt al cap d\'uns minuts.'],
   ['copia_tancament_batxillerat', '', 'La posa el tancament de curs del batxillerat (per a desfesTancamentBatxillerat).'],
 ];
@@ -112,6 +115,7 @@ const MODULS_PER_DEFECTE = [
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si', 'Alumnat'],
   ['desiderata', 'Desiderata', 'Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit, observacions pedagògiques i coherència amb les hores lectives.', 9, 'si', 'Organització del curs'],
   ['horaris', 'Horaris · planificador', 'Generador d\'horaris, fase PLANIFICADOR: marc horari, aules, regles i blocs paral·lels, i exportació de les dades per al MOTOR.', 10, 'si', 'Organització del curs'],
+  ['ocupacio', 'Ocupació', 'Hores fixes de cada docent: lectives d\'ESO i batxillerat, atenció individual, tutories, reduccions, guàrdies i càrrecs, amb el semàfor 18 + 4 = 22 (en proporció a la jornada).', 10, 'si', 'Organització del curs'],
   ['calendari', 'Calendari', 'Calendari del curs: esdeveniments generals i interns (per nivells), dates clau i festius; vistes de dia, setmana, mes i trimestre amb PDF, i publicació al web (Secretaria › Calendari escolar).', 11, 'si', 'Organització del curs'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si', 'Administració'],
 ];
@@ -633,6 +637,10 @@ function doPost(e) {
       case 'historial_fila': return json_(historialFila_(ctx, req));
       case 'retards_desa':   return json_(retardsDesa_(ctx, req));
       case 'calendari_dades': return json_(calendariDades_(ctx));
+      case 'ocupacio_dades': return json_(ocupacioDades_(ctx));
+      case 'ocupacio_desa': return json_(ambHerencia_(ocupacioDesa_(ctx, req), true, ctx));
+      case 'ocupacio_carrecs_desa': return json_(ocupacioCarrecsDesa_(ctx, req));
+      case 'horaris_reunions_desa': return json_(horarisReunionsDesa_(ctx, req));
       case 'calendari_desa': return json_(calendariDesa_(ctx, req));
       case 'calendari_dates_desa': return json_(calendariDatesDesa_(ctx, req));
       case 'calendari_publica': return json_(calendariPublica_(ctx));
@@ -675,7 +683,7 @@ function baseContext_() {
 }
 function invalidaCtx_() { CTX_CFG_ = null; try { CacheService.getScriptCache().remove(CLAU_CTX_); } catch (e) { /* res */ } }
 const TAULES_CTX_ = () => [FULL.prof, FULL.pas, FULL.memb, FULL.eq, FULL.perm, FULL.conf];
-const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa', 'departaments_desa', 'horaris_marc_desa', 'horaris_aules_desa', 'horaris_regles_desa', 'horaris_subgrups_desa', 'desiderata_config', 'horaris_guardies_desa', 'calendari_dates_desa', 'calendari_publica'];
+const ACCIONS_CTX_ = ['desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa', 'departaments_desa', 'horaris_marc_desa', 'horaris_aules_desa', 'horaris_regles_desa', 'horaris_subgrups_desa', 'desiderata_config', 'horaris_guardies_desa', 'calendari_dates_desa', 'calendari_publica', 'ocupacio_carrecs_desa', 'horaris_reunions_desa'];
 function context_(email) {
   const B = baseContext_();
   const cfg = B.cfg; CTX_CFG_ = cfg;
@@ -1767,6 +1775,10 @@ function configura() {
   fullModul_(MODULS.professorat, campsDe_('professorat', true));
   ordenaLlistes_([['professorat', 'especialitat'], ['curriculum', 'especialitat'], ['curriculum_grups', 'especialitat']]);
   fullCalendari_();   // PAS 56
+  // PAS 57: les hores (lectives, tutories, atenció individual i reduccions) es veuen i es canvien al mòdul Ocupació; a la
+  // graella del Professorat s'arxiven (les dades es queden al full professorat, on les llegeixen els altres mòduls)
+  if (esquema < 57) LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).map((x) => x[0]).concat(['hores_lectives', 'total_lectives']).forEach((k) => actualitzaCamp_('professorat', k, { actiu: 'no' }));
+  columnesOcupacio_();
   posaConfig_('esquema', String(ESQUEMA));
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = ss.getSheetByName(n); if (f && f.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(f); });
   Logger.log('Fet. Pestanyes: ' + ss.getSheets().map((s) => s.getName()).join(', '));
@@ -3318,7 +3330,8 @@ function sessionsHoraris_(cfg) {
   const GN = grupsNivell_(cfg), mats = {}; llegeix_(FULL.cur).forEach((m) => { mats[m.id_materia] = m; });
   const ss = llegeix_(FULL.curg).filter((r) => r.id_assignacio).map((r) => {
     const d = desat[r.id_assignacio] || {}, h = numCur_(r.hores), m = mats[r.id_materia] || {};
-    const GM = m.nivell ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1], classes = g ? g.lletres.map((x) => r.nivell + ' ' + x) : [];
+    const multi = esMultinivell_(r.materia);   // PAS 57: atenció individual sense grup-classe
+    const GM = m.nivell && !multi ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1], classes = g ? g.lletres.map((x) => r.nivell + ' ' + x) : [];
     let parts = null; try { parts = JSON.parse(String(d.parts || '')); } catch (e) { parts = null; }
     if (!Array.isArray(parts) || !parts.length) {
       parts = partsPerDefecte_(r, h, d);
@@ -3326,7 +3339,8 @@ function sessionsHoraris_(cfg) {
       if (classes.length === 1) parts[0].grup = classes[0];   // una matèria d'un sol grup-classe: la fa el grup-classe
     }
     parts = parts.map((p, i) => ({ id: String(p.id || 'P' + (i + 1)), grup: String(p.grup || ''), hores: numCur_(p.hores), distribucio: String(p.distribucio || ''), aula: String(p.aula || ''), conjunt: String(p.conjunt || ''), fixes: llistaPos_(p.fixes), prohibides: llistaPos_(p.prohibides) }));
-    return { id: r.id_assignacio, nivell: r.nivell, materia: r.materia, grup: r.grup, classes: classes, id_materia: r.id_materia || '', num_grup: Number(r.num_grup) || 1, hores: h, especialitat: r.especialitat || '', professor: r.professor || '', parts: parts };
+    if (multi) parts = parts.map((x) => Object.assign(x, { grup: '' }));
+    return { id: r.id_assignacio, nivell: r.nivell, materia: r.materia, grup: r.grup, classes: classes, multinivell: multi, id_materia: r.id_materia || '', num_grup: Number(r.num_grup) || 1, hores: h, especialitat: r.especialitat || '', professor: r.professor || '', parts: parts };
   });
   const o = NIVELLS_ESO.concat(NIVELLS_BAT);
   return ss.sort((a, b) => (o.indexOf(a.nivell) - o.indexOf(b.nivell)) || String(a.id_materia).localeCompare(String(b.id_materia)) || a.num_grup - b.num_grup || String(a.id).localeCompare(String(b.id)));
@@ -3412,7 +3426,7 @@ function horarisGuardiesDesa_(ctx, req) {
 // PAS 55 · Professorat: hores lectives i càrrec de tutor/a a partir de Currículum › Assignacions (professor/a de cada grup).
 // lectives_eso / lectives_bat (sense tutoria ni atenció individual), atencio_individual, tutoria_eso12 / eso34 / bat i càrrec.
 function carregaCurriculumProfessorat_(ctx, req) {
-  if (!pot_(ctx, 'professorat', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!pot_(ctx, 'professorat', 'edicio') && !pot_(ctx, 'ocupacio', 'edicio')) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
   const camps = ['lectives_eso', 'lectives_bat', 'atencio_individual', 'tutoria_eso12', 'tutoria_eso34', 'tutoria_bat'], calc = {};
   llegeix_(FULL.curg).forEach((r) => { if (!r.professor) return; const h = numCur_(r.hores), m = String(r.materia || ''), niv = String(r.nivell || ''), bat = /BAT/i.test(niv);
@@ -3432,7 +3446,8 @@ function carregaCurriculumProfessorat_(ctx, req) {
     const nou = {}; camps.forEach((k) => { nou[k] = Math.round(x[k] * 100) / 100; });
     // Càrrec: només si és buit o ja era de tutoria / cap de departament (no es toquen els altres càrrecs)
     const c0 = String(o.carrec || '').trim(), parts = x.tutor.map((g) => 'Tutor/a ' + g).concat((caps[o.id_professor] || []).map((d) => 'Cap de ' + d));
-    if (!c0 || /^(Tutor\/a |Cap de )/.test(c0)) nou.carrec = parts.join(' · ');
+    // PAS 57: una persona pot tenir diversos càrrecs (separats per « · »): només es canvien els de tutoria i de cap de departament
+    nou.carrec = c0.split(/\s*·\s*/).filter((x) => x && !/^(Tutor\/a |Cap de )/.test(x)).concat(parts).join(' · ');
     const dif = Object.keys(nou).filter((k) => col(k) >= 0 && String(o[k] == null ? '' : o[k]) !== String(nou[k] === 0 && (o[k] === '' || o[k] == null) ? '' : nou[k]));
     if (dif.length) canvis.push({ fila: i + 2, id: o.id_professor, nom: nom, camps: dif.map((k) => ({ camp: k, abans: o[k] == null ? '' : String(o[k]), despres: String(nou[k]) })), nou: nou });
   });
@@ -3517,7 +3532,8 @@ function horarisDades_(ctx) {
   return { ok: true, esquema: ESQUEMA, marc: marcHorari_(cfg), per_defecte: !String(cfg.horaris_marc || '').trim(), nivells: NIVELLS_ESO.concat(NIVELLS_BAT), dies: DIES_SETMANA, pot_desar: pot_(ctx, 'horaris', 'edicio'),
     aules: aulesHoraris_(cfg), aules_per_defecte: !String(cfg.horaris_aules || '').trim(), regles: reglesHoraris_(cfg), regles_per_defecte: !String(cfg.horaris_regles || '').trim(),
     tipus_aula: TIPUS_AULA, materies: materiesHoraris_(cfg), sessions: sessionsHoraris_(cfg), professorat: professoratHorarisH_(),
-    subgrups: subgrupsHoraris_(cfg), tipus_subgrup: TIPUS_SUBGRUP, guardies: guardiesHoraris_(cfg), tipus_guardia: TIPUS_GUARDIA, grups_nivell: grupsNivell_(cfg), regles_motor: reglesMotor_(cfg) };
+    subgrups: subgrupsHoraris_(cfg), tipus_subgrup: TIPUS_SUBGRUP, guardies: guardiesHoraris_(cfg), tipus_guardia: TIPUS_GUARDIA, grups_nivell: grupsNivell_(cfg), regles_motor: reglesMotor_(cfg),
+    reunions: reunionsHoraris_(cfg), reunions_proposta: proposaReunions_() };
 }
 function horarisAulesDesa_(ctx, req) {
   if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
@@ -3588,8 +3604,8 @@ function dadesHoraris_() {
   const cfg = llegeixConfig_(), GN = grupsNivell_(cfg);
   const mats = {}; llegeix_(FULL.cur).forEach((m) => { mats[m.id_materia] = m; });
   const assignacions = llegeix_(FULL.curg).map((r) => {
-    const m = mats[r.id_materia] || {}, GM = m.nivell ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1];
-    return { id: r.id_assignacio || r[MODULS.curriculum_grups.id] || '', id_materia: r.id_materia || '', nivell: r.nivell, materia: r.materia, grup: r.grup,
+    const m = mats[r.id_materia] || {}, multi = esMultinivell_(r.materia), GM = m.nivell && !multi ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1];
+    return { id: r.id_assignacio || r[MODULS.curriculum_grups.id] || '', id_materia: r.id_materia || '', nivell: r.nivell, materia: r.materia, grup: r.grup, multinivell: multi,
       grups_classe: g ? g.lletres.map((x) => r.nivell + ' ' + x) : [], num_grup: Number(r.num_grup) || 1, hores: numCur_(r.hores),
       hores_a: numCur_(m.hores_a), hores_b: numCur_(m.hores_b), especialitat: r.especialitat || '', especialitat_materia: m.especialitat || '',
       docents_aula: Math.max(1, Math.round(numCur_(m.docents)) || 1), professor: r.professor || '' };
@@ -3615,7 +3631,7 @@ function dadesHoraris_() {
     regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata,
     classes_clickedu: SG.classes, subgrups: SG.subgrups.map((x) => ({ id: x.id, nom: x.nom, clau: x.clau, nivell: x.nivell, tipus: x.tipus, grups_classe: x.grups.map((l) => x.nivell + ' ' + l) })),
     blocs_simultanis: SG.blocs.map((b) => ({ id: b.id, nivell: b.nivell, nom: b.nom, tipus: b.tipus, mateix_dia: b.mateix_dia, parts: b.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),
-    guardies: Object.assign({ tipus: TIPUS_GUARDIA }, guardiesHoraris_(cfg)), regles_motor: reglesMotor_(cfg) };
+    guardies: Object.assign({ tipus: TIPUS_GUARDIA }, guardiesHoraris_(cfg)), reunions: reunionsHoraris_(cfg).reunions, regles_motor: reglesMotor_(cfg) };
 }
 // PAS 52 · Catàleg de regles del motor: obligatòries (no es poden incomplir) i toves (cada incompliment suma pes × unitats
 // a la penalització total, que el motor minimitza). «dades» = on són al fitxer d'exportació.
@@ -3633,6 +3649,8 @@ function reglesMotor_(cfg) {
     ['blocs_simultanis', 'Les sessions d\'un bloc simultani (diversitat, hores B, optatives) es fan a la mateixa hora, amb docents i aules diferents.', 'blocs_simultanis[].parts'],
     ['mateix_dia', 'Els blocs amb la mateixa etiqueta «mateix dia» (p. ex. les hores B d\'un grup-classe) es fan el mateix dia (no cal que siguin seguits).', 'blocs_simultanis[].mateix_dia'],
     ['guardies', 'Cada franja té les guàrdies demanades de cada tipus (ordinàries a les franges lectives; biblioteca i pati a l\'esbarjo) i cada docent fa les guàrdies que té assignades, en franges on no té classe.', 'guardies.demanda · docents[].guardies'],
+    ['reunions', 'Cada reunió fixa (tutors i coordinació de nivell) es fa a la mateixa franja cada setmana, amb tots els seus docents lliures (no fan classe ni guàrdia).', 'reunions[].docents · hores · franja'],
+    ['multinivell', 'L\'atenció individual (multinivell) no ocupa cap grup-classe: només el docent i, si en té, l\'aula.', 'assignacions[].multinivell'],
     ['aula_capacitat', 'Si no hi ha lloc a l\'aula preferent ni a les alternatives, l\'aula ha de tenir prou capacitat.', 'aules[].capacitat']
   ].map((r) => ({ id: r[0], text: r[1], dades: r[2] }));
   const tv = [
@@ -3801,7 +3819,7 @@ function heretaSubstitucions_(email) {
   const parells = substitucions_(); if (!parells.length) return 0;
   const MP = MODULS.professorat, sh = fullModul_(MP, campsDe_('professorat', true)), vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), col = (k) => cap.indexOf(k);
   const fila = {}; vals.forEach((r, i) => { if (i) fila[String(r[col('id_professor')])] = i + 1; });
-  const camps = CLAUS_LECTIVES_().concat(['carrec']).filter((k) => col(k) >= 0);
+  const camps = CLAUS_LECTIVES_().concat(REDUCCIONS_GUARDIA.map((x) => x[0]), ['carrec']).filter((k) => col(k) >= 0);   // PAS 57: també les reduccions de guàrdia
   let n = 0;
   parells.forEach((x) => { const f = fila[x.substitut.id_professor]; if (!f) return;
     camps.forEach((k) => { const v = x.substituit[k], buit = x.substitut[k] === '' || x.substitut[k] == null;
@@ -4024,18 +4042,19 @@ function professoratPublic_() {
 const NIVELLS_CAL_ = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'];
 const CATEGORIES_CAL_ = ['General', 'Intern'];
 // Tipus de data clau: els set primers són els de la pàgina Secretaria › Calendari escolar; els trimestres, només interns
-const TIPUS_DATA_CAL_ = ['inici', 'darrer', 'darrerBat', 'festiu', 'local', 'lliure', 'vacances', 'trimestre2', 'trimestre3'];
+const TIPUS_DATA_CAL_ = ['inici', 'darrer', 'darrerBat', 'festiu', 'local', 'lliure', 'vacances', 'trimestre1', 'trimestre2', 'trimestre3'];   // PAS 57: trimestres amb inici i final
 const DATES_CAL_PER_DEFECTE_ = { curs: '2026-2027', dates: [
   { des: '2026-09-08', tipus: 'inici' },
+  { des: '2026-09-08', fins: '2026-11-30', tipus: 'trimestre1' },
   { des: '2026-09-11', tipus: 'festiu', nom: { ca: 'Diada Nacional de Catalunya', es: 'Diada Nacional de Cataluña', en: 'Catalonia National Day' } },
   { des: '2026-10-09', tipus: 'lliure' },
   { des: '2026-10-12', tipus: 'festiu', nom: { ca: 'Festa Nacional d’Espanya', es: 'Fiesta Nacional de España', en: 'Spanish National Day' } },
-  { des: '2026-12-01', tipus: 'trimestre2' },
+  { des: '2026-12-01', fins: '2027-03-05', tipus: 'trimestre2' },
   { des: '2026-12-07', tipus: 'lliure' },
   { des: '2026-12-08', tipus: 'festiu', nom: { ca: 'La Immaculada', es: 'La Inmaculada', en: 'Immaculate Conception' } },
   { des: '2026-12-22', fins: '2027-01-07', tipus: 'vacances', nom: { ca: 'Vacances de Nadal', es: 'Vacaciones de Navidad', en: 'Christmas holidays' } },
   { des: '2027-02-08', tipus: 'lliure' },
-  { des: '2027-03-08', tipus: 'trimestre3' },
+  { des: '2027-03-08', fins: '2027-06-21', tipus: 'trimestre3' },
   { des: '2027-03-20', fins: '2027-03-29', tipus: 'vacances', nom: { ca: 'Vacances de Setmana Santa', es: 'Vacaciones de Semana Santa', en: 'Easter holidays' } },
   { des: '2027-05-01', tipus: 'festiu', nom: { ca: 'Festa del Treball', es: 'Fiesta del Trabajo', en: 'Labour Day' } },
   { des: '2027-05-17', tipus: 'local' },
@@ -4198,7 +4217,9 @@ function nivellsCal_(t) {
 const GENERAL_CAL_ = /\binici (de )?classes|\binici .{0,12}trimestre|\bfi del .{0,4}trimestre|final classes|acaben les classes|[uú]ltim dia de classes|vacances|fam[ií]lies|portes obertes|sant jordi|castanyada|carnestoltes|\bPAU\b|intercanvi|ex[aà]mens|recuperaci|proves|butllet|festa local/i;
 const CLAU_CAL_ = /^(festiu|lliure disposici[oó]|festa local|inici vacances|inici 1r trimestre.*)\s*$/i;
 // «Inici segon trimestre» / «Inici classes 3r trimestre» → dates clau trimestre2 i trimestre3
-const TRIM_CAL_ = [[/^inici (?:de )?(?:classes )?(?:del? )?(?:segon|2n) trimestre/i, 'trimestre2'], [/^inici (?:de )?(?:classes )?(?:del? )?(?:tercer|3r) trimestre/i, 'trimestre3']];   // ja són a les dates clau
+const TRIM_CAL_ = [[/^inici (?:de )?(?:classes )?(?:del? )?(?:primer|1r) trimestre/i, 'trimestre1', 'des'], [/^fi (?:del? )?(?:primer|1r) trimestre/i, 'trimestre1', 'fins'],
+  [/^inici (?:de )?(?:classes )?(?:del? )?(?:segon|2n) trimestre/i, 'trimestre2', 'des'], [/^fi (?:del? )?(?:segon|2n) trimestre/i, 'trimestre2', 'fins'],
+  [/^inici (?:de )?(?:classes )?(?:del? )?(?:tercer|3r) trimestre/i, 'trimestre3', 'des'], [/^fi (?:del? )?(?:tercer|3r) trimestre/i, 'trimestre3', 'fins']];   // ja són a les dates clau
 function llegeixFullCalendari_(cfg) {
   const id = (String(cfg.font_calendari || '').match(/[-\w]{25,}/) || [''])[0];
   if (!id) throw new Error('Falta config › font_calendari');
@@ -4219,9 +4240,10 @@ function esdevenimentsDeFull_(files, curs, existents) {
     if (d) ant = parseDataCal_(d, curs);
     if (!t) return;
     if (d && !ant.length) { dubtes.push(d + ' · ' + t); return; }
-    if (!ant.length || CLAU_CAL_.test(t)) return;
+    if (!ant.length) return;
     const h = separaHoraCal_(t);
-    TRIM_CAL_.forEach((tr) => { if (tr[0].test(h.text) && !trimestres[tr[1]]) trimestres[tr[1]] = ant[0].des; });
+    TRIM_CAL_.forEach((tr) => { const k = tr[1] + '.' + tr[2]; if (tr[0].test(h.text) && !trimestres[k]) trimestres[k] = ant[0].des; });
+    if (CLAU_CAL_.test(t)) return;
     ant.forEach((x) => {
       const k = x.des + '|' + normNom_(h.text); if (vist[k]) return; vist[k] = 1;
       nous.push({ data_inici: x.des, data_fi: x.fins || '', hora: h.hora, categoria: GENERAL_CAL_.test(h.text) ? 'General' : 'Intern', nivells: nivellsCal_(h.text), descripcio: h.text });
@@ -4232,8 +4254,10 @@ function esdevenimentsDeFull_(files, curs, existents) {
 // Posa a les dates clau l'inici del 2n i del 3r trimestre trobats al full (si canvien)
 function aplicaTrimestresCal_(cfg, trim, email) {
   const D = datesCalendari_(cfg); let canvi = false;
-  Object.keys(trim || {}).forEach((t) => { const x = D.dates.filter((d) => d.tipus === t)[0];
-    if (x && x.des !== trim[t]) { x.des = trim[t]; canvi = true; } else if (!x) { D.dates.push({ des: trim[t], tipus: t }); canvi = true; } });
+  Object.keys(trim || {}).forEach((k) => { const t = k.split('.')[0], camp = k.split('.')[1]; let x = D.dates.filter((d) => d.tipus === t)[0];
+    if (!x) { x = { des: trim[k], tipus: t }; D.dates.push(x); canvi = true; }
+    if (x[camp] !== trim[k]) { x[camp] = trim[k]; canvi = true; } });
+  D.dates.forEach((d) => { if (/^trimestre/.test(d.tipus) && d.fins && d.fins < d.des) delete d.fins; });
   if (!canvi) return null;
   const r = netDatesCal_(D); if (r.errors.length) return null;
   posaConfig_('calendari_dates', JSON.stringify(r.net)); historial_(email, 'calendari_dates', 'config', 'calendari_dates', 'trimestres del full: ' + JSON.stringify(trim));
@@ -4259,4 +4283,160 @@ function importaCalendari() {
   if (r.nous.length) calendariDesa_(ctx, { esdeveniments: r.nous });
   aplicaTrimestresCal_(cfg, r.trimestres, 'importaCalendari');
   Logger.log('Calendari: ' + r.nous.length + ' esdeveniments nous.' + (r.dubtes.length ? ' Dates no reconegudes: ' + r.dubtes.join(' | ') : ''));
+}
+
+// =============================================================================================
+// PAS 57 · OCUPACIÓ (hores fixes del professorat), càrrecs, atenció individual multinivell i reunions de nivell
+// =============================================================================================
+const esMultinivell_ = (materia) => /aten[cç]i[oó] individual/i.test(String(materia || ''));
+// Reduccions de guàrdia [clau (columna del full professorat), nom, codi]
+const REDUCCIONS_GUARDIA = [
+  ['rg_diversitat', 'R. Com. Diversitat', 'ra'], ['rg_convivencia', 'R. Convivència', 'ra'], ['rg_digital', 'R. Digital', 'ra'], ['rg_genere', 'R. Gènere', 'ra'],
+  ['rg_linguistica', 'R. Lingüística', 'ra'], ['rg_erasmus', 'R. Erasmus', 'ra'], ['rg_comp_lectora', 'R. X. Comp. Lectora', 'ra'],
+  ['rg_intercanvis', 'Pla d\'intercanvis', 'hc'], ['rg_families', 'Atenció a famílies', 'hc'], ['rg_coordinacio', 'Càrrec de coordinació', 'hc'],
+  ['rg_55', 'Red. guàrdia 55', 'hc'], ['rg_consell', 'Consell Escolar', 'hc'], ['rg_altres', 'Altres', 'hc']];
+const OBJECTIU_OCUPACIO = { lectives: 18, guardies: 4, total: 22 };
+const FACTOR_JORNADA = { 'Sencera': 1, '1/2': 0.5, '⅔': 2 / 3 };
+const CARRECS_PER_DEFECTE = ['Director/a', 'Cap d\'estudis', 'Secretari/ària', 'Coordinador/a pedagògic/a', 'Cap d\'estudis adjunt/a', 'Adjunt/a de direcció',
+  'Coordinació de nivell 1r ESO', 'Coordinació de nivell 2n ESO', 'Coordinació de nivell 3r ESO', 'Coordinació de nivell 4t ESO', 'Coordinació de nivell 1r BAT', 'Coordinació de nivell 2n BAT',
+  'Coordinació digital', 'Coordinació lingüística', 'Coordinació de convivència', 'Coordinació de coeducació i gènere', 'Coordinació Erasmus+', 'Coordinació de riscos laborals',
+  'Comissió d\'atenció a la diversitat', 'Coordinació de comprensió lectora', 'Pla d\'intercanvis', 'Consell Escolar', 'Biblioteca'];
+// Les columnes de les reduccions de guàrdia són al full professorat (no són camps de la graella del Professorat)
+function columnesOcupacio_() {
+  const sh = fullModul_(MODULS.professorat, campsDe_('professorat', true)), cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+  const falten = REDUCCIONS_GUARDIA.map((x) => x[0]).filter((k) => cap.indexOf(k) < 0);
+  if (falten.length) sh.getRange(1, cap.length + 1, 1, falten.length).setValues([falten]).setFontWeight('bold');
+  return sh;
+}
+function carrecsLlista_(cfg) {
+  let l = null; try { l = JSON.parse((cfg || llegeixConfig_()).carrecs || 'null'); } catch (e) { l = null; }
+  return Array.isArray(l) && l.length ? l.map(String) : CARRECS_PER_DEFECTE.slice();
+}
+// Càrrecs que surten sols: tutor/a de cada grup-classe i cap de cada departament/àmbit
+function carrecsAutomatics_(cfg) {
+  const GN = grupsNivell_(cfg), o = [];
+  NIVELLS_ESO.concat(NIVELLS_BAT).forEach((n) => (GN[n] || []).forEach((g) => o.push('Tutor/a ' + g)));
+  departaments_().forEach((d) => o.push('Cap de ' + d.nom));
+  return o;
+}
+const partsCarrec_ = (c) => String(c || '').split(/\s*·\s*/).map((x) => x.trim()).filter(Boolean);
+const esCoordNivell_ = (c) => /coordinaci[oó] de nivell|coord\.? (de )?nivell/i.test(c);
+// Edat a la data de referència del curs (config › reduccio_55_referencia, MM-DD de l'any d'inici)
+function edatCurs_(dataNaix, cfg) {
+  const s = String(dataNaix || '').trim(); let y, m, d, x;
+  if ((x = /^(\d{4})-(\d{1,2})-(\d{1,2})/.exec(s))) { y = +x[1]; m = +x[2]; d = +x[3]; } else if ((x = /^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{4})$/.exec(s))) { y = +x[3]; m = +x[2]; d = +x[1]; } else return null;
+  const a = Number(String(cfg.curs || '').slice(0, 4)) || new Date().getFullYear(), r = /^(\d{2})-(\d{2})$/.exec(String(cfg.reduccio_55_referencia || '09-01')) || [0, '09', '01'];
+  let e = a - y; if (Number(r[1]) < m || (Number(r[1]) === m && Number(r[2]) < d)) e--;
+  return e;
+}
+// Tutors de cada docent (pel nom del Currículum; la persona substituïda compta com el substitut)
+function tutoriesCurriculum_() {
+  const AL = aliesSubstitucio_(), o = {};
+  llegeix_(FULL.curg).forEach((r) => { if (!r.professor || !/^tutoria/i.test(String(r.materia || ''))) return; const n = AL[r.professor] ? AL[r.professor].nom : r.professor; (o[n] = o[n] || []).push({ nivell: r.nivell, grup: r.grup }); });
+  return o;
+}
+function ocupacioDocents_(cfg) {
+  const prof = {}; actiusPlanificacio_().forEach((p) => { prof[p.id_professor] = p; });
+  const hp = professoratHorarisH_(), gp = {}; hp.forEach((x) => { gp[x.id] = x.guardies; });
+  const tut = tutoriesCurriculum_();
+  return professoratHores_().map((h) => {
+    const p = prof[h.id] || {}, t = tut[h.nom] || [], cs = partsCarrec_(p.carrec), edat = edatCurs_(p.data_naixement, cfg);
+    const o = { id: h.id, nom: h.nom, especialitat: h.especialitat, jornada: h.jornada || 'Sencera', carrec: p.carrec || '', tutor: t.map((x) => x.grup), guardies: gp[h.id] || { o: 0, b: 0, p: 0 },
+      major55: edat !== null && edat >= 55, valors: {}, auto: {} };
+    CLAUS_LECTIVES_().concat(REDUCCIONS_GUARDIA.map((x) => x[0])).forEach((k) => { o.valors[k] = p[k] == null ? '' : String(p[k]); });
+    if (t.some((x) => x.nivell === '1r ESO')) o.auto.red_tutoria_eso12 = 1;
+    if (t.length || cs.some(esCoordNivell_)) o.auto.red_coord_nivell = 1;
+    if (o.major55) o.auto.red_lectiva_55 = 1;
+    return o;
+  });
+}
+function ocupacioDades_(ctx) {
+  if (!pot_(ctx, 'ocupacio', 'consulta')) return { ok: false, error: 'sense_permis' };
+  const cfg = ctx.cfg || llegeixConfig_();
+  return { ok: true, esquema: ESQUEMA, nivell: ctx.nivell('ocupacio'), obert: obert_(ctx), docents: ocupacioDocents_(cfg),
+    lectives: LECTIVES_ALUMNAT.map((x) => ({ clau: x[0], nom: x[1] })), reduccions: LECTIVES_REDUCCIONS.map((x) => ({ clau: x[0], nom: x[1] })),
+    reduccions_guardia: REDUCCIONS_GUARDIA.map((x) => ({ clau: x[0], nom: x[1], codi: x[2] })), objectiu: OBJECTIU_OCUPACIO, factor: FACTOR_JORNADA,
+    carrecs: carrecsLlista_(cfg), carrecs_auto: carrecsAutomatics_(cfg), carrecs_per_defecte: !String(cfg.carrecs || '').trim(), tipus_guardia: TIPUS_GUARDIA };
+}
+// canvis: [{id, valors: {lectives_eso…, rg_…, carrec, guardies_o, guardies_b, guardies_p}}]
+function ocupacioDesa_(ctx, req) {
+  if (!pot_(ctx, 'ocupacio', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const canvis = Array.isArray(req.canvis) ? req.canvis.slice(0, 300) : [], hores = CLAUS_LECTIVES_().concat(REDUCCIONS_GUARDIA.map((x) => x[0])), guard = ['guardies_o', 'guardies_b', 'guardies_p'];
+  const noms = {}; LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).concat(REDUCCIONS_GUARDIA).forEach((x) => { noms[x[0]] = x[1]; });
+  const net = (x) => String(x == null ? '' : x).replace(',', '.').trim();
+  for (const c of canvis) for (const k of Object.keys(c.valors || {})) {
+    if (hores.indexOf(k) < 0 && guard.indexOf(k) < 0 && k !== 'carrec') return { ok: false, error: 'camp_desconegut', camp: k };
+    const v = net(c.valors[k]); if (k !== 'carrec' && v && (isNaN(Number(v)) || Number(v) < 0 || Number(v) > 40)) return { ok: false, error: 'numero_invalid', camp: noms[k] || k, id: c.id };
+  }
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const sh = columnesOcupacio_(), cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_), M = MODULS.professorat;
+    let n = 0; const filesG = [], desatH = {};
+    const shH = SpreadsheetApp.getActive().getSheetByName(FULL.hprof); if (shH && shH.getLastRow() > 1) llegeix_(FULL.hprof).forEach((r) => { desatH[r.id_professor] = r; });
+    canvis.forEach((c) => {
+      const f = filaPerId_(sh, cap, M.id, String(c.id)); if (!f) return;
+      const dif = [], v = c.valors || {};
+      Object.keys(v).filter((k) => guard.indexOf(k) < 0).forEach((k) => {
+        const j = cap.indexOf(k); if (j < 0) return;
+        const x = k === 'carrec' ? partsCarrec_(v[k]).join(' · ') : net(v[k]);
+        if ((k === 'carrec' ? String(f.r[j] || '').trim() : net(f.r[j])) === x) return;
+        sh.getRange(f.fila, j + 1).setValues([[x]]); dif.push({ camp: noms[k] || k, abans: f.r[j], ara: x });
+      });
+      if (guard.some((k) => Object.prototype.hasOwnProperty.call(v, k))) {
+        const d = desatH[c.id] || {}, g = {}; guard.forEach((k) => { g[k] = Object.prototype.hasOwnProperty.call(v, k) ? Math.round(Number(net(v[k])) || 0) : Number(d[k]) || 0; });
+        if (guard.some((k) => g[k] !== (Number(d[k]) || 0))) { filesG.push(Object.assign({ id_professor: c.id, fixes: d.fixes || '', prohibides: d.prohibides || '', observacions: d.observacions || '', clau_clickedu: d.clau_clickedu || '' }, g)); dif.push({ camp: 'guàrdies', ara: JSON.stringify(g) }); }
+      }
+      if (dif.length) { n++; historial_(ctx.email, 'ocupacio', M.full, String(c.id), JSON.stringify(dif)); }
+    });
+    if (filesG.length) desaFilesHoraris_(FULL.hprof, 'id_professor', filesG, ctx.email);
+    if (n) marcaVersio_('ocupacio', ctx.email);
+    return { ok: true, desats: n, docents: ocupacioDocents_(ctx.cfg || llegeixConfig_()) };
+  } finally { lock.releaseLock(); }
+}
+function ocupacioCarrecsDesa_(ctx, req) {
+  if (!pot_(ctx, 'ocupacio', 'admin')) return { ok: false, error: 'sense_permis' };
+  const vist = {}, l = (Array.isArray(req.carrecs) ? req.carrecs : []).map((x) => String(x || '').replace(/\s+/g, ' ').replace(/·/g, '-').trim().slice(0, 80))
+    .filter((x) => x && !vist[x.toLowerCase()] && (vist[x.toLowerCase()] = 1));
+  if (!l.length) return { ok: false, error: 'dades_invalides', errors: ['Cal almenys un càrrec.'] };
+  posaConfig_('carrecs', JSON.stringify(l));
+  historial_(ctx.email, 'ocupacio_carrecs', 'config', 'carrecs', l.length + ' càrrecs');
+  return { ok: true, carrecs: l };
+}
+
+// ------------------------------------------------------------------ Reunions fixes de nivell (planificador)
+// config › horaris_reunions = {reunions: [{id R1, nom, nivell, docents: [PRO-…], hores: 1, franja: ''}]}
+function reunionsHoraris_(cfg) {
+  let r = {}; try { r = JSON.parse(String((cfg || llegeixConfig_()).horaris_reunions || '')) || {}; } catch (e) { r = {}; }
+  const noms = {}; professoratHores_().forEach((p) => { noms[p.id] = p.nom; });
+  return { reunions: (Array.isArray(r.reunions) ? r.reunions : []).map((x) => ({ id: String(x.id || ''), nom: String(x.nom || ''), nivell: String(x.nivell || ''), hores: Number(x.hores) || 1,
+    franja: String(x.franja || ''), docents: (x.docents || []).map(String).filter((d) => noms[d]), noms: (x.docents || []).map(String).filter((d) => noms[d]).map((d) => noms[d]) })) };
+}
+// Proposta: una reunió per nivell amb els tutors/es (Currículum) i la coordinació de nivell (càrrec)
+function proposaReunions_() {
+  const ph = professoratHores_(), perNom = {}; ph.forEach((p) => { perNom[p.nom] = p.id; });
+  const tut = tutoriesCurriculum_(), o = [];
+  NIVELLS_ESO.concat(NIVELLS_BAT).forEach((niv, i) => {
+    const ds = []; Object.keys(tut).forEach((n) => { if (tut[n].some((x) => x.nivell === niv) && perNom[n]) ds.push(perNom[n]); });
+    ph.forEach((p) => { if (partsCarrec_(p.carrec).some((c) => esCoordNivell_(c) && c.indexOf(niv) >= 0) && ds.indexOf(p.id) < 0) ds.push(p.id); });
+    if (ds.length) o.push({ id: 'R' + (i + 1), nom: 'Reunió de nivell ' + niv, nivell: niv, hores: 1, franja: '', docents: ds });
+  });
+  return o;
+}
+function horarisReunionsDesa_(ctx, req) {
+  if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const cfg = ctx.cfg || llegeixConfig_(), pos = posicionsValides_(marcHorari_(cfg)), ids = {}; professoratHores_().forEach((p) => { ids[p.id] = 1; });
+  const err = [], vist = {}, net = (req.reunions || []).slice(0, 30).map((x, i) => {
+    const r = { id: 'R' + (i + 1), nom: String(x.nom || '').trim().slice(0, 80), nivell: String(x.nivell || '').trim(), hores: Math.round(Number(x.hores) || 1), franja: String(x.franja || '').trim(),
+      docents: (x.docents || []).map(String).filter((d, k, a) => ids[d] && a.indexOf(d) === k) };
+    if (!r.nom) err.push('Reunió ' + (i + 1) + ': cal un nom.');
+    if (r.docents.length < 2) err.push((r.nom || 'Reunió ' + (i + 1)) + ': cal almenys dos docents.');
+    if (r.hores < 1 || r.hores > 3) err.push(r.nom + ': de 1 a 3 hores.');
+    if (r.franja && !pos[r.franja]) err.push(r.nom + ': la franja ha de ser una franja lectiva del marc horari.');
+    if (vist[r.nom]) err.push(r.nom + ': nom repetit.'); vist[r.nom] = 1;
+    return r; });
+  if (err.length) return { ok: false, error: 'dades_invalides', errors: err.slice(0, 20) };
+  posaConfig_('horaris_reunions', JSON.stringify({ reunions: net }));
+  historial_(ctx.email, 'horaris_reunions', 'config', 'horaris_reunions', net.length + ' reunions');
+  return { ok: true, reunions: reunionsHoraris_(llegeixConfig_()) };
 }

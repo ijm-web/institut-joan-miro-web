@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 56 · 10 de novembre de 2026",
+  "versio": "PAS 57 · 10 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -226,12 +226,11 @@
         },
         {
           "id": "prof-hores-lectives",
-          "titol": "Hores lectives de classe",
+          "titol": "Hores lectives (ara a Ocupació)",
           "claus": "hores lectives classe currículum reduccions jornada total carrega currículum tutoria atenció individual càrrec",
           "text": [
-            "Columnes d'**hores lectives**: les lectives amb alumnat (matèries ESO i Bat, atenció individual, tutories) i les reduccions (tutoria 1r/2n, càrrec directiu, coordinació, coordinació de nivell, reducció de 55 anys). Venen del full de plantilla (importaHoresLectives) i es poden editar aquí o des del Currículum.",
-            "**Total lectives alumnat** i **Total lectives** es calculen sols. **⚠** al Total lectives: no coincideix amb les hores de la jornada (sencera 18, ⅔ 12, mitja 9).",
-            "**Carrega dades des del Currículum** (botó de dalt) calcula, a partir del professor/a de cada grup a Currículum › Assignacions: lectives matèries ESO i Bat (sense tutoria ni atenció individual), atenció individual (matèries «Atenció individual»), tutoria (matèria) ESO 1r/2n, 3r/4t i Bat, i el càrrec (tutor/a del grup i cap de departament/àmbit; els altres càrrecs no es toquen). Primer mostra què canvia; els docents sense cap grup assignat no es toquen. Després es pot continuar editant a mà."
+            "Les hores de cada docent (lectives d'ESO i batxillerat, atenció individual, tutories, reduccions i guàrdies) i els càrrecs es veuen i es canvien al mòdul **Ocupació** (Organització del curs). A la graella del Professorat ja no hi surten.",
+            "El botó **Carrega des del Currículum** també és a Ocupació."
           ]
         },
         {
@@ -857,16 +856,10 @@
         },
         {
           "id": "cur-hores-lectives",
-          "titol": "Hores lectives classe",
+          "titol": "Ocupació del professorat",
           "claus": "hores lectives classe professorat docent plantilla reduccions jornada tutoria",
           "text": [
-            "Botó **Hores lectives classe** (al costat de Matèries i Assignacions): el professorat actual per especialitat amb les hores lectives. Les dades es carreguen en obrir el mòdul (no cal esperar en prémer el botó).",
-            "Selector **Mostra**: **Tot** o **Especialitat** (i quina). A la part inferior, els **totals** de cada columna dels docents que es veuen. **PDF** exporta el que es veu (amb els valors escrits, encara que no s'hagin desat).",
-            "Les línies verticals separen les lectives amb alumnat, les reduccions i el total. El desplegable d'especialitat només surt amb **Mostra: Especialitat**.",
-            "**Lectives amb alumnat**: matèries ESO, matèries Bat, atenció individual (ahl), tutoria (matèria) ESO 1r/2n, ESO 3r/4t i Bat. La suma és el **Total lectives alumnat**, que és el que fa servir el Currículum (document per especialitat).",
-            "**Reduccions**: reducció de tutoria ESO 1r/2n (ahl), càrrec directiu (cd1), coordinació lectiu (cc), reducció de coordinació de nivell (ahl) i reducció lectiva de 55 anys (ahl). **Total** = alumnat + reduccions.",
-            "**⚠** al total: no coincideix amb les hores de la jornada (sencera 18 h, ⅔ 12 h, mitja 9 h).",
-            "Es desen a la fitxa del professorat i també es poden canviar des del mòdul **Professorat**. Valors de 0 a 40 (admet mitges hores). Les pot canviar qui té edició al Currículum o al Professorat."
+            "El botó **Ocupació del professorat** obre el mòdul **Ocupació**, on hi ha les hores de cada docent (abans eren a «Hores lectives classe»)."
           ]
         },
         {
@@ -979,10 +972,62 @@
         }
       ]
     },
+    "ocupacio": {
+      "titol": "Ocupació",
+      "graella": false,
+      "intro": "Hores fixes de cada docent en una sola taula: lectives d'alumnat (ESO, batxillerat, atenció individual i tutories), reduccions lectives, guàrdies i reduccions de guàrdia, i els càrrecs. Un semàfor indica si quadra amb 18 lectives + 4 de guàrdia = 22 hores, en proporció a la jornada.",
+      "temes": [
+        {
+          "id": "ocu-taula",
+          "titol": "La taula",
+          "claus": "taula docents lectives reduccions guàrdies total objectiu semàfor",
+          "text": [
+            "Una fila per docent en actiu (els substituts en lloc de les persones substituïdes). Columnes:",
+            "- **Lectives d'alumnat**: ESO, Bat, atenció individual i tutories (1r/2n, 3r/4t, Bat) i la suma.",
+            "- **Reduccions lectives**: tutoria de 1r d'ESO, càrrec directiu, coordinació, reunió de nivell i 55 anys, i la suma.",
+            "- **Lectives** = alumnat + reduccions, sobre l'objectiu (18 a jornada sencera, 9 a mitja jornada, 12 a ⅔).",
+            "- **Guàrdies** (ordinàries, biblioteca i pati) i **Red. guàrdia** (la suma; un clic obre el detall).",
+            "- **Guàrdia** = guàrdies + reduccions de guàrdia, sobre l'objectiu (4, 2 o 2,67).",
+            "- **Total** sobre 22 (11 o 14,67) i l'**estat**: verd = quadra; groc = el total quadra però no el repartiment entre lectives i guàrdia; vermell = falten o sobren hores (hi diu quantes).",
+            "Filtres: cerca (docent, especialitat o càrrec), especialitat i **Només els que no quadren**."
+          ]
+        },
+        {
+          "id": "ocu-edita",
+          "titol": "Canviar les hores",
+          "claus": "canviar editar desa hores reduccions automàtiques 55 anys tutoria reunió nivell",
+          "text": [
+            "Les caselles s'editen directament (Tab passa a la següent). Les canviades surten en groc fins que es desa amb **Desa**.",
+            "**Reduccions automàtiques** (en cursiva, amb la casella buida): **Tutoria 1r ESO** = 1 h si és tutor/a d'un grup de 1r d'ESO; **Reunió nivell** = 1 h si és tutor/a o té el càrrec de coordinació de nivell; **55 anys** = 1 h si té 55 anys o més a l'inici del curs (config › reduccio_55_referencia; per defecte l'1 de setembre). Si s'hi escriu un valor, mana el valor; 0 la treu.",
+            "**Reduccions de guàrdia**: un clic en la suma obre la llista (R. Com. Diversitat, Convivència, Digital, Gènere, Lingüística, Erasmus, X. Comp. Lectora; Pla d'intercanvis, Atenció a famílies, Càrrec de coordinació, Red. guàrdia 55, Consell Escolar i Altres).",
+            "Les guàrdies són les mateixes del planificador d'horaris (pestanya Professorat): es poden canviar en tots dos llocs.",
+            "**Carrega des del Currículum** calcula les lectives d'ESO i Bat, l'atenció individual, les tutories i els càrrecs de tutor/a i de cap de departament a partir de Currículum › Assignacions (mostra els canvis abans de desar-los; no toca els altres càrrecs)."
+          ]
+        },
+        {
+          "id": "ocu-carrecs",
+          "titol": "Càrrecs",
+          "claus": "càrrecs càrrec assignar llista coordinació direcció tutor",
+          "text": [
+            "Un clic en la columna **Càrrecs** obre la llista per marcar-ne un o més (i «Altres» per escriure'n de nous, separats per «·»). Els de tutoria (Tutor/a de cada grup-classe) i de cap de departament/àmbit hi surten sols.",
+            "La pestanya **Càrrecs** té la llista (un per línia); només l'administració del mòdul la pot canviar. Canviar la llista no toca els càrrecs ja assignats.",
+            "El càrrec «Coordinació de nivell …» dona la reducció automàtica de reunió de nivell i entra a la proposta de reunions del planificador."
+          ]
+        },
+        {
+          "id": "ocu-exporta",
+          "titol": "PDF i Excel",
+          "claus": "pdf excel exporta imprimir",
+          "text": [
+            "**PDF**: resum per docent (alumnat, reduccions, lectives, guàrdies, total i estat), amb els filtres i el logo. **Excel**: totes les columnes, reducció per reducció."
+          ]
+        }
+      ]
+    },
     "horaris": {
       "titol": "Horaris · planificador",
       "graella": false,
-      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). El planificador té set pestanyes: Marc horari, Aules, Subgrups, Sessions lectives, Professorat, Guàrdies i Regles.",
+      "intro": "Primera part del generador d'horaris. El generador té quatre parts: PLANIFICADOR (aquí: les condicions de l'horari), MOTOR (programa que calcula l'horari), EDITOR (retocs manuals) i EXPORTADOR (horaris en altres formats). El planificador té vuit pestanyes: Marc horari, Aules, Subgrups, Sessions lectives, Professorat, Guàrdies, Reunions i Regles.",
       "temes": [
         {
           "id": "hor-marc",
@@ -1034,7 +1079,8 @@
             "**Distribució**: «111» = tres sessions d'una hora; «21» = una de dues hores i una d'una. Ha de sumar les hores de la part.",
             "**Graella**: cada clic canvia la casella: lliure → 📌 fixa → ⛔ prohibida → lliure. El nom d'un **dia** (a dalt) o d'una **franja** (a l'esquerra) canvia tota la columna o tota la fila alhora.",
             "**2 · Blocs simultanis**: sessions que es fan **a la mateixa hora, en aules diferents** i amb docents diferents: diversitat (Català A + Català B + Català AB-DIV), hores B (G1 Experimentals + G2 Tecnologia…) i optatives. Totes han de tenir les mateixes hores.",
-            "**Proposa els blocs del nivell** crea els de diversitat, optatives i hores B (amb rotació: a cada bloc, G1 i G2 fan matèries diferents). L'etiqueta **Mateix dia que** fa que els blocs amb la mateixa etiqueta es facin el mateix dia (p. ex. les hores B d'un grup-classe)."
+            "**Proposa els blocs del nivell** crea els de diversitat, optatives i hores B (amb rotació: a cada bloc, G1 i G2 fan matèries diferents). L'etiqueta **Mateix dia que** fa que els blocs amb la mateixa etiqueta es facin el mateix dia (p. ex. les hores B d'un grup-classe).",
+            "**Atenció individual**: és **multinivell** (no ocupa cap grup-classe, només el docent i, si en té, l'aula). A la columna del grup hi diu «Multinivell» i a l'exportació porta `multinivell: true`."
           ]
         },
         {
@@ -1059,6 +1105,16 @@
             "**1 · Guàrdies que calen a cada franja**: a cada casella de la graella (dies × franges, amb els esbarjos), quants docents de guàrdia calen de cada tipus. **Omple totes les caselles** posa el mateix nombre a totes les franges lectives (O) o a tots els esbarjos (B i P).",
             "**2 · Cobertura**: per a cada tipus, les guàrdies demanades (suma de la graella) i les del professorat (suma de la llista). ✓ cobertes o ⚠ si en falten o en sobren. La cobertura de cada franja concreta la calcularà el motor en fer l'horari.",
             "**3 · Guàrdies de cada docent**: quantes en fa de cada tipus. El motor les posa en franges on el docent no té classe."
+          ]
+        },
+        {
+          "id": "hor-reunions",
+          "titol": "Reunions fixes de nivell",
+          "claus": "reunions reunió nivell tutors coordinació franja setmanal",
+          "text": [
+            "Cada **reunió fixa** (p. ex. tutors/es i coordinació de 1r d'ESO) es fa a la mateixa franja cada setmana, amb tots els seus docents lliures (sense classe ni guàrdia).",
+            "**Proposa a partir del Currículum i dels càrrecs** crea una reunió per nivell amb els tutors/es (Currículum › Tutoria) i la coordinació de nivell (càrrec a Ocupació). Es poden canviar el nom, les hores (1 a 3), la **franja** (en blanc = la tria el motor) i els docents (**+ docent…** i ×). **+ reunió** n'afegeix una de buida.",
+            "Cal almenys dos docents per reunió. Les reunions van a l'exportació per al motor (`reunions`) i el validador comprova els docents, la franja i que cap docent la tingui prohibida."
           ]
         },
         {
@@ -1107,7 +1163,8 @@
             "Amb ◀ **Avui** ▶ i el calendari petit es canvia de dia, setmana, mes o trimestre. Un clic en el número d'un dia obre la vista del dia.",
             "Els filtres **Categoria** i **Nivell** valen per a totes les vistes i per als PDF. Amb un nivell triat surten també els esdeveniments sense nivell (són de tot el centre).",
             "Colors: blau = General, taronja = Intern. Els dies de festiu, lliure disposició, festa local i vacances surten acolorits, i a la cel·la hi diu quin dia és.",
-            "La vista i els filtres es recorden en aquest navegador."
+            "La vista i els filtres es recorden en aquest navegador.",
+            "Si no hi cap tot, la llista i les graelles es desplacen amb la barra vertical de la dreta."
           ]
         },
         {
@@ -1127,9 +1184,10 @@
           "titol": "Dates clau i festius",
           "claus": "dates clau festius inici final classes trimestre vacances nadal setmana santa lliure disposició festa local curs",
           "text": [
-            "La pestanya **Dates clau** té el curs i una fila per data: **tipus**, data, **fins a** (per a les vacances) i, opcionalment, el nom en català, castellà i anglès (en blanc = el del tipus).",
-            "Tipus: inici de classes, darrer dia d'ESO, darrer dia de 1r de Batx., festiu, festa local, lliure disposició, vacances (Nadal, Setmana Santa…) i **inici del 2n i del 3r trimestre** (marquen els trimestres de la vista Trimestre; no es publiquen).",
-            "**+ data** afegeix una fila; **Desa les dates clau** les desa (cal un inici de classes i un darrer dia d'ESO)."
+            "A dalt hi ha els **Trimestres**: l'inici i el final de cada un. Marquen la vista Trimestre (no es publiquen). «Importa del full» els posa sols a partir de les files «Inici … trimestre» i «Fi del … trimestre» del full.",
+            "A sota, el curs i una fila per data clau: **tipus**, data, **fins a** (per a les vacances) i, opcionalment, el nom en català, castellà i anglès (en blanc = el del tipus).",
+            "Tipus: inici de classes, darrer dia d'ESO, darrer dia de 1r de Batx., festiu, festa local, lliure disposició i vacances (Nadal, Setmana Santa…).",
+            "**+ data** afegeix una fila; **Desa les dates clau** ho desa tot (cal un inici de classes i un darrer dia d'ESO)."
           ]
         },
         {
