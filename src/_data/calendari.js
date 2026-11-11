@@ -148,7 +148,7 @@ for (const L of langs) {
 }
 
 // PAS 56: esdeveniments «General» publicats des de GESTIO, per mesos
-const ordinal = { "1r ESO": "1r ESO", "2n ESO": "2n ESO", "3r ESO": "3r ESO", "4t ESO": "4t ESO", "1r BAT": "1r Batx.", "2n BAT": "2n Batx." };
+const ordinal = { "1r ESO": "1r ESO", "2n ESO": "2n ESO", "3r ESO": "3r ESO", "4t ESO": "4t ESO", "1r BAT": "1r Batx.", "2n BAT": "2n Batx.", "Professorat": "Professorat" };
 const actes = {};
 for (const L of langs) {
   const perMes = [];
@@ -156,7 +156,7 @@ for (const L of langs) {
     const [y, m] = e.des.split("-").map(Number);
     let g = perMes[perMes.length - 1];
     if (!g || g.any !== y || g.mes !== m) { g = { any: y, mes: m, nom: mesos[L][m - 1] + " " + y, llista: [] }; perMes.push(g); }
-    const niv = e.nivells || [];
+    const niv = (e.nivells || []).filter((n) => n !== "Professorat");   // PAS 58: al web només els nivells de l'alumnat
     g.llista.push({ data: etiqueta(e, L), hora: e.hora || "", text: e.text,
       nivells: niv.length === 6 ? "" : niv.length === 4 && niv.every((n) => /ESO/.test(n)) ? "ESO" : niv.length === 2 && niv.every((n) => /BAT/.test(n)) ? (L === "ca" ? "Batxillerat" : L === "es" ? "Bachillerato" : "Batxillerat") : niv.map((n) => ordinal[n] || n).join(", ") });
   }

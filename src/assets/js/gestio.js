@@ -2483,7 +2483,8 @@
     carrec: 'Càrrec al centre, si en té (tutor/a, cap de departament, coordinació…). Si substitueix algú, s’omple amb el càrrec d’aquella persona.'
   };
   // Camps que el formulari no demana: la data d'arribada al centre la posa el servidor el dia que es desa
-  var NO_AL_FORMULARI = ['data_arribada_centre'];
+  // PAS 58: el càrrec s'assigna a Ocupació (o l'hereta el substitut): no el demana el formulari
+  var NO_AL_FORMULARI = ['data_arribada_centre', 'carrec'];
   var campsForm = function () { return S.d.camps.filter(function (c) { return NO_AL_FORMULARI.indexOf(c.clau) < 0; }); };
   // PAS 31: el formulari (i el PDF) s'organitza per tipologia. Els camps nous que afegeixi un admin van a «Altres dades».
   var GRUPS_NOU = [
@@ -2495,7 +2496,7 @@
   function grupsNou() {
     var camps = campsForm(), usats = {};
     var g = GRUPS_NOU.map(function (x) { return { nom: x[0], camps: x[1].map(function (k) { usats[k] = 1; return camps.filter(function (c) { return c.clau === k; })[0]; }).filter(Boolean) }; });
-    g.push({ nom: 'Altres dades', camps: camps.filter(function (c) { return !usats[c.clau]; }) });
+    // PAS 58: sense «Altres dades» (hores, càrrecs i altres dades que s'assignen soles o des d'altres mòduls)
     return g.filter(function (x) { return x.camps.length; });
   }
   var esSubstitut = function () { var el = $('gsNou_situacio'); return !!el && el.value === 'Substitut'; };
@@ -2739,10 +2740,19 @@
   var dataLl = function (iso, ambDia) { var d = dataDe(iso); return (ambDia ? DIES_CAL_LL[diaSet(iso)] + ' ' : '') + d.getUTCDate() + ' ' + deMes(d.getUTCMonth()) + ' de ' + d.getUTCFullYear(); };
   var dataCurta = function (iso) { var d = dataDe(iso); return d.getUTCDate() + '/' + (d.getUTCMonth() + 1); };
   var rangCal = function (a, b) { return b && b !== a ? dataCurta(a) + ' – ' + dataCurta(b) : dataCurta(a); };
-  var nivellsText = function (n) { n = n || []; if (!n.length || n.length === 6) return n.length ? 'Tots' : ''; if (n.length === 4 && n.every(function (x) { return /ESO/.test(x); })) return 'ESO'; if (n.length === 2 && n.every(function (x) { return /BAT/.test(x); })) return 'Batxillerat'; return n.join(', '); };
+  // PAS 58: colors de cada nivell (els esdeveniments de més d'un nivell, en gris) i el nivell «Professorat»
+  var COLORS_NIV = { '1r ESO': 'n1', '2n ESO': 'n2', '3r ESO': 'n3', '4t ESO': 'n4', '1r BAT': 'n5', '2n BAT': 'n6', 'Professorat': 'np' };
+  var colorEv = function (e) { return e.nivells.length === 1 ? COLORS_NIV[e.nivells[0]] || 'nx' : e.nivells.length ? 'nx' : 'n0'; };
+  var nivsAlumnat = function (n) { return n.filter(function (x) { return x !== 'Professorat'; }); };
+  var nivellsText = function (n) { n = n || []; var a = nivsAlumnat(n), p = n.length > a.length ? ['Professorat'] : [];
+    if (a.length === 6) return ['Tot l’alumnat'].concat(p).join(', ');
+    if (a.length === 4 && a.every(function (x) { return /ESO/.test(x); })) return ['ESO'].concat(p).join(', ');
+    if (a.length === 2 && a.every(function (x) { return /BAT/.test(x); })) return ['Batxillerat'].concat(p).join(', ');
+    return n.join(', ');
+  };
   function carregaCalendari() {
     S.cal = S.cal || guarda.llegeix('calendari') || {};
-    S.cal.vista = S.cal.vista || 'mes'; S.cal.data = S.cal.data || avuiIso(); S.cal.cat = S.cal.cat || ''; S.cal.niv = S.cal.niv || ''; S.cal.q = '';
+    S.cal.vista = S.cal.vista || 'mes'; S.cal.data = S.cal.data || avuiIso(); S.cal.cat = S.cal.cat || ''; S.cal.niv = Array.isArray(S.cal.niv) ? S.cal.niv : S.cal.niv ? [S.cal.niv] : []; S.cal.q = '';
     return api('calendari_dades', {}, 'Carregant el calendari…').then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
       S.cal.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert };
@@ -2769,7 +2779,8 @@
     var q = S.cal.vista === 'llista' ? normCal(S.cal.q || '') : '';   // la cerca només és a la llista
     return S.cal.r.esdeveniments.filter(function (e) {
       if (S.cal.cat && e.categoria !== S.cal.cat) return false;
-      if (S.cal.niv && e.nivells.length && e.nivells.indexOf(S.cal.niv) < 0) return false;
+      // PAS 58: diversos nivells alhora; els esdeveniments sense nivell (tot el centre) sempre hi surten
+      if (S.cal.niv.length && e.nivells.length && !e.nivells.some(function (n) { return S.cal.niv.indexOf(n) >= 0; })) return false;
       return !q || normCal(e.descripcio + ' ' + e.hora + ' ' + e.nivells.join(' ')).indexOf(q) >= 0;
     });
   }
@@ -2802,7 +2813,8 @@
       (nav ? '<span class="gs-cal__nav"><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-cal="ant" aria-label="Anterior">◀</button><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-cal="avui">Avui</button><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-cal="seg" aria-label="Següent">▶</button>' +
         '<input type="date" class="gs-cal__salta" data-cal="salta" value="' + esc(S.cal.data) + '" aria-label="Vés a la data"></span>' : '') +
       (v !== 'dates' ? '<select data-cal="cat" aria-label="Categoria"><option value="">Totes les categories</option><option value="General"' + (S.cal.cat === 'General' ? ' selected' : '') + '>General</option><option value="Intern"' + (S.cal.cat === 'Intern' ? ' selected' : '') + '>Intern</option></select>' +
-        '<select data-cal="niv" aria-label="Nivell"><option value="">Tots els nivells</option>' + R.nivells.map(function (n) { return '<option' + (S.cal.niv === n ? ' selected' : '') + '>' + n + '</option>'; }).join('') + '</select>' : '') +
+        '<details class="gs-cal__nivs"><summary>' + (S.cal.niv.length ? esc(S.cal.niv.join(', ')) : 'Tots els nivells') + '</summary><div>' + R.nivells.map(function (n) { return '<label class="gs-check"><input type="checkbox" data-cal="niv" value="' + esc(n) + '"' + (S.cal.niv.indexOf(n) >= 0 ? ' checked' : '') + '> <i class="gs-cal__sw gs-cal__c--' + COLORS_NIV[n] + '"></i>' + esc(n) + '</label>'; }).join('') +
+          '<button type="button" class="gs-enllac" data-cal="niv-cap">Tots</button></div></details>' : '') +
       (v === 'llista' ? '<input type="search" class="gs-cal__cerca" data-cal="cerca" placeholder="Cerca…" value="' + esc(S.cal.q || '') + '">' : '') +
       '<span class="gs-espai"></span>' +
       (ed && v !== 'dates' ? '<button type="button" class="prog-btn" data-cal="nou">+ Nou esdeveniment</button>' : '') +
@@ -2810,7 +2822,7 @@
       (adminCal() ? '<button type="button" class="prog-btn prog-btn--ghost" data-cal="importa" title="Afegeix els esdeveniments del full del calendari (config › font_calendari) que encara no hi són">Importa del full</button>' +
         '<button type="button" class="prog-btn prog-btn--ghost" data-cal="publica" title="Publica les dates clau i els esdeveniments «General» a Secretaria › Calendari escolar">Publica</button>' : '') +
       '<p class="gs-ajuda gs-cal__ajuda">' + (v === 'dates' ? 'Inici i final de classes, inici dels trimestres, festius, dies de lliure disposició, festes locals i vacances. Surten a totes les vistes i, en publicar, al web (els trimestres, no).' :
-        '<span class="gs-cal__ll gs-cal__ll--General">General</span> es publica al web · <span class="gs-cal__ll gs-cal__ll--Intern">Intern</span> només a GESTIO. ' + (ed ? 'Cliqueu un dia per afegir-hi un esdeveniment i un esdeveniment per canviar-lo.' : '')) +
+        'Vora <span class="gs-cal__ll gs-cal__ll--General">General</span> (es publica al web) o <span class="gs-cal__ll gs-cal__ll--Intern">Intern</span> (només GESTIO). Color: el del nivell ' + R.nivells.map(function (n) { return '<i class="gs-cal__sw gs-cal__c--' + COLORS_NIV[n] + '" title="' + esc(n) + '"></i>'; }).join('') + ', gris si és de més d’un nivell i blanc si és de tot el centre. ' + (ed ? 'Cliqueu un dia per afegir-hi un esdeveniment i un esdeveniment per canviar-lo.' : '')) +
         (R.publicat ? ' <span class="gs-cal__pub">Publicat el ' + esc(String(R.publicat.data).slice(0, 16)) + ' (' + R.publicat.n + ' esdeveniments).</span>' : adminCal() ? ' <span class="gs-cal__pub">Encara no s’ha publicat.</span>' : '') + '</p>';
     var html;
     try {
@@ -2820,7 +2832,7 @@
     var t = $('gsTaula'); t.className = 'gs-cal gs-cal--' + v; t.innerHTML = html;
     ajustaAlcada();
   }
-  var chipCal = function (e, curt) { return '<button type="button" class="gs-cal__ev gs-cal__ev--' + e.categoria + '" data-cal="edita" data-id="' + esc(e.id) + '" title="' + esc((e.hora ? e.hora + ' · ' : '') + e.descripcio + (e.nivells.length ? ' (' + nivellsText(e.nivells) + ')' : '') + ' · ' + e.categoria) + '">' + (e.hora && !curt ? '<b>' + esc(e.hora.split('-')[0]) + '</b> ' : '') + esc(e.descripcio) + '</button>'; };
+  var chipCal = function (e, curt) { return '<button type="button" class="gs-cal__ev gs-cal__ev--' + e.categoria + ' gs-cal__c--' + colorEv(e) + '" data-cal="edita" data-id="' + esc(e.id) + '" title="' + esc((e.hora ? e.hora + ' · ' : '') + e.descripcio + (e.nivells.length ? ' (' + nivellsText(e.nivells) + ')' : '') + ' · ' + e.categoria) + '">' + (e.hora && !curt ? '<b>' + esc(e.hora.split('-')[0]) + '</b> ' : '') + esc(e.descripcio) + '</button>'; };
   var classeDia = function (iso) { return clauDelDia(iso).map(function (x) { return ' is-' + x.tipus; }).join('') + (diaSet(iso) >= 5 ? ' is-we' : '') + (iso === avuiIso() ? ' is-avui' : ''); };
   var marcaClau = function (iso) { return clauDelDia(iso).map(function (x) { return '<span class="gs-cal__clau gs-cal__clau--' + x.tipus + '">' + esc(x.nom && x.nom.ca || TIPUS_CAL[x.tipus]) + '</span>'; }).join(''); };
   function htmlMesCal(a, mini) {
@@ -2967,7 +2979,7 @@
   }
   // ---- PDF (amb el logo): llista per a la llista, el dia i el trimestre; graella per a la setmana i el mes
   function pdfCal() {
-    var v = S.cal.vista, I = intervalCal(), filtre = [S.cal.cat, S.cal.niv].filter(Boolean).join(' · ');
+    var v = S.cal.vista, I = intervalCal(), filtre = [S.cal.cat, S.cal.niv.join(', ')].filter(Boolean).join(' · ');
     var sub = (v === 'llista' ? 'Curs ' + (S.cal.r.dates.curs || '') : I.titol) + (filtre ? ' · ' + filtre : '') + (v === 'llista' && S.cal.q ? ' · «' + S.cal.q + '»' : '');
     if (v === 'setmana' || v === 'mes') return pdfGraellaCal(I, sub);
     var evs = v === 'llista' ? evFiltrats().sort(ordreEv) : evEntre(I.a, I.b), files = [], mes = '';
@@ -3021,12 +3033,13 @@
       if (a === 'vista') { if (S.cal.datesEd && S.cal.vista === 'dates' && b.dataset.v !== 'dates') S.cal.datesEd = null; S.cal.vista = b.dataset.v; pintaCalendari(); }
       else if (a === 'ant') mouCal(-1); else if (a === 'seg') mouCal(1);
       else if (a === 'avui') { S.cal.data = avuiIso(); pintaCalendari(); }
-      else if (a === 'nou') editaCal({ data_inici: S.cal.vista === 'mes' || S.cal.vista === 'trimestre' ? '' : S.cal.data, nivells: S.cal.niv ? [S.cal.niv] : [], categoria: S.cal.cat || 'Intern' }, true);
+      else if (a === 'nou') editaCal({ data_inici: S.cal.vista === 'mes' || S.cal.vista === 'trimestre' ? '' : S.cal.data, nivells: S.cal.niv.slice(), categoria: S.cal.cat || 'Intern' }, true);
+      else if (a === 'niv-cap') { S.cal.niv = []; pintaCalendari(); }
       else if (a === 'pdf') pdfCal(); else if (a === 'publica') publicaCal(); else if (a === 'importa') importaCal();
     });
     $('gsEines').addEventListener('change', function (e) {
       var x = e.target, a = x.dataset && x.dataset.cal; if (!a || !actiu()) return;
-      if (a === 'cat') S.cal.cat = x.value; else if (a === 'niv') S.cal.niv = x.value; else if (a === 'salta' && x.value) S.cal.data = x.value; else return;
+      if (a === 'cat') S.cal.cat = x.value; else if (a === 'niv') { S.cal.niv = [].map.call(document.querySelectorAll('#gsEines input[data-cal="niv"]:checked'), function (c) { return c.value; }); pintaCalendari(); var dd = document.querySelector('.gs-cal__nivs'); if (dd) dd.open = true; return; } else if (a === 'salta' && x.value) S.cal.data = x.value; else return;
       pintaCalendari();
     });
     $('gsEines').addEventListener('input', function (e) {
@@ -3041,7 +3054,7 @@
       if (a === 'edita') { e.stopPropagation(); if (ev()) editaCal(ev()); }
       else if (a === 'esborra') { if (ev()) esborraCal(ev()); }
       else if (a === 'dia') { e.stopPropagation(); S.cal.data = b.dataset.d; S.cal.vista = 'dia'; pintaCalendari(); }
-      else if (a === 'cel') { if (edCal()) editaCal({ data_inici: b.dataset.d, nivells: S.cal.niv ? [S.cal.niv] : [], categoria: S.cal.cat || 'Intern' }, true); }
+      else if (a === 'cel') { if (edCal()) editaCal({ data_inici: b.dataset.d, nivells: S.cal.niv.slice(), categoria: S.cal.cat || 'Intern' }, true); }
       else if (a === 'nova-data') { S.cal.datesEd.dates.push({ des: S.cal.data, tipus: 'festiu' }); S.brut = true; pintaCalendari(); }
       else if (a === 'treu-data') { S.cal.datesEd.dates.splice(Number(b.closest('tr').dataset.i), 1); S.brut = true; pintaCalendari(); }
       else if (a === 'desa-dates') desaDatesCal();
@@ -3065,7 +3078,7 @@
       if (!actiu() || e.target.dataset.cal !== 'afegeix') return;
       e.preventDefault();
       var f = e.target, n = f.nivells.value, x = { data_inici: f.data_inici.value, hora: f.hora.value.trim(), descripcio: f.descripcio.value.trim(), categoria: f.categoria.value,
-        nivells: n === 'ESO' ? S.cal.r.nivells.slice(0, 4) : n === 'BAT' ? S.cal.r.nivells.slice(4) : n ? [n] : [] };
+        nivells: n === 'ESO' ? S.cal.r.nivells.slice(0, 4) : n === 'BAT' ? S.cal.r.nivells.slice(4, 6) : n ? [n] : [] };
       if (!x.data_inici || !x.descripcio) return toast('Cal la data i la descripció.', true);
       S.cal.data = x.data_inici;
       desaCal([x], [], 'Esdeveniment afegit.').then(function (r) { var d = r && r.ok && document.querySelector('.gs-cal__afegeix [name="descripcio"]'); if (d) d.focus(); });
@@ -3076,7 +3089,7 @@
   // reduccions de guàrdia, amb el semàfor 18 + 4 = 22 (en proporció a la jornada). També s'hi assignen els càrrecs.
   var COL_OCU_ALU = { lectives_eso: 'ESO', lectives_bat: 'Bat', atencio_individual: 'At. ind.', tutoria_eso12: 'Tut. 1r/2n', tutoria_eso34: 'Tut. 3r/4t', tutoria_bat: 'Tut. Bat' };
   var COL_OCU_RED = { red_tutoria_eso12: 'Tutoria 1r ESO', carrec_directiu: 'Càrrec directiu', coordinacio_lectiu: 'Coordinació', red_coord_nivell: 'Reunió nivell', red_lectiva_55: '55 anys' };
-  var AUTO_OCU = { red_tutoria_eso12: 'tutor/a de 1r d’ESO', red_coord_nivell: 'tutor/a o coordinació de nivell (reunió setmanal)', red_lectiva_55: '55 anys o més a l’inici del curs' };
+  var AUTO_OCU = { red_tutoria_eso12: 'tutor/a de 1r d’ESO', red_coord_nivell: 'tutor/a o coordinació de nivell (reunió setmanal)' };   // PAS 58: la de 55 anys s'entra a mà
   function carregaOcupacio() {
     S.ocu = S.ocu || { tab: 'docents', q: '', esp: '', nomesMal: false };
     return api('ocupacio_dades', {}, 'Carregant l’ocupació…').then(function (r) {
@@ -3124,40 +3137,44 @@
       (tab === 'docents' && ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="prof-curriculum" title="Lectives d’ESO i Bat, atenció individual, tutories i càrrec de tutor/a a partir de Currículum › Assignacions">Carrega des del Currículum</button>' : '') +
       (tab === 'docents' ? '<button type="button" class="prog-btn prog-btn--ghost" data-ocu="xlsx">Excel</button><button type="button" class="prog-btn prog-btn--ghost" data-ocu="pdf">PDF</button>' : '') +
       (tab === 'docents' && ed ? '<button type="button" class="prog-btn" data-ocu="desa"' + (brut ? '' : ' disabled') + '>' + (brut ? 'Desa (' + brut + ')' : 'Desat') + '</button>' : '') +
-      '<p class="gs-ajuda gs-cal__ajuda">' + (tab === 'docents' ? 'Objectiu: <b>' + R.objectiu.lectives + '</b> lectives (alumnat + reduccions) + <b>' + R.objectiu.guardies + '</b> de guàrdia (guàrdies + reduccions de guàrdia) = <b>' + R.objectiu.total + '</b> hores fixes, en proporció a la jornada (½ = 11, ⅔ ≈ 14,67). ' +
-        'Les reduccions en <i>cursiva</i> són automàtiques (la casella buida): s’hi pot escriure un altre valor, i 0 per treure-la.' : 'Llista de càrrecs que es poden assignar a cada docent (pestanya Docents › columna Càrrecs). Els de tutoria (Tutor/a de cada grup-classe) i de cap de departament/àmbit hi surten sols.') + '</p>';
+      '<p class="gs-ajuda gs-cal__ajuda">' + (tab === 'docents' ? 'Objectiu: <b>' + R.objectiu.lectives + '</b> lectives (amb alumnat + reduccions) + <b>' + R.objectiu.guardies + '</b> de guàrdia (guàrdies + reduccions de guàrdia) = <b>' + R.objectiu.total + '</b> hores fixes, en proporció a la jornada (½ = 11, ⅔ ≈ 14,67). ' +
+        'Un clic al títol d’una secció la plega o la desplega. Les reduccions en <i>cursiva</i> són automàtiques (tutoria de 1r d’ESO i reunió de nivell, amb la casella buida): s’hi pot escriure un altre valor, i 0 per treure-la.' : 'Llista de càrrecs que es poden assignar a cada docent (pestanya Docents › columna Càrrecs). Els de tutoria (Tutor/a de cada grup-classe) i de cap de departament/àmbit hi surten sols.') + '</p>';
     var t = $('gsTaula'); t.className = 'gs-ocu';
     try { t.innerHTML = tab === 'docents' ? htmlOcupacio(ed) : htmlCarrecsOcu(); } catch (er) { if (window.console) console.error(er); t.innerHTML = '<p class="prog-avis">No s’ha pogut mostrar: ' + esc(er && er.message || er) + '</p>'; }
     ajustaAlcada();
   }
+  // PAS 58 · Quatre seccions plegables: un clic al títol la plega (només en queda la suma) o la desplega
+  var SECC_OCU = [['alu', 'Lectives (amb alumnat)'], ['red', 'Reduccions lectives'], ['g', 'Guàrdies'], ['rg', 'Reduccions de guàrdia']];
+  function plegaOcu() { if (!S.ocu.plega) S.ocu.plega = guarda.llegeix('ocupacio_plega') || { rg: true }; return S.ocu.plega; }
+  function colsOcu() {
+    var R = S.ocu.r;
+    return { alu: R.lectives.map(function (c) { return { k: c.clau, t: COL_OCU_ALU[c.clau] || c.nom, n: c.nom }; }),
+      red: R.reduccions.map(function (c) { return { k: c.clau, t: COL_OCU_RED[c.clau] || c.nom, n: c.nom, auto: true }; }),
+      g: ['o', 'b', 'p'].map(function (k) { return { k: 'guardies_' + k, t: R.tipus_guardia[k].slice(0, 4) + '.', n: 'Guàrdies ' + R.tipus_guardia[k].toLowerCase() }; }),
+      rg: R.reduccions_guardia.map(function (c) { return { k: c.clau, t: c.nom.replace(/^R\. /, ''), n: c.nom + ' (' + c.codi + ')' }; }) };
+  }
   function htmlOcupacio(ed) {
-    var R = S.ocu.r, dis = ed ? '' : ' disabled', ll = docentsOcu();
-    var inp = function (d, k, auto) { var v = valOcu(d, k), buit = String(v == null ? '' : v).trim() === '', b = S.ocu.brut[d.id] && Object.prototype.hasOwnProperty.call(S.ocu.brut[d.id], k);
-      return '<td class="gs-ocu__n' + (b ? ' is-brut' : '') + '"><input type="text" inputmode="decimal" data-k="' + k + '" value="' + esc(buit ? '' : v) + '"' + (auto && buit ? ' placeholder="' + auto + '" class="is-auto" title="Automàtica: ' + esc(AUTO_OCU[k] || '') + '"' : '') + dis + ' aria-label="' + esc(k) + '"></td>'; };
-    var cap = '<thead><tr class="gs-ocu__grups"><th rowspan="2" class="gs-ocu__nom">Docent</th><th rowspan="2">Jorn.</th><th rowspan="2">Càrrecs</th><th colspan="7">Lectives d’alumnat</th><th colspan="6">Reduccions lectives</th><th rowspan="2" class="gs-ocu__t">Lectives</th>' +
-      '<th colspan="3">Guàrdies</th><th rowspan="2">Red. guàrdia</th><th rowspan="2" class="gs-ocu__t">Guàrdia</th><th rowspan="2" class="gs-ocu__t">Total</th><th rowspan="2">Estat</th></tr><tr>' +
-      R.lectives.map(function (c) { return '<th title="' + esc(c.nom) + '">' + esc(COL_OCU_ALU[c.clau] || c.nom) + '</th>'; }).join('') + '<th>Σ</th>' +
-      R.reduccions.map(function (c) { return '<th title="' + esc(c.nom) + '">' + esc(COL_OCU_RED[c.clau] || c.nom) + '</th>'; }).join('') + '<th>Σ</th>' +
-      ['o', 'b', 'p'].map(function (k) { return '<th title="' + esc(R.tipus_guardia[k]) + '">' + esc(R.tipus_guardia[k].slice(0, 4)) + '.</th>'; }).join('') + '</tr></thead>';
+    var P = plegaOcu(), C = colsOcu(), ll = docentsOcu();
+    var grup = function (id, nom) { var n = P[id] ? 1 : C[id].length + 1;
+      return '<th colspan="' + n + '" class="gs-ocu__sec' + (P[id] ? ' is-plegada' : '') + '"><button type="button" data-ocu="plega" data-sec="' + id + '" aria-expanded="' + !P[id] + '" title="' + (P[id] ? 'Desplega' : 'Plega') + ' la secció">' + (P[id] ? '▸ ' : '▾ ') + esc(nom) + '</button></th>'; };
+    var sub = function (id) { return (P[id] ? '' : C[id].map(function (c) { return '<th title="' + esc(c.n) + '">' + esc(c.t) + '</th>'; }).join('')) + '<th>Σ</th>'; };
+    var cap = '<thead><tr class="gs-ocu__grups"><th rowspan="2" class="gs-ocu__nom">Docent</th><th rowspan="2">Jorn.</th><th rowspan="2">Càrrecs</th>' + grup('alu', SECC_OCU[0][1]) + grup('red', SECC_OCU[1][1]) +
+      '<th rowspan="2" class="gs-ocu__t">Total lectives</th>' + grup('g', SECC_OCU[2][1]) + grup('rg', SECC_OCU[3][1]) + '<th rowspan="2" class="gs-ocu__t">Total guàrdies</th><th rowspan="2" class="gs-ocu__t">Total</th><th rowspan="2">Estat</th></tr><tr>' +
+      sub('alu') + sub('red') + sub('g') + sub('rg') + '</tr></thead>';
     var files = ll.map(function (d) { return filaOcu(d, ed); }).join('');
-    return '<div class="gs-ocu__cont"><table class="gs-ocu__taula">' + cap + '<tbody>' + (files || '<tr><td colspan="26" class="gs-ajuda">Cap docent amb aquests filtres.</td></tr>') + '</tbody></table></div>';
+    return '<div class="gs-ocu__cont"><table class="gs-ocu__taula">' + cap + '<tbody>' + (files || '<tr><td colspan="40" class="gs-ajuda">Cap docent amb aquests filtres.</td></tr>') + '</tbody></table></div>';
   }
   function filaOcu(d, ed) {
-    var R = S.ocu.r, dis = ed ? '' : ' disabled';
-    var inp = function (d, k, auto) { var v = valOcu(d, k), buit = String(v == null ? '' : v).trim() === '', b = S.ocu.brut[d.id] && Object.prototype.hasOwnProperty.call(S.ocu.brut[d.id], k);
-      return '<td class="gs-ocu__n' + (b ? ' is-brut' : '') + '"><input type="text" inputmode="decimal" data-k="' + k + '" value="' + esc(buit ? '' : v) + '"' + (auto && buit ? ' placeholder="' + auto + '" class="is-auto" title="Automàtica: ' + esc(AUTO_OCU[k] || '') + '"' : '') + dis + ' aria-label="' + esc(k) + '"></td>'; };
-    {
-      var o = calculOcu(d), c = String(valOcu(d, 'carrec') || '');
-      return '<tr data-id="' + esc(d.id) + '" class="is-' + o.estat + '"><th class="gs-ocu__nom" scope="row">' + esc(d.nom) + '<small>' + esc(d.especialitat) + (d.major55 ? ' · 55+' : '') + '</small></th><td class="gs-cen">' + esc(d.jornada) + '</td>' +
-        '<td class="gs-ocu__c"><button type="button" class="gs-ocu__cb" data-ocu="carrec" title="' + esc(c || 'Sense càrrec') + '"' + (ed ? '' : ' disabled') + '>' + (c ? esc(c) : '<span class="gs-ajuda">—</span>') + '</button></td>' +
-        R.lectives.map(function (x) { return inp(d, x.clau); }).join('') + '<td class="gs-ocu__s">' + r2(o.alu) + '</td>' +
-        R.reduccions.map(function (x) { return inp(d, x.clau, d.auto[x.clau]); }).join('') + '<td class="gs-ocu__s">' + r2(o.red) + '</td>' +
-        '<td class="gs-ocu__t">' + o.lect + '<small>/' + o.objL + '</small></td>' +
-        ['o', 'b', 'p'].map(function (k) { return inp(d, 'guardies_' + k); }).join('') +
-        '<td class="gs-ocu__s"><button type="button" class="gs-enllac" data-ocu="rg" title="Reduccions de guàrdia, una per una">' + r2(o.rg) + '</button></td>' +
-        '<td class="gs-ocu__t">' + o.guard + '<small>/' + o.objG + '</small></td><td class="gs-ocu__t">' + o.total + '<small>/' + o.objT + '</small></td>' +
-        '<td class="gs-ocu__e"><span class="gs-ocu__sem gs-ocu__sem--' + o.estat + '" title="' + esc(o.text) + '"></span><span class="gs-ocu__et">' + esc(o.estat === 'ok' ? 'Quadra' : o.estat === 'reparteix' ? 'Repartiment' : o.total < o.objT ? '−' + r2(o.objT - o.total) : '+' + r2(o.total - o.objT)) + '</span></td></tr>';
-    }
+    var P = plegaOcu(), C = colsOcu(), dis = ed ? '' : ' disabled', o = calculOcu(d), c = String(valOcu(d, 'carrec') || '');
+    var inp = function (col) { var k = col.k, v = valOcu(d, k), buit = String(v == null ? '' : v).trim() === '', b = S.ocu.brut[d.id] && Object.prototype.hasOwnProperty.call(S.ocu.brut[d.id], k), auto = col.auto && d.auto[k];
+      if (/^guardies_/.test(k) && Number(v) === 0) buit = true;
+      return '<td class="gs-ocu__n' + (b ? ' is-brut' : '') + '"><input type="text" inputmode="decimal" data-k="' + k + '" value="' + esc(buit ? '' : v) + '"' + (auto && buit ? ' placeholder="' + auto + '" class="is-auto" title="Automàtica: ' + esc(AUTO_OCU[k] || '') + '"' : '') + dis + ' aria-label="' + esc(col.n) + '"></td>'; };
+    var seccio = function (id, suma) { return (P[id] ? '' : C[id].map(inp).join('')) + '<td class="gs-ocu__s">' + (id === 'rg' && P[id] ? '<button type="button" class="gs-enllac" data-ocu="rg" title="Reduccions de guàrdia, una per una">' + r2(suma) + '</button>' : r2(suma)) + '</td>'; };
+    return '<tr data-id="' + esc(d.id) + '" class="is-' + o.estat + '"><th class="gs-ocu__nom" scope="row">' + esc(d.nom) + '<small>' + esc(d.especialitat) + '</small></th><td class="gs-cen">' + esc(d.jornada) + '</td>' +
+      '<td class="gs-ocu__c"><button type="button" class="gs-ocu__cb" data-ocu="carrec" title="' + esc(c || 'Sense càrrec') + '"' + (ed ? '' : ' disabled') + '>' + (c ? esc(c) : '<span class="gs-ajuda">—</span>') + '</button></td>' +
+      seccio('alu', o.alu) + seccio('red', o.red) + '<td class="gs-ocu__t">' + o.lect + '<small>/' + o.objL + '</small></td>' +
+      seccio('g', o.g) + seccio('rg', o.rg) + '<td class="gs-ocu__t">' + o.guard + '<small>/' + o.objG + '</small></td><td class="gs-ocu__t">' + o.total + '<small>/' + o.objT + '</small></td>' +
+      '<td class="gs-ocu__e"><span class="gs-ocu__sem gs-ocu__sem--' + o.estat + '" title="' + esc(o.text) + '"></span><span class="gs-ocu__et">' + esc(o.estat === 'ok' ? 'Quadra' : o.estat === 'reparteix' ? 'Repartiment' : o.total < o.objT ? '−' + r2(o.objT - o.total) : '+' + r2(o.total - o.objT)) + '</span></td></tr>';
   }
   function htmlCarrecsOcu() {
     var R = S.ocu.r, adm = R.nivell === 'admin';
@@ -3209,8 +3226,8 @@
         ['o', 'b', 'p'].map(function (k) { return nOcu(valOcu(d, 'guardies_' + k)); }), R.reduccions_guardia.map(function (c) { return nOcu(valOcu(d, c.clau)); }), [r2(o.rg), o.guard, o.total, o.objT, o.text]) }; });
   }
   function xlsxOcupacio() {
-    var R = S.ocu.r, cap = ['Docent', 'Especialitat', 'Jornada', 'Càrrecs'].concat(R.lectives.map(function (c) { return c.nom; }), ['Σ alumnat'], R.reduccions.map(function (c) { return c.nom; }), ['Σ reduccions', 'Lectives'],
-      ['o', 'b', 'p'].map(function (k) { return 'Guàrdies ' + R.tipus_guardia[k].toLowerCase(); }), R.reduccions_guardia.map(function (c) { return c.nom + ' (' + c.codi + ')'; }), ['Σ red. guàrdia', 'Guàrdia', 'Total', 'Objectiu', 'Estat']);
+    var R = S.ocu.r, cap = ['Docent', 'Especialitat', 'Jornada', 'Càrrecs'].concat(R.lectives.map(function (c) { return c.nom; }), ['Σ lectives (amb alumnat)'], R.reduccions.map(function (c) { return c.nom; }), ['Σ reduccions lectives', 'Total lectives'],
+      ['o', 'b', 'p'].map(function (k) { return 'Guàrdies ' + R.tipus_guardia[k].toLowerCase(); }), R.reduccions_guardia.map(function (c) { return c.nom + ' (' + c.codi + ')'; }), ['Σ red. guàrdia', 'Total guàrdies', 'Total', 'Objectiu', 'Estat']);
     carregaScript(LIBS.xlsx).then(function () {
       var wb = XLSX.utils.book_new(), sh = XLSX.utils.aoa_to_sheet([cap].concat(filesExportOcu().map(function (x) { return x.fila; })));
       sh['!cols'] = cap.map(function (c, i) { return { wch: i === 0 ? 30 : i === 3 ? 34 : i === cap.length - 1 ? 50 : 10 }; });
@@ -3221,7 +3238,7 @@
     var files = filesExportOcu().map(function (x) { var o = x.o; return [x.d.nom, x.d.jornada, String(valOcu(x.d, 'carrec') || ''), r2(o.alu), r2(o.red), o.lect + ' / ' + o.objL, r2(o.g), r2(o.rg), o.guard + ' / ' + o.objG, o.total + ' / ' + o.objT, o.text]; });
     if (!files.length) return toast('No hi ha cap docent per posar al PDF.', true);
     var filtre = [S.ocu.esp, S.ocu.nomesMal ? 'només els que no quadren' : '', S.ocu.q ? '«' + S.ocu.q + '»' : ''].filter(Boolean).join(' · ');
-    return pdfInforme('Ocupació del professorat', 'Objectiu 18 + 4 = 22 h (en proporció a la jornada)' + (filtre ? ' · ' + filtre : ''), ['Docent', 'Jornada', 'Càrrecs', 'Alumnat', 'Red. lect.', 'Lectives', 'Guàrdies', 'Red. guàrd.', 'Guàrdia', 'Total', 'Estat'], files, 'ocupacio',
+    return pdfInforme('Ocupació del professorat', 'Objectiu 18 + 4 = 22 h (en proporció a la jornada)' + (filtre ? ' · ' + filtre : ''), ['Docent', 'Jornada', 'Càrrecs', 'Lectives (amb alumnat)', 'Red. lectives', 'Total lectives', 'Guàrdies', 'Red. guàrdia', 'Total guàrdies', 'Total', 'Estat'], files, 'ocupacio',
       { columnes: { 0: { cellWidth: 44, halign: 'left' }, 2: { cellWidth: 46, halign: 'left' }, 10: { cellWidth: 52, halign: 'left' } }, estils: { lineColor: [70, 72, 90], lineWidth: 0.25 } });
   }
   function lligaOcupacio() {
@@ -3262,6 +3279,7 @@
     $('gsTaula').addEventListener('click', function (e) {
       if (!actiu()) return;
       var b = e.target.closest('[data-ocu]'); if (!b) return;
+      if (b.dataset.ocu === 'plega') { var P = plegaOcu(); P[b.dataset.sec] = !P[b.dataset.sec]; guarda.desa('ocupacio_plega', P); var t = $('gsTaula'), sx = t.scrollLeft, sy = t.scrollTop; t.innerHTML = htmlOcupacio(edOcu()); t.scrollTop = sy; t.scrollLeft = sx; return; }
       if (b.dataset.ocu === 'desa-carrecs') {
         var l = $('ocuCarrecs').value.split('\n').map(function (x) { return x.trim(); }).filter(Boolean);
         return api('ocupacio_carrecs_desa', { carrecs: l }, 'Desant…').then(function (r) { if (!r.ok) return toast(r.errors ? r.errors.join(' ') : text(r.error), true); S.ocu.r.carrecs = r.carrecs; S.ocu.r.carrecs_per_defecte = false; toast('Llista de càrrecs desada.'); pintaOcupacio(); });
@@ -4070,7 +4088,8 @@
       doc.setFontSize(17); doc.setTextColor.apply(doc, BLAU); doc.text('Alta de nou professor/a', MX, 31);
       doc.setFontSize(8.5); doc.setTextColor.apply(doc, GRIS);
       doc.text('Ompliu el full amb lletra clara. Els camps amb * són obligatoris.', MX, 36.5);
-      var grups = grupsNou();
+      // PAS 58: al full imprès no hi surt l'estat (el posa secretaria)
+      var grups = grupsNou().map(function (g) { return { nom: g.nom, camps: g.camps.filter(function (c) { return c.clau !== 'estat'; }) }; }).filter(function (g) { return g.camps.length; });
       var n = grups.reduce(function (t, g) { return t + g.camps.length; }, 0);
       // Alçada de cada fila perquè tot càpiga en un full: capçalera (40) + grups + signatura (40) + peu (12)
       var dispo = H - 40 - 12 - 44 - grups.length * 7.5;
@@ -4127,10 +4146,12 @@
   function pintaVistaEquips() {
     var r = S.d.r, perm = S.vistaEquips === 'permisos';
     destrueixTaula();
+    if (S.vistaEquips === 'persona') return pintaPermisosPersona(r);   // PAS 58
     $('gsTaula').innerHTML = ''; marcaBrut(false);
     $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist">' +
         '<button type="button" role="tab" data-accio="vista-equips" aria-selected="' + !perm + '">Equips i membres</button>' +
-        '<button type="button" role="tab" data-accio="vista-permisos" aria-selected="' + perm + '">Permisos</button></div>' +
+        '<button type="button" role="tab" data-accio="vista-permisos" aria-selected="' + perm + '">Permisos</button>' +
+        '<button type="button" role="tab" data-accio="vista-persona" aria-selected="false">Per persona</button></div>' +
       (perm ? '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Nivell de cada equip a cada mòdul: <strong>Consulta</strong> (veure i exportar), <strong>Edició</strong> (alta, baixa i modificació) o <strong>Administració</strong> (a més, camps i permisos del mòdul). «Tots els mòduls» dona el nivell a tots alhora. Si un docent és a diversos equips, val el nivell més alt. L’administració global de l’equip directiu no es pot treure des d’aquí.</p>'
         : '<p class="gs-ajuda" style="flex:1 1 100%;margin:0 0 4px">Equips de <strong>gestió</strong> (direcció, coordinacions, secretaria…) i <strong>docents</strong> (equips de nivell, departaments/àmbits…). El tipus només serveix per classificar-los i filtrar-los: tots dos funcionen igual. Els membres poden ser professorat o PAS, i una persona pot ser a diversos equips. <strong>Membres</strong>: cliqueu la cel·la per afegir-ne o treure’n. Els permisos, a la pestanya <strong>Permisos</strong>. Per <strong>modificar</strong> un equip, cliqueu la cel·la (nom, tipus, descripció, actiu, grups) i deseu; el codi no es pot canviar. Per <strong>esborrar-lo</strong>, la paperera (o, per conservar-lo, Actiu = no).</p>' +
           '<span class="gs-espai"></span><button type="button" class="prog-btn" data-accio="nou-equip">+ Afegeix equip</button>');
@@ -4156,13 +4177,45 @@
           headerFilterFunc: function (f, v) { return conte((v || []).join(', '), f); },
           formatter: function (c) { var g = c.getValue() || []; return g.length ? g.map(function (x) { return '<span class="gs-pill">' + esc(x) + '</span>'; }).join('') : '<span class="gs-gris">tots</span>'; },
           tooltip: 'Si l’equip té grups, els seus membres només veuen l’alumnat d’aquests grups. Buit: tots els grups.' },
-        { title: 'Membres', field: 'membres', minWidth: 220, cssClass: 'gs-membres', formatter: function (c) { var m = c.getValue() || []; return '<button type="button" class="gs-membres__btn" title="Afegeix o treu membres">' + (m.length ? m.length + ' · ' + esc(m.slice(0, 3).join(', ')) + (m.length > 3 ? '…' : '') : 'Cap membre') + ' <span aria-hidden="true">✎</span></button>'; },
-          cellClick: function (e, cell) { var q = cell.getRow().getData(); if (q._nou) return toast('Primer deseu l’equip nou; després hi podreu afegir membres.', true); if (S.brut) return toast('Primer deseu o descarteu els canvis dels equips.', true); editaMembres(q, r.persones || r.professorat || []); } },
+        { title: 'Membres', field: 'membres', minWidth: 220, cssClass: 'gs-membres', formatter: function (c) { var m = c.getValue() || [], au = c.getRow().getData().automatic;
+            if (au) return '<span class="gs-gris" title="Hi és tot el professorat que no és de baixa (config › claustre_des_de)">Tot el professorat, automàtic' + (au.des_de ? (au.actiu ? ' (des del ' : ' (a partir del ') + esc(dataVista(au.des_de)) + ')' : '') + '</span>'; return '<button type="button" class="gs-membres__btn" title="Afegeix o treu membres">' + (m.length ? m.length + ' · ' + esc(m.slice(0, 3).join(', ')) + (m.length > 3 ? '…' : '') : 'Cap membre') + ' <span aria-hidden="true">✎</span></button>'; },
+          cellClick: function (e, cell) { var q = cell.getRow().getData(); if (q.automatic) return toast('Els membres d’aquest equip són automàtics: tot el professorat en actiu.'); if (q._nou) return toast('Primer deseu l’equip nou; després hi podreu afegir membres.', true); if (S.brut) return toast('Primer deseu o descarteu els canvis dels equips.', true); editaMembres(q, r.persones || r.professorat || []); } },
         { title: 'Permisos', field: 'permisos', formatter: function (c) { return (c.getValue() || []).map(function (p) { return '<span class="gs-pill">' + esc(nomMod(p.modul)) + ': ' + esc(NOM_NIVELL[p.nivell] || p.nivell) + '</span>'; }).join('') || '—'; } }
       ]
     });
     S.taula.on('cellEdited', function (cell) { cell.getElement().classList.add('gs-canviat'); marcaBrut(true); $('gsEstat').textContent = 'Canvis sense desar als equips'; });
     S.taula.on('tableBuilt', ajustaAlcada);
+  }
+  // PAS 58 · Per persona: a quins equips és una persona i quin nivell té a cada mòdul (i per quin equip)
+  function pintaPermisosPersona(r) {
+    $('gsTaula').innerHTML = ''; marcaBrut(false);
+    var pers = r.persones || [], sel = S.persPerm || '';
+    $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist"><button type="button" role="tab" data-accio="vista-equips" aria-selected="false">Equips i membres</button>' +
+      '<button type="button" role="tab" data-accio="vista-permisos" aria-selected="false">Permisos</button><button type="button" role="tab" data-accio="vista-persona" aria-selected="true">Per persona</button></div>' +
+      '<label class="gs-check">Persona <select id="gsPersPerm"><option value="">— Tria —</option>' + pers.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.nom) + (p.baixa ? ' (baixa)' : '') + ' · ' + esc(p.especialitat || '') + '</option>'; }).join('') + '</select></label>' +
+      '<p class="gs-ajuda" style="flex:1 1 100%;margin:4px 0 0">Equips d’una persona i el nivell que té a cada mòdul: el més alt dels seus equips actius. Si tots els permisos d’un mòdul venen d’equips amb grups, només veu l’alumnat d’aquests grups.</p>';
+    $('gsPersPerm').addEventListener('change', function () { S.persPerm = this.value; pintaPermisosPersona(r); });
+    if (!sel) { $('gsTaula').innerHTML = '<p class="gs-ajuda" style="padding:12px">Trieu una persona.</p>'; return; }
+    var p = pers.filter(function (x) { return x.id === sel; })[0] || {}, prof = /^PRO-/.test(sel);
+    var eqs = r.equips.filter(function (q) { return (q.membres_ids || []).indexOf(sel) >= 0 || (q.automatic && prof && !p.baixa); });
+    var actius = eqs.filter(function (q) { return q.actiu !== 'no' && (!q.automatic || q.automatic.actiu); });
+    var global = actius.some(function (q) { return (q.permisos || []).some(function (x) { return x.modul === '*' && x.nivell === 'admin'; }); });
+    var files = r.moduls.map(function (m) {
+      var fonts = [], n = -1;
+      actius.forEach(function (q) { (q.permisos || []).forEach(function (x) { if (x.modul === m.id || x.modul === '*') { var k = NIVELLS.indexOf(String(x.nivell).toLowerCase()); if (k > n) n = k; fonts.push({ q: q, k: k }); } }); });
+      if (global) n = NIVELLS.length - 1;
+      if (m.id === 'equips' && !global) n = -1;
+      var nota = '';
+      if (n < 0 && m.id === 'amonestacions' && prof) { n = 0; nota = 'tot el professorat (només les pròpies)'; }
+      var mx = fonts.filter(function (f) { return f.k === n; }), grups = mx.length && mx.every(function (f) { return (f.q.grups || []).length; }) ? mx.reduce(function (t, f) { return t.concat(f.q.grups); }, []) : [];
+      return '<tr class="' + (n < 0 ? 'gs-gris' : '') + '"><td>' + esc(m.nom) + '</td><td><strong>' + (n < 0 ? '—' : esc(NOM_NIVELL[NIVELLS[n]])) + '</strong></td><td>' +
+        (global ? 'Administració global' : nota || mx.map(function (f) { return esc(f.q.nom); }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ')) + '</td><td>' + (grups.length ? grups.map(function (g) { return '<span class="gs-pill">' + esc(g) + '</span>'; }).join('') : (n < 0 ? '' : 'tots')) + '</td></tr>';
+    }).join('');
+    $('gsTaula').innerHTML = '<div class="gs-matriu" style="padding:8px 12px"><h3 class="gs-amon__tit">Equips</h3>' + (eqs.length ? '<ul>' + eqs.map(function (q) { var inactiu = q.actiu === 'no' || (q.automatic && !q.automatic.actiu);
+        return '<li><strong>' + esc(q.nom) + '</strong> <small class="gs-gris">' + esc(q.id_equip) + ' · ' + (q.tipus === 'docent' ? 'docent' : 'gestió') + (q.automatic ? ' · automàtic' : '') + (inactiu ? ' · <b>inactiu</b>' + (q.automatic && q.automatic.des_de ? ' fins al ' + esc(dataVista(q.automatic.des_de)) : '') : '') + '</small></li>'; }).join('') + '</ul>' : '<p class="gs-ajuda">No és de cap equip.</p>') +
+      '<h3 class="gs-amon__tit">Nivell a cada mòdul</h3><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Mòdul</th><th>Nivell</th><th>Per</th><th>Grups</th></tr></thead><tbody>' + files + '</tbody></table>' +
+      '<p class="gs-ajuda">Els correus de config › admins també entren com a administració global (aquí no surten).</p></div>';
+    ajustaAlcada();
   }
   // Matriu de permisos: una fila per equip actiu, una columna per mòdul (i «Tots els mòduls»)
   function pintaMatriuPermisos(r) {
@@ -4172,7 +4225,7 @@
     var opcions = function (sel, bloq) { return ['<option value="">—</option>'].concat(NIVELLS.map(function (n) { return '<option value="' + n + '"' + (sel === n ? ' selected' : '') + '>' + NOM_NIVELL[n] + '</option>'; })).join(''); };
     $('gsTaula').innerHTML = '<div class="gs-matriu"><table class="gs-form-taula"><thead><tr><th>Equip</th>' + moduls.map(function (m) { return '<th>' + esc(m.nom) + '</th>'; }).join('') + '</tr></thead><tbody>' +
       equips.map(function (q) {
-        return '<tr><td><strong>' + esc(q.nom) + '</strong><br><small>' + esc(q.id_equip) + ' · ' + (q.tipus === 'docent' ? 'Docent' : 'Gestió') + ' · ' + (q.membres || []).length + ' membres</small></td>' +
+        return '<tr><td><strong>' + esc(q.nom) + '</strong><br><small>' + esc(q.id_equip) + ' · ' + (q.tipus === 'docent' ? 'Docent' : 'Gestió') + ' · ' + (q.automatic ? 'tot el professorat' : (q.membres || []).length + ' membres') + '</small></td>' +
           moduls.map(function (m) {
             var v = nivellDe(q, m.id), bloq = q.id_equip === 'EQ-DIR' && m.id === '*';
             return '<td><select data-eq="' + esc(q.id_equip) + '" data-mod="' + esc(m.id) + '" data-abans="' + esc(v) + '"' + (bloq ? ' disabled title="L’administració global de l’equip directiu no es pot treure des del web"' : '') + '>' + opcions(v) + '</select></td>';
@@ -4436,9 +4489,9 @@
       case 'xlsx': exporta('xlsx'); break;
       case 'pdf': exporta('pdf'); break;
       case 'camps': if (S.brut) toast('Primer deseu o descarteu els canvis de la graella.', true); else editaCamps(); break;
-      case 'vista-equips': case 'vista-permisos':
+      case 'vista-equips': case 'vista-permisos': case 'vista-persona':
         if (S.brut) { toast('Primer deseu o descarteu els canvis.', true); break; }
-        S.vistaEquips = b.dataset.accio === 'vista-permisos' ? 'permisos' : 'equips'; pintaVistaEquips(); break;
+        S.vistaEquips = b.dataset.accio === 'vista-permisos' ? 'permisos' : b.dataset.accio === 'vista-persona' ? 'persona' : 'equips'; pintaVistaEquips(); break;
       case 'nou-equip': nouEquip(); break;
     }
   });

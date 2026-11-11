@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 57 · 10 de novembre de 2026",
+  "versio": "PAS 58 · 11 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -238,13 +238,15 @@
           "titol": "Substitucions",
           "claus": "substitut substitueix substitució hereta lectives reduccions càrrec guàrdies fixes prohibides planificador",
           "text": [
-            "Quan una fitxa té **Situació laboral = Substitut** i **Substitueix a** (Cognoms, Nom de la persona substituïda), en desar el substitut **hereta** les dades d'ocupació de la persona substituïda:",
+            "Quan una fitxa té **Situació laboral = Substitut** i **Substitueix a** (el nom de la persona substituïda: «Cognoms, Nom» o «Nom Cognoms»), en desar el substitut **hereta** les dades d'ocupació de la persona substituïda:",
             "- les **hores lectives** i les **reduccions** (només les que el substitut té buides);",
             "- el **càrrec** (si el substitut no en té);",
             "- al planificador d'horaris, les **guàrdies** i les **posicions fixes i prohibides** (si el substitut encara no en té cap);",
             "- els **grups del Currículum**: on hi diu la persona substituïda, el planificador, l'exportació per al motor i la comprovació de la desiderata compten el substitut.",
+            "- els **equips docents** (equips de nivell, departament…). Els equips de gestió no: els permisos els dona la direcció.",
             "La persona substituïda (baixa laboral, permís…) surt de les llistes de planificació i de la pàgina pública del professorat; quan torna, n'hi ha prou de treure-li el substitut.",
-            "En desar surt un avís amb quantes dades s'han heretat."
+            "En desar surt un avís amb quantes dades s'han heretat.",
+            "**Estat «substitut»**: compta com «actiu» (la persona treballa al centre). Per saber que és un substitut, n'hi ha prou amb **Situació laboral = Substitut**; l'estat pot ser «actiu»."
           ]
         },
         {
@@ -525,7 +527,8 @@
             "Passeu el ratolí per la **i** de cada camp per veure què cal posar-hi. Amb el **tabulador** es passa d'un camp al següent (la i no s'atura).",
             "**Especialitat** es tria d'una llista. En escriure el **codi postal** (5 xifres), la **província** s'omple sola. El telèfon ha de tenir com a mínim 9 xifres.",
             "**Anys docència** són els anys que fa que treballa com a docent (en total, no només al centre).",
-            "Cada camp es comprova en sortir-ne: correu XTEC acabat en @xtec.cat, correu del centre acabat en @institutjoanmiro.cat (no repetit), NIF/NIE amb la lletra correcta, valors de les llistes."
+            "Cada camp es comprova en sortir-ne: correu XTEC acabat en @xtec.cat, correu del centre acabat en @institutjoanmiro.cat (no repetit), NIF/NIE amb la lletra correcta, valors de les llistes.",
+            "El formulari té quatre apartats: dades personals, adreça, contacte i dades professionals. Les altres dades (hores, càrrec, data d'arribada) s'assignen soles o des d'altres mòduls; no surten al formulari ni al PDF."
           ]
         },
         {
@@ -534,7 +537,7 @@
           "claus": "substitut substitueix a qui càrrec situació laboral",
           "text": [
             "Per defecte, la **situació laboral** és «Substitut» i l'estat «actiu».",
-            "Si la situació és «Substitut», apareix el camp obligatori **Substitueix a**: trieu el docent de la llista. El **càrrec** s'omple sol amb el de la persona substituïda (el podeu canviar).",
+            "Si la situació és «Substitut», apareix el camp obligatori **Substitueix a**: trieu el docent de la llista. En desar, el substitut **hereta** el càrrec, les hores (lectives, reduccions i guàrdies, que es veuen al mòdul Ocupació) i els **equips docents** de la persona substituïda. Els equips de gestió (i els seus permisos) no s'hereten: els assigna la direcció.",
             "Si canvieu la situació a una altra (interí, definitiu…), el camp desapareix i no es desa."
           ]
         },
@@ -588,6 +591,25 @@
             "Pestanya **Permisos**: una fila per equip i una columna per mòdul (i «Tots els mòduls»). A cada casella: —, Consulta, Edició o Administració. Si una persona és a diversos equips, val el nivell més alt.",
             "L'administració global de l'equip directiu no es pot treure des del web.",
             "A la matriu de permisos, la capçalera amb els noms dels mòduls queda fixa en fer scroll."
+          ]
+        },
+        {
+          "id": "eq-persona",
+          "titol": "Per persona",
+          "claus": "persona docent permisos equips nivell mòdul consulta quins permisos té",
+          "text": [
+            "La pestanya **Per persona** respon «a quins equips és aquesta persona i què pot fer a cada mòdul?». Trieu la persona: surten els seus equips (actius o no) i, per a cada mòdul, el **nivell** (el més alt dels seus equips actius), **per quin equip** el té i si està limitat a uns **grups**.",
+            "També hi surt l'accés de tot el professorat a Amonestacions (només les pròpies). Els correus de config › admins (accés d'emergència) no hi surten."
+          ]
+        },
+        {
+          "id": "eq-claustre",
+          "titol": "Equip Claustre (tot el professorat)",
+          "claus": "claustre tot el professorat automàtic consulta",
+          "text": [
+            "L'equip **Claustre (tot el professorat)** no té membres a mà: hi és tot el professorat que no és de baixa (ni fitxes de prova), automàticament, a partir del dia de **config › claustre_des_de** (16/11/2026).",
+            "Té **consulta** a Professorat, Alumnat ESO, Alumnat Batxillerat, Control d'entrada i Calendari. Els permisos es canvien a la pestanya Permisos com els de qualsevol equip.",
+            "Com que no té grups, el professorat veu tot l'alumnat (abans, els equips docents de nivell amb grups només en veien una part). Reviseu a **Gestió camps** de cada mòdul quins camps es veuen des de consulta."
           ]
         }
       ]
@@ -982,13 +1004,13 @@
           "titol": "La taula",
           "claus": "taula docents lectives reduccions guàrdies total objectiu semàfor",
           "text": [
-            "Una fila per docent en actiu (els substituts en lloc de les persones substituïdes). Columnes:",
-            "- **Lectives d'alumnat**: ESO, Bat, atenció individual i tutories (1r/2n, 3r/4t, Bat) i la suma.",
-            "- **Reduccions lectives**: tutoria de 1r d'ESO, càrrec directiu, coordinació, reunió de nivell i 55 anys, i la suma.",
-            "- **Lectives** = alumnat + reduccions, sobre l'objectiu (18 a jornada sencera, 9 a mitja jornada, 12 a ⅔).",
-            "- **Guàrdies** (ordinàries, biblioteca i pati) i **Red. guàrdia** (la suma; un clic obre el detall).",
-            "- **Guàrdia** = guàrdies + reduccions de guàrdia, sobre l'objectiu (4, 2 o 2,67).",
-            "- **Total** sobre 22 (11 o 14,67) i l'**estat**: verd = quadra; groc = el total quadra però no el repartiment entre lectives i guàrdia; vermell = falten o sobren hores (hi diu quantes).",
+            "Una fila per docent en actiu (els substituts en lloc de les persones substituïdes). Quatre **seccions plegables**: un clic al títol la plega (només en queda la suma, Σ) o la desplega. Es recorda en aquest navegador.",
+            "- **Lectives (amb alumnat)**: ESO, Bat, atenció individual i tutories (1r/2n, 3r/4t, Bat).",
+            "- **Reduccions lectives**: tutoria de 1r d'ESO, càrrec directiu, coordinació, reunió de nivell i 55 anys.",
+            "- **Total lectives** = lectives amb alumnat + reduccions, sobre l'objectiu (18 a jornada sencera, 9 a mitja jornada, 12 a ⅔).",
+            "- **Guàrdies** (ordinàries, biblioteca i pati) i **Reduccions de guàrdia** (13: R. Com. Diversitat, Convivència, Digital, Gènere, Lingüística, Erasmus, X. Comp. Lectora; Pla d'intercanvis, Atenció a famílies, Càrrec de coordinació, Red. guàrdia 55, Consell Escolar i Altres).",
+            "- **Total guàrdies** = guàrdies + reduccions de guàrdia, sobre l'objectiu (4, 2 o 2,67).",
+            "- **Total** sobre 22 (11 o 14,67) i l'**estat**: verd = quadra; groc = el total quadra però no el repartiment; vermell = falten o sobren hores (hi diu quantes).",
             "Filtres: cerca (docent, especialitat o càrrec), especialitat i **Només els que no quadren**."
           ]
         },
@@ -998,10 +1020,11 @@
           "claus": "canviar editar desa hores reduccions automàtiques 55 anys tutoria reunió nivell",
           "text": [
             "Les caselles s'editen directament (Tab passa a la següent). Les canviades surten en groc fins que es desa amb **Desa**.",
-            "**Reduccions automàtiques** (en cursiva, amb la casella buida): **Tutoria 1r ESO** = 1 h si és tutor/a d'un grup de 1r d'ESO; **Reunió nivell** = 1 h si és tutor/a o té el càrrec de coordinació de nivell; **55 anys** = 1 h si té 55 anys o més a l'inici del curs (config › reduccio_55_referencia; per defecte l'1 de setembre). Si s'hi escriu un valor, mana el valor; 0 la treu.",
-            "**Reduccions de guàrdia**: un clic en la suma obre la llista (R. Com. Diversitat, Convivència, Digital, Gènere, Lingüística, Erasmus, X. Comp. Lectora; Pla d'intercanvis, Atenció a famílies, Càrrec de coordinació, Red. guàrdia 55, Consell Escolar i Altres).",
+            "**Reduccions automàtiques** (en cursiva, amb la casella buida): **Tutoria 1r ESO** = 1 h si és tutor/a d'un grup de 1r d'ESO; **Reunió nivell** = 1 h si és tutor/a o té el càrrec de coordinació de nivell. Si s'hi escriu un valor, mana el valor; 0 la treu. La de **55 anys** s'escriu a mà (no tothom qui té 55 anys en té).",
+            "Les **reduccions de guàrdia** s'escriuen a la seva secció (desplegueu-la) o, amb la secció plegada, amb un clic a la suma.",
             "Les guàrdies són les mateixes del planificador d'horaris (pestanya Professorat): es poden canviar en tots dos llocs.",
-            "**Carrega des del Currículum** calcula les lectives d'ESO i Bat, l'atenció individual, les tutories i els càrrecs de tutor/a i de cap de departament a partir de Currículum › Assignacions (mostra els canvis abans de desar-los; no toca els altres càrrecs)."
+            "**Carrega des del Currículum** calcula les lectives d'ESO i Bat, l'atenció individual, les tutories i els càrrecs de tutor/a i de cap de departament a partir de Currículum › Assignacions (mostra els canvis abans de desar-los; no toca els altres càrrecs).",
+            "**Atenció individual** (p. ex. 7 h): escriviu les hores a la columna **At. ind.** del docent. Perquè surti a l'horari, cal també una assignació al Currículum: una matèria «Atenció individual» amb aquestes hores i el docent (és multinivell: no ocupa cap grup-classe). Després, «Carrega des del Currículum» ja posa les hores soles."
           ]
         },
         {
@@ -1159,12 +1182,12 @@
           "titol": "Vistes i filtres",
           "claus": "llista dia setmana mes trimestre vista avui anterior següent filtre categoria nivell cerca",
           "text": [
-            "Les pestanyes canvien la vista: **Llista** (tot el curs, per mesos, amb cerca), **Dia**, **Setmana**, **Mes**, **Trimestre** (els mesos en petit, amb punts de colors, i la llista del trimestre) i **Dates clau**.",
+            "Les pestanyes canvien la vista: **Llista** (tot el curs, per mesos, amb cerca), **Dia**, **Setmana**, **Mes**, **Trimestre** (els mesos en petit, amb punts, i la llista del trimestre) i **Dates clau**.",
             "Amb ◀ **Avui** ▶ i el calendari petit es canvia de dia, setmana, mes o trimestre. Un clic en el número d'un dia obre la vista del dia.",
-            "Els filtres **Categoria** i **Nivell** valen per a totes les vistes i per als PDF. Amb un nivell triat surten també els esdeveniments sense nivell (són de tot el centre).",
-            "Colors: blau = General, taronja = Intern. Els dies de festiu, lliure disposició, festa local i vacances surten acolorits, i a la cel·la hi diu quin dia és.",
-            "La vista i els filtres es recorden en aquest navegador.",
-            "Si no hi cap tot, la llista i les graelles es desplacen amb la barra vertical de la dreta."
+            "Filtres: **Categoria** i **Nivells** (es poden marcar diversos nivells alhora, també **Professorat**; «Tots» els treu). Valen per a totes les vistes i per als PDF. Els esdeveniments sense nivell (de tot el centre) surten sempre.",
+            "**Colors**: cada esdeveniment té el color del seu nivell; **gris** si és de més d'un nivell i **blanc** si és de tot el centre. La vora de l'esquerra diu la categoria: blava = General (es publica al web), taronja = Intern.",
+            "Els dies de festiu, lliure disposició, festa local i vacances surten acolorits, i a la cel·la hi diu quin dia és. Si no hi cap tot, la vista es desplaça amb la barra vertical.",
+            "La vista i els filtres es recorden en aquest navegador."
           ]
         },
         {
@@ -1173,7 +1196,7 @@
           "claus": "nou esdeveniment afegeix edita canvia duplica esborra data hora descripció categoria nivells general intern",
           "text": [
             "**Afegir**: **+ Nou esdeveniment**, un clic en un espai buit d'un dia (mes o setmana) o la fila ràpida de la llista i del dia (data, hora, descripció, categoria i nivell; Retorn per afegir).",
-            "**Canviar**: un clic en l'esdeveniment obre la fitxa: data, **fins a** (si dura uns quants dies), hora (9:00 o 9:00-11:00), descripció, **categoria** i **nivells** (cap = tot el centre; ESO / Batx. / cap marquen de cop).",
+            "**Canviar**: un clic en l'esdeveniment obre la fitxa: data, **fins a** (si dura uns quants dies), hora (9:00 o 9:00-11:00), descripció, **categoria** i **nivells**, entre els quals **Professorat** per als esdeveniments que només afecten el professorat (cap = tot el centre; ESO / Batx. / cap marquen de cop).",
             "**Duplica** desa una còpia (amb els canvis de la fitxa) i l'obre per canviar-la: útil per a reunions que es repeteixen.",
             "**Esborra**: des de la fitxa o amb la paperera de la llista (demana confirmació).",
             "Cada canvi es desa de seguida (no cal cap botó Desa). Cal permís d'edició del mòdul."
@@ -1217,6 +1240,7 @@
             "**Importa del full** (administració) llegeix el full del calendari (config › font_calendari; pestanyes de config › font_calendari_pestanyes; columna J = data, K = esdeveniment) i hi mostra quants esdeveniments nous hi ha abans d'afegir-los.",
             "Entén dates com 1/9, 14-16/9, 15/9-15/10, 25/1 al 26/2, 1 a 3/6, 08/03/2027 i 19, 20, 23 i 24/11 (dies seguits = un sol esdeveniment de diversos dies). Si la data és buida, és la de la fila anterior. L'hora del principi del text (8:15, 9:00-14:00) o del final («… - 11:45») va al camp Hora.",
             "La categoria i els nivells es dedueixen del text (famílies, inici, exàmens, PAU, intercanvis… = General): **reviseu-los**, sobretot els generals, abans de publicar.",
+            "Les reunions, claustres, formacions i sessions d'avaluació s'importen amb el nivell **Professorat**.",
             "«Inici segon trimestre» i «Inici classes 3r trimestre» posen l'inici del 2n i del 3r trimestre a les dates clau. No s'importen els festius, la lliure disposició, les festes locals, «Inici vacances» ni «Inici 1r trimestre», que ja són dates clau.",
             "No es repeteixen els que ja hi són (mateixa data i descripció). Es pot tornar a importar sense duplicar res. La pestanya «3r Trimestre» (del curs 2024-2025) no es llegeix."
           ]

@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 57;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 58;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -98,7 +98,7 @@ const CONFIG_PER_DEFECTE = [
   ['font_calendari', 'https://docs.google.com/spreadsheets/d/1SelRalLXDda9N81vVuMQop1LzwAu_ad2HogWG5UO5GQ/edit', 'Per a importaCalendari: URL del full del calendari del curs (columnes J = data i K = esdeveniment).'],
   ['font_calendari_pestanyes', '1r Trimestre|2n Trimestre-PER REVISAR|3r_Trimestre-PER REVISAR', 'Per a importaCalendari: pestanyes que es llegeixen (separades per |).'],
   ['carrecs', '', 'Ocupació › Càrrecs (JSON: llista de noms). Es canvia des del web; en blanc = la llista per defecte. Els de tutoria (Tutor/a 1r ESO A…) hi surten sols.'],
-  ['reduccio_55_referencia', '09-01', 'Ocupació: dia (MM-DD) de l\'inici del curs en què es miren els 55 anys per a la reducció automàtica (per defecte, l\'1 de setembre).'],
+  ['claustre_des_de', '2026-11-16', 'Equip «Claustre (tot el professorat)»: a partir d\'aquest dia (AAAA-MM-DD) tot el professorat en actiu en forma part automàticament (en blanc = des d\'ara).'],
   ['horaris_reunions', '', 'Horaris › Reunions fixes (JSON: reunions de nivell amb els docents que hi van, a la mateixa franja cada setmana). Es canvia des del web.'],
   ['netlify_build_hook', '', 'Calendari › Publica: URL d\'un «build hook» de Netlify (Site configuration › Build & deploy › Build hooks). Si hi és, en publicar es torna a construir el web i el calendari surt al cap d\'uns minuts.'],
   ['copia_tancament_batxillerat', '', 'La posa el tancament de curs del batxillerat (per a desfesTancamentBatxillerat).'],
@@ -692,6 +692,7 @@ function context_(email) {
   const persones = B.persones;
   const p = persones.filter((x) => String(x.email || '').toLowerCase() === email && !deBaixa_(x))[0] || null;
   const meus = p ? B.memb.filter((m) => m.id_membre === p.id).map((m) => m.id_equip) : [];
+  if (p && claustreActiu_(cfg) && /^PRO-/.test(String(p.id)) && !esProva_(p) && meus.indexOf(EQ_CLAUSTRE) < 0) meus.push(EQ_CLAUSTRE);   // PAS 58
   const totsEquips = B.eq;
   const equipsActius = totsEquips.filter((q) => norm_(q.actiu) !== 'no').map((q) => q.id_equip);
   const grupsEq = {}; totsEquips.forEach((q) => { grupsEq[q.id_equip] = llistaGrups_(q.grups); });
@@ -722,6 +723,10 @@ function context_(email) {
   };
   return { email: email, persona: p, equips: eqs, global: global, nivell: nivell, abast: abast, nomesPropies: nomesPropies, cfg: cfg };
 }
+// PAS 58 · Equip «Claustre»: tot el professorat que no és de baixa en forma part sol (a partir de config › claustre_des_de)
+const EQ_CLAUSTRE = 'EQ-CLAUSTRE';
+const MODULS_CLAUSTRE = ['professorat', 'alumnat', 'batxillerat', 'control_entrada', 'calendari'];
+const claustreActiu_ = (cfg) => { const d = String(cfg.claustre_des_de || '').trim(); return !d || ara_().slice(0, 10) >= d; };
 const pot_ = (ctx, modul, nivell) => NIVELLS.indexOf(ctx.nivell(modul)) >= NIVELLS.indexOf(nivell);
 const obert_ = (ctx) => norm_(ctx.cfg.estat || 'obert') === 'obert' || ctx.global;
 
@@ -1529,8 +1534,9 @@ function equips_(ctx) {
   const nomDe = (id) => { const x = pers.filter((y) => y.id === id)[0]; return x ? [x.p.nom, x.p.cognom1, x.p.cognom2].filter(Boolean).join(' ') : id; };
   return { ok: true, equips: llegeix_(FULL.eq).map((q) => ({ id_equip: q.id_equip, nom: q.nom, tipus: q.tipus || 'gestio', descripcio: q.descripcio || '',
     actiu: norm_(q.actiu) === 'no' ? 'no' : 'si', grups: llistaGrups_(q.grups),
-    membres: membres.filter((m) => m.id_equip === q.id_equip).map((m) => nomDe(m.id_membre)),
-    membres_ids: membres.filter((m) => m.id_equip === q.id_equip).map((m) => m.id_membre),
+    membres: q.id_equip === EQ_CLAUSTRE ? [] : membres.filter((m) => m.id_equip === q.id_equip).map((m) => nomDe(m.id_membre)),
+    membres_ids: q.id_equip === EQ_CLAUSTRE ? [] : membres.filter((m) => m.id_equip === q.id_equip).map((m) => m.id_membre),
+    automatic: q.id_equip === EQ_CLAUSTRE ? { des_de: String(ctx.cfg.claustre_des_de || ''), actiu: claustreActiu_(ctx.cfg) } : null,
     permisos: perms.filter((p) => p.id_equip === q.id_equip).map((p) => ({ modul: p.id_modul, nivell: p.nivell })) })),
     moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })), grups: GRUPS_ESO.concat(GRUPS_1BAT, GRUPS_2BAT),
     // Per triar membres: professorat i PAS que no són de baixa (els de baixa que ja hi són també surten)
@@ -1775,6 +1781,9 @@ function configura() {
   fullModul_(MODULS.professorat, campsDe_('professorat', true));
   ordenaLlistes_([['professorat', 'especialitat'], ['curriculum', 'especialitat'], ['curriculum_grups', 'especialitat']]);
   fullCalendari_();   // PAS 56
+  // PAS 58: equip «Claustre (tot el professorat)» amb consulta als mòduls bàsics (membres automàtics; vegeu context_)
+  if (!llegeix_(FULL.eq).some((q) => q.id_equip === EQ_CLAUSTRE)) ss.getSheetByName(FULL.eq).appendRow([EQ_CLAUSTRE, 'Claustre (tot el professorat)', 'docent', 'Tot el professorat en actiu, automàticament (no cal afegir-hi membres). Data d\'inici: config › claustre_des_de.', 'si']);
+  MODULS_CLAUSTRE.forEach((m) => { if (!llegeix_(FULL.perm).some((x) => x.id_equip === EQ_CLAUSTRE && x.id_modul === m)) ss.getSheetByName(FULL.perm).appendRow([EQ_CLAUSTRE, m, 'consulta']); });
   // PAS 57: les hores (lectives, tutories, atenció individual i reduccions) es veuen i es canvien al mòdul Ocupació; a la
   // graella del Professorat s'arxiven (les dades es queden al full professorat, on les llegeixen els altres mòduls)
   if (esquema < 57) LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).map((x) => x[0]).concat(['hores_lectives', 'total_lectives']).forEach((k) => actualitzaCamp_('professorat', k, { actiu: 'no' }));
@@ -2067,7 +2076,7 @@ function altaProfessor_(ctx, req) {
   if (v.situacio !== 'Substitut') v.substitueix = '';
   // El càrrec del substitut: el de la persona a qui substitueix (si no se n'ha escrit cap)
   if (v.substitueix && !String(v.carrec || '').trim()) {
-    const s = llegeix_(FULL.prof).filter((p) => normNom_([p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom) === normNom_(v.substitueix))[0];
+    const s = personaPerNom_(llegeix_(FULL.prof), v.substitueix);
     if (s) v.carrec = s.carrec || '';
   }
   delete v.data_arribada_centre;   // la posa el servidor: el dia que es desa
@@ -3797,17 +3806,26 @@ const sumaLect_ = (p, ll) => { const n = ll.map((x) => String(p[x[0]] == null ? 
 function actiusPlanificacio_() {
   const tots = llegeix_(FULL.prof), nomDe = (p) => normNom_([p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom);
   const estatOk = (p) => { const e = norm_(p.estat || 'actiu'); return e === 'actiu' || e === 'substitut'; };
-  const substituits = {}; tots.forEach((p) => { if (estatOk(p) && String(p.substitueix || '').trim()) substituits[normNom_(p.substitueix)] = 1; });
-  return tots.filter((p) => p.nom && !esProva_(p) && estatOk(p) && !substituits[nomDe(p)]);
+  const substituits = {}; tots.forEach((p) => { if (estatOk(p) && String(p.substitueix || '').trim()) { const x = personaPerNom_(tots.filter((y) => y !== p), p.substitueix); if (x) substituits[x.id_professor] = 1; } });
+  return tots.filter((p) => p.nom && !esProva_(p) && estatOk(p) && !substituits[p.id_professor]);
 }
 // PAS 56 · Substitucions: el substitut (estat actiu o substitut, amb «Substitueix a») hereta les dades d'ocupació de la
 // persona substituïda: hores lectives i reduccions (si les seves són buides), el càrrec (si és buit), les guàrdies, les
 // posicions fixes i prohibides del planificador i els grups que tenia assignats al Currículum (per nom).
+// PAS 58: «Substitueix a» pot ser «Cognoms, Nom» o «Nom Cognoms» (es comparen les paraules, sense accents ni ordre)
+const clauNom_ = (s) => normNom_(String(s || '').replace(/,/g, ' ')).split(' ').filter(Boolean).sort().join(' ');
+function personaPerNom_(tots, nom) {
+  const k = clauNom_(nom); if (!k) return null;
+  const exactes = tots.filter((p) => p.nom && clauNom_([p.nom, p.cognom1, p.cognom2].join(' ')) === k);
+  if (exactes.length) return exactes[0];
+  // Sense el 2n cognom («Nom Cognom1»)
+  const curts = tots.filter((p) => p.nom && clauNom_([p.nom, p.cognom1].join(' ')) === k);
+  return curts.length === 1 ? curts[0] : null;
+}
 function substitucions_() {
-  const tots = llegeix_(FULL.prof), perNom = {};
-  tots.forEach((p) => { if (p.nom) perNom[normNom_([p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom)] = p; });
+  const tots = llegeix_(FULL.prof);
   return tots.filter((p) => { const e = norm_(p.estat || 'actiu'); return (e === 'actiu' || e === 'substitut') && String(p.substitueix || '').trim() && p.nom && !esProva_(p); })
-    .map((p) => ({ substitut: p, substituit: perNom[normNom_(p.substitueix)] })).filter((x) => x.substituit && x.substituit !== x.substitut);
+    .map((p) => ({ substitut: p, substituit: personaPerNom_(tots.filter((x) => x !== p), p.substitueix) })).filter((x) => x.substituit && x.substituit !== x.substitut);
 }
 const nomCognoms_ = (p) => [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom;
 // {nom o codi de la persona substituïda: {nom, id} del substitut}
@@ -3833,6 +3851,19 @@ function heretaSubstitucions_(email) {
       return { id_professor: x.substitut.id_professor, fixes: d.fixes || '', prohibides: d.prohibides || '', observacions: a.observacions || ('Substitueix ' + nomCognoms_(x.substituit)), clau_clickedu: a.clau_clickedu || '',
         guardies_o: d.guardies_o || 0, guardies_b: d.guardies_b || 0, guardies_p: d.guardies_p || 0 }; });
     if (files.length) { desaFilesHoraris_(FULL.hprof, 'id_professor', files, email || 'substitucio'); n += files.length; }
+  }
+  // PAS 58: el substitut entra als equips DOCENTS de la persona substituïda (no als de gestió: els permisos els dona la direcció)
+  const docents = {}; llegeix_(FULL.eq).forEach((q) => { if (norm_(q.tipus) === 'docent') docents[q.id_equip] = 1; });
+  const shM = SpreadsheetApp.getActive().getSheetByName(FULL.memb);
+  if (shM && shM.getLastRow() > 1) {
+    const mem = llegeix_(FULL.memb), te = {}; mem.forEach((m) => { te[m.id_equip + '|' + m.id_membre] = 1; });
+    const capM = shM.getRange(1, 1, 1, shM.getLastColumn()).getDisplayValues()[0].map(norm_), nous = [];
+    parells.forEach((x) => mem.forEach((m) => {
+      if (m.id_membre !== x.substituit.id_professor || !docents[m.id_equip] || te[m.id_equip + '|' + x.substitut.id_professor]) return;
+      te[m.id_equip + '|' + x.substitut.id_professor] = 1;
+      nous.push(capM.map((k) => (k === 'id_equip' ? m.id_equip : k === 'id_membre' ? x.substitut.id_professor : k === 'carrec' ? (m.carrec || '') : '')));
+    }));
+    if (nous.length) { shM.getRange(shM.getLastRow() + 1, 1, nous.length, capM.length).setValues(nous); historial_(email || 'substitucio', 'membres_substitut', FULL.memb, '', nous.length + ' equips docents'); n += nous.length; }
   }
   return n;
 }
@@ -4039,7 +4070,7 @@ function professoratPublic_() {
 }
 
 // ------------------------------------------------------------------ CALENDARI
-const NIVELLS_CAL_ = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'];
+const NIVELLS_CAL_ = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT', 'Professorat'];   // PAS 58: Professorat = només el professorat
 const CATEGORIES_CAL_ = ['General', 'Intern'];
 // Tipus de data clau: els set primers són els de la pàgina Secretaria › Calendari escolar; els trimestres, només interns
 const TIPUS_DATA_CAL_ = ['inici', 'darrer', 'darrerBat', 'festiu', 'local', 'lliure', 'vacances', 'trimestre1', 'trimestre2', 'trimestre3'];   // PAS 57: trimestres amb inici i final
@@ -4202,6 +4233,7 @@ function separaHoraCal_(t) {
   const f = /^(.*\S)\s*-\s*(\d{1,2}:\d{2})$/.exec(s);   // «Xerrada … - 11:45»
   return f ? { hora: f[2], text: f[1].trim() } : { hora: '', text: s };
 }
+const PROF_CAL_ = /\breuni[oó](?![a-z])(?!.*fam[ií]li)|claustre|formaci[oó].*professorat|professorat nou|preparaci[oó] (del )?curs|equip impulsor|consell escolar|\bXCL\b|^(\d+[ar] )?avaluaci[oó]|^pre-avaluaci|^avaluacions|^av\. final|caps de departament/i;
 function nivellsCal_(t) {
   let s = ' ' + String(t || '').replace(/batxillerat|batx\.?|\bbat\b/gi, 'BAT') + ' ';
   const out = {}, ord = { 1: '1r', 2: '2n', 3: '3r', 4: '4t' };
@@ -4210,7 +4242,9 @@ function nivellsCal_(t) {
     if (iv) for (let k = Number(iv[1]); k <= Number(iv[2]); k++) ns.push(k);
     ns.forEach((n) => { if (E === 'BAT' && n > 2) return; out[ord[n] + ' ' + E] = 1; }); return ' '; });
   if (/\bESO\b/i.test(s)) NIVELLS_CAL_.slice(0, 4).forEach((n) => { out[n] = 1; });
-  if (/\bBAT\b/.test(s)) NIVELLS_CAL_.slice(4).forEach((n) => { out[n] = 1; });
+  if (/\bBAT\b/.test(s)) NIVELLS_CAL_.slice(4, 6).forEach((n) => { out[n] = 1; });
+  // Reunions, claustres, formació i sessions d'avaluació: només el professorat
+  if (PROF_CAL_.test(String(t || ''))) return ['Professorat'];
   return NIVELLS_CAL_.filter((n) => out[n]);
 }
 // General = el que interessa a les famílies (es publica); la resta, Intern. Es revisa després al web.
@@ -4340,13 +4374,12 @@ function ocupacioDocents_(cfg) {
   const hp = professoratHorarisH_(), gp = {}; hp.forEach((x) => { gp[x.id] = x.guardies; });
   const tut = tutoriesCurriculum_();
   return professoratHores_().map((h) => {
-    const p = prof[h.id] || {}, t = tut[h.nom] || [], cs = partsCarrec_(p.carrec), edat = edatCurs_(p.data_naixement, cfg);
+    const p = prof[h.id] || {}, t = tut[h.nom] || [], cs = partsCarrec_(p.carrec);
     const o = { id: h.id, nom: h.nom, especialitat: h.especialitat, jornada: h.jornada || 'Sencera', carrec: p.carrec || '', tutor: t.map((x) => x.grup), guardies: gp[h.id] || { o: 0, b: 0, p: 0 },
-      major55: edat !== null && edat >= 55, valors: {}, auto: {} };
+      valors: {}, auto: {} };   // PAS 58: la reducció de 55 anys s'entra a mà (no tothom en té)
     CLAUS_LECTIVES_().concat(REDUCCIONS_GUARDIA.map((x) => x[0])).forEach((k) => { o.valors[k] = p[k] == null ? '' : String(p[k]); });
     if (t.some((x) => x.nivell === '1r ESO')) o.auto.red_tutoria_eso12 = 1;
     if (t.length || cs.some(esCoordNivell_)) o.auto.red_coord_nivell = 1;
-    if (o.major55) o.auto.red_lectiva_55 = 1;
     return o;
   });
 }

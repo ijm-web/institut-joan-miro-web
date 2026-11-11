@@ -552,3 +552,25 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-cal__trim{ max-width: 420px; }
 .gs-hor__chip{ display: inline-block; margin: 1px 2px; padding: 1px 8px; border-radius: 10px; background: #EEF0FF; font-size: 12px; }
 .gs-hor__reun td{ vertical-align: top; }
+
+/* PAS 58 · Calendari: color per nivell (gris = diversos nivells; blanc = tot el centre) i vora per categoria */
+.gs-cal__ev.gs-cal__ev--General{ border-left: 4px solid #1C0CBC; }
+.gs-cal__ev.gs-cal__ev--Intern{ border-left: 4px solid #D48A00; }
+.gs-cal__c--n1{ background: #DCEBFF !important; color: #0B3D91 !important; }
+.gs-cal__c--n2{ background: #DDF5E3 !important; color: #136B3A !important; }
+.gs-cal__c--n3{ background: #FFF0C2 !important; color: #7A5300 !important; }
+.gs-cal__c--n4{ background: #FDE0E0 !important; color: #9B1C1C !important; }
+.gs-cal__c--n5{ background: #ECE3FF !important; color: #4B2A9B !important; }
+.gs-cal__c--n6{ background: #D6F2F2 !important; color: #0E5E5E !important; }
+.gs-cal__c--np{ background: #FBE3F1 !important; color: #8A1B5C !important; }
+.gs-cal__c--nx{ background: #E4E6EB !important; color: #3A3F4B !important; }
+.gs-cal__c--n0{ background: #fff !important; color: #1E1E2A !important; box-shadow: inset 0 0 0 1px #D5D9E6; }
+.gs-cal__sw{ display: inline-block; width: 11px; height: 11px; border-radius: 3px; margin: 0 2px; vertical-align: -1px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.08); }
+.gs-cal__nivs{ position: relative; }
+.gs-cal__nivs summary{ list-style: none; cursor: pointer; font-size: 13px; padding: 6px 28px 6px 10px; border: 1px solid #D5D9E6; border-radius: 8px; background: #fff; max-width: 260px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; }
+.gs-cal__nivs summary::after{ content: '▾'; position: absolute; right: 10px; top: 6px; color: #6A7086; }
+.gs-cal__nivs[open] > div{ position: absolute; z-index: 20; top: 100%; left: 0; margin-top: 4px; padding: 8px 12px; background: #fff; border: 1px solid #D5D9E6; border-radius: 10px; box-shadow: 0 8px 24px rgba(20,24,40,.12); display: grid; gap: 4px; min-width: 190px; }
+/* PAS 58 · Ocupació: seccions plegables */
+.gs-ocu__sec button{ border: 0; background: none; font: inherit; font-weight: 700; color: var(--color-blue); cursor: pointer; padding: 2px 6px; white-space: nowrap; }
+.gs-ocu__sec button:hover{ text-decoration: underline; }
+.gs-ocu__sec.is-plegada{ background: #E9ECF5 !important; }

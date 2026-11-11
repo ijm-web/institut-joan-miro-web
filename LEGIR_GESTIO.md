@@ -366,6 +366,15 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Atenció individual multinivell**: matèries /atenció individual/ sense grup-classe (`sessions[].multinivell`, `assignacions[].multinivell`, `grups_classe` buit, part sense grup).
 - **Reunions fixes** (planificador › Reunions): `config › horaris_reunions` {reunions [{id, nom, nivell, hores, franja, docents}]}, acció `horaris_reunions_desa`, proposta `reunions_proposta` (tutors per nivell + coordinació de nivell). Exportació `reunions`; regles obligatòries `reunions` i `multinivell`. Generador: `Dades.reunions`, `Assignacio.multinivell`, validació (secció 9).
 
+## PAS 58
+- **Nou professor/a**: sense «Altres dades» ni el càrrec (s'assignen sols o a Ocupació); el PDF no porta l'estat (un sol full).
+- **Substitucions**: «Substitueix a» es compara per paraules (`clauNom_`, `personaPerNom_`: «Cognoms, Nom» o «Nom Cognoms», o sense 2n cognom). El substitut hereta també els equips **docents** (no els de gestió). `actiusPlanificacio_` treu les persones substituïdes per codi.
+- **Equips i permisos**: pestanya «Per persona» (al client, a partir de `equips`): equips d'una persona i nivell per mòdul amb l'equip que el dona i els grups.
+- **Equip Claustre** (`EQ-CLAUSTRE`, tipus docent): membres automàtics (tot el professorat PRO- que no és de baixa ni prova) a `context_`, a partir de `config › claustre_des_de` (2026-11-16). `configura` el crea amb consulta a professorat, alumnat, batxillerat, control_entrada i calendari. `equips_` el retorna amb `automatic` {des_de, actiu}.
+- **Calendari**: nivell `Professorat` (NIVELLS_CAL_); importació: reunions, claustres, formació i avaluacions → Professorat (`PROF_CAL_`). Client: filtre de diversos nivells (`S.cal.niv` = llista), colors per nivell (gris = diversos, blanc = tot el centre), vora per categoria. Al web, el nivell Professorat no surt.
+- **Ocupació**: seccions plegables (`guarda › ocupacio_plega`), reduccions de guàrdia com a columnes; noms «Lectives (amb alumnat)», «Total lectives», «Total guàrdies». Sense reducció automàtica de 55 anys (es treu `reduccio_55_referencia` dels valors per defecte).
+- **Documents** (Claude Docs): «GESTIO · Workflow de final de curs» i «GESTIO · Guia per al professorat».
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
