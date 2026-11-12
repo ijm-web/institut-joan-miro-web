@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 59c · 12 de novembre de 2026",
+  "versio": "PAS 60 · 12 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -917,7 +917,8 @@
           "claus": "hores especialitat plantilla document equips docents pdf",
           "text": [
             "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Assignacions, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
-            "**Document equips docents** (pestanya Assignacions): trieu un nivell o tots (un full apaïsat per nivell). Una columna per grup-classe i una fila per matèria (amb les hores A i B); els grups units (A+B, A+B+C+D…) ocupen una sola cel·la. El **tutor/a** de cada grup surt destacat a la columna del seu grup, i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part."
+            "**Document equips docents** (pestanya Assignacions): trieu un nivell o tots (un full apaïsat per nivell). Una columna per grup-classe i una fila per matèria (amb les hores A i B), en aquest ordre: Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Experimentals (Biologia), Experimentals (Física i Química), Música, EVIP, Tecnologia, la resta (p. ex. Tutoria) i, al final, les optatives per ordre alfabètic.",
+            "Els grups-classe de cada grup surten de **Grups-classe** de la matèria: un grup de diversitat d'A+B ocupa una sola cel·la que abraça A i B. Si dos docents fan la mateixa matèria al mateix grup, surten a la mateixa casella (amb les hores de cadascun). El **tutor/a** de cada grup surt destacat a la columna del seu grup i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part."
           ]
         }
       ]

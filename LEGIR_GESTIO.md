@@ -382,6 +382,10 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Calendari**: nivells amb Cap, Tots, Cancel·la i Accepta.
 - **Ocupació**: «Llistat de càrrecs» i «Llistat de tutors» (PDF).
 
+## PAS 60
+- **Document equips docents**: ordre de les matèries (`ORDRE_DOC`, `ordreMatDoc`: la llista del centre, la resta i les optatives per ordre alfabètic); una fila per nom de matèria; els grups-classe de cada grup surten de `grupsMat(matèria)[num_grup − 1]` (no del nom del grup, que pot venir de Clickedu); docents del mateix grup a la mateixa casella; tutor/a destacat amb el mateix criteri.
+- Ordre de les instruccions a Romà: 1) pull del bundle; 2) copiar `apps-script/gestio_db/Code.gs` del repositori a l'editor d'Apps Script; 3) `configura` si cal; 4) nova implementació; 5) push.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
