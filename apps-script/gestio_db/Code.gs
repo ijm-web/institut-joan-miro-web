@@ -563,7 +563,9 @@ const REGLES = { alumnat: reglaAlumnat_('alumnat'), batxillerat: reglaAlumnat_('
     const t = String(v.grups_classe || '').toUpperCase().split(String(v.nivell || '#').toUpperCase()).join(' ').trim(); if (!t) return null;
     // PAS 59b: «X» = grup sense grup-classe (multinivell). Al nivell ESO-BAT només X (o buit); X no es barreja amb lletres.
     const tok = t.split(/[,;+\s]+/).filter(Boolean);
-    if (tok.some((x) => x === 'X') || v.nivell === NIVELL_MULTI) return tok.every((x) => x === 'X') && !/\+/.test(t) ? null : { error: 'grup_x', camp: 'grups_classe' };
+    // PAS 59c: al nivell ESO-BAT les lletres no compten (sempre és X: un grup per cada X, o un de sol)
+    if (v.nivell === NIVELL_MULTI) return null;
+    if (tok.some((x) => x === 'X')) return tok.every((x) => x === 'X') && !/\+/.test(t) ? null : { error: 'grup_x', camp: 'grups_classe' };
     const L = (grupsNivell_()[v.nivell] || []).map((g) => g.slice(String(v.nivell).length).trim());
     const bad = tok.filter((x) => L.indexOf(x) < 0);
     return bad.length ? { error: 'grup_classe_desconegut', camp: 'grups_classe' } : null;

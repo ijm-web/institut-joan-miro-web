@@ -76,7 +76,7 @@
     curs_invalid: 'El curs de config › curs no té el format aaaa-aaaa.',
     no_existeix: 'Aquest alumne ja no és a la base de dades. Actualitzeu la llista.'
   };
-  var ERRORS_CAMP = {
+  var ERRORS_CAMP = { grup_x: 'X (grup sense grup-classe) no es pot barrejar amb lletres de grups-classe: escriviu X o «X, X».', grup_classe_desconegut: 'només lletres de grups-classe del nivell, separades per comes (grups) o + (units).',
     obligatori: 'és obligatori', massa_llarg: 'és massa llarg', numero_invalid: 'ha de ser un número', data_invalida: 'ha de ser una data',
     si_no_invalid: 'ha de ser sí o no', correu_invalid: 'no és un correu vàlid', correu_domini: 'ha de ser un correu ', valor_no_permes: 'no és un dels valors de la llista',
     repetit: 'està repetit (ja el té una altra persona)', no_existeix: 'aquesta fila ja no existeix',
