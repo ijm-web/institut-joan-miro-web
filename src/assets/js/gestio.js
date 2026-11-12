@@ -2093,7 +2093,8 @@
   var normDoc = function (t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[.()]/g, ' ').replace(/\s+/g, ' ').trim(); };
   var ORDRE_DOC = [/^catala$/, /^catala.*div/, /^castella$/, /^castella.*div/, /^angles$/, /^(socials|ciencies socials|geografia)/, /^matematiques$/, /^matematiques.*div|^mates.*div/,
     /^(educacio fisica|ed fisica|ef)$/, /^(ciencies experimentals.*biolog|exp.*bio|biologia)/, /^(ciencies experimentals.*fisica|exp.*(fq|fisica)|fisica i quimica)/, /^musica$/, /^(evip|educacio visual)/, /^tecnologia$/];
-  var ordreMatDoc = function (nom) { var n = normDoc(nom); if (/^optativ/.test(n)) return 1000; for (var i = 0; i < ORDRE_DOC.length; i++) if (ORDRE_DOC[i].test(n)) return i; return 500; };
+  var ordreMatDoc = function (nom) { var n = normDoc(nom); if (/^tutoria/.test(n)) return -1; if (/^lectura/.test(n)) return 900; if (/^optativ/.test(n)) return 1000;   // Tutoria la primera; Lectura just abans de les optatives
+    for (var i = 0; i < ORDRE_DOC.length; i++) if (ORDRE_DOC[i].test(n)) return i; return 500; };
   var nomCurt = function (p) { var x = String(p || '').split(', '); return x.length > 1 ? x[1] + ' ' + x[0] : String(p || ''); };
   function pdfEquipsDocents(nivells) {
     var files = S.d.files || [], GN = S.d.grups_nivell || {};
