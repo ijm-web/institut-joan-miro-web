@@ -574,3 +574,4 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-ocu__sec button{ border: 0; background: none; font: inherit; font-weight: 700; color: var(--color-blue); cursor: pointer; padding: 2px 6px; white-space: nowrap; }
 .gs-ocu__sec button:hover{ text-decoration: underline; }
 .gs-ocu__sec.is-plegada{ background: #E9ECF5 !important; }
+.gs-cal__nivbtn{ display: flex; gap: 6px; justify-content: flex-end; margin: 4px 0 0; }

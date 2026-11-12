@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 58 · 11 de novembre de 2026",
+  "versio": "PAS 59 · 12 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -173,6 +173,7 @@
           "claus": "camps nif naixement nacionalitat telèfon adreça especialitat jornada situació substitut anys docència arribada",
           "text": [
             "Nom, cognoms, estat, NIF, **data de naixement, nacionalitat, telèfon i adreça** (carrer i número, població, codi postal i província), **especialitat** (desplegable), correus, jornada, situació laboral, **substitueix a** (si és substitut), **anys docència** (anys com a docent, no només al centre), català, càrrec i **data d'arribada al centre**.",
+            "**Estat**: actiu, baixa laboral, permís o baixa. Que una persona és substituta ho diu la **Situació laboral = Substitut** (l'estat és «actiu»).",
             "Les dades personals (NIF, naixement, nacionalitat, telèfon, adreça) i la data d'arribada només les veu el nivell edició o administració. El nivell consulta veu nom, cognoms, especialitat, correus i càrrec.",
             "Si la situació laboral és «Substitut», cal omplir **Substitueix a**.",
             "La data d'arribada al centre es posa sola quan es dona d'alta un docent (des de la graella o des de Nou professor/a).",
@@ -184,7 +185,7 @@
           "titol": "Equips d'un docent",
           "claus": "equips columna membres",
           "text": [
-            "La columna **Equips** (des d'edició) diu a quins equips és cada docent. Només la direcció la pot canviar; també es pot fer des del mòdul Equips i permisos › Membres.",
+            "Els equips de cada docent es gestionen al mòdul **Equips i permisos** (columna Membres de cada equip). Per veure a quins equips és un docent i quins permisos té, feu servir la pestanya **Per persona**.",
             "Un docent amb estat «baixa» ja no pot entrar a GESTIO."
           ]
         },
@@ -818,7 +819,8 @@
             "- **Especialitat** de la matèria. Es calcula sola l'**hora de l'alumne** (A + B/2).",
             "El botó de nivell (Tots, 1r ESO…) filtra la graella. **+ Afegeix matèria** i la paperera, des d'edició.",
             "Les matèries inicials venen del document d'equips docents 26-27: cal revisar-les (sobretot les optatives, 4t d'ESO i batxillerat).",
-            "Les opcions del desplegable **Especialitat** surten per ordre alfabètic."
+            "Les opcions del desplegable **Especialitat** surten per ordre alfabètic.",
+            "**Nivell ESO-BAT**: per a les matèries **multinivell**, com l'atenció individual. Sempre tenen el grup «X» (un per docent: «X, X» si en fan dos). Al planificador surten a la pestanya del nivell ESO-BAT amb l'etiqueta «Multinivell», i a Ocupació compten com a atenció individual."
           ]
         },
         {
@@ -830,6 +832,7 @@
             "- **Comes = grups separats**: «A, B» → 2 grups (1r ESO A i 1r ESO B).",
             "- **+ = grups units**: «A+B» → 1 grup amb l'alumnat d'A i B (1r ESO AB). «A+B, C+D» → 2 grups (p. ex. una divisió).",
             "- **Buit** = un grup per cada grup-classe del nivell (els de l'apartat **Grups-classe**).",
+            "- **X = sense grup-classe**: «X» és un sol grup que no és de cap grup-classe (i alhora de tots). «X, X» → 2 grups (X 1 i X 2). Serveix per a l'**atenció individual**: no ocupa cap grup-classe a l'horari, només el docent.",
             "- Es pot **repetir**: «A+B+C+D, A+B+C+D» → 2 grups amb alumnat barrejat dels quatre (p. ex. dues optatives) → 1r ESO ABCD 1 i ABCD 2.",
             "- La columna **Grups** (calculada) diu quants grups surten i quins.",
             "- **Docents a l'aula**: 2 = **codocència** (dos docents a la mateixa aula i hora). Les hores de professorat es multipliquen i en generar els grups cada grup té una fila per docent.",
@@ -914,7 +917,7 @@
           "claus": "hores especialitat plantilla document equips docents pdf",
           "text": [
             "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Assignacions, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
-            "**Document equips docents** (pestanya Assignacions): per nivell, una taula matèria × grup amb el professor/a o, si encara no n'hi ha, l'especialitat entre claudàtors. Amb PDF."
+            "**Document equips docents** (pestanya Assignacions): trieu un nivell o tots (un full apaïsat per nivell). Una columna per grup-classe i una fila per matèria (amb les hores A i B); els grups units (A+B, A+B+C+D…) ocupen una sola cel·la. El **tutor/a** de cada grup surt destacat a la columna del seu grup, i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part."
           ]
         }
       ]
@@ -1024,7 +1027,7 @@
             "Les **reduccions de guàrdia** s'escriuen a la seva secció (desplegueu-la) o, amb la secció plegada, amb un clic a la suma.",
             "Les guàrdies són les mateixes del planificador d'horaris (pestanya Professorat): es poden canviar en tots dos llocs.",
             "**Carrega des del Currículum** calcula les lectives d'ESO i Bat, l'atenció individual, les tutories i els càrrecs de tutor/a i de cap de departament a partir de Currículum › Assignacions (mostra els canvis abans de desar-los; no toca els altres càrrecs).",
-            "**Atenció individual** (p. ex. 7 h): escriviu les hores a la columna **At. ind.** del docent. Perquè surti a l'horari, cal també una assignació al Currículum: una matèria «Atenció individual» amb aquestes hores i el docent (és multinivell: no ocupa cap grup-classe). Després, «Carrega des del Currículum» ja posa les hores soles."
+            "**Atenció individual**: al Currículum, una matèria de nivell **ESO-BAT** (grup «X») amb les hores i el docent a Assignacions. És multinivell: no ocupa cap grup-classe a l'horari. «Carrega des del Currículum» en posa les hores a la columna At. ind."
           ]
         },
         {
@@ -1042,7 +1045,8 @@
           "titol": "PDF i Excel",
           "claus": "pdf excel exporta imprimir",
           "text": [
-            "**PDF**: resum per docent (alumnat, reduccions, lectives, guàrdies, total i estat), amb els filtres i el logo. **Excel**: totes les columnes, reducció per reducció."
+            "**PDF**: resum per docent (alumnat, reduccions, lectives, guàrdies, total i estat), amb els filtres i el logo. **Excel**: totes les columnes, reducció per reducció.",
+            "**Llistat de càrrecs** (PDF): els docents que tenen algun càrrec i quins. **Llistat de tutors** (PDF): el tutor/a de cada grup-classe (de Currículum › Tutoria i dels càrrecs «Tutor/a …»), per nivells."
           ]
         }
       ]
@@ -1184,7 +1188,7 @@
           "text": [
             "Les pestanyes canvien la vista: **Llista** (tot el curs, per mesos, amb cerca), **Dia**, **Setmana**, **Mes**, **Trimestre** (els mesos en petit, amb punts, i la llista del trimestre) i **Dates clau**.",
             "Amb ◀ **Avui** ▶ i el calendari petit es canvia de dia, setmana, mes o trimestre. Un clic en el número d'un dia obre la vista del dia.",
-            "Filtres: **Categoria** i **Nivells** (es poden marcar diversos nivells alhora, també **Professorat**; «Tots» els treu). Valen per a totes les vistes i per als PDF. Els esdeveniments sense nivell (de tot el centre) surten sempre.",
+            "Filtres: **Categoria** i **Nivells**. Al desplegable de nivells es marquen els que es volen veure (també **Professorat**); **Cap** i **Tots** els desmarquen o marquen tots, **Accepta** aplica la tria i **Cancel·la** la deixa com era. Valen per a totes les vistes i per als PDF. Els esdeveniments sense nivell (de tot el centre) surten sempre.",
             "**Colors**: cada esdeveniment té el color del seu nivell; **gris** si és de més d'un nivell i **blanc** si és de tot el centre. La vora de l'esquerra diu la categoria: blava = General (es publica al web), taronja = Intern.",
             "Els dies de festiu, lliure disposició, festa local i vacances surten acolorits, i a la cel·la hi diu quin dia és. Si no hi cap tot, la vista es desplaça amb la barra vertical.",
             "La vista i els filtres es recorden en aquest navegador."

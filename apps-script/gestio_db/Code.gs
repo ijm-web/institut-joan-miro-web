@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 58;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 59;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -151,7 +151,7 @@ const CAMPS_PROFESSORAT = [
   ['nom', 'Nom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom1', '1r cognom', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['cognom2', '2n cognom', 'text', '', 'no', 'no', 'consulta', 'gestio'],
-  ['estat', 'Estat', 'llista', 'actiu|baixa laboral|permís|substitut|baixa', 'si', 'no', 'edicio', 'gestio'],
+  ['estat', 'Estat', 'llista', 'actiu|baixa laboral|permís|baixa', 'si', 'no', 'edicio', 'gestio'],   // PAS 59: sense «substitut» (és la situació laboral)
   ['nif', 'NIF', 'nif', '', 'no', 'si', 'edicio', 'gestio'],
   ['data_naixement', 'Data naixement', 'data', '', 'no', 'no', 'edicio', 'gestio'],
   ['nacionalitat', 'Nacionalitat', 'text', '', 'no', 'no', 'edicio', 'gestio'],
@@ -395,7 +395,7 @@ const CAMPS_CONSELL = [
 ];
 // PAS 39: currículum. Matèries (nivell, nom, hores A i B, especialitat, grups) i grups (cada matèria × grup → especialitat)
 const CAMPS_CURRICULUM = [
-  ['nivell', 'Nivell', 'llista', NIVELLS_ESO.concat(NIVELLS_BAT).join('|'), 'si', 'no', 'consulta', 'gestio'],
+  ['nivell', 'Nivell', 'llista', NIVELLS_ESO.concat(NIVELLS_BAT, ['ESO-BAT']).join('|'), 'si', 'no', 'consulta', 'gestio'],   // PAS 59: ESO-BAT = multinivell
   ['materia', 'Matèria', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['hores_a', 'Hores A', 'numero', '', 'si', 'no', 'consulta', 'gestio'],
   ['hores_b', 'Hores B', 'numero', '', 'no', 'no', 'consulta', 'gestio'],
@@ -484,7 +484,8 @@ const MAX_TEXT = 2000;
 
 // Mòduls amb graella de dades: on es desen i com són els codis interns
 const MODULS = {
-  professorat: { full: FULL.prof, id: 'id_professor', prefix: 'PRO-', xifres: 4, equips: true, nom: 'docent', ss: () => SpreadsheetApp.getActive() },
+  // PAS 59: els equips del professorat es gestionen a Equips i permisos (no surten a la graella del Professorat)
+  professorat: { full: FULL.prof, id: 'id_professor', prefix: 'PRO-', xifres: 4, equips: false, nom: 'docent', ss: () => SpreadsheetApp.getActive() },
   pas: { full: FULL.pas, id: 'id_pas', prefix: 'PAS-', xifres: 3, equips: true, nom: 'persona', ss: () => SpreadsheetApp.getActive() },
   alumnat: { full: FULL.alu, id: 'id_alumne', prefix: 'ALU-', xifres: 5, equips: false, nom: 'alumne', ss: () => ssAlumnat_() },
   // PAS 29: el batxillerat, a la seva pestanya; els codis ALU- són únics entre les dues (un alumne el conserva)
@@ -1781,6 +1782,14 @@ function configura() {
   fullModul_(MODULS.professorat, campsDe_('professorat', true));
   ordenaLlistes_([['professorat', 'especialitat'], ['curriculum', 'especialitat'], ['curriculum_grups', 'especialitat']]);
   fullCalendari_();   // PAS 56
+  // PAS 59: l'estat «substitut» passa a «actiu» (que és substitut ho diu la situació laboral); nivell ESO-BAT al currículum
+  if (esquema < 59) {
+    actualitzaCamp_('professorat', 'estat', { valors: 'actiu|baixa laboral|permís|baixa' });
+    actualitzaCamp_('curriculum', 'nivell', { valors: NIVELLS_ESO.concat(NIVELLS_BAT, [NIVELL_MULTI]).join('|') });
+    const shP = ss.getSheetByName(FULL.prof);
+    if (shP && shP.getLastRow() > 1) { const vp = shP.getDataRange().getValues(), cpE = vp[0].map(norm_).indexOf('estat');
+      if (cpE >= 0) for (let i = 1; i < vp.length; i++) if (norm_(vp[i][cpE]) === 'substitut') shP.getRange(i + 1, cpE + 1).setValues([['actiu']]); }
+  }
   // PAS 58: equip «Claustre (tot el professorat)» amb consulta als mòduls bàsics (membres automàtics; vegeu context_)
   if (!llegeix_(FULL.eq).some((q) => q.id_equip === EQ_CLAUSTRE)) ss.getSheetByName(FULL.eq).appendRow([EQ_CLAUSTRE, 'Claustre (tot el professorat)', 'docent', 'Tot el professorat en actiu, automàticament (no cal afegir-hi membres). Data d\'inici: config › claustre_des_de.', 'si']);
   MODULS_CLAUSTRE.forEach((m) => { if (!llegeix_(FULL.perm).some((x) => x.id_equip === EQ_CLAUSTRE && x.id_modul === m)) ss.getSheetByName(FULL.perm).appendRow([EQ_CLAUSTRE, m, 'consulta']); });
@@ -2971,7 +2980,16 @@ function grupsNivell_(cfg) {
 const lletresClasse_ = (t) => String(t || '').toUpperCase().split(/[\s,;\/+]+/).map((x) => x.trim()).filter((x) => /^[A-Z0-9]{1,4}$/.test(x)).filter((x, i, a) => a.indexOf(x) === i);
 // PAS 45: grups d'una matèria segons «Grups-classe»: «A, B» → [[A], [B]]; «A+B, C+D» → [[A, B], [C, D]]; buit → un per grup-classe.
 // Es pot repetir (p. ex. «A+B+C+D, A+B+C+D» = dues optatives barrejades). Retorna [{lletres, nom}].
+// PAS 59 · Grup «X»: un sol grup sense grup-classe (multinivell, p. ex. atenció individual). Nivell «ESO-BAT» = sempre X.
+const NIVELL_MULTI = 'ESO-BAT';
+function grupsX_(m) {
+  const xs = String(m.grups_classe || '').split(/[,;]+/).map((x) => x.trim().toUpperCase()).filter(Boolean);
+  if (m.nivell !== NIVELL_MULTI && !(xs.length && xs.every((x) => x === 'X'))) return null;
+  const n = Math.max(1, xs.filter((x) => x === 'X').length);
+  return Array.from({ length: n }, (_, i) => ({ lletres: ['X'], nom: m.nivell + ' X' + (n > 1 ? ' ' + (i + 1) : '') }));
+}
 function grupsMateria_(m, GN) {
+  const gx = grupsX_(m); if (gx) return gx;
   const L = ((GN || grupsNivell_())[m.nivell] || []).map((g) => g.slice(m.nivell.length).trim());
   const t = String(m.grups_classe || '').toUpperCase().split(m.nivell.toUpperCase()).join(' ').trim();
   let gs = t ? t.split(/[,;]+/).map((x) => x.split(/[+\s]+/).map((y) => y.trim()).filter((y) => L.indexOf(y) >= 0)).filter((x) => x.length) : [];
@@ -3339,7 +3357,7 @@ function sessionsHoraris_(cfg) {
   const GN = grupsNivell_(cfg), mats = {}; llegeix_(FULL.cur).forEach((m) => { mats[m.id_materia] = m; });
   const ss = llegeix_(FULL.curg).filter((r) => r.id_assignacio).map((r) => {
     const d = desat[r.id_assignacio] || {}, h = numCur_(r.hores), m = mats[r.id_materia] || {};
-    const multi = esMultinivell_(r.materia);   // PAS 57: atenció individual sense grup-classe
+    const multi = esMultinivell_(r.materia, r.nivell, r.grup);   // PAS 57/59: atenció individual, ESO-BAT o grup X
     const GM = m.nivell && !multi ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1], classes = g ? g.lletres.map((x) => r.nivell + ' ' + x) : [];
     let parts = null; try { parts = JSON.parse(String(d.parts || '')); } catch (e) { parts = null; }
     if (!Array.isArray(parts) || !parts.length) {
@@ -3441,7 +3459,7 @@ function carregaCurriculumProfessorat_(ctx, req) {
   llegeix_(FULL.curg).forEach((r) => { if (!r.professor) return; const h = numCur_(r.hores), m = String(r.materia || ''), niv = String(r.nivell || ''), bat = /BAT/i.test(niv);
     const x = calc[r.professor] = calc[r.professor] || { lectives_eso: 0, lectives_bat: 0, atencio_individual: 0, tutoria_eso12: 0, tutoria_eso34: 0, tutoria_bat: 0, tutor: [] };
     if (/^tutoria/i.test(m)) { x[bat ? 'tutoria_bat' : /^[12]/.test(niv) ? 'tutoria_eso12' : 'tutoria_eso34'] += h; x.tutor.push(r.grup); }
-    else if (/aten[cç]i[oó] individual/i.test(m)) x.atencio_individual += h;
+    else if (esMultinivell_(m, niv, r.grup)) x.atencio_individual += h;   // PAS 59: multinivell = atenció individual
     else x[bat ? 'lectives_bat' : 'lectives_eso'] += h; });
   const caps = {}; departaments_().forEach((d) => { if (d.cap) (caps[d.cap] = caps[d.cap] || []).push(d.nom); });
   const MP = MODULS.professorat, sh = fullModul_(MP, campsDe_('professorat', true)), vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), col = (k) => cap.indexOf(k);
@@ -3538,7 +3556,7 @@ function horarisProfessoratDesa_(ctx, req) {
 function horarisDades_(ctx) {
   if (!pot_(ctx, 'horaris', 'consulta')) return { ok: false, error: 'sense_permis' };
   const cfg = ctx.cfg || llegeixConfig_();
-  return { ok: true, esquema: ESQUEMA, marc: marcHorari_(cfg), per_defecte: !String(cfg.horaris_marc || '').trim(), nivells: NIVELLS_ESO.concat(NIVELLS_BAT), dies: DIES_SETMANA, pot_desar: pot_(ctx, 'horaris', 'edicio'),
+  return { ok: true, esquema: ESQUEMA, marc: marcHorari_(cfg), per_defecte: !String(cfg.horaris_marc || '').trim(), nivells: NIVELLS_ESO.concat(NIVELLS_BAT, [NIVELL_MULTI]), dies: DIES_SETMANA, pot_desar: pot_(ctx, 'horaris', 'edicio'),
     aules: aulesHoraris_(cfg), aules_per_defecte: !String(cfg.horaris_aules || '').trim(), regles: reglesHoraris_(cfg), regles_per_defecte: !String(cfg.horaris_regles || '').trim(),
     tipus_aula: TIPUS_AULA, materies: materiesHoraris_(cfg), sessions: sessionsHoraris_(cfg), professorat: professoratHorarisH_(),
     subgrups: subgrupsHoraris_(cfg), tipus_subgrup: TIPUS_SUBGRUP, guardies: guardiesHoraris_(cfg), tipus_guardia: TIPUS_GUARDIA, grups_nivell: grupsNivell_(cfg), regles_motor: reglesMotor_(cfg),
@@ -3613,7 +3631,7 @@ function dadesHoraris_() {
   const cfg = llegeixConfig_(), GN = grupsNivell_(cfg);
   const mats = {}; llegeix_(FULL.cur).forEach((m) => { mats[m.id_materia] = m; });
   const assignacions = llegeix_(FULL.curg).map((r) => {
-    const m = mats[r.id_materia] || {}, multi = esMultinivell_(r.materia), GM = m.nivell && !multi ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1];
+    const m = mats[r.id_materia] || {}, multi = esMultinivell_(r.materia, r.nivell, r.grup), GM = m.nivell && !multi ? grupsMateria_(m, GN) : [], g = GM[(Number(r.num_grup) || 1) - 1];
     return { id: r.id_assignacio || r[MODULS.curriculum_grups.id] || '', id_materia: r.id_materia || '', nivell: r.nivell, materia: r.materia, grup: r.grup, multinivell: multi,
       grups_classe: g ? g.lletres.map((x) => r.nivell + ' ' + x) : [], num_grup: Number(r.num_grup) || 1, hores: numCur_(r.hores),
       hores_a: numCur_(m.hores_a), hores_b: numCur_(m.hores_b), especialitat: r.especialitat || '', especialitat_materia: m.especialitat || '',
@@ -4322,7 +4340,8 @@ function importaCalendari() {
 // =============================================================================================
 // PAS 57 · OCUPACIÓ (hores fixes del professorat), càrrecs, atenció individual multinivell i reunions de nivell
 // =============================================================================================
-const esMultinivell_ = (materia) => /aten[cç]i[oó] individual/i.test(String(materia || ''));
+// Multinivell: atenció individual, nivell ESO-BAT o grup «X» (sense grup-classe)
+const esMultinivell_ = (materia, nivell, grup) => /aten[cç]i[oó] individual/i.test(String(materia || '')) || nivell === NIVELL_MULTI || / X( \d+)?$/.test(String(grup || ''));
 // Reduccions de guàrdia [clau (columna del full professorat), nom, codi]
 const REDUCCIONS_GUARDIA = [
   ['rg_diversitat', 'R. Com. Diversitat', 'ra'], ['rg_convivencia', 'R. Convivència', 'ra'], ['rg_digital', 'R. Digital', 'ra'], ['rg_genere', 'R. Gènere', 'ra'],

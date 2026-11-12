@@ -375,6 +375,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Ocupació**: seccions plegables (`guarda › ocupacio_plega`), reduccions de guàrdia com a columnes; noms «Lectives (amb alumnat)», «Total lectives», «Total guàrdies». Sense reducció automàtica de 55 anys (es treu `reduccio_55_referencia` dels valors per defecte).
 - **Documents** (Claude Docs): «GESTIO · Workflow de final de curs» i «GESTIO · Guia per al professorat».
 
+## PAS 59
+- **Professorat**: estat sense «substitut» (configura, esquema < 59: els «substitut» passen a «actiu»; la situació laboral diu qui és substitut). `MODULS.professorat.equips = false`: la graella ja no té la columna Equips (es gestionen a Equips i permisos).
+- **Atenció individual**: nivell `ESO-BAT` (NIVELL_MULTI) al camp Nivell del Currículum i grup «X» (`grupsX_`: «X» = un grup sense grup-classe; «X, X» = 2 grups). `esMultinivell_(materia, nivell, grup)`: atenció individual, ESO-BAT o grup que acaba en « X». Al planificador, nivell ESO-BAT; a Ocupació compta com a atenció individual. Generador: un multinivell no necessita un nivell conegut.
+- **Document equips docents**: tria de nivell; full apaïsat per nivell amb columnes de grup-classe, cel·les unides per als grups units, tutor/a destacat i llista de l'equip docent.
+- **Calendari**: nivells amb Cap, Tots, Cancel·la i Accepta.
+- **Ocupació**: «Llistat de càrrecs» i «Llistat de tutors» (PDF).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
