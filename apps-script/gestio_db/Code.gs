@@ -561,8 +561,11 @@ const REGLES = { alumnat: reglaAlumnat_('alumnat'), batxillerat: reglaAlumnat_('
   curriculum: (v, canviats) => {
     if (canviats && canviats.indexOf('grups_classe') < 0 && canviats.indexOf('nivell') < 0) return null;
     const t = String(v.grups_classe || '').toUpperCase().split(String(v.nivell || '#').toUpperCase()).join(' ').trim(); if (!t) return null;
+    // PAS 59b: «X» = grup sense grup-classe (multinivell). Al nivell ESO-BAT només X (o buit); X no es barreja amb lletres.
+    const tok = t.split(/[,;+\s]+/).filter(Boolean);
+    if (tok.some((x) => x === 'X') || v.nivell === NIVELL_MULTI) return tok.every((x) => x === 'X') && !/\+/.test(t) ? null : { error: 'grup_x', camp: 'grups_classe' };
     const L = (grupsNivell_()[v.nivell] || []).map((g) => g.slice(String(v.nivell).length).trim());
-    const bad = t.split(/[,;+\s]+/).filter(Boolean).filter((x) => L.indexOf(x) < 0);
+    const bad = tok.filter((x) => L.indexOf(x) < 0);
     return bad.length ? { error: 'grup_classe_desconegut', camp: 'grups_classe' } : null;
   },
   // PAS 30: si la situació laboral és «Substitut», cal dir a qui substitueix (només es comprova quan es canvia algun dels dos camps)
