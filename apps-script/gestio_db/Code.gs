@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 59;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 61;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -419,6 +419,8 @@ const CAMPS_CURR_GRUPS = [
   ['professor', 'Professor/a', 'llista', '', 'no', 'no', 'consulta', 'gestio'],
   ['id_materia', 'Codi matèria', 'text', '', 'no', 'no', 'admin', 'clickedu'],
   ['num_grup', 'Núm. grup', 'text', '', 'no', 'no', 'admin', 'clickedu'],
+  // PAS 61: franja horària de les matèries de franja de 4t d'ESO (per al document dels equips docents)
+  ['franja', 'Franja', 'llista', '1|2|3', 'no', 'no', 'consulta', 'gestio'],
 ];
 const PERIODES_AMON = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30, '2 mesos': 61, '3 mesos': 92, 'tot el curs': 0 };
 const CAMPS_CONTROL = [

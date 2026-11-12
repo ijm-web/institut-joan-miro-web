@@ -575,3 +575,6 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-ocu__sec button:hover{ text-decoration: underline; }
 .gs-ocu__sec.is-plegada{ background: #E9ECF5 !important; }
 .gs-cal__nivbtn{ display: flex; gap: 6px; justify-content: flex-end; margin: 4px 0 0; }
+/* PAS 61 · Botons amb icona (Visualització camps, Gestió camps, Actualitza, Excel i PDF) */
+.prog-btn.gs-ico{ display: inline-flex; align-items: center; justify-content: center; padding: 7px 10px; min-width: 40px; line-height: 0; }
+.prog-btn.gs-ico svg{ display: block; }

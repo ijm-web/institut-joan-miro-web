@@ -2093,7 +2093,11 @@
   var normDoc = function (t) { return String(t || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[.()]/g, ' ').replace(/\s+/g, ' ').trim(); };
   var ORDRE_DOC = [/^catala$/, /^catala.*div/, /^castella$/, /^castella.*div/, /^angles$/, /^(socials|ciencies socials|geografia)/, /^matematiques$/, /^matematiques.*div|^mates.*div/,
     /^(educacio fisica|ed fisica|ef)$/, /^(ciencies experimentals.*biolog|exp.*bio|biologia)/, /^(ciencies experimentals.*fisica|exp.*(fq|fisica)|fisica i quimica)/, /^musica$/, /^(evip|educacio visual)/, /^tecnologia$/];
-  var ordreMatDoc = function (nom) { var n = normDoc(nom); if (/^tutoria/.test(n)) return -1; if (/^lectura/.test(n)) return 900; if (/^optativ/.test(n)) return 1000;   // Tutoria la primera; Lectura just abans de les optatives
+  // PAS 61: a 4t d'ESO, després d'Educació Física va Ètica i valors; les matèries de franja van a les files «Franja 1/2/3»
+  var ORDRE_DOC_4T = [/^catala$/, /^catala.*div/, /^castella$/, /^castella.*div/, /^angles$/, /^(socials|ciencies socials|geografia)/, /^matematiques$/, /^matematiques.*div|^mates.*div/,
+    /^(educacio fisica|ed fisica|ef)$/, /^etica/];
+  var ordreMatDoc = function (nom, niv) { var n = normDoc(nom); if (/^tutoria/.test(n)) return -1; if (/^lectura/.test(n)) return 900; if (/^optativ/.test(n)) return 1000;
+    if (niv === '4t ESO') { for (var j = 0; j < ORDRE_DOC_4T.length; j++) if (ORDRE_DOC_4T[j].test(n)) return j; return 500; }   // Tutoria la primera; Lectura just abans de les optatives
     for (var i = 0; i < ORDRE_DOC.length; i++) if (ORDRE_DOC[i].test(n)) return i; return 500; };
   var nomCurt = function (p) { var x = String(p || '').split(', '); return x.length > 1 ? x[1] + ' ' + x[0] : String(p || ''); };
   function pdfEquipsDocents(nivells) {
@@ -2108,7 +2112,12 @@
         var fn = files.filter(function (f) { return f.nivell === niv; });
         // PAS 60: una fila per nom de matèria (encara que siguin matèries diferents al Currículum), en l'ordre del centre
         var mats = []; fn.forEach(function (f) { var k = normDoc(f.materia); if (!mats.some(function (m) { return m.k === k; })) mats.push({ k: k, nom: f.materia, mat: materiaDe(f) || {} }); });
-        mats.sort(function (a, b) { return ordreMatDoc(a.nom) - ordreMatDoc(b.nom) || a.nom.localeCompare(b.nom, 'ca'); });
+        mats.sort(function (a, b) { return ordreMatDoc(a.nom, niv) - ordreMatDoc(b.nom, niv) || a.nom.localeCompare(b.nom, 'ca'); });
+        // PAS 61: matèries de franja (columna «Franja» d'Assignacions): totes les files de la matèria amb franja
+        var franjaDe = function (m) { var ff = fn.filter(function (f) { return normDoc(f.materia) === m.k; }); return ff.length && ff.every(function (f) { return String(f.franja || '').trim(); }) ? 'franja' : ''; };
+        var franges = {}; fn.forEach(function (f) { var fr = String(f.franja || '').trim(); if (fr) (franges[fr] = franges[fr] || []).push(f); });
+        var mostraFranges = Object.keys(franges).length > 0;
+        if (mostraFranges) mats = mats.filter(function (m) { return !franjaDe(m); });
         var docents = {}; fn.forEach(function (f) { if (f.professor) docents[f.professor] = 1; });
         var estil = { font: 'helvetica', fontSize: 8, cellPadding: 1.4, overflow: 'linebreak', valign: 'middle', halign: 'center', lineColor: [70, 72, 90], lineWidth: 0.25 };
         var cap = { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold', halign: 'center' };
@@ -2121,6 +2130,9 @@
             while (t) { var l = Ls.filter(function (x) { return t.indexOf(x.toUpperCase()) === 0; })[0]; if (!l) break; o.push(l); t = t.slice(l.length); } return o; };
           var llDe = function (f) { var mt = materiaDe(f), gm = mt ? (grupsMat(mt)[(Number(f.num_grup) || 1) - 1] || null) : null; return gm ? gm.lletres : lletres(f.grup); };
           var tutor = {}; fn.filter(function (f) { return /^tutoria/i.test(f.materia) && f.professor; }).forEach(function (f) { llDe(f).forEach(function (l) { tutor[l] = f.professor; }); });
+          // PAS 61: docents (que no són el tutor/a) amb més d'una matèria al mateix grup-classe
+          var nMat = {}; fn.forEach(function (f) { if (!f.professor || /^tutoria/i.test(f.materia) || String(f.franja || '').trim()) return; llDe(f).forEach(function (l) { var k = l + '|' + f.professor; (nMat[k] = nMat[k] || {})[normDoc(f.materia)] = 1; }); });
+          var multi = function (l, prof) { return prof !== tutor[l] && Object.keys(nMat[l + '|' + prof] || {}).length > 1; };
           var cos2 = mats.map(function (m) {
             var A = numero(m.mat.hores_a), B = numero(m.mat.hores_b), grups = {};
             // PAS 60: cada grup (matèria + número de grup) amb els seus grups-classe segons «Grups-classe» de la matèria (no pel nom
@@ -2136,21 +2148,36 @@
             while (c < L.length) {
               var sp = spans.filter(function (x) { return x.a === c; })[0];
               if (!sp) { fila.push(''); c++; continue; }
-              var linies = [], destaca = false;
+              var linies = [], destaca = false, repeteix = false;
               sp.grups.forEach(function (g) { var noms = g.profs.map(function (f) { return f.professor ? nomCurt(f.professor) + (g.profs.length > 1 ? ' (' + fmtH(numero(f.hores)) + 'h)' : '') : '[' + (f.especialitat || '—') + ']'; });
-                linies.push(noms.join(' + ')); if (sp.a === sp.b && g.profs.some(function (f) { return f.professor && f.professor === tutor[L[sp.a]]; })) destaca = true; });
-              fila.push({ content: linies.join('\n'), colSpan: sp.b - sp.a + 1, tutor: destaca }); c = sp.b + 1;
+                linies.push(noms.join(' + ')); if (sp.a === sp.b && g.profs.some(function (f) { return f.professor && f.professor === tutor[L[sp.a]]; })) destaca = true;
+                if (sp.a === sp.b && g.profs.some(function (f) { return f.professor && multi(L[sp.a], f.professor); })) repeteix = true; });
+              fila.push({ content: linies.join('\n'), colSpan: sp.b - sp.a + 1, tutor: destaca, multi: !destaca && repeteix }); c = sp.b + 1;
             }
             return fila;
+          });
+          // PAS 61: files «Franja 1/2/3» (4t d'ESO): una cel·la per a tots els grups-classe amb «Matèria - Gn: docent»
+          if (mostraFranges) Object.keys(franges).sort().forEach(function (fr) {
+            var per = {}; franges[fr].forEach(function (f) { var k = normDoc(f.materia); (per[k] = per[k] || []).push(f); });
+            var linies = [], h = 0;
+            Object.keys(per).sort(function (a, b) { return a.localeCompare(b, 'ca'); }).forEach(function (k) { var ff = per[k], grups = {};
+              ff.forEach(function (f) { var gk = f.num_grup || f.grup; (grups[gk] = grups[gk] || []).push(f); h = Math.max(h, numero((materiaDe(f) || {}).hores_a) + numero((materiaDe(f) || {}).hores_b) / 2); });
+              var ng = Object.keys(grups);
+              ng.sort().forEach(function (gk) { var gf = grups[gk]; linies.push(gf[0].materia + (ng.length > 1 ? ' - G' + gk : '') + ': ' + gf.map(function (f) { return f.professor ? nomCurt(f.professor) + (gf.length > 1 ? ' (' + fmtH(numero(f.hores)) + 'h)' : '') : '[' + (f.especialitat || '—') + ']'; }).join(' + ')); });
+            });
+            cos2.push([{ content: 'Franja ' + fr + (h ? ' (' + fmtH(h) + ')' : ''), styles: { fontStyle: 'bold' } }, '', '', { content: linies.join('\n'), colSpan: L.length }]);
           });
           var amp = (W - 2 * M - 46 - 16) / L.length, cs = { 0: { cellWidth: 46, halign: 'left', fontStyle: 'bold' }, 1: { cellWidth: 8 }, 2: { cellWidth: 8 } };
           L.forEach(function (l, i) { cs[i + 3] = { cellWidth: amp }; });
           doc.autoTable({ head: [['Assignatura', 'A', 'B'].concat(L.map(function (l) { return niv + ' ' + l; }))], body: cos2, startY: 32, margin: { left: M, right: M, bottom: 14 }, styles: estil, headStyles: cap, columnStyles: cs,
-            didParseCell: function (d) { if (d.section === 'body' && d.cell.raw && d.cell.raw.tutor) { d.cell.styles.fillColor = [255, 196, 120]; d.cell.styles.fontStyle = 'bold'; } } });
+            didParseCell: function (d) { if (d.section !== 'body' || !d.cell.raw) return;
+              if (d.cell.raw.tutor) { d.cell.styles.fillColor = [255, 196, 120]; d.cell.styles.fontStyle = 'bold'; }
+              else if (d.cell.raw.multi) { d.cell.styles.fillColor = [178, 224, 245]; d.cell.styles.fontStyle = 'bold'; } } });
         }
         var y = doc.lastAutoTable.finalY + 6, noms = Object.keys(docents).sort(function (a, b) { return a.localeCompare(b, 'ca'); }).map(nomCurt);
         doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(60, 64, 80);
-        if (niv !== 'ESO-BAT') doc.text('Destacat: el tutor/a del grup-classe. ', M, Math.min(y, H - 18));
+        if (niv !== 'ESO-BAT') { var yl = Math.min(y, H - 18); doc.setFillColor(255, 196, 120); doc.rect(M, yl - 2.6, 4, 3, 'F'); doc.text('tutor/a del grup-classe', M + 6, yl);
+          doc.setFillColor(178, 224, 245); doc.rect(M + 48, yl - 2.6, 4, 3, 'F'); doc.text('docent amb més d’una matèria al grup-classe', M + 54, yl); }
         doc.splitTextToSize('Equip docent (' + noms.length + '): ' + noms.join(', ') + '.', W - 2 * M).forEach(function (l, i) { doc.text(l, M, Math.min(y + 5 + i * 3.8, H - 8)); });
         doc.setFontSize(8); doc.setTextColor(90, 96, 120); doc.text('Pàgina ' + doc.internal.getNumberOfPages(), W - M, H - 6, { align: 'right' });
       });
@@ -4595,6 +4622,25 @@
     if (b.dataset.accio === 'desa') { if (S.modul.id === 'equips') { if (S.vistaEquips === 'permisos') desaMatriuPermisos(); else desaEquips(); } else desa(false); }
     if (b.dataset.accio === 'descarta') descarta();
   });
+
+  // PAS 61 · Icones en lloc del text als cinc botons comuns (Visualització camps, Gestió camps, Actualitza, Excel i PDF), a tots
+  // els mòduls: el text queda al títol (en passar-hi el ratolí) i a l'etiqueta accessible
+  var ICONES = {
+    'Visualització camps': ['columnes', '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>'],
+    'Gestió camps': ['camps', '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>'],
+    'Actualitza': ['actualitza', '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg>'],
+    'Excel': ['excel', '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="17" rx="2.5" fill="#1D7044"/><path d="M8 8l8 8M16 8l-8 8" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>'],
+    'PDF': ['pdf', '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 2.5h8.5L19.5 7.5V20a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 20V4A1.5 1.5 0 0 1 6 2.5z" fill="#C62828"/><path d="M14.5 2.5V7.5h5" fill="#F3A5A5"/><text x="12" y="17.6" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="6.6" font-weight="700" fill="#fff">PDF</text></svg>']
+  };
+  function iconitzaBotons(arrel) {
+    [].forEach.call((arrel || document).querySelectorAll('button.prog-btn:not(.gs-ico)'), function (b) {
+      var t = b.textContent.replace(/\s+/g, ' ').trim(), x = ICONES[t]; if (!x) return;
+      b.classList.add('gs-ico', 'gs-ico--' + x[0]); if (!b.title) b.title = t; else if (b.title.indexOf(t) < 0) b.title = t + ' · ' + b.title;
+      b.setAttribute('aria-label', t); b.innerHTML = x[1];
+    });
+  }
+  (function () { var app = $('gsApp'); if (!app || !window.MutationObserver) return; iconitzaBotons(app);
+    new MutationObserver(function () { iconitzaBotons(app); }).observe(app, { childList: true, subtree: true }); })();
 
   window.GestioApp = { S: S, comprovaVersio: comprovaVersio };   // per a les proves
   comprova();

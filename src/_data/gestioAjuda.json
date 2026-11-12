@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 60b · 12 de novembre de 2026",
+  "versio": "PAS 61 · 12 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -34,7 +34,8 @@
         "text": [
           "Dins d'un mòdul (a l'ordinador) s'amaguen el menú i la foto del web: la graella ocupa tota la finestra i només fa scroll ella.",
           "Per tornar a la portada de GESTIO, cliqueu **Gestió** a dalt a l'esquerra.",
-          "Les dades d'un mòdul es llegeixen la primera vegada que s'obre. **Actualitza** les torna a llegir del full (p. ex. si algú altre hi ha fet canvis)."
+          "Les dades d'un mòdul es llegeixen la primera vegada que s'obre. **Actualitza** les torna a llegir del full (p. ex. si algú altre hi ha fet canvis).",
+          "Els cinc botons comuns són **icones** (en passar-hi el ratolí en surt el nom): **Visualització camps** (columnes), **Gestió camps** (lliscadors), **Actualitza** (fletxes en cercle), la icona verda **Excel** i la vermella **PDF**."
         ]
       },
       {
@@ -128,6 +129,7 @@
         "titol": "Visualització camps",
         "claus": "columnes amagar mostrar ordre visualització camps",
         "text": [
+          "Botó amb la icona de **columnes**.",
           "**Visualització camps** permet amagar i mostrar columnes (botons **Cap** i **Totes**). Es recorda en aquest navegador.",
           "L'ordre de les columnes es canvia arrossegant-ne la capçalera. Nom i 1r cognom queden fixats a l'esquerra."
         ]
@@ -137,6 +139,7 @@
         "titol": "Exportar a Excel o PDF",
         "claus": "exportar excel pdf imprimir descarregar llistat actualitza recarregar tornar a llegir",
         "text": [
+          "Botons amb la icona verda (**Excel**) i la vermella (**PDF**).",
           "Els botons **Excel** i **PDF** (a la dreta) descarreguen el que es veu: les files filtrades i les columnes visibles. Es pot fer des del nivell consulta.",
           "Tots els PDF que es generen des de GESTIO porten el **logo del centre** a la part superior.",
           "**Actualitza** torna a llegir les dades del full de càlcul (per exemple, després d'una importació o d'un canvi fet directament al full). Només surt per a qui administra el mòdul: quan algú altre desa canvis des del web, surt a dalt un avís amb el seu propi botó «Actualitza»."
@@ -147,6 +150,7 @@
         "titol": "Gestió camps (administració)",
         "claus": "gestió camps columna nova tipus llista obligatori arxivar",
         "text": [
+          "Botó amb la icona dels **lliscadors**.",
           "Permet afegir columnes, canviar-ne el nom, el tipus (text, número, data, llista, sí/no, correu, NIF/NIE, calculat), els valors d'una llista, si és obligatòria o única i des de quin nivell es veu.",
           "Una columna no s'esborra: s'arxiva desmarcant «Actiu» (les dades es conserven). L'Estat és un camp de sistema."
         ]
@@ -868,6 +872,7 @@
           "text": [
             "Pestanya **Assignacions** (abans «Grups i especialitats»): cada grup de cada matèria amb l'**especialitat que l'imparteix**. Per defecte és la de la matèria; es pot canviar (p. ex. Lectura impartida per Matemàtiques).",
             "**Repartir les hores d'un grup** (botó de les **tisores**): una part es queda amb les hores que indiqueu i la resta passa a una part nova amb l'especialitat que trieu. Es pot repetir amb qualsevol part. Exemple: Optativa d'Anglès de 1r ESO A (3 h) → 1 h Anglès + 1 h Alemany + 1 h Matemàtiques.",
+            "**Una matèria repartida entre docents** (p. ex. Matemàtiques (div.) de 4 h: 1 h un docent i 3 h un altre; o les hores B d'Anglès de cada grup entre dos docents): feu servir les **tisores** al grup, deixeu-hi les hores del primer docent i la resta passa a una part nova (es pot triar la mateixa especialitat). Després poseu el professor/a de cada part. Al document dels equips docents surten tots dos a la mateixa casella, amb les hores de cadascun, i al planificador cada part és una sessió amb el seu docent.",
             "Les hores de cada part també es poden editar a la graella. El senyal **⚠** a la columna Hores vol dir que les parts d'aquell grup no sumen les hores de la matèria (A + B).",
             "Per desfer un repartiment, esborreu la part que sobra (paperera) i poseu les hores totals a la que queda.",
             "Per canviar moltes files alhora, marqueu-les i feu servir «Aplica a la selecció».",
@@ -876,7 +881,8 @@
             "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT).",
             "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata).",
             "**Comprova la desiderata**: compara les assignacions (també els canvis fets a mà) amb la desiderata: per a cada assignació i docent, els grups de la desiderata i els assignats. Avisa de grups que falten o sobren, docents que no són a la desiderata i docents que ja no són en actiu. Per a cada docent amb incoherències surten els grups on és assignat, per trobar-lo a la graella. Al filtre de la columna Professor/a, els docents que ja no són en actiu surten amb «(fora de la llista)». Per substituir-los pel docent de la desiderata, feu **Aplica la desiderata** amb «Substitueix també els que ja tenen professor/a».",
-            "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes)."
+            "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes).",
+            "**Franja** (només 4t d'ESO): 1, 2 o 3 per a cada grup de les matèries de franja (p. ex. Biologia G1 → 1, Biologia G2 → 2). Serveix per al document dels equips docents."
           ]
         },
         {
@@ -917,8 +923,8 @@
           "claus": "hores especialitat plantilla document equips docents pdf",
           "text": [
             "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Assignacions, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
-            "**Document equips docents** (pestanya Assignacions): trieu un nivell o tots (un full apaïsat per nivell). Una columna per grup-classe i una fila per matèria (amb les hores A i B), en aquest ordre: Tutoria, Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Experimentals (Biologia), Experimentals (Física i Química), Música, EVIP, Tecnologia, la resta, Lectura i, al final, les optatives per ordre alfabètic.",
-            "Els grups-classe de cada grup surten de **Grups-classe** de la matèria: un grup de diversitat d'A+B ocupa una sola cel·la que abraça A i B. Si dos docents fan la mateixa matèria al mateix grup, surten a la mateixa casella (amb les hores de cadascun). El **tutor/a** de cada grup surt destacat a la columna del seu grup i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part."
+            "**Document equips docents** (pestanya Assignacions): trieu un nivell o tots (un full apaïsat per nivell). Una columna per grup-classe i una fila per matèria (amb les hores A i B), en aquest ordre: Tutoria, Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Experimentals (Biologia), Experimentals (Física i Química), Música, EVIP, Tecnologia, la resta, Lectura i, al final, les optatives per ordre alfabètic. A **4t d'ESO**: Tutoria, Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Ètica i valors i, a sota, les files **Franja 1, 2 i 3** amb totes les matèries de cada franja («Matèria - G1: docent»). La franja de cada grup es posa a la columna **Franja** d'Assignacions.",
+            "Els grups-classe de cada grup surten de **Grups-classe** de la matèria: un grup de diversitat d'A+B ocupa una sola cel·la que abraça A i B. Si dos docents fan la mateixa matèria al mateix grup, surten a la mateixa casella (amb les hores de cadascun). El **tutor/a** de cada grup surt destacat en taronja a la columna del seu grup; en blau, el docent (que no és el tutor/a) que fa **més d'una matèria** al mateix grup-classe i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part."
           ]
         }
       ]

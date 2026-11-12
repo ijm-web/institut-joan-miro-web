@@ -386,6 +386,11 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Document equips docents**: ordre de les matèries (`ORDRE_DOC`, `ordreMatDoc`: la llista del centre, la resta i les optatives per ordre alfabètic); una fila per nom de matèria; els grups-classe de cada grup surten de `grupsMat(matèria)[num_grup − 1]` (no del nom del grup, que pot venir de Clickedu); docents del mateix grup a la mateixa casella; tutor/a destacat amb el mateix criteri.
 - Ordre de les instruccions a Romà: 1) pull del bundle; 2) copiar `apps-script/gestio_db/Code.gs` del repositori a l'editor d'Apps Script; 3) `configura` si cal; 4) nova implementació; 5) push.
 
+## PAS 61
+- **Document equips docents**: a 4t d'ESO, ordre `ORDRE_DOC_4T` (… Educació Física, Ètica i valors) i files «Franja 1/2/3» amb les matèries de franja (camp nou `franja` 1|2|3 a Currículum › Assignacions, CAMPS_CURR_GRUPS; ESQUEMA 61, `configura` l'afegeix). Destacat en blau el docent que no és tutor/a i fa més d'una matèria al mateix grup-classe (llegenda a sota).
+- **Matèria repartida entre docents**: tisores d'Assignacions (parts del mateix grup); al document, a la mateixa casella amb les hores.
+- **Icones**: `iconitzaBotons` (MutationObserver sobre #gsApp) canvia el text dels botons «Visualització camps», «Gestió camps», «Actualitza», «Excel» i «PDF» per una icona (títol i aria-label amb el text).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
