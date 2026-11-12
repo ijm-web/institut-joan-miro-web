@@ -378,7 +378,9 @@
     if (m.id === 'calendari') return carregaCalendari();   // PAS 56
     if (m.id === 'ocupacio') return carregaOcupacio();   // PAS 57
     // Les dades ja llegides en aquesta pàgina es reutilitzen: tornar al mòdul no torna a cridar el full
-    if (S.cache[m.id]) return mostraDades(S.cache[m.id]);
+    // PAS 62: les dues vistes del Currículum es tornen a llegir sempre (les hores de les matèries canviades a «Matèries» han
+    // d'arribar a «Assignacions»; abans quedava l'avís ⚠ amb les hores antigues)
+    if (S.cache[m.id] && !/^curriculum/.test(m.id)) return mostraDades(S.cache[m.id]);
     carregaDades();
   }
 
@@ -504,7 +506,15 @@
   var BUIT = { v: '', t: '(buit)' };
   function valorsDiferents(camp) {
     var vist = {}, buit = false;
-    (S.taula ? S.taula.getData() : S.d.files).forEach(function (d) { var v = d[camp] == null ? '' : String(d[camp]).trim(); if (v === '') buit = true; else vist[v] = 1; });
+    // PAS 62: si es filtra per nivell (botons de nivell o filtre de la columna Nivell), els valors de les altres columnes són
+    // només els d'aquell nivell (p. ex. el filtre Matèria del Currículum només té les matèries del nivell)
+    var fn = null;
+    if (camp !== 'nivell' && S.taula) {
+      var fN = null; try { fN = S.taula.getHeaderFilterValue('nivell'); } catch (e) { fN = null; }
+      var nc = typeof esCurriculum === 'function' && esCurriculum() && S.nivellCurr ? S.nivellCurr : '';
+      if (nc || (fN && (fN.s || fN.t))) fn = function (d) { var n = String(d.nivell || ''); if (nc && n !== nc) return false; if (fN && fN.s && fN.s.indexOf(n) < 0) return false; if (fN && fN.t && !conte(n, fN.t)) return false; return true; };
+    }
+    (S.taula ? S.taula.getData() : S.d.files).filter(function (d) { return !fn || fn(d); }).forEach(function (d) { var v = d[camp] == null ? '' : String(d[camp]).trim(); if (v === '') buit = true; else vist[v] = 1; });
     return Object.keys(vist).sort(function (a, b) { return a.localeCompare(b, 'ca', { numeric: true }); }).map(function (x) { return { v: x, t: x }; }).concat(buit ? [BUIT] : []);
   }
   var ordreNivell = function (v) { var o = ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'], i = o.indexOf(String(v || '').replace(/\bBat\b/i, 'BAT')); return i < 0 ? (v ? 50 : 99) : i; };
@@ -4626,11 +4636,12 @@
   // PAS 61 · Icones en lloc del text als cinc botons comuns (Visualització camps, Gestió camps, Actualitza, Excel i PDF), a tots
   // els mòduls: el text queda al títol (en passar-hi el ratolí) i a l'etiqueta accessible
   var ICONES = {
-    'Visualització camps': ['columnes', '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>'],
-    'Gestió camps': ['camps', '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>'],
-    'Actualitza': ['actualitza', '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg>'],
-    'Excel': ['excel', '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><rect x="2.5" y="3.5" width="19" height="17" rx="2.5" fill="#1D7044"/><path d="M8 8l8 8M16 8l-8 8" stroke="#fff" stroke-width="2.2" stroke-linecap="round"/></svg>'],
-    'PDF': ['pdf', '<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M6 2.5h8.5L19.5 7.5V20a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 20V4A1.5 1.5 0 0 1 6 2.5z" fill="#C62828"/><path d="M14.5 2.5V7.5h5" fill="#F3A5A5"/><text x="12" y="17.6" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="6.6" font-weight="700" fill="#fff">PDF</text></svg>']
+    'Visualització camps': ['columnes', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>'],
+    'Gestió camps': ['camps', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>'],
+    'Actualitza': ['actualitza', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg>'],
+    // PAS 62: Excel i PDF com a etiquetes de color amb el nom (més clares que un dibuix)
+    'Excel': ['excel', '<svg viewBox="0 0 34 24" width="34" height="24" aria-hidden="true"><rect x="0.5" y="2" width="33" height="20" rx="4" fill="#1D7044"/><text x="17" y="16.6" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#fff">XLS</text></svg>'],
+    'PDF': ['pdf', '<svg viewBox="0 0 34 24" width="34" height="24" aria-hidden="true"><rect x="0.5" y="2" width="33" height="20" rx="4" fill="#C62828"/><text x="17" y="16.6" text-anchor="middle" font-family="Arial,Helvetica,sans-serif" font-size="11" font-weight="700" fill="#fff">PDF</text></svg>']
   };
   function iconitzaBotons(arrel) {
     [].forEach.call((arrel || document).querySelectorAll('button.prog-btn:not(.gs-ico)'), function (b) {

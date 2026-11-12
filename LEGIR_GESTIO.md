@@ -391,6 +391,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Matèria repartida entre docents**: tisores d'Assignacions (parts del mateix grup); al document, a la mateixa casella amb les hores.
 - **Icones**: `iconitzaBotons` (MutationObserver sobre #gsApp) canvia el text dels botons «Visualització camps», «Gestió camps», «Actualitza», «Excel» i «PDF» per una icona (títol i aria-label amb el text).
 
+## PAS 62
+- **Filtre de Matèria en cascada** (Currículum): `valorsDiferents` filtra les files pel nivell triat (`S.nivellCurr` o filtre de capçalera Nivell) abans de llistar els valors de Matèria.
+- **Avís ⚠ d'hores obsolet**: `obreModul` ja no fa servir `S.cache` per a les vistes `curriculum*`; es tornen a llegir sempre i les hores de la matèria (canviades a Matèries) són les actuals.
+- **Icones**: les de línia passen a 22 px; Excel i PDF són etiquetes de color (34×24) amb el text «XLS» (verd #1D7044) i «PDF» (vermell #C62828).
+- **Matèries trossejades** (ESQUEMA 62): `dadesHoraris_` exporta `trossos` (`trossosHoraris_`: id_materia#num_grup amb més d'una fila, sense comptar la codocència) i regla obligatòria `trossos` (totes les sessions de tots els trossos en dies diferents). Generador: `Dades.trossos`, validació (sessions > dies → error) i REGLES.md.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

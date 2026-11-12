@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 61;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 62;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -3665,7 +3665,19 @@ function dadesHoraris_() {
     regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata,
     classes_clickedu: SG.classes, subgrups: SG.subgrups.map((x) => ({ id: x.id, nom: x.nom, clau: x.clau, nivell: x.nivell, tipus: x.tipus, grups_classe: x.grups.map((l) => x.nivell + ' ' + l) })),
     blocs_simultanis: SG.blocs.map((b) => ({ id: b.id, nivell: b.nivell, nom: b.nom, tipus: b.tipus, mateix_dia: b.mateix_dia, parts: b.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),
-    guardies: Object.assign({ tipus: TIPUS_GUARDIA }, guardiesHoraris_(cfg)), reunions: reunionsHoraris_(cfg).reunions, regles_motor: reglesMotor_(cfg) };
+    guardies: Object.assign({ tipus: TIPUS_GUARDIA }, guardiesHoraris_(cfg)), reunions: reunionsHoraris_(cfg).reunions, trossos: trossosHoraris_(assignacions, mats), regles_motor: reglesMotor_(cfg) };
+}
+// PAS 62 · Matèries trossejades: un grup (matèria + número de grup) repartit en parts amb les tisores del Currículum (p. ex.
+// Matemàtiques (div.) 3 h = 1 h + 2 h, sovint amb docents diferents). Cap sessió de cap tros no pot coincidir el mateix dia.
+// No compta la codocència (cada docent té totes les hores, alhora).
+function trossosHoraris_(assignacions, mats) {
+  const per = {};
+  assignacions.forEach((a) => { if (!a.id_materia) return; const k = a.id_materia + '#' + a.num_grup; (per[k] = per[k] || []).push(a); });
+  return Object.keys(per).filter((k) => per[k].length > 1).map((k) => {
+    const ll = per[k], m = mats[ll[0].id_materia] || {}, total = numCur_(m.hores_a) + numCur_(m.hores_b), d = Math.max(1, Math.round(numCur_(m.docents)) || 1);
+    if (d > 1 && ll.every((a) => Math.abs(a.hores - total) < 0.01)) return null;   // codocència
+    return { id_materia: ll[0].id_materia, num_grup: ll[0].num_grup, nivell: ll[0].nivell, materia: ll[0].materia, grup: ll[0].grup, hores: ll.reduce((t, a) => t + a.hores, 0), assignacions: ll.map((a) => a.id) };
+  }).filter(Boolean);
 }
 // PAS 52 · Catàleg de regles del motor: obligatòries (no es poden incomplir) i toves (cada incompliment suma pes × unitats
 // a la penalització total, que el motor minimitza). «dades» = on són al fitxer d'exportació.
@@ -3684,6 +3696,7 @@ function reglesMotor_(cfg) {
     ['mateix_dia', 'Els blocs amb la mateixa etiqueta «mateix dia» (p. ex. les hores B d\'un grup-classe) es fan el mateix dia (no cal que siguin seguits).', 'blocs_simultanis[].mateix_dia'],
     ['guardies', 'Cada franja té les guàrdies demanades de cada tipus (ordinàries a les franges lectives; biblioteca i pati a l\'esbarjo) i cada docent fa les guàrdies que té assignades, en franges on no té classe.', 'guardies.demanda · docents[].guardies'],
     ['reunions', 'Cada reunió fixa (tutors i coordinació de nivell) es fa a la mateixa franja cada setmana, amb tots els seus docents lliures (no fan classe ni guàrdia).', 'reunions[].docents · hores · franja'],
+    ['trossos', 'Si una matèria d\'un grup està trossejada (repartida en parts, encara que les facin docents diferents), totes les sessions de tots els trossos es fan en dies diferents.', 'trossos[].assignacions'],
     ['multinivell', 'L\'atenció individual (multinivell) no ocupa cap grup-classe: només el docent i, si en té, l\'aula.', 'assignacions[].multinivell'],
     ['aula_capacitat', 'Si no hi ha lloc a l\'aula preferent ni a les alternatives, l\'aula ha de tenir prou capacitat.', 'aules[].capacitat']
   ].map((r) => ({ id: r[0], text: r[1], dades: r[2] }));

@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 61 · 12 de novembre de 2026",
+  "versio": "PAS 62 · 12 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -35,7 +35,7 @@
           "Dins d'un mòdul (a l'ordinador) s'amaguen el menú i la foto del web: la graella ocupa tota la finestra i només fa scroll ella.",
           "Per tornar a la portada de GESTIO, cliqueu **Gestió** a dalt a l'esquerra.",
           "Les dades d'un mòdul es llegeixen la primera vegada que s'obre. **Actualitza** les torna a llegir del full (p. ex. si algú altre hi ha fet canvis).",
-          "Els cinc botons comuns són **icones** (en passar-hi el ratolí en surt el nom): **Visualització camps** (columnes), **Gestió camps** (lliscadors), **Actualitza** (fletxes en cercle), la icona verda **Excel** i la vermella **PDF**."
+          "Els cinc botons comuns són **icones** (en passar-hi el ratolí en surt el nom): **Visualització camps** (columnes), **Gestió camps** (lliscadors), **Actualitza** (fletxes en cercle), i les etiquetes de color **XLS** (verda, Excel) i **PDF** (vermella)."
         ]
       },
       {
@@ -51,7 +51,8 @@
           "Les files de **baixa** no surten si no es marca **Mostra també les baixes** o es filtra la columna Estat per «baixa».",
           "Els filtres i les cerques **no distingeixen majúscules ni accents** (p. ex. «tecniques» troba «Tècniques d'estudi»).",
           "A l'embut, en escriure a **Cerca un valor**, queden marcats només els valors que hi coincideixen; **Enter** o **Accepta** aplica el filtre.",
-          "Les dates es mostren **dd/mm/aaaa**; al filtre ràpid es poden escriure així (p. ex. 15/09)."
+          "Les dates es mostren **dd/mm/aaaa**; al filtre ràpid es poden escriure així (p. ex. 15/09).",
+          "Al **Currículum**, si filtreu per nivell (amb els botons de nivell o amb el filtre de la columna Nivell), l'embut de **Matèria** només mostra les matèries d'aquell nivell."
         ]
       },
       {
@@ -139,7 +140,7 @@
         "titol": "Exportar a Excel o PDF",
         "claus": "exportar excel pdf imprimir descarregar llistat actualitza recarregar tornar a llegir",
         "text": [
-          "Botons amb la icona verda (**Excel**) i la vermella (**PDF**).",
+          "Botons amb l'etiqueta verda **XLS** (Excel) i la vermella **PDF**.",
           "Els botons **Excel** i **PDF** (a la dreta) descarreguen el que es veu: les files filtrades i les columnes visibles. Es pot fer des del nivell consulta.",
           "Tots els PDF que es generen des de GESTIO porten el **logo del centre** a la part superior.",
           "**Actualitza** torna a llegir les dades del full de càlcul (per exemple, després d'una importació o d'un canvi fet directament al full). Només surt per a qui administra el mòdul: quan algú altre desa canvis des del web, surt a dalt un avís amb el seu propi botó «Actualitza»."
@@ -882,7 +883,9 @@
             "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata).",
             "**Comprova la desiderata**: compara les assignacions (també els canvis fets a mà) amb la desiderata: per a cada assignació i docent, els grups de la desiderata i els assignats. Avisa de grups que falten o sobren, docents que no són a la desiderata i docents que ja no són en actiu. Per a cada docent amb incoherències surten els grups on és assignat, per trobar-lo a la graella. Al filtre de la columna Professor/a, els docents que ja no són en actiu surten amb «(fora de la llista)». Per substituir-los pel docent de la desiderata, feu **Aplica la desiderata** amb «Substitueix també els que ja tenen professor/a».",
             "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes).",
-            "**Franja** (només 4t d'ESO): 1, 2 o 3 per a cada grup de les matèries de franja (p. ex. Biologia G1 → 1, Biologia G2 → 2). Serveix per al document dels equips docents."
+            "**Franja** (només 4t d'ESO): 1, 2 o 3 per a cada grup de les matèries de franja (p. ex. Biologia G1 → 1, Biologia G2 → 2). Serveix per al document dels equips docents.",
+            "**Matèria trossejada** (p. ex. Matemàtiques div. de 3 h repartida 1 h + 2 h entre dos docents amb les tisores): el generador d'horaris posa **totes les sessions de tots els trossos en dies diferents**, encara que siguin de docents diferents. Per tant, una matèria trossejada no pot tenir més sessions que dies lectius.",
+            "Si canvieu les hores d'una matèria a Matèries, les pestanyes del Currículum es tornen a llegir en obrir-les i l'avís ⚠ d'hores es recalcula amb les hores noves."
           ]
         },
         {
@@ -1158,7 +1161,8 @@
           "text": [
             "**Regles del motor**: preferències amb un **pes** de 1 (poc important) a 5 (molt important): màxim d'hores seguides d'una matèria, repartir les hores en dies diferents, evitar forats al professorat, respectar la desiderata i les penalitzacions d'aula: **usar una aula alternativa** (per defecte 2) i **usar qualsevol aula** (per defecte 4).",
             "Les regles obligatòries sempre es compleixen: un docent, un grup, un subgrup o una aula no poden ser a dos llocs alhora; posicions fixes i prohibides; les sessions d'un bloc simultani a la mateixa hora amb docents i aules diferents; els blocs amb la mateixa etiqueta «mateix dia», el mateix dia.",
-            "**Regles obligatòries** i **Penalitzacions de les regles toves**: el catàleg complet tal com va a l'exportació per al motor (`regles_motor`). Penalització total = suma de pes × unitats (p. ex. cada hora buida d'un docent, cada hora fora de l'aula preferent); el motor busca l'horari amb la penalització més baixa i compleix sempre les obligatòries."
+            "**Regles obligatòries** i **Penalitzacions de les regles toves**: el catàleg complet tal com va a l'exportació per al motor (`regles_motor`). Penalització total = suma de pes × unitats (p. ex. cada hora buida d'un docent, cada hora fora de l'aula preferent); el motor busca l'horari amb la penalització més baixa i compleix sempre les obligatòries.",
+            "Entre les **obligatòries** hi ha la de les **matèries trossejades**: si una matèria d'un grup està repartida en trossos (docents diferents), totes les sessions de tots els trossos es fan en dies diferents. La validació avisa si una matèria trossejada té més sessions que dies."
           ]
         },
         {
