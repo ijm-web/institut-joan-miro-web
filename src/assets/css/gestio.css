@@ -578,3 +578,16 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 /* PAS 61 · Botons amb icona (Visualització camps, Gestió camps, Actualitza, Excel i PDF) */
 .prog-btn.gs-ico{ display: inline-flex; align-items: center; justify-content: center; padding: 7px 10px; min-width: 40px; line-height: 0; }
 .prog-btn.gs-ico svg{ display: block; }
+
+/* PAS 64 · Horaris · editor: graella dies × franges */
+.gs-he__taula{ border-collapse: collapse; margin: 0 12px 12px; width: calc(100% - 24px); min-width: 720px; table-layout: fixed; font-size: .82rem; }
+.gs-he__taula th, .gs-he__taula td{ border: 1px solid #E1E5EE; padding: 4px; vertical-align: top; }
+.gs-he__taula thead th{ background: #1C0CBC; color: #fff; position: sticky; top: 0; z-index: 1; }
+.gs-he__taula tbody th{ width: 64px; color: #5A6078; font-weight: 600; background: #F6F7FC; text-align: center; }
+.gs-he__esb td, .gs-he__esb th{ background: #F6F7FC; color: #8A90A6; font-size: .75rem; padding: 2px 4px; text-align: center; }
+.gs-he__s{ background: #EEF0FF; border-left: 3px solid #1C0CBC; border-radius: 4px; padding: 3px 5px; margin: 2px 0; line-height: 1.25; }
+.gs-he__s small{ display: block; color: #5A6078; }
+.gs-he__s--guardia, .gs-he__s--guardia_b, .gs-he__s--guardia_p{ background: #FFF4E5; border-left-color: #E08A00; }
+.gs-he__s--reduccio_lectiva, .gs-he__s--reduccio_guardia{ background: #EAF7EF; border-left-color: #1D7044; }
+.gs-he__s--reunio{ background: #F3E8FF; border-left-color: #7B2CBF; }
+.gs-he__s--sensaula{ outline: 1px dashed #C62828; }

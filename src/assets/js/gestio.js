@@ -285,6 +285,7 @@
     batxillerat: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 8h22l6 6v26H10z"/><path d="M32 8v6h6"/><path class="prog-apartat__acc" d="M16 22h16M16 28h16M16 34h10"/></svg>',
     nou_professor: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="19" cy="16" r="6"/><path d="M7 38c0-7 5-12 12-12 4 0 7 1.5 9 4"/><path class="prog-apartat__acc" d="M36 26v12M30 32h12"/></svg>',
     pas: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="17" cy="15" r="6"/><path d="M5 38c0-7 5-12 12-12s12 5 12 12"/><path d="M30 24h13v14H30z"/><path class="prog-apartat__acc" d="M34 24v-3h5v3M30 30h13"/></svg>',
+    horaris_editor: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="9" width="36" height="32" rx="3"/><path d="M6 17h36M18 17v24M30 17v24M6 25h36M6 33h36M15 5v7M33 5v7"/></svg>',
     equips: '<svg class="prog-apartat__icon" aria-hidden="true" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="16" cy="17" r="5"/><circle cx="32" cy="17" r="5"/><path d="M6 36c0-6 4-10 10-10s10 4 10 10"/><path d="M22 36c0-6 4-10 10-10s10 4 10 10"/><path class="prog-apartat__acc" d="M24 6v6M21 9h6"/></svg>'
   };
   // PAS 49: portada amb els mòduls agrupats (Personal, Alumnat, Organització del curs, Administració…). El grup surt de la
@@ -377,6 +378,7 @@
     if (m.id === 'horaris') return carregaHoraris();
     if (m.id === 'calendari') return carregaCalendari();   // PAS 56
     if (m.id === 'ocupacio') return carregaOcupacio();   // PAS 57
+    if (m.id === 'horaris_editor') return carregaEditorHoraris();   // PAS 64
     // Les dades ja llegides en aquesta pàgina es reutilitzen: tornar al mòdul no torna a cridar el full
     // PAS 62: les dues vistes del Currículum es tornen a llegir sempre (les hores de les matèries canviades a «Matèries» han
     // d'arribar a «Assignacions»; abans quedava l'avís ⚠ amb les hores antigues)
@@ -3191,6 +3193,137 @@
       if (!x.data_inici || !x.descripcio) return toast('Cal la data i la descripció.', true);
       S.cal.data = x.data_inici;
       desaCal([x], [], 'Esdeveniment afegit.').then(function (r) { var d = r && r.ok && document.querySelector('.gs-cal__afegeix [name="descripcio"]'); if (d) d.focus(); });
+    });
+  }
+  // ------------------------------------------------------------------ PAS 64 · HORARIS · EDITOR
+  // L'horari calculat pel MOTOR (generador-horaris, fitxer «horari-resultat») s'importa aquí. De moment, consulta per docent i
+  // per grup-classe, amb PDF (la vista oberta o tots). Més endavant: retocs amb comprovació de conflictes.
+  var NOM_TIPUS_HE = { reunio: 'Reunió', reduccio_lectiva: 'Reducció lectiva', reduccio_guardia: 'Reducció de guàrdia', guardia: 'Guàrdia', guardia_b: 'Guàrdia de biblioteca', guardia_p: 'Guàrdia de pati' };
+  function carregaEditorHoraris() {
+    S.he = S.he || { vista: 'docent', sel: '' };
+    return api('horari_editor_dades', {}, 'Carregant l’horari…').then(function (r) {
+      if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
+      if (!(r.esquema >= 64)) { $('gsAvis').innerHTML = 'Cal l’Apps Script del PAS 64 o posterior: enganxeu el Code.gs nou, executeu «configura» i feu una nova implementació.'; $('gsAvis').hidden = false; return; }
+      S.he.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert };
+      S.he.noms = {}; r.docents.forEach(function (d) { S.he.noms[d.id] = d.nom; });
+      lligaEditorHoraris(); pintaEditorHoraris();
+    });
+  }
+  function itemsHE() {
+    var R = S.he.r;
+    if (S.he.vista === 'docent') {
+      var amb = {}; R.sessions.forEach(function (s) { s.docents.forEach(function (d) { amb[d] = 1; }); });
+      return R.docents.filter(function (d) { return amb[d.id]; }).map(function (d) { return { id: d.id, nom: d.nom }; });
+    }
+    var o = []; Object.keys(R.grups_classe || {}).forEach(function (n) { (R.grups_classe[n] || []).forEach(function (g) { o.push({ id: g, nom: g }); }); });
+    return o;
+  }
+  var cognomHE = function (id) { var n = S.he.noms[id] || id; return n.split(',')[0]; };
+  function sessionsHE(id) {
+    return S.he.r.sessions.filter(function (s) { return S.he.vista === 'docent' ? s.docents.indexOf(id) >= 0 : s.grups_classe.indexOf(id) >= 0 && s.tipus === 'classe'; });
+  }
+  function textHE(s, pdf) {
+    var t = s.tipus === 'classe' ? s.materia : (s.tipus === 'reunio' && s.materia ? s.materia : NOM_TIPUS_HE[s.tipus] || s.tipus), sub = [];
+    if (S.he.vista === 'docent') { if (s.tipus === 'classe') sub.push(s.grup || s.grups_classe.join(', ')); }
+    else { if (s.grup && s.grups_classe.length && s.grup !== s.grups_classe[0]) sub.push(s.grup); sub.push(s.docents.map(cognomHE).join(', ')); }
+    if (s.aula) sub.push(s.aula);
+    return pdf ? t + (sub.length ? '\n' + sub.join(' · ') : '') : '<b>' + esc(t) + '</b>' + (sub.length ? '<small>' + esc(sub.join(' · ')) + '</small>' : '');
+  }
+  function graellaHE(id) {
+    var M = S.he.r.marc_horari, ses = sessionsHE(id), per = {};
+    ses.forEach(function (s) { (per[s.dia + ' ' + s.franja] = per[s.dia + ' ' + s.franja] || []).push(s); });
+    // Les sessions de la mateixa hora (blocs d'optatives, hores B) van a la mateixa casella
+    return { M: M, per: per, n: Object.keys(per).length };   // hores = franges ocupades (un bloc compta una vegada)
+  }
+  function pintaEditorHoraris() {
+    var R = S.he.r, it = itemsHE(), ed = nivellIdx(R.nivell) >= 1 && R.obert;
+    if (!it.some(function (x) { return x.id === S.he.sel; })) S.he.sel = it.length ? it[0].id : '';
+    var i = it.map(function (x) { return x.id; }).indexOf(S.he.sel), meta = R.meta;
+    $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist">' + [['docent', 'Per docent'], ['grup', 'Per grup-classe']].map(function (x) { return '<button type="button" role="tab" data-he="vista" data-v="' + x[0] + '" aria-selected="' + (x[0] === S.he.vista) + '">' + x[1] + '</button>'; }).join('') + '</div>' +
+      (it.length ? '<button type="button" class="prog-btn prog-btn--ghost" data-he="ant" aria-label="Anterior"' + (i > 0 ? '' : ' disabled') + '>‹</button>' +
+        '<select data-he="sel" aria-label="' + (S.he.vista === 'docent' ? 'Docent' : 'Grup-classe') + '">' + it.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === S.he.sel ? ' selected' : '') + '>' + esc(x.nom) + '</option>'; }).join('') + '</select>' +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-he="seg" aria-label="Següent"' + (i < it.length - 1 ? '' : ' disabled') + '>›</button>' : '') +
+      '<span class="gs-espai"></span>' +
+      (it.length ? '<button type="button" class="prog-btn prog-btn--ghost" data-he="pdf-tots" title="Un full per ' + (S.he.vista === 'docent' ? 'docent' : 'grup-classe') + '">PDF de tots</button><button type="button" class="prog-btn prog-btn--ghost" data-he="pdf">PDF</button>' : '') +
+      (ed ? '<button type="button" class="prog-btn" data-he="importa">Importa horari</button><input type="file" id="gsHeFitxer" accept=".json,application/json" hidden>' : '') +
+      '<p class="gs-ajuda gs-cal__ajuda">' + (meta ? 'Horari calculat el <b>' + esc(dataHoraHE(meta.generat)) + '</b> (curs ' + esc(meta.curs || '?') + ') · mode: nivells <b>' + esc(Array.isArray(meta.mode.nivells) ? meta.mode.nivells.join(', ') : meta.mode.nivells || 'tots') + '</b>, lectives <b>' + esc((meta.mode.lectives || []).join(' + ') || 'cap') + '</b>, guàrdies <b>' + esc((meta.mode.guardies || []).join(' + ') || 'cap') + '</b> · ' + meta.sessions + ' hores · importat el ' + esc(dataHoraHE(meta.importat)) +
+        ((meta.resultat && meta.resultat.avisos || []).length ? ' · <button type="button" class="gs-enllac" data-he="avisos">' + meta.resultat.avisos.length + ' avisos del motor</button>' : '')
+        : 'Encara no s’ha importat cap horari. Calculeu-lo amb el motor (generador-horaris: <code>python -m horaris.motor</code>) i importeu el fitxer <code>horari-….json</code>' + (ed ? ' amb <b>Importa horari</b>.' : ' (cal nivell d’edició).')) + '</p>';
+    var t = $('gsTaula'); t.className = 'gs-ocu gs-he';
+    t.innerHTML = S.he.sel ? htmlGraellaHE(S.he.sel) : '<p class="gs-ajuda" style="padding:12px">' + (meta ? 'No hi ha cap ' + (S.he.vista === 'docent' ? 'docent' : 'grup-classe') + ' amb hores.' : 'Sense horari.') + '</p>';
+    ajustaAlcada();
+  }
+  var dataHoraHE = function (x) { x = String(x || ''); var m = /^(\d{4})-(\d{2})-(\d{2})[T ](\d{2}):(\d{2})/.exec(x); return m ? Number(m[3]) + '/' + Number(m[2]) + '/' + m[1] + ' ' + m[4] + ':' + m[5] : x; };
+  function htmlGraellaHE(id) {
+    var G = graellaHE(id), M = G.M, nom = (itemsHE().filter(function (x) { return x.id === id; })[0] || {}).nom || id;
+    var h = '<h3 class="gs-amon__tit" style="margin:10px 12px 6px">' + esc(nom) + ' <small class="gs-gris">· ' + G.n + ' hores</small></h3><table class="gs-he__taula"><colgroup><col style="width:64px">' + M.dies.map(function () { return '<col>'; }).join('') + '</colgroup><thead><tr><th></th>' +
+      M.dies.map(function (d) { return '<th>' + esc(d.charAt(0).toUpperCase() + d.slice(1)) + '</th>'; }).join('') + '</tr></thead><tbody>';
+    M.franges.forEach(function (f) {
+      var hiHa = M.dies.some(function (d) { return G.per[d + ' ' + f.id]; });
+      if (f.esbarjo && !hiHa) { h += '<tr class="gs-he__esb"><th>' + esc(f.inici) + '</th><td colspan="' + M.dies.length + '">Esbarjo</td></tr>'; return; }
+      h += '<tr' + (f.esbarjo ? ' class="gs-he__esb"' : '') + '><th>' + esc(f.inici) + '<br><small>' + esc(f.fi) + '</small></th>' + M.dies.map(function (d) {
+        var ll = G.per[d + ' ' + f.id] || [];
+        return '<td>' + ll.map(function (s) { return '<div class="gs-he__s gs-he__s--' + esc(s.tipus) + (s.tipus === 'classe' && !s.aula ? ' gs-he__s--sensaula' : '') + '">' + textHE(s) + '</div>'; }).join('') + '</td>';
+      }).join('') + '</tr>';
+    });
+    return h + '</tbody></table>';
+  }
+  function cosPdfHE(id) {
+    var G = graellaHE(id), M = G.M;
+    return M.franges.map(function (f) { return [f.inici + '\n' + f.fi].concat(M.dies.map(function (d) { return (G.per[d + ' ' + f.id] || []).map(function (s) { return textHE(s, true); }).join('\n\n') || (f.esbarjo ? '' : ''); })); });
+  }
+  function pdfHE(ids) {
+    var M = S.he.r.marc_horari, it = itemsHE(), nomDe = function (id) { return (it.filter(function (x) { return x.id === id; })[0] || {}).nom || id; };
+    var crida = logoPdf().then(function (logo) {
+      var doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), W = doc.internal.pageSize.getWidth(), M2 = 12;
+      var esb = {}; M.franges.forEach(function (f, j) { if (f.esbarjo) esb[j] = 1; });
+      ids.forEach(function (id, k) {
+        if (k) doc.addPage();
+        capPdf(doc, logo, 'Horari · ' + nomDe(id), (S.he.vista === 'docent' ? 'Docent' : 'Grup-classe') + ' · curs ' + ((S.he.r.meta || {}).curs || '') + ' · ' + new Date().toLocaleDateString('ca-ES'), M2, W);
+        doc.autoTable({ head: [[''].concat(M.dies.map(function (d) { return d.charAt(0).toUpperCase() + d.slice(1); }))], body: cosPdfHE(id), startY: Y_TAULA, margin: { left: M2, right: M2, bottom: 10 },
+          styles: { font: 'helvetica', fontSize: 7.5, cellPadding: 1.4, valign: 'middle', halign: 'center', lineColor: [205, 210, 225], lineWidth: 0.15, overflow: 'linebreak' },
+          headStyles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold' }, columnStyles: { 0: { cellWidth: 16, fontStyle: 'bold', textColor: [90, 96, 120] } },
+          didParseCell: function (c) { if (c.section === 'body' && esb[c.row.index]) { c.cell.styles.fillColor = [246, 247, 252]; c.cell.styles.minCellHeight = 5; } else if (c.section === 'body') c.cell.styles.minCellHeight = 12; } });
+      });
+      doc.save('horari-' + (ids.length === 1 ? String(nomDe(ids[0])).toLowerCase().replace(/[^a-z0-9]+/g, '-') : S.he.vista === 'docent' ? 'professorat' : 'grups') + '.pdf');
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
+  }
+  function importaHE(f) {
+    var lector = new FileReader();
+    lector.onload = function () {
+      var h; try { h = JSON.parse(lector.result); } catch (e) { return toast('El fitxer no és un JSON vàlid.', true); }
+      if (!h || h.format !== 'horari-resultat') return toast('Aquest fitxer no és un horari calculat pel motor (format «horari-resultat»).', true);
+      var n = (h.sessions || []).length;
+      pregunta('Importa l’horari', '<p>Horari calculat el <b>' + esc(dataHoraHE(h.generat)) + '</b> amb <b>' + n + '</b> hores.</p><p>Substitueix l’horari importat ara' + (S.he.r.meta ? ' (' + esc(dataHoraHE(S.he.r.meta.generat)) + ')' : '') + '.</p>',
+        [{ t: 'Importa', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) {
+        if (v !== 1) return;
+        api('horari_editor_importa', { horari: h }, 'Important l’horari…').then(function (r) {
+          if (!r.ok) return toast(r.errors ? r.errors.slice(0, 3).join(' ') : text(r.error), true);
+          S.he.r = r; S.he.noms = {}; r.docents.forEach(function (d) { S.he.noms[d.id] = d.nom; }); toast('Horari importat: ' + r.importades + ' hores.'); pintaEditorHoraris();
+        });
+      });
+    };
+    lector.readAsText(f);
+  }
+  function lligaEditorHoraris() {
+    if (lligaEditorHoraris.fet) return; lligaEditorHoraris.fet = true;
+    var actiu = function () { return S.modul && S.modul.id === 'horaris_editor' && S.he && S.he.r; };
+    $('gsEines').addEventListener('click', function (e) {
+      var b = e.target.closest('[data-he]'); if (!b || !actiu()) return;
+      var a = b.dataset.he, it = itemsHE().map(function (x) { return x.id; }), i = it.indexOf(S.he.sel);
+      if (a === 'vista') { S.he.vista = b.dataset.v; S.he.sel = ''; pintaEditorHoraris(); }
+      else if (a === 'ant' && i > 0) { S.he.sel = it[i - 1]; pintaEditorHoraris(); }
+      else if (a === 'seg' && i < it.length - 1) { S.he.sel = it[i + 1]; pintaEditorHoraris(); }
+      else if (a === 'pdf' && S.he.sel) pdfHE([S.he.sel]);
+      else if (a === 'pdf-tots') pdfHE(it);
+      else if (a === 'importa') $('gsHeFitxer').click();
+      else if (a === 'avisos') pregunta('Avisos del motor', '<ul>' + S.he.r.meta.resultat.avisos.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>', [{ t: 'Tanca', valor: 1 }]);
+    });
+    $('gsEines').addEventListener('change', function (e) {
+      if (!actiu()) return;
+      if (e.target.dataset && e.target.dataset.he === 'sel') { S.he.sel = e.target.value; pintaEditorHoraris(); }
+      else if (e.target.id === 'gsHeFitxer' && e.target.files[0]) { importaHE(e.target.files[0]); e.target.value = ''; }
     });
   }
   // ------------------------------------------------------------------ PAS 57 · OCUPACIÓ

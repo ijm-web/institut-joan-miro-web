@@ -401,6 +401,11 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Matriu de permisos** (i vista Per persona): els mòduls van en l'ordre de la portada (`equips_` ordena per `ordre`): Professorat, PAS, Alumnat ESO…
 - **Amonestacions sense accés implícit**: `context_` ja no dona «consulta» a tot el professorat; només val la matriu de permisos (ara, només admins). `potRedactar_` exigeix accés al mòdul (consulta → professorat, només les pròpies; edició → tothom). Per obrir-les a tot el professorat: Claustre → Consulta a la columna Amonestacions. ESQUEMA 63.
 
+## PAS 64
+- **Mòdul HORARIS · EDITOR** (`horaris_editor`, grup Organització del curs; `configura` l'afegeix; permís: admins): `horari_editor_importa` (edició) desa el fitxer «horari-resultat» del motor al full `horari_resultat` (una fila per hora) i la resta a `config › horari_meta`; `horari_editor_dades` (consulta). Client: `carregaEditorHoraris`, vistes Per docent / Per grup-classe, PDF i PDF de tots (`pdfHE`). ESQUEMA 64.
+- **Exportació per al motor**: `docents[].reduccions_lectives` (total lectives − lectives amb alumnat) i `reduccions_guardia` (suma rg_*).
+- **Motor** (generador-horaris, `horaris/motor.py`, OR-Tools CP-SAT): `--nivells tots|cap|llista`, `--lectives alumnat,reduccions`, `--guardies guardies,reduccions`, `--base`.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
