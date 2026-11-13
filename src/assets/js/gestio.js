@@ -4338,10 +4338,9 @@
       if (global) n = NIVELLS.length - 1;
       if (m.id === 'equips' && !global) n = -1;
       var nota = '';
-      if (n < 0 && m.id === 'amonestacions' && prof) { n = 0; nota = 'tot el professorat (només les pròpies)'; }
       var mx = fonts.filter(function (f) { return f.k === n; }), grups = mx.length && mx.every(function (f) { return (f.q.grups || []).length; }) ? mx.reduce(function (t, f) { return t.concat(f.q.grups); }, []) : [];
       return '<tr class="' + (n < 0 ? 'gs-gris' : '') + '"><td>' + esc(m.nom) + '</td><td><strong>' + (n < 0 ? '—' : esc(NOM_NIVELL[NIVELLS[n]])) + '</strong></td><td>' +
-        (global ? 'Administració global' : nota || mx.map(function (f) { return esc(f.q.nom); }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ')) + '</td><td>' + (grups.length ? grups.map(function (g) { return '<span class="gs-pill">' + esc(g) + '</span>'; }).join('') : (n < 0 ? '' : 'tots')) + '</td></tr>';
+        (global ? 'Administració global' : nota || mx.map(function (f) { return esc(f.q.nom); }).filter(function (x, i, a) { return a.indexOf(x) === i; }).join(', ') + (n === 0 && m.id === 'amonestacions' ? ' (només les pròpies)' : '')) + '</td><td>' + (grups.length ? grups.map(function (g) { return '<span class="gs-pill">' + esc(g) + '</span>'; }).join('') : (n < 0 ? '' : 'tots')) + '</td></tr>';
     }).join('');
     $('gsTaula').innerHTML = '<div class="gs-matriu" style="padding:8px 12px"><h3 class="gs-amon__tit">Equips</h3>' + (eqs.length ? '<ul>' + eqs.map(function (q) { var inactiu = q.actiu === 'no' || (q.automatic && !q.automatic.actiu);
         return '<li><strong>' + esc(q.nom) + '</strong> <small class="gs-gris">' + esc(q.id_equip) + ' · ' + (q.tipus === 'docent' ? 'docent' : 'gestió') + (q.automatic ? ' · automàtic' : '') + (inactiu ? ' · <b>inactiu</b>' + (q.automatic && q.automatic.des_de ? ' fins al ' + esc(dataVista(q.automatic.des_de)) : '') : '') + '</small></li>'; }).join('') + '</ul>' : '<p class="gs-ajuda">No és de cap equip.</p>') +

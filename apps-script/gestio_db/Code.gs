@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 62;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 63;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -110,7 +110,7 @@ const MODULS_PER_DEFECTE = [
   ['batxillerat', 'Alumnat Batxillerat', 'Dades acadèmiques de l\'alumnat de batxillerat: grups, itinerari, matèries, pendents i autoritzacions.', 4, 'si', 'Alumnat'],
   ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si', 'Personal'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si', 'Alumnat'],
-  ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta qualsevol docent; registre, PDF per a la família, avisos i anàlisi.', 7, 'si', 'Alumnat'],
+  ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta el professorat amb accés al mòdul; registre, PDF per a la família, avisos i anàlisi.', 7, 'si', 'Alumnat'],
   ['curriculum', 'Currículum', 'Disseny curricular d\'ESO i batxillerat: matèries de cada nivell amb hores, especialitat i grups; assignació de cada matèria i grup a una especialitat i document dels equips docents.', 9, 'si', 'Organització del curs'],
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si', 'Alumnat'],
   ['desiderata', 'Desiderata', 'Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit, observacions pedagògiques i coherència amb les hores lectives.', 9, 'si', 'Organització del curs'],
@@ -713,11 +713,10 @@ function context_(email) {
     if (modul === 'equips') return '';   // equips i permisos: només admins globals
     let n = -1;
     perms.forEach((r) => { if (r.id_modul === modul || r.id_modul === '*') n = Math.max(n, NIVELLS.indexOf(norm_(r.nivell))); });
-    // PAS 35: tot el professorat pot redactar amonestacions, encara que el seu equip no hi tingui permís (només veu les seves)
-    if (n < 0 && modul === 'amonestacions' && p && /^PRO-/.test(String(p.id))) return 'consulta';
+    // PAS 63: ja no hi ha accés implícit a les amonestacions; només el que doni la matriu de permisos (p. ex. Claustre → consulta)
     return n >= 0 ? NIVELLS[n] : '';
   };
-  // Amonestacions (PAS 36): amb nivell consulta (el de tot el professorat) només es veuen les pròpies; des d'edició
+  // Amonestacions (PAS 36): amb nivell consulta només es veuen les pròpies; des d'edició
   // (coordinació) i administració, totes
   const nomesPropies = (modul) => modul === 'amonestacions' && NIVELLS.indexOf(nivell(modul)) < NIVELLS.indexOf('edicio');
   // PAS 30: si tots els permisos d'un mòdul venen d'equips amb «grups» (p. ex. l'equip docent de 1r ESO A), la persona
@@ -1072,12 +1071,12 @@ function historialFila_(ctx, req) {
 }
 
 // ------------------------------------------------------------------ PAS 35 · AMONESTACIONS
-// Qui pot redactar: tot el professorat (actiu) i qui té edició al mòdul. Qui té edició pot triar el professor/a; la resta, ell mateix.
+// Qui pot redactar (PAS 63): qui té accés al mòdul (consulta: professorat, només les pròpies; edició: tothom). Qui té edició pot triar el professor/a; la resta, ell mateix.
 const propiaAmon_ = (ctx, modul, r) => modul === 'amonestacions' && ((ctx.persona && String(r.id_professor) === String(ctx.persona.id)) || String(r.desat_per).toLowerCase() === ctx.email);
-// PAS 36: tot el professorat pot redactar, sigui quin sigui el seu nivell al mòdul
+// PAS 63: redacta qui té accés al mòdul: amb edició, qualsevol; amb consulta, el professorat (només les pròpies)
 function potRedactar_(ctx) {
   if (pot_(ctx, 'amonestacions', 'edicio')) return true;
-  return !!(ctx.persona && /^PRO-/.test(String(ctx.persona.id)));
+  return pot_(ctx, 'amonestacions', 'consulta') && !!(ctx.persona && /^PRO-/.test(String(ctx.persona.id)));
 }
 const cursDeData_ = (iso) => { const m = /^(\d{4})-(\d{2})/.exec(String(iso || '')); if (!m) return ''; const y = Number(m[1]); return Number(m[2]) >= 9 ? y + '-' + (y + 1) : (y - 1) + '-' + y; };
 function avisAmonCfg_(cfg) {
@@ -1546,7 +1545,8 @@ function equips_(ctx) {
     membres_ids: q.id_equip === EQ_CLAUSTRE ? [] : membres.filter((m) => m.id_equip === q.id_equip).map((m) => m.id_membre),
     automatic: q.id_equip === EQ_CLAUSTRE ? { des_de: String(ctx.cfg.claustre_des_de || ''), actiu: claustreActiu_(ctx.cfg) } : null,
     permisos: perms.filter((p) => p.id_equip === q.id_equip).map((p) => ({ modul: p.id_modul, nivell: p.nivell })) })),
-    moduls: llegeix_(FULL.mod).map((m) => ({ id: m.id_modul, nom: m.nom })), grups: GRUPS_ESO.concat(GRUPS_1BAT, GRUPS_2BAT),
+    // PAS 63: mòduls en l'ordre de la portada (Professorat, PAS, Alumnat ESO…)
+    moduls: llegeix_(FULL.mod).map((m, i) => ({ id: m.id_modul, nom: m.nom, o: Number(m.ordre) || 50, i: i })).sort((a, b) => a.o - b.o || a.i - b.i).map((m) => ({ id: m.id, nom: m.nom })), grups: GRUPS_ESO.concat(GRUPS_1BAT, GRUPS_2BAT),
     // Per triar membres: professorat i PAS que no són de baixa (els de baixa que ja hi són també surten)
     persones: pers.filter((x) => !deBaixa_(x.p) || membres.some((m) => m.id_membre === x.id))
       // PAS 32: «Cognoms, Nom», per ordre alfabètic del 1r cognom

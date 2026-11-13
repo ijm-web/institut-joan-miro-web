@@ -397,6 +397,10 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Icones**: les de línia passen a 22 px; Excel i PDF són etiquetes de color (34×24) amb el text «XLS» (verd #1D7044) i «PDF» (vermell #C62828).
 - **Matèries trossejades** (ESQUEMA 62): `dadesHoraris_` exporta `trossos` (`trossosHoraris_`: id_materia#num_grup amb més d'una fila, sense comptar la codocència) i regla obligatòria `trossos` (totes les sessions de tots els trossos en dies diferents). Generador: `Dades.trossos`, validació (sessions > dies → error) i REGLES.md.
 
+## PAS 63
+- **Matriu de permisos** (i vista Per persona): els mòduls van en l'ordre de la portada (`equips_` ordena per `ordre`): Professorat, PAS, Alumnat ESO…
+- **Amonestacions sense accés implícit**: `context_` ja no dona «consulta» a tot el professorat; només val la matriu de permisos (ara, només admins). `potRedactar_` exigeix accés al mòdul (consulta → professorat, només les pròpies; edició → tothom). Per obrir-les a tot el professorat: Claustre → Consulta a la columna Amonestacions. ESQUEMA 63.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

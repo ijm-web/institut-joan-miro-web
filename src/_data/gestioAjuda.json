@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 62 · 12 de novembre de 2026",
+  "versio": "PAS 63 · 13 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -595,6 +595,7 @@
           "claus": "permisos matriu nivell consulta edició administració tots els mòduls",
           "text": [
             "Pestanya **Permisos**: una fila per equip i una columna per mòdul (i «Tots els mòduls»). A cada casella: —, Consulta, Edició o Administració. Si una persona és a diversos equips, val el nivell més alt.",
+            "Les columnes van en l'ordre de la portada: Professorat, PAS, Alumnat ESO, Alumnat Batxillerat…",
             "L'administració global de l'equip directiu no es pot treure des del web.",
             "A la matriu de permisos, la capçalera amb els noms dels mòduls queda fixa en fer scroll."
           ]
@@ -605,7 +606,7 @@
           "claus": "persona docent permisos equips nivell mòdul consulta quins permisos té",
           "text": [
             "La pestanya **Per persona** respon «a quins equips és aquesta persona i què pot fer a cada mòdul?». Trieu la persona: surten els seus equips (actius o no) i, per a cada mòdul, el **nivell** (el més alt dels seus equips actius), **per quin equip** el té i si està limitat a uns **grups**.",
-            "També hi surt l'accés de tot el professorat a Amonestacions (només les pròpies). Els correus de config › admins (accés d'emergència) no hi surten."
+            "Els correus de config › admins (accés d'emergència) no hi surten."
           ]
         },
         {
@@ -614,7 +615,7 @@
           "claus": "claustre tot el professorat automàtic consulta",
           "text": [
             "L'equip **Claustre (tot el professorat)** no té membres a mà: hi és tot el professorat que no és de baixa (ni fitxes de prova), automàticament, a partir del dia de **config › claustre_des_de** (16/11/2026).",
-            "Té **consulta** a Professorat, Alumnat ESO, Alumnat Batxillerat, Control d'entrada i Calendari. Els permisos es canvien a la pestanya Permisos com els de qualsevol equip.",
+            "Té **consulta** a Professorat, Alumnat ESO, Alumnat Batxillerat, Control d'entrada i Calendari. **No** té accés a Amonestacions: ara només hi entren els administradors i els equips que hi tinguin permís. Els permisos es canvien a la pestanya Permisos com els de qualsevol equip (p. ex., per obrir les amonestacions a tot el professorat, poseu Consulta al Claustre a la columna Amonestacions).",
             "Com que no té grups, el professorat veu tot l'alumnat (abans, els equips docents de nivell amb grups només en veien una part). Reviseu a **Gestió camps** de cada mòdul quins camps es veuen des de consulta."
           ]
         }
@@ -671,15 +672,15 @@
     "amonestacions": {
       "titol": "Amonestacions",
       "graella": true,
-      "intro": "Amonestacions lleus de l'alumnat (NOFC 5.3): qualsevol docent en pot redactar; en desar es fa el PDF per a la família i es desa a Drive.",
+      "intro": "Amonestacions lleus de l'alumnat (NOFC 5.3): les redacta el professorat que hi té accés; en desar es fa el PDF per a la família i es desa a Drive.",
       "temes": [
         {
           "id": "am-qui",
           "titol": "Qui hi entra i què veu",
           "claus": "permisos professorat veure pròpies coordinació tutor",
           "text": [
-            "**Tot el professorat** pot redactar amonestacions, sigui quin sigui el seu nivell al mòdul.",
-            "Amb nivell **consulta** (el de tot el professorat per defecte, encara que el seu equip tingui permís de consulta) es veuen **només les pròpies**: les que porten el seu nom com a professor/a.",
+            "Al mòdul només hi entra qui hi té permís a **Equips i permisos** (ara, els administradors). Ja no hi ha accés automàtic de tot el professorat.",
+            "Amb nivell **consulta** (p. ex. si es dona Consulta al Claustre), el professorat pot **redactar** amonestacions i veu **només les pròpies**: les que porten el seu nom com a professor/a.",
             "Amb **edició** (coordinació) i **administració** (direcció) es veuen totes i es poden esborrar. Només l'**administració** del mòdul pot redactar en nom d'un altre docent."
           ]
         },
