@@ -1577,8 +1577,8 @@
     if (h < 2) return toast('Aquesta part només té ' + fmtH(h) + ' h: no es pot repartir més.', true);
     var esp = (S.d.camps.filter(function (c) { return c.clau === 'especialitat'; })[0] || { valors: '' }).valors.split('|').filter(Boolean);
     pregunta('Repartir les hores · ' + d.materia + ' · ' + d.grup, '<p class="gs-ajuda">Aquesta part té <strong>' + fmtH(h) + ' h</strong> (' + esc(d.especialitat || 'sense especialitat') + '). Es queda amb les hores que indiqueu i la resta passa a una part nova, amb l’especialitat que trieu. Podeu tornar a repartir qualsevol part.</p>' +
-      '<div class="gs-form-fila"><label>Hores que es queda aquesta part <input type="number" id="gsDivH" min="1" max="' + (h - 1) + '" step="1" value="' + Math.max(1, Math.floor(h - 1)) + '"></label>' +
-      '<label>Especialitat de la part nova (<span id="gsDivR"></span> h) <select id="gsDivE">' + esp.map(function (e) { return '<option' + (e === d.especialitat ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select></label></div><p class="prog-avis" id="gsDivErr" hidden></p>',
+      '<div class="gs-form-fila"><label><span>Hores que es queda aquesta part</span> <input type="number" id="gsDivH" min="1" max="' + (h - 1) + '" step="1" value="' + Math.max(1, Math.floor(h - 1)) + '"></label>' +
+      '<label><span>Especialitat de la part nova (<span id="gsDivR"></span> h)</span> <select id="gsDivE">' + esp.map(function (e) { return '<option' + (e === d.especialitat ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select></label></div><p class="prog-avis" id="gsDivErr" hidden></p>',
       [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Reparteix', valor: 1, abans: function () {
         var x = numero($('gsDivH').value); if (!(x > 0 && x < h)) { $('gsDivErr').textContent = 'Han de ser entre 1 i ' + fmtH(h - 1) + ' h.'; $('gsDivErr').hidden = false; return false; }
         divideixAssignacio.v = { id: d.id, hores: x, especialitat: $('gsDivE').value };
@@ -4197,6 +4197,14 @@
     });
   }
   var marcNet = function () { return { dies: S.marc.dies, franges: S.marc.franges, no_lectives: {}, reunions: [] }; };
+  // PAS 65 · Desa un JSON triant on (File System Access API: Chrome i Edge). Torna el nom desat, '' si ha anat a Baixades
+  // o null si s'ha cancel·lat.
+  function desaJsonTria(obj, nom) {
+    if (!window.showSaveFilePicker) { baixaJson(obj, nom); return Promise.resolve(''); }
+    return window.showSaveFilePicker({ suggestedName: nom, id: 'gestio-horaris', startIn: 'downloads', types: [{ description: 'Dades per al motor (JSON)', accept: { 'application/json': ['.json'] } }] })
+      .then(function (h) { return h.createWritable().then(function (w) { return w.write(JSON.stringify(obj, null, 1)).then(function () { return w.close(); }); }).then(function () { return h.name; }); })
+      .catch(function (e) { if (e && e.name === 'AbortError') return null; baixaJson(obj, nom); return ''; });
+  }
   var baixaJson = function (obj, nom) { var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json' })); a.download = nom; document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 500); };
   // Desa totes les pestanyes amb canvis
   function desaHoraris() {
@@ -4225,8 +4233,13 @@
     if (Object.keys(S.horBrut).some(function (k) { return S.horBrut[k]; })) return toast('Primer deseu els canvis (l’exportació fa servir el que hi ha desat).', true);
     api('horaris_exporta', {}, 'Preparant les dades per al motor…').then(function (r) {
       if (!r.ok) return toast(text(r.error), true);
-      baixaJson(r.dades, 'horaris-dades-' + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '').replace(/^(\d{8})(\d{4})$/, '$1-$2') + '.json');
-      toast('Dades exportades: ' + r.dades.assignacions.length + ' assignacions, ' + r.dades.docents.length + ' docents, ' + (r.dades.aules || []).length + ' aules. Deseu el fitxer a generador-horaris/dades (no el pugeu a cap repositori).');
+      var nom = 'horaris-dades-' + new Date().toISOString().slice(0, 16).replace(/[-:T]/g, '').replace(/^(\d{8})(\d{4})$/, '$1-$2') + '.json';
+      var resum = r.dades.assignacions.length + ' assignacions, ' + r.dades.docents.length + ' docents, ' + (r.dades.aules || []).length + ' aules';
+      // PAS 65 · Chrome i Edge: es tria la carpeta (el navegador recorda l'última); si no, va a Baixades
+      desaJsonTria(r.dades, nom).then(function (on) {
+        if (on === null) return;
+        toast('Dades exportades (' + resum + ')' + (on ? ': ' + on : ' a la carpeta de baixades') + '. Han d’anar a generador-horaris\\dades (no el pugeu a cap repositori).');
+      });
     });
   }
   function carregaNouProfessor() {

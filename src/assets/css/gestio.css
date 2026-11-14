@@ -591,3 +591,8 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-he__s--reduccio_lectiva, .gs-he__s--reduccio_guardia{ background: #EAF7EF; border-left-color: #1D7044; }
 .gs-he__s--reunio{ background: #F3E8FF; border-left-color: #7B2CBF; }
 .gs-he__s--sensaula{ outline: 1px dashed #C62828; }
+
+/* PAS 65 · Desiderata: separació clara entre assignacions i fons alternat */
+.gs-des__taula tbody tr > td{ border-bottom: 1px solid #C9CEDD; }
+.gs-des__taula tbody tr:nth-child(even) > td{ background: #F5F6FB; }
+.gs-des__taula tbody tr:hover > td{ background: #EEF0FF; }

@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 64 · 13 de novembre de 2026",
+  "versio": "PAS 65 · 14 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -1183,7 +1183,8 @@
           "claus": "desa json exporta motor",
           "text": [
             "**Desa** guarda totes les pestanyes que tenen canvis (marcades amb \\*).",
-            "**Exporta per al motor**: descarrega `horaris-dades-….json` amb tot el que necessita el motor (grups-classe, docents amb posicions fixes i prohibides, assignacions amb distribució, aules i graella, desiderata, marc horari, aules, conjunts d'aules, regles, blocs d'hores B amb la rotació la llista de subgrups i el catàleg de regles del motor). Es desa a la carpeta generador-horaris/dades. Conté noms del professorat: no es puja a cap repositori.",
+            "**Exporta per al motor**: un **sol fitxer** `horaris-dades-AAAAMMDD-HHMM.json` amb tot el que necessita el motor (totes les pestanyes: marc horari, aules, subgrups, sessions, professorat, guàrdies, reunions i regles, a més de les assignacions, la desiderata i les reduccions d'Ocupació). No cal exportar res per pestanya.",
+            "**On es desa**: a Chrome i Edge s'obre una finestra per triar la carpeta (la propera vegada proposa l'última); deseu-lo a `generador-horaris\\dades`. En altres navegadors va a la carpeta de baixades i cal moure'l. Conté noms del professorat: no es puja a cap repositori.",
             "Després, el **motor** calcula l'horari (`python -m horaris.motor`, amb els modes total o parcial, lectives i guàrdies) i el resultat s'importa a **Horaris · editor**. L'exportació inclou les reduccions lectives i de guàrdia de cada docent (d'Ocupació)."
           ]
         }
@@ -1225,6 +1226,16 @@
             "Graella de dies × franges. Colors: **blau** classe, **taronja** guàrdia (ordinària, biblioteca o pati), **verd** reducció (lectiva o de guàrdia), **lila** reunió. Una classe sense aula surt amb la vora vermella discontínua.",
             "Al grup-classe, les optatives i les hores B (blocs simultanis) surten juntes a la mateixa casella, amb el subgrup i el docent.",
             "**PDF**: l'horari que es veu. **PDF de tots**: un full per docent o per grup-classe. Tots porten el logo del centre."
+          ]
+        },
+        {
+          "id": "he-clickedu",
+          "titol": "Fitxer per a Clickedu",
+          "claus": "clickedu exportar importar ghc xml matèries divisió subgrup",
+          "text": [
+            "El fitxer per importar a Clickedu el fa el generador (no el web), perquè necessita les claus de Clickedu: a la interfície del motor, **Fitxer per a Clickedu…** (o `python -m horaris.exporta_clickedu sortida\\horari-….json dades\\exportacio-clickedu.xml`).",
+            "Només hi van les **hores de classe d'ESO i de Batxillerat**: no hi van l'atenció individual, les guàrdies, les reduccions ni les reunions.",
+            "Les **divisions** (p. ex. Matemàtiques (div.)) són, a Clickedu, la **mateixa matèria** que Matemàtiques amb un **subgrup**: les correspondències (`python -m horaris.correspondencies`) les relacionen així."
           ]
         }
       ]

@@ -406,6 +406,12 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Exportació per al motor**: `docents[].reduccions_lectives` (total lectives − lectives amb alumnat) i `reduccions_guardia` (suma rg_*).
 - **Motor** (generador-horaris, `horaris/motor.py`, OR-Tools CP-SAT): `--nivells tots|cap|llista`, `--lectives alumnat,reduccions`, `--guardies guardies,reduccions`, `--base`.
 
+## PAS 65
+- **Exporta per al motor**: `desaJsonTria` (File System Access API, `showSaveFilePicker` amb `id: 'gestio-horaris'`: Chrome/Edge recorden la carpeta); si no n'hi ha, `baixaJson` (Baixades). Un sol fitxer amb totes les pestanyes.
+- **Repartir les hores** (Assignacions): el text de cada camp va dins d'un `<span>` (el `label` és grid i el tallava).
+- **Desiderata**: línia entre assignacions més marcada i fons alternat (`.gs-des__taula`).
+- **Clickedu** (generador): `horaris/exporta_clickedu.py` només exporta classes d'ESO i BAT (no atenció individual, guàrdies, reduccions ni reunions); les divisions «(div.)» es relacionen amb la mateixa matèria de Clickedu i un subgrup (`correspondencies.py`: `es_div`, `base_div`). Botó a la interfície del motor.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
