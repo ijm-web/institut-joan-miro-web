@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 66 · 14 de novembre de 2026",
+  "versio": "PAS 67 · 14 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -679,9 +679,10 @@
           "titol": "Qui hi entra i què veu",
           "claus": "permisos professorat veure pròpies coordinació tutor",
           "text": [
-            "Al mòdul només hi entra qui hi té permís a **Equips i permisos** (ara, els administradors). Ja no hi ha accés automàtic de tot el professorat.",
-            "Amb nivell **consulta** (p. ex. si es dona Consulta al Claustre), el professorat pot **redactar** amonestacions i veu **només les pròpies**: les que porten el seu nom com a professor/a.",
-            "Amb **edició** (coordinació) i **administració** (direcció) es veuen totes i es poden esborrar. Només l'**administració** del mòdul pot redactar en nom d'un altre docent."
+            "Al mòdul hi entra qui hi té permís a **Equips i permisos** (ara, els administradors). Per obrir-lo a tot el professorat: Claustre → Consulta a la columna Amonestacions.",
+            "Amb **consulta**, cada docent pot **redactar** amonestacions i veu **les seves**. Si és **tutor/a** d'un grup-classe (càrrec «Tutor/a 1r ESO A» a Ocupació o la Tutoria del Currículum), també veu les del seu grup-classe; si és **coordinador/a de nivell** (càrrec «Coordinació de nivell 1r ESO»), les del seu nivell.",
+            "Amb **edició** (coordinació) i **administració** (direcció) es veuen totes i es poden esborrar. Només l'**administració** del mòdul pot redactar en nom d'un altre docent.",
+            "**Provar-ho amb les fitxes de prova** («Test, Profe», «Test, Tutor», «Test, Coord»): no són al Claustre automàtic. Creeu un equip de prova (p. ex. EQ-PROVA) amb aquests tres membres i Consulta a Amonestacions; poseu a Ocupació el càrrec «Tutor/a 1r ESO A» a Test, Tutor i «Coordinació de nivell 1r ESO» a Test, Coord; entreu amb els seus comptes (finestra privada) i redacteu-ne alguna amb Test, Profe."
           ]
         },
         {
@@ -928,7 +929,8 @@
           "text": [
             "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Assignacions, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
             "**Document equips docents** (pestanya Assignacions): trieu un nivell o tots (un full apaïsat per nivell). Una columna per grup-classe i una fila per matèria (amb les hores A i B), en aquest ordre: Tutoria, Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Experimentals (Biologia), Experimentals (Física i Química), Música, EVIP, Tecnologia, la resta, Lectura i, al final, les optatives per ordre alfabètic. A **4t d'ESO**: Tutoria, Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Ètica i valors i, a sota, les files **Franja 1, 2 i 3** amb totes les matèries de cada franja («Matèria - G1: docent»). La franja de cada grup es posa a la columna **Franja** d'Assignacions.",
-            "Els grups-classe de cada grup surten de **Grups-classe** de la matèria: un grup de diversitat d'A+B ocupa una sola cel·la que abraça A i B. Si dos docents fan la mateixa matèria al mateix grup, surten a la mateixa casella (amb les hores de cadascun). El **tutor/a** de cada grup surt destacat en taronja a la columna del seu grup; en blau, el docent (que no és el tutor/a) que fa **més d'una matèria** al mateix grup-classe i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part."
+            "Els grups-classe de cada grup surten de **Grups-classe** de la matèria: un grup de diversitat d'A+B ocupa una sola cel·la que abraça A i B. Si dos docents fan la mateixa matèria al mateix grup, surten a la mateixa casella (amb les hores de cadascun). El **tutor/a** de cada grup surt destacat en taronja a la columna del seu grup; en blau, el docent (que no és el tutor/a) que fa **més d'una matèria** al mateix grup-classe i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part.",
+            "A 4t d'ESO, el document dels equips docents posa Català, Castellà i Matemàtiques en una sola fila amb la seva divisió: a cada casella, els docents dels grups-classe [A], [B] i el de la divisió [DIV]. Les matèries de franja surten en dues columnes."
           ]
         }
       ]
@@ -1116,9 +1118,13 @@
             "**Assigna els subgrups automàticament** posa el subgrup de diversitat (LC, LS, MA) i d'optativa (OSA, OSI, OSF, OAN, OMA, OTE, OEF…) segons el nom.",
             "**Distribució**: «111» = tres sessions d'una hora; «21» = una de dues hores i una d'una. Ha de sumar les hores de la part.",
             "**Graella**: cada clic canvia la casella: lliure → 📌 fixa → ⛔ prohibida → lliure. El nom d'un **dia** (a dalt) o d'una **franja** (a l'esquerra) canvia tota la columna o tota la fila alhora.",
-            "**2 · Blocs simultanis**: sessions que es fan **a la mateixa hora, en aules diferents** i amb docents diferents: diversitat (Català A + Català B + Català AB-DIV), hores B (G1 Experimentals + G2 Tecnologia…) i optatives. Totes han de tenir les mateixes hores.",
             "**Proposa els blocs del nivell** crea els de diversitat, optatives i hores B (amb rotació: a cada bloc, G1 i G2 fan matèries diferents). L'etiqueta **Mateix dia que** fa que els blocs amb la mateixa etiqueta es facin el mateix dia (p. ex. les hores B d'un grup-classe).",
-            "**Atenció individual**: és **multinivell** (no ocupa cap grup-classe, només el docent i, si en té, l'aula). A la columna del grup hi diu «Multinivell» i a l'exportació porta `multinivell: true`."
+            "**2 · Blocs simultanis**: sessions que es fan **a la mateixa hora**: la diversitat (Català A + Català B + Català AB-DIV), les hores B (G1 + G2), les optatives i qualsevol **coincidència**, fins i tot entre **nivells diferents** (el desplegable «+ afegeix una sessió» té les del nivell i, a sota, les d'altres nivells).",
+            "**Atenció individual**: és **multinivell** (no ocupa cap grup-classe, només el docent i, si en té, l'aula). A la columna del grup hi diu «Multinivell» i a l'exportació porta `multinivell: true`.",
+            "**Hores que coincideixen** i **Distribució** del bloc: si les sessions no tenen les mateixes hores, només coincideixen aquestes hores (p. ex. 2 de 3); la resta de cada sessió es fa a part. En blanc = totes (han de ser iguals).",
+            "**Grup combinat**: si el mateix docent fa dues sessions del bloc, és una sola classe amb l'alumnat de totes dues (p. ex. dos nivells junts). **Codocència** (dos docents a la mateixa aula i grup) no és un bloc: es fa al Currículum (Docents a l'aula = 2).",
+            "**Rotació d'hores B**: els dos blocs (G1 i G2 intercanviats) amb la mateixa etiqueta a **Mateix dia que** es fan obligatòriament el mateix dia.",
+            "**Diversitat i hores B**: cada grup-classe del bloc ha de tenir una sessió només seva (el grup sencer o un subgrup que només surt d'ell). Si no, part de l'alumnat es quedaria sense classe: és un **error** i no es pot desar. Els blocs que ja hi havia s'han convertit sols (sense hores que coincideixen = totes)."
           ]
         },
         {
@@ -1219,13 +1225,13 @@
         },
         {
           "id": "he-consulta",
-          "titol": "Consultar per docent i per grup-classe",
-          "claus": "consulta docent professor grup classe graella pdf tots",
+          "titol": "Consultar: docent, grup-classe, espai i guàrdies",
+          "claus": "consulta docent professor grup classe espai aula guàrdies graella pdf tots colors matèria graelles",
           "text": [
-            "Pestanyes **Per docent** i **Per grup-classe**; trieu-ne un al desplegable o passeu amb **‹** i **›**.",
-            "Graella de dies × franges. Colors: **blau** classe, **taronja** guàrdia (ordinària, biblioteca o pati), **verd** reducció (lectiva o de guàrdia), **lila** reunió. Una classe sense aula surt amb la vora vermella discontínua.",
-            "Al grup-classe, les optatives i les hores B (blocs simultanis) surten juntes a la mateixa casella, amb el subgrup i el docent.",
-            "**PDF**: l'horari que es veu. **PDF de tots**: un full per docent o per grup-classe. Tots porten el logo del centre."
+            "Cada graella té a dalt el **tipus** (Docent, Grup-classe, Espai o Guàrdies) i l'element (desplegable o **‹** i **›**). **+ Graella** n'afegeix fins a **tres** alhora, de tipus diferents (p. ex. un grup-classe, un docent i una aula); **×** en treu una.",
+            "Cada **matèria** té el seu color. Un clic a una sessió (o a la **llegenda** de sota la graella, amb les hores de cada matèria) ressalta totes les hores d'aquella matèria i atenua la resta; un altre clic ho desfà. Les guàrdies són taronja, les reduccions verdes i les reunions liles. Una classe sense aula surt amb la vora vermella discontínua.",
+            "L'**aula** de cada sessió surt entre **[ ]**. A **Guàrdies**, cada casella diu els docents de guàrdia de cada tipus (ordinària, biblioteca, pati).",
+            "**PDF**: un full per a cada graella oberta. **PDF de tots**: un full per a cada element del tipus de la primera graella. Si una casella té **més de tres docents**, al PDF hi surt un número i la llista completa va a la llegenda del peu (sense repetir-la si la mateixa llista surt en altres caselles)."
           ]
         },
         {

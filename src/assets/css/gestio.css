@@ -596,3 +596,24 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-des__taula tbody tr > td{ border-bottom: 1px solid #C9CEDD; }
 .gs-des__taula tbody tr:nth-child(even) > td{ background: #F5F6FB; }
 .gs-des__taula tbody tr:hover > td{ background: #EEF0FF; }
+
+/* PAS 67 · Horaris · editor: fins a 3 graelles, colors de matèria i ressaltat */
+.gs-he__panells{ display:flex; flex-wrap:wrap; gap:12px; padding:0 0 12px; }
+.gs-he__panell{ flex:1 1 100%; min-width:0; border:1px solid #E1E5EE; border-radius:10px; background:#fff; padding-bottom:8px; }
+.gs-he__panells--2 .gs-he__panell{ flex-basis:calc(50% - 6px); min-width:420px; }
+.gs-he__panells--3 .gs-he__panell{ flex-basis:calc(33.33% - 8px); min-width:340px; }
+.gs-he__panells--2 .gs-he__taula, .gs-he__panells--3 .gs-he__taula{ font-size:.72rem; min-width:0; }
+.gs-he__cap{ display:flex; flex-wrap:wrap; align-items:center; gap:6px; padding:8px 10px 0; }
+.gs-he__cap select{ height:32px; border:1px solid #D5D9E6; border-radius:6px; padding:0 6px; font:inherit; max-width:260px; }
+.gs-he__cap .prog-btn{ padding:4px 10px; min-height:0; }
+.gs-he__treu{ margin-left:auto; border:0; background:none; font-size:20px; cursor:pointer; color:#C62828; }
+.gs-he__titol{ margin:8px 12px 6px !important; }
+.gs-he__colh{ width:56px; }
+.gs-he__s{ cursor:pointer; transition:opacity .15s; }
+.gs-he--focus .gs-he__s{ opacity:.28; }
+.gs-he--focus .gs-he__s.is-focus{ opacity:1; box-shadow:0 0 0 2px #1C0CBC inset; }
+.gs-he__llegenda{ display:flex; flex-wrap:wrap; gap:6px; padding:0 12px; }
+.gs-he__xip{ border:1px solid; border-radius:999px; padding:2px 10px; font:600 12px var(--font-main); cursor:pointer; }
+.gs-he__xip.is-focus{ box-shadow:0 0 0 2px #1C0CBC; }
+.gs-he__s b, .gs-he__s small{ overflow-wrap:anywhere; }
+.gs-he__panells--3 .gs-he__s{ padding:2px 3px; }

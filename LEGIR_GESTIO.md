@@ -415,6 +415,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 ## PAS 66
 - Sense canvis de codi. Ajuda: quan cal refer les correspondències de Clickedu. Proposta de redisseny de les **simultànies** (per decidir) al document de disseny.
 
+## PAS 67
+- **Blocs simultanis** (decisions de Romà): `hores` i `distribucio` del bloc (coincidència parcial; la resta es fa a part), multinivell (`totesParts`, optgroup «Altres nivells»), mateix docent = grup combinat (ja no és error), `cobertura`/`cobertura_` (diversitat i hores B: error si un grup-classe no té cap sessió pròpia), mateix dia obligatori. Els blocs antics valen tal com són. ESQUEMA 67.
+- **Equips docents 4t ESO**: Català, Castellà i Matemàtiques amb la divisió en una fila (`kDoc`, «[A] / [B] / [DIV]»); franges en dues columnes.
+- **Horaris · editor**: fins a 3 graelles (`S.he.panells`), tipus docent/grup/espai/guàrdies, color per matèria (`colorHE`, ressaltat amb clic i llegenda), aula entre [ ], PDF amb llegenda numerada (>3 docents).
+- **Amonestacions**: amb consulta, a més de les pròpies, les del grup-classe del tutor/a i les del nivell del coordinador/a (`tutoriaCoord_`, `deTutoriaAmon_`).
+- Generador: validació amb el mode (`per_mode`), estat i botó de correspondències, coincidència parcial i grups combinats al motor.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 64;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 67;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -790,8 +790,9 @@ function dades_(ctx, modul) {
     .filter((r) => veuEstat || !deBaixa_(r))
     // PAS 30: equips docents → només els seus grups (a les amonestacions, també les pròpies)
     .filter((r) => !ab || !cg || dinsAbast_(ab, r[cg]) || propiaAmon_(ctx, modul, r))
-    // PAS 35: amonestacions amb el nivell implícit del professorat → només les que ha redactat
-    .filter((r) => !(ctx.nomesPropies && ctx.nomesPropies(modul)) || propiaAmon_(ctx, modul, r))
+    // PAS 35/67: amonestacions amb nivell consulta → les que ha redactat i, si és tutor/a o coordinador/a, les del seu
+    // grup-classe o del seu nivell
+    .filter(((tc) => (r) => !(ctx.nomesPropies && ctx.nomesPropies(modul)) || propiaAmon_(ctx, modul, r) || deTutoriaAmon_(tc, r))(modul === 'amonestacions' ? tutoriaCoord_(ctx) : null))
     .map((r) => {
       const o = { id: r[M.id], data: r.data || '', desat_per: r.desat_per || '' };
       camps.forEach((c) => { o[c.clau] = c.tipus === 'calculat' ? calcula_(c, r) : (r[c.clau] == null ? '' : r[c.clau]); });
@@ -810,6 +811,7 @@ function dades_(ctx, modul) {
     retards: modul === 'control_entrada' ? Object.assign(retardsCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
     avis_amon: modul === 'amonestacions' ? Object.assign(avisAmonCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
     nomes_propies: ctx.nomesPropies ? ctx.nomesPropies(modul) : false,
+    tutoria: modul === 'amonestacions' && ctx.nomesPropies && ctx.nomesPropies(modul) ? ((tc) => [Object.keys(tc.grups).length ? 'del grup-classe' : '', Object.keys(tc.nivells).length ? 'del nivell (' + Object.keys(tc.nivells).join(', ') + ')' : ''].filter(Boolean).join(' i '))(tutoriaCoord_(ctx)) : '',
     pot_crear: modul === 'amonestacions' ? potRedactar_(ctx) : undefined,
     consell: modul === 'consell_orientador' ? { orientacions: ORIENTACIONS_CONSELL, resultats: RESULTATS_CONSELL, poblacio: ctx.cfg.consell_poblacio || 'Cornellà', carpeta: pot_(ctx, modul, 'admin') ? String(ctx.cfg.carpeta_consell || '') : undefined } : undefined,
     // PAS 36: el formulari de «Nova amonestació» arriba amb les dades: obrir-lo no fa cap altra crida
@@ -1075,6 +1077,22 @@ function historialFila_(ctx, req) {
 
 // ------------------------------------------------------------------ PAS 35 · AMONESTACIONS
 // Qui pot redactar (PAS 63): qui té accés al mòdul (consulta: professorat, només les pròpies; edició: tothom). Qui té edició pot triar el professor/a; la resta, ell mateix.
+// PAS 67 · Tutoria i coordinació de qui consulta: grups-classe dels quals és tutor/a (càrrec «Tutor/a 1r ESO A» o la Tutoria
+// del Currículum) i nivells que coordina (càrrec «Coordinació de nivell 1r ESO»)
+const normGrupAmon_ = (t) => String(t || '').toUpperCase().replace(/\s+/g, '');
+function tutoriaCoord_(ctx) {
+  const o = { grups: {}, nivells: {} }, p = ctx.persona;
+  if (!p || !/^PRO-/.test(String(p.id))) return o;
+  const f = llegeix_(FULL.prof).filter((x) => String(x.id_professor) === String(p.id))[0] || {};
+  partsCarrec_(f.carrec).forEach((c) => {
+    const t = /^tutor\/?a?\s+(.+)$/i.exec(c); if (t) o.grups[normGrupAmon_(t[1])] = 1;
+    if (esCoordNivell_(c)) (NIVELLS_ESO.concat(NIVELLS_BAT)).forEach((n) => { if (c.indexOf(n) >= 0) o.nivells[n] = 1; });
+  });
+  const nom = [f.cognom1, f.cognom2].filter(Boolean).join(' ') + ', ' + f.nom;
+  (tutoriesCurriculum_()[nom] || []).forEach((x) => { o.grups[normGrupAmon_(x.grup)] = 1; });
+  return o;
+}
+const deTutoriaAmon_ = (tc, r) => !!tc && (tc.nivells[r.nivell] === 1 || tc.grups[normGrupAmon_(r.grup)] === 1 || tc.grups[normGrupAmon_(r.nivell + ' ' + r.grup)] === 1);
 const propiaAmon_ = (ctx, modul, r) => modul === 'amonestacions' && ((ctx.persona && String(r.id_professor) === String(ctx.persona.id)) || String(r.desat_per).toLowerCase() === ctx.email);
 // PAS 63: redacta qui té accés al mòdul: amb edició, qualsevol; amb consulta, el professorat (només les pròpies)
 function potRedactar_(ctx) {
@@ -3394,6 +3412,16 @@ function subgrupsHoraris_(cfg) {
 }
 const codiSeg_ = (ll, pre) => { let mx = 0; ll.forEach((x) => { const m = new RegExp('^' + pre + '(\\d+)$').exec(String(x.id || '')); if (m) mx = Math.max(mx, Number(m[1])); }); const vist = {};
   return (x) => { let id = String(x.id || ''); if (!new RegExp('^' + pre + '\\d+$').test(id) || vist[id]) id = pre + (++mx); vist[id] = 1; return id; }; };
+// PAS 67 · Diversitat i hores B: cada grup-classe del bloc ha de tenir alguna sessió només seva (el grup-classe sencer o un
+// subgrup que només surt d'ell); si no, part de l'alumnat es quedaria sense classe durant el bloc. És un error.
+function cobertura_(b, ses, sg) {
+  if (b.tipus !== 'diversitat' && b.tipus !== 'hores_b') return [];
+  const totes = {}, propies = {};
+  b.parts.forEach((k) => { const x = ses[k]; if (!x) return; const g = x.p.grup, s = sg[g];
+    const cls = s ? (s.grups || []).map((l) => s.nivell + ' ' + l) : (g ? [g] : (x.a.classes || []));
+    cls.forEach((c) => { totes[c] = 1; }); if (cls.length === 1) propies[cls[0]] = 1; });
+  return Object.keys(totes).filter((c) => !propies[c]).map((c) => 'l\'alumnat de ' + c + ' que no és a cap subgrup es quedaria sense classe (cal una sessió només de ' + c + ').');
+}
 function horarisSubgrupsDesa_(ctx, req) {
   if (!pot_(ctx, 'horaris', 'edicio')) return { ok: false, error: 'sense_permis' };
   const cfg = ctx.cfg || llegeixConfig_(), GN = grupsNivell_(cfg), nivells = NIVELLS_ESO.concat(NIVELLS_BAT), err = [], q = req.subgrups || {};
@@ -3413,16 +3441,20 @@ function horarisSubgrupsDesa_(ctx, req) {
   const ses = {}; sessionsHoraris_(cfg).forEach((a) => a.parts.forEach((p) => { ses[a.id + '#' + p.id] = { a: a, p: p }; }));
   const nouB = codiSeg_(q.blocs || [], 'B');
   const blocs = (q.blocs || []).map((b) => ({ id: nouB(b), nivell: String(b.nivell || ''), nom: String(b.nom || '').trim().slice(0, 60), tipus: TIPUS_SUBGRUP.indexOf(b.tipus) >= 0 ? b.tipus : 'altres',
-    parts: (b.parts || []).map(String).filter((k, i, a) => a.indexOf(k) === i), mateix_dia: String(b.mateix_dia || '').trim().slice(0, 40) }));
+    parts: (b.parts || []).map(String).filter((k, i, a) => a.indexOf(k) === i), mateix_dia: String(b.mateix_dia || '').trim().slice(0, 40),
+    // PAS 67: hores que coincideixen (en blanc = totes les de les sessions, que han de ser iguals) i la seva distribució
+    hores: Number(b.hores) > 0 ? Math.round(Number(b.hores)) : '', distribucio: /^[1-9]+$/.test(String(b.distribucio || '')) ? String(b.distribucio) : '' }));
   const usada = {};
   blocs.forEach((b) => { const nom = 'Bloc ' + (b.nom || b.id);
     if (b.parts.length < 2) err.push(nom + ': calen almenys dues sessions.');
-    const hs = {}, profs = {};
+    if (b.distribucio && b.hores && b.distribucio.split('').reduce((t, c) => t + Number(c), 0) !== b.hores) err.push(nom + ': la distribució ha de sumar ' + b.hores + ' h.');
+    const hs = {};
     b.parts.forEach((k) => { const x = ses[k]; if (!x) return; hs[x.p.hores] = 1;
       if (usada[k]) err.push(nom + ': ' + x.a.materia + ' · ' + (x.a.grup) + ' ja és al bloc ' + usada[k] + '.'); usada[k] = b.nom || b.id;
-      if (x.a.professor) { if (profs[x.a.professor]) err.push(nom + ': ' + x.a.professor + ' hauria de fer dues sessions alhora.'); profs[x.a.professor] = 1; } });
-    // les parts encara no desades (es desen just després, a Sessions lectives) es mantenen
-    if (Object.keys(hs).length > 1) err.push(nom + ': totes les sessions han de tenir les mateixes hores (ara ' + Object.keys(hs).join(', ') + ').'); });
+      if (b.hores && Number(x.p.hores) < b.hores) err.push(nom + ': ' + x.a.materia + ' · ' + x.a.grup + ' només té ' + x.p.hores + ' h i el bloc en fa coincidir ' + b.hores + '.'); });
+    // PAS 67: el mateix docent en dues sessions del bloc = grup combinat (una sola classe amb l'alumnat de totes dues): es permet
+    if (!b.hores && Object.keys(hs).length > 1) err.push(nom + ': totes les sessions han de tenir les mateixes hores (ara ' + Object.keys(hs).join(', ') + '); si només en coincideixen unes quantes, indiqueu-les a «Hores que coincideixen».');
+    cobertura_(b, ses, sg).forEach((e) => err.push(nom + ': ' + e)); });
   if (err.length) return { ok: false, error: 'subgrups_invalids', errors: err.slice(0, 25) };
   const net = { classes: classes, subgrups: subgrups, blocs: blocs };
   posaConfig_('horaris_subgrups', JSON.stringify(net));
@@ -3671,7 +3703,7 @@ function dadesHoraris_() {
   return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, marc_horari: marcHorari_(cfg), aules: aulesHoraris_(cfg).aules, conjunts_aules: aulesHoraris_(cfg).conjunts,
     regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata,
     classes_clickedu: SG.classes, subgrups: SG.subgrups.map((x) => ({ id: x.id, nom: x.nom, clau: x.clau, nivell: x.nivell, tipus: x.tipus, grups_classe: x.grups.map((l) => x.nivell + ' ' + l) })),
-    blocs_simultanis: SG.blocs.map((b) => ({ id: b.id, nivell: b.nivell, nom: b.nom, tipus: b.tipus, mateix_dia: b.mateix_dia, parts: b.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),
+    blocs_simultanis: SG.blocs.map((b) => ({ id: b.id, nivell: b.nivell, nom: b.nom, tipus: b.tipus, mateix_dia: b.mateix_dia, hores: b.hores || '', distribucio: b.distribucio || '', parts: b.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),
     guardies: Object.assign({ tipus: TIPUS_GUARDIA }, guardiesHoraris_(cfg)), reunions: reunionsHoraris_(cfg).reunions, trossos: trossosHoraris_(assignacions, mats), regles_motor: reglesMotor_(cfg) };
 }
 // PAS 62 · Matèries trossejades: un grup (matèria + número de grup) repartit en parts amb les tisores del Currículum (p. ex.
