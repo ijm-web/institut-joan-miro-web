@@ -412,6 +412,9 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Desiderata**: línia entre assignacions més marcada i fons alternat (`.gs-des__taula`).
 - **Clickedu** (generador): `horaris/exporta_clickedu.py` només exporta classes d'ESO i BAT (no atenció individual, guàrdies, reduccions ni reunions); les divisions «(div.)» es relacionen amb la mateixa matèria de Clickedu i un subgrup (`correspondencies.py`: `es_div`, `base_div`). Botó a la interfície del motor.
 
+## PAS 66
+- Sense canvis de codi. Ajuda: quan cal refer les correspondències de Clickedu. Proposta de redisseny de les **simultànies** (per decidir) al document de disseny.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

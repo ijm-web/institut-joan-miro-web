@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 65 · 14 de novembre de 2026",
+  "versio": "PAS 66 · 14 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -1235,7 +1235,8 @@
           "text": [
             "El fitxer per importar a Clickedu el fa el generador (no el web), perquè necessita les claus de Clickedu: a la interfície del motor, **Fitxer per a Clickedu…** (o `python -m horaris.exporta_clickedu sortida\\horari-….json dades\\exportacio-clickedu.xml`).",
             "Només hi van les **hores de classe d'ESO i de Batxillerat**: no hi van l'atenció individual, les guàrdies, les reduccions ni les reunions.",
-            "Les **divisions** (p. ex. Matemàtiques (div.)) són, a Clickedu, la **mateixa matèria** que Matemàtiques amb un **subgrup**: les correspondències (`python -m horaris.correspondencies`) les relacionen així."
+            "Les **divisions** (p. ex. Matemàtiques (div.)) són, a Clickedu, la **mateixa matèria** que Matemàtiques amb un **subgrup**: les correspondències (`python -m horaris.correspondencies`) les relacionen així.",
+            "**Correspondències**: no cal fer-les a cada exportació ni a cada càlcul. Es fan una vegada quan el currículum (assignacions) i l'exportació de Clickedu del curs són definitius, i es tornen a fer només si canvia alguna de les dues coses (Genera els grups, tisores, docents o aules nous, o una exportació nova de Clickedu). Si el fitxer per a Clickedu avisa «sense sessió de Clickedu (correspondències)», cal refer-les."
           ]
         }
       ]
