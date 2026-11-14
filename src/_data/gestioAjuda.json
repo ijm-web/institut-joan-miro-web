@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 67 · 14 de novembre de 2026",
+  "versio": "PAS 68 · 14 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -519,6 +519,24 @@
         }
       ]
     },
+    "nou_alumne": {
+      "titol": "Nou alumne/a",
+      "graella": false,
+      "intro": "Formulari d'alta d'un alumne/a amb les dades mínimes. La resta de dades les completa l'equip directiu a Alumnat ESO o Alumnat Batxillerat.",
+      "temes": [
+        {
+          "id": "na-alta",
+          "titol": "Donar d'alta un alumne/a",
+          "claus": "alta alumne nou extern nivell estat autoritzacions imatge medicaments",
+          "text": [
+            "Ompliu **Nom**, **1r cognom** (obligatoris), **2n cognom**, **Nivell**, **Estat** i les autoritzacions (**imatge**, **dies especials**, **medicaments**: sí, no o en blanc) i premeu **Dona d'alta**.",
+            "**Estat**: tot l'alumnat que ve **de fora del centre** és **alumne extern** (surt per defecte). Els altres estats (promociona, repeteix…) només són per a l'alumnat que ja estudia al centre.",
+            "Segons el nivell, l'alumne/a va a **Alumnat ESO** (1r a 4t d'ESO) o a **Alumnat Batxillerat**. Si ja n'hi ha un amb el mateix nom i cognoms, GESTIO avisa abans de desar.",
+            "La resta de dades (grup-classe, optatives, itinerari, diversitat…) les completa l'**equip directiu** al mòdul corresponent. Cal nivell d'edició al mòdul Nou alumne/a."
+          ]
+        }
+      ]
+    },
     "nou_professor": {
       "titol": "Nou professor/a",
       "graella": false,
@@ -930,7 +948,7 @@
             "**Hores per especialitat**: hores de professorat de cada especialitat per nivell (a Matèries, segons la matèria; a Assignacions, segons l'especialitat que imparteix cada grup). Compta les files que es veuen.",
             "**Document equips docents** (pestanya Assignacions): trieu un nivell o tots (un full apaïsat per nivell). Una columna per grup-classe i una fila per matèria (amb les hores A i B), en aquest ordre: Tutoria, Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Experimentals (Biologia), Experimentals (Física i Química), Música, EVIP, Tecnologia, la resta, Lectura i, al final, les optatives per ordre alfabètic. A **4t d'ESO**: Tutoria, Català, Català (div.), Castellà, Castellà (div.), Anglès, Socials, Matemàtiques, Matemàtiques (div.), Educació Física, Ètica i valors i, a sota, les files **Franja 1, 2 i 3** amb totes les matèries de cada franja («Matèria - G1: docent»). La franja de cada grup es posa a la columna **Franja** d'Assignacions.",
             "Els grups-classe de cada grup surten de **Grups-classe** de la matèria: un grup de diversitat d'A+B ocupa una sola cel·la que abraça A i B. Si dos docents fan la mateixa matèria al mateix grup, surten a la mateixa casella (amb les hores de cadascun). El **tutor/a** de cada grup surt destacat en taronja a la columna del seu grup; en blau, el docent (que no és el tutor/a) que fa **més d'una matèria** al mateix grup-classe i a sota hi ha la llista de l'equip docent. Entre claudàtors, l'especialitat dels grups que encara no tenen professor/a. L'atenció individual (ESO-BAT) va en un full a part.",
-            "A 4t d'ESO, el document dels equips docents posa Català, Castellà i Matemàtiques en una sola fila amb la seva divisió: a cada casella, els docents dels grups-classe [A], [B] i el de la divisió [DIV]. Les matèries de franja surten en dues columnes."
+            "A 4t d'ESO, el document dels equips docents posa Català, Castellà i Matemàtiques en una sola fila amb la seva divisió: a cada casella, una línia per grup ([A], [B] i [DIV]); la línia del tutor/a surt en taronja i la del docent amb més d'una matèria al grup-classe, en blau. Les matèries de franja surten en dues columnes, amb els grups-classe entre parèntesis quan només són d'una part dels grups."
           ]
         }
       ]
@@ -1124,7 +1142,8 @@
             "**Hores que coincideixen** i **Distribució** del bloc: si les sessions no tenen les mateixes hores, només coincideixen aquestes hores (p. ex. 2 de 3); la resta de cada sessió es fa a part. En blanc = totes (han de ser iguals).",
             "**Grup combinat**: si el mateix docent fa dues sessions del bloc, és una sola classe amb l'alumnat de totes dues (p. ex. dos nivells junts). **Codocència** (dos docents a la mateixa aula i grup) no és un bloc: es fa al Currículum (Docents a l'aula = 2).",
             "**Rotació d'hores B**: els dos blocs (G1 i G2 intercanviats) amb la mateixa etiqueta a **Mateix dia que** es fan obligatòriament el mateix dia.",
-            "**Diversitat i hores B**: cada grup-classe del bloc ha de tenir una sessió només seva (el grup sencer o un subgrup que només surt d'ell). Si no, part de l'alumnat es quedaria sense classe: és un **error** i no es pot desar. Els blocs que ja hi havia s'han convertit sols (sense hores que coincideixen = totes)."
+            "**Diversitat i hores B**: cada grup-classe del bloc ha de tenir una sessió només seva (el grup sencer o un subgrup que només surt d'ell). Si no, part de l'alumnat es quedaria sense classe: és un **error** i no es pot desar. Els blocs que ja hi havia s'han convertit sols (sense hores que coincideixen = totes).",
+            "Al desplegable **+ afegeix una sessió** d'un bloc, les sessions surten agrupades per nivell (primer el de la pestanya) i, dins de cada nivell, per ordre alfabètic de matèria."
           ]
         },
         {
@@ -1191,7 +1210,8 @@
             "**Desa** guarda totes les pestanyes que tenen canvis (marcades amb \\*).",
             "**Exporta per al motor**: un **sol fitxer** `horaris-dades-AAAAMMDD-HHMM.json` amb tot el que necessita el motor (totes les pestanyes: marc horari, aules, subgrups, sessions, professorat, guàrdies, reunions i regles, a més de les assignacions, la desiderata i les reduccions d'Ocupació). No cal exportar res per pestanya.",
             "**On es desa**: a Chrome i Edge s'obre una finestra per triar la carpeta (la propera vegada proposa l'última); deseu-lo a `generador-horaris\\dades`. En altres navegadors va a la carpeta de baixades i cal moure'l. Conté noms del professorat: no es puja a cap repositori.",
-            "Després, el **motor** calcula l'horari (`python -m horaris.motor`, amb els modes total o parcial, lectives i guàrdies) i el resultat s'importa a **Horaris · editor**. L'exportació inclou les reduccions lectives i de guàrdia de cada docent (d'Ocupació)."
+            "Després, el **motor** calcula l'horari (`python -m horaris.motor`, amb els modes total o parcial, lectives i guàrdies) i el resultat s'importa a **Horaris · editor**. L'exportació inclou les reduccions lectives i de guàrdia de cada docent (d'Ocupació).",
+            "**Actualitza** (fletxes en cercle) torna a llegir les dades (Currículum, assignacions, professorat…). Si hi ha canvis sense desar, avisa abans."
           ]
         }
       ]
@@ -1229,9 +1249,11 @@
           "claus": "consulta docent professor grup classe espai aula guàrdies graella pdf tots colors matèria graelles",
           "text": [
             "Cada graella té a dalt el **tipus** (Docent, Grup-classe, Espai o Guàrdies) i l'element (desplegable o **‹** i **›**). **+ Graella** n'afegeix fins a **tres** alhora, de tipus diferents (p. ex. un grup-classe, un docent i una aula); **×** en treu una.",
-            "Cada **matèria** té el seu color. Un clic a una sessió (o a la **llegenda** de sota la graella, amb les hores de cada matèria) ressalta totes les hores d'aquella matèria i atenua la resta; un altre clic ho desfà. Les guàrdies són taronja, les reduccions verdes i les reunions liles. Una classe sense aula surt amb la vora vermella discontínua.",
+            "Cada parella **matèria + grup** (grup-classe o subgrup) té el seu color. Un clic a una sessió (o a la **llegenda** de sota la graella, amb les hores de cada una) en ressalta totes les hores i atenua la resta; un altre clic o la tecla **Escape** ho desfà. Les guàrdies són taronja, les reduccions verdes i les reunions liles. Una classe sense aula surt amb la vora vermella discontínua.",
             "L'**aula** de cada sessió surt entre **[ ]**. A **Guàrdies**, cada casella diu els docents de guàrdia de cada tipus (ordinària, biblioteca, pati).",
-            "**PDF**: un full per a cada graella oberta. **PDF de tots**: un full per a cada element del tipus de la primera graella. Si una casella té **més de tres docents**, al PDF hi surt un número i la llista completa va a la llegenda del peu (sense repetir-la si la mateixa llista surt en altres caselles)."
+            "**PDF**: un full per a cada graella oberta. **PDF de tots**: un full per a cada element del tipus de la primera graella. Si una casella té **més de tres docents**, al PDF la casella només té un número i el contingut complet va a la llegenda del peu (sense repetir-lo si surt en més caselles). A les graelles de **guàrdies** no s'aplica: s'hi escriuen tots els docents.",
+            "**Aules**: si una sessió no té aula preferent (o és ocupada), el motor hi posa una aula ordinària lliure, si pot ser la que el grup ja fa servir. Si la pestanya **Espai** no té cap aula, l'horari es va calcular abans d'aquest canvi o sense aules: calculeu-lo de nou.",
+            "**Penalització**: l'enllaç «penalització N» de dalt obre l'índex de penalització del motor (per regla) i el que més penalitza (matèries amb dues sessions el mateix dia, docents amb forats, guàrdies sense cobrir)."
           ]
         },
         {

@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 67;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 68;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -108,6 +108,7 @@ const MODULS_PER_DEFECTE = [
   ['pas', 'PAS', 'Personal d\'administració i serveis: administració, consergeria… Graella amb filtres, alta, baixa i modificació.', 2, 'si', 'Personal'],
   ['alumnat', 'Alumnat ESO', 'Dades acadèmiques de l\'alumnat d\'ESO (1r a 4t): grups, optatives, itinerari, diversitat i autoritzacions.', 3, 'si', 'Alumnat'],
   ['batxillerat', 'Alumnat Batxillerat', 'Dades acadèmiques de l\'alumnat de batxillerat: grups, itinerari, matèries, pendents i autoritzacions.', 4, 'si', 'Alumnat'],
+  ['nou_alumne', 'Nou alumne/a', 'Formulari d\'alta d\'un alumne/a: nom, cognoms, nivell, estat i autoritzacions. La resta de dades les completa l\'equip directiu.', 5, 'si', 'Alumnat'],
   ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si', 'Personal'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si', 'Alumnat'],
   ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta el professorat amb accés al mòdul; registre, PDF per a la família, avisos i anàlisi.', 7, 'si', 'Alumnat'],
@@ -640,6 +641,8 @@ function doPost(e) {
       case 'tanca_curs':   return json_(tancaCurs_(ctx, req));
       case 'versio':       return json_(MODULS[req.modul] && pot_(ctx, req.modul, 'consulta') ? { ok: true, versio: versio_(req.modul) } : { ok: false, error: 'sense_permis' });
       case 'nou_professor':  return json_(nouProfessor_(ctx));
+      case 'nou_alumne':     return json_(nouAlumne_(ctx));   // PAS 68
+      case 'alta_alumne':    return json_(altaAlumne_(ctx, req));
       case 'entrada_alumnes': return json_(entradaAlumnes_(ctx));
       case 'entrada_nova':   return json_(entradaNova_(ctx, req));
       case 'alta_professor': return json_(ambHerencia_(altaProfessor_(ctx, req), true, ctx));
@@ -2124,6 +2127,39 @@ function altaProfessor_(ctx, req) {
   const f = (r.files || [])[0] || {};
   historial_(ctx.email, 'alta_nou_professor', FULL.prof, f.id || '', 'des del formulari Nou professor/a');
   return { ok: true, id: f.id, data: f.data, valors: f.valors };
+}
+
+// ------------------------------------------------------------------ PAS 68 · NOU ALUMNE/A
+// Alta d'un alumne/a amb les dades mínimes: nom, cognoms, nivell, estat i tres autoritzacions. Va a Alumnat ESO o a Alumnat
+// Batxillerat segons el nivell. Qui ve de fora del centre és «alumne extern»; els altres estats són per a l'alumnat del centre.
+const CAMPS_NOU_ALUMNE = ['nom', 'cognom1', 'cognom2', 'nivell', 'estat', 'aut_imatge', 'aut_dies_especials', 'aut_medicaments'];
+function nouAlumne_(ctx) {
+  if (!pot_(ctx, 'nou_alumne', 'edicio')) return { ok: false, error: 'sense_permis' };
+  return { ok: true, obert: obert_(ctx), curs: ctx.cfg.curs || '', nivells: NIVELLS_ESO.concat(NIVELLS_BAT),
+    estats: { eso: ESTATS_ALUMNAT.filter((e) => e !== 'baixa'), bat: ESTATS_BAT.filter((e) => e !== 'baixa') } };
+}
+function altaAlumne_(ctx, req) {
+  if (!pot_(ctx, 'nou_alumne', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const x = req.valors && typeof req.valors === 'object' ? req.valors : {}, v = {}, errs = [];
+  CAMPS_NOU_ALUMNE.forEach((k) => { v[k] = String(x[k] == null ? '' : x[k]).trim().slice(0, 80); });
+  const bat = NIVELLS_BAT.indexOf(v.nivell) >= 0, modul = bat ? 'batxillerat' : 'alumnat';
+  if (!v.nom) errs.push({ id: 'nou', error: 'obligatori', camp: 'Nom' });
+  if (!v.cognom1) errs.push({ id: 'nou', error: 'obligatori', camp: '1r cognom' });
+  if (NIVELLS_ESO.concat(NIVELLS_BAT).indexOf(v.nivell) < 0) errs.push({ id: 'nou', error: 'obligatori', camp: 'Nivell' });
+  const estats = (bat ? ESTATS_BAT : ESTATS_ALUMNAT).filter((e) => e !== 'baixa');
+  if (estats.indexOf(v.estat) < 0) errs.push({ id: 'nou', error: 'obligatori', camp: 'Estat' });
+  ['aut_imatge', 'aut_dies_especials', 'aut_medicaments'].forEach((k) => { if (v[k] && ['sí', 'no'].indexOf(v[k]) < 0) errs.push({ id: 'nou', error: 'valor_invalid', camp: k }); });
+  if (errs.length) return { ok: false, error: 'validacio', errors: errs };
+  // Repetit? (mateix nom i cognoms al mateix full, sense baixes)
+  const M = MODULS[modul], sh = M.ss().getSheetByName(M.full), clau = normNom_([v.cognom1, v.cognom2, v.nom].join(' '));
+  if (sh && sh.getLastRow() > 1 && !req.igualment && llegeixFull_(sh).some((r) => !deBaixa_(r) && normNom_([r.cognom1, r.cognom2, r.nom].join(' ')) === clau))
+    return { ok: false, error: 'repetit', missatge: 'Ja hi ha un alumne/a amb aquest nom i cognoms a ' + (bat ? 'Alumnat Batxillerat' : 'Alumnat ESO') + '.' };
+  const ctxAlta = Object.assign({}, ctx, { nivell: (m) => (m === modul ? 'edicio' : ctx.nivell(m)) });
+  const r = desa_(ctxAlta, { modul: modul, canvis: [], altes: [{ tmp: 'nou', valors: v }] });
+  if (!r.ok) return r;
+  const f = (r.files || [])[0] || {};
+  historial_(ctx.email, 'alta_nou_alumne', M.full, f.id || '', 'des del formulari Nou alumne/a');
+  return { ok: true, id: f.id, modul: modul };
 }
 
 // ------------------------------------------------------------------ CONTROL D'ENTRADA (PAS 29)
@@ -4595,7 +4631,9 @@ function horariEditorImporta_(ctx, req) {
     sh.clearContents();
     sh.getRange(1, 1, 1, CAP_HRES.length).setValues([CAP_HRES]).setFontWeight('bold');
     if (files.length) sh.getRange(2, 1, files.length, CAP_HRES.length).setNumberFormat('@').setValues(files.map((f) => f.map(String)));
-    const meta = { curs: net(h.curs, 20), generat: net(h.generat, 30), mode: h.mode || {}, resultat: ((r) => ({ estat: net(r.estat, 20), penalitzacio: Number(r.penalitzacio) || 0, temps_s: Number(r.temps_s) || 0, avisos: (r.avisos || []).slice(0, 60).map((x) => net(x, 300)) }))(h.resultat || {}), importat: ara_(), importat_per: ctx.email,
+    const meta = { curs: net(h.curs, 20), generat: net(h.generat, 30), mode: h.mode || {}, resultat: ((r) => ({ estat: net(r.estat, 20), penalitzacio: Number(r.penalitzacio) || 0, temps_s: Number(r.temps_s) || 0, avisos: (r.avisos || []).slice(0, 60).map((x) => net(x, 300)),
+        // PAS 68: on es concentra la penalització
+        detall: ((d) => ({ per_regla: d.per_regla || {}, principals: (d.principals || []).slice(0, 15).map((p) => ({ regla: net(p.regla, 20), qui: net(p.qui, 120), punts: Number(p.punts) || 0 })) }))(r.penalitzacio_detall || {}) }))(h.resultat || {}), importat: ara_(), importat_per: ctx.email,
       sessions: files.length, marc_horari: { dies: dies, franges: (M.franges || []).map((f) => ({ id: String(f.id), inici: net(f.inici, 5), fi: net(f.fi, 5), esbarjo: !!f.esbarjo })) },
       grups_classe: h.grups_classe || null, docents: (h.docents || []).map((d) => ({ id: net(d.id, 20), nom: net(d.nom, 120) })) };
     posaConfig_('horari_meta', JSON.stringify(meta));

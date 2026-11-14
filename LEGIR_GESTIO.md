@@ -422,6 +422,13 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Amonestacions**: amb consulta, a més de les pròpies, les del grup-classe del tutor/a i les del nivell del coordinador/a (`tutoriaCoord_`, `deTutoriaAmon_`).
 - Generador: validació amb el mode (`per_mode`), estat i botó de correspondències, coincidència parcial i grups combinats al motor.
 
+## PAS 68
+- **Mòdul NOU ALUMNE/A** (`nou_alumne`, grup Alumnat; `configura` l'afegeix): `nou_alumne` i `alta_alumne` (edició al mòdul). Nom, cognoms, nivell, estat (per defecte «alumne extern»), aut. imatge, dies especials i medicaments; va a Alumnat ESO o Batxillerat segons el nivell (`desa_` amb context d'edició); avís de repetit (`igualment`). ESQUEMA 68.
+- **Equips docents 4t ESO**: detecció de Català/Castellà/Matemàtiques més àmplia (`kDoc`), una línia per grup a les cel·les agrupades i ressaltat del tutor/a i del docent amb diverses matèries per línia (`willDrawCell`); franges en una cel·la amb dues columnes de text sense línia (`didDrawCell`) i grups-classe entre parèntesis.
+- **Horaris · editor**: color per matèria + grup, Escape treu el ressaltat, PDF amb número sol (>3 docents, no a guàrdies), penalització del motor (detall a `config › horari_meta`).
+- **Planificador**: botó Actualitza (`hor-actualitza`) i desplegable de sessions dels blocs per nivell i matèria.
+- **Motor**: índex de penalització per regla i el que més penalitza; aula ordinària lliure quan no n'hi ha de preferent.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

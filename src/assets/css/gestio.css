@@ -617,3 +617,4 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-he__xip.is-focus{ box-shadow:0 0 0 2px #1C0CBC; }
 .gs-he__s b, .gs-he__s small{ overflow-wrap:anywhere; }
 .gs-he__panells--3 .gs-he__s{ padding:2px 3px; }
+.gs-ok-nou{ padding:10px 14px; border-radius:8px; background:#E3F3EA; color:#14532D; font-weight:600; }
