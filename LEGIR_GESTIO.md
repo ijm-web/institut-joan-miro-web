@@ -429,6 +429,10 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Planificador**: botó Actualitza (`hor-actualitza`) i desplegable de sessions dels blocs per nivell i matèria.
 - **Motor**: índex de penalització per regla i el que més penalitza; aula ordinària lliure quan no n'hi ha de preferent.
 
+## PAS 68b (correcció)
+
+- Portada: a les targetes dels mòduls sortia «undefined» en lloc de la icona. Dues variables `ICONES` (portada i botons comuns del PAS 61) es trepitjaven; la dels botons ara es diu `ICONES_BOTONS`.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

@@ -4960,7 +4960,7 @@
 
   // PAS 61 · Icones en lloc del text als cinc botons comuns (Visualització camps, Gestió camps, Actualitza, Excel i PDF), a tots
   // els mòduls: el text queda al títol (en passar-hi el ratolí) i a l'etiqueta accessible
-  var ICONES = {
+  var ICONES_BOTONS = {
     'Visualització camps': ['columnes', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M9 4v16M15 4v16"/></svg>'],
     'Gestió camps': ['camps', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>'],
     'Actualitza': ['actualitza', '<svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 11a8 8 0 0 0-14.3-4.9L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.3 4.9L20 16"/><path d="M20 21v-5h-5"/></svg>'],
@@ -4970,7 +4970,7 @@
   };
   function iconitzaBotons(arrel) {
     [].forEach.call((arrel || document).querySelectorAll('button.prog-btn:not(.gs-ico)'), function (b) {
-      var t = b.textContent.replace(/\s+/g, ' ').trim(), x = ICONES[t]; if (!x) return;
+      var t = b.textContent.replace(/\s+/g, ' ').trim(), x = ICONES_BOTONS[t]; if (!x) return;
       b.classList.add('gs-ico', 'gs-ico--' + x[0]); if (!b.title) b.title = t; else if (b.title.indexOf(t) < 0) b.title = t + ' · ' + b.title;
       b.setAttribute('aria-label', t); b.innerHTML = x[1];
     });
