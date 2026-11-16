@@ -634,3 +634,26 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-he__aules th, .gs-he__aules td{ padding: 4px 6px; border-bottom: 1px solid #E3E5EE; text-align: left; vertical-align: middle; }
 .gs-he__aules th{ font-size: .8rem; color: #5A6078; }
 #gsHeMax{ width: auto; display: inline-block; margin-left: 6px; }
+/* PAS 70 · Assistent de moviments: solucions a l'esquerra i graella a la dreta */
+.gs-modal--assist{ max-width: min(1240px, 97vw); }
+.gs-he__ass{ display: grid; grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.1fr); gap: 18px; align-items: start; }
+@media (max-width: 860px){ .gs-he__ass{ grid-template-columns: 1fr; } }
+.gs-he__assE{ max-height: 66vh; overflow: auto; padding-right: 4px; }
+.gs-he__assD{ position: sticky; top: 0; }
+.gs-he__pas{ display: block; width: 100%; text-align: left; background: none; border: 1px solid transparent; border-radius: 6px; padding: 3px 6px; margin: 2px 0 2px 18px; font: inherit; font-size: .88rem; cursor: pointer; color: inherit; }
+.gs-he__pas:hover{ background: #F1F2FA; }
+.gs-he__pas.is-actiu{ border-color: #1C0CBC; background: #EEF0FF; }
+.gs-he__prevcap{ display: flex; gap: 6px; margin-bottom: 6px; }
+.gs-he__prevcap select{ width: auto; max-width: 60%; }
+.gs-he__mini{ width: 100%; border-collapse: collapse; table-layout: fixed; font-size: .72rem; }
+.gs-he__mini th, .gs-he__mini td{ border: 1px solid #E1E3EE; padding: 2px; vertical-align: top; }
+.gs-he__mini th{ background: #F6F7FC; font-weight: 600; color: #5A6078; }
+.gs-he__mini thead th:first-child, .gs-he__mini tbody th{ width: 42px; }
+.gs-he__mini .gs-he__esb td, .gs-he__mini .gs-he__esb th{ background: #FAFAFD; }
+.gs-he__m{ display: inline-block; max-width: 100%; border-radius: 3px; padding: 1px 3px; margin: 1px 0; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; background: #EEF0FF; }
+.gs-he__mini .gs-he__m{ display: block; }
+.gs-he__m--pas{ outline: 2px solid #1D7044; font-weight: 700; }
+.gs-he__m--mou{ outline: 1px dashed #1C0CBC; }
+.gs-he__m--orig{ background: #FFF !important; color: #C62828; text-decoration: line-through; outline: 1px dashed #C62828; }
+.gs-he__prevll{ font-size: .78rem; margin-top: 6px; }
+.gs-he__prevll .gs-he__m{ display: inline-block; }

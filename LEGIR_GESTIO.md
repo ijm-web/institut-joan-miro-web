@@ -441,6 +441,14 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Horaris · planificador**: aules ordenades; codocència en una sola fila (`codocents` / `codo_de`); «3 · En dies diferents» (`horaris_subgrups.dies_diferents`, exportat com a `dies_diferents`); regles toves de pati, ocupació diària i permanència setmanal.
 - **Generador d'horaris**: «en dies diferents» obligatòria, regles toves noves, `unitat`, `aules` i `relacions` a la sortida, interfície en quatre pestanyes.
 
+## PAS 70
+
+- **Matrícula** (mòdul nou, Secretaria): importa l'exportació del Departament amb l'alumnat assignat al centre (CSV «;», UTF-8 o Windows-1252) a ijm_alumnat_db › matricula (clau: identificador RALC + curs). Previsualització (nous, canvien, iguals, baixes) abans de desar. Accions `matricula_dades` i `matricula_importa` (ESQUEMA 70; `configura` crea la pestanya). La resta del procés (formulari en línia amb accés verificat, PDF, validació, traspàs a Alumnat) és només proposta de disseny.
+- **Horaris · editor**: màxim de moviments 8; l'assistent té la graella a la dreta (grup-classe o docent) i cada pas de la solució es mostra (on arriba / d'on surt); guàrdies d'esbarjo extremes = mitja hora d'ocupació; comptador de guàrdies (ordinàries, pati, biblioteca, reduccions).
+- **Equips docents**: el blau no s'aplica a les optatives (1r–3r) ni a les franges (4t).
+- **Planificador**: regles toves «hores seguides», «dies diferents» i «desiderata» eliminades; ara són obligatòries (`distribucio`, `desiderata`). El planificador demana l'ESQUEMA 70 (si l'Apps Script desplegat és anterior, ho diu: la codocència en una fila ho necessita).
+- **Generador**: distribució obligatòria (cada sessió d'una part, un dia diferent).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

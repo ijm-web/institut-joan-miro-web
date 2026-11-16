@@ -37,7 +37,7 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments', hses: 'horaris_sessions', hprof: 'horaris_professorat' , cal: 'calendari', hres: 'horari_resultat' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments', hses: 'horaris_sessions', hprof: 'horaris_professorat', mat: 'matricula', cal: 'calendari', hres: 'horari_resultat' };
 const CAP = {
   // PAS 47: una fila per especialitat; «dades» = JSON {clau assignació: [{prof, grups}]}
   desiderata: ['especialitat', 'dades', 'observacions', 'data', 'desat_per'],
@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 69;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 70;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -109,6 +109,7 @@ const MODULS_PER_DEFECTE = [
   ['alumnat', 'Alumnat ESO', 'Dades acadèmiques de l\'alumnat d\'ESO (1r a 4t): grups, optatives, itinerari, diversitat i autoritzacions.', 3, 'si', 'Alumnat'],
   ['batxillerat', 'Alumnat Batxillerat', 'Dades acadèmiques de l\'alumnat de batxillerat: grups, itinerari, matèries, pendents i autoritzacions.', 4, 'si', 'Alumnat'],
   ['nou_alumne', 'Nou alumne/a', 'Formulari d\'alta d\'un alumne/a: nom, cognoms, nivell, estat i autoritzacions. La resta de dades les completa l\'equip directiu.', 6, 'si', 'Secretaria'],
+  ['matricula', 'Matrícula', 'Matrícula de l\'alumnat (Secretaria). De moment: importació de l\'exportació del Departament amb l\'alumnat assignat al centre.', 7, 'si', 'Secretaria'],
   ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si', 'Secretaria'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si', 'Alumnat'],
   ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta el professorat amb accés al mòdul; registre, PDF per a la família, avisos i anàlisi.', 7, 'si', 'Alumnat'],
@@ -651,6 +652,8 @@ function doPost(e) {
       case 'calendari_dades': return json_(calendariDades_(ctx));
       case 'horari_editor_dades': return json_(horariEditorDades_(ctx));   // PAS 64
       case 'horari_editor_importa': return json_(horariEditorImporta_(ctx, req));
+      case 'matricula_dades': return json_(matriculaDades_(ctx));   // PAS 70
+      case 'matricula_importa': return json_(matriculaImporta_(ctx, req));
       case 'horari_editor_desa': return json_(horariEditorDesa_(ctx, req));   // PAS 69
       case 'ocupacio_dades': return json_(ocupacioDades_(ctx));
       case 'ocupacio_desa': return json_(ambHerencia_(ocupacioDesa_(ctx, req), true, ctx));
@@ -1784,6 +1787,7 @@ function configura() {
     fullModul_(MODULS.control_entrada, campsDe_('control_entrada', true));
     fullModul_(MODULS.amonestacions, campsDe_('amonestacions', true));
     fullModul_(MODULS.consell_orientador, campsDe_('consell_orientador', true));
+    fullMatricula_();   // PAS 70
     ompleNivellPAS28_();
     Logger.log('ijm_alumnat_db: pestanyes «alumnes» (ESO), «alumnes_bat» (batxillerat), «entrades» (control d\'entrada) i «amonestacions» a punt.');
   } else Logger.log('Encara no hi ha config › db_alumnat: el mòdul Alumnat no funcionarà fins que hi poseu l\'URL d\'ijm_alumnat_db.');
@@ -2507,6 +2511,182 @@ function canviaModulsPAS69_() {
     if (cG >= 0 && d[5] === 'Secretaria') sh.getRange(i + 1, cG + 1).setValues([[d[5]]]);
   }
   Logger.log('Mòduls: categoria Secretaria (Nou professor/a, Nou alumne/a) i horaris junts a Organització del curs.');
+}
+
+// =============================================================================================
+// PAS 70 · MATRÍCULA (Secretaria). De moment, només la IMPORTACIÓ de l'exportació del Departament amb l'alumnat assignat
+// al centre (fitxer «report_actual…csv»: una fila per alumne/a, separat per «;», en codificació de Windows). Cada fila va
+// a ijm_alumnat_db › matricula (clau: identificador de l'alumne/a + curs acadèmic). Les dades de l'alumnat no surten
+// d'ijm_alumnat_db; la importació és del navegador (el fitxer es llegeix allà) al servidor.
+// =============================================================================================
+const CAMPS_MATRICULA_ = [
+  ['id_ralc', "Identificador de l\'alumne/a"],
+  ['nom', "Nom alumne"],
+  ['cognom1', "Primer cognom"],
+  ['cognom2', "Segon cognom"],
+  ['sexe', "Sexe"],
+  ['nacionalitat', "Nacionalitat"],
+  ['data_naixement', "Data Naixement"],
+  ['pais_naixement', "País Naixement"],
+  ['provincia_naixement', "Província Naixement"],
+  ['municipi_naixement', "Municipi Naixement"],
+  ['estat_alumne', "Estat Alumne"],
+  ['emancipat', "Emancipat"],
+  ['tutelat', "Tutelat"],
+  ['custodia_compartida', "Custòdia Compartida"],
+  ['dni', "DNI"],
+  ['nie', "NIE"],
+  ['pass', "PASS"],
+  ['tis', "TIS"],
+  ['tipus_via1', "Tipus Via1"],
+  ['nom_via1', "Nom Via1"],
+  ['numero_via1', "Número Via1"],
+  ['bloc_via1', "Bloc Via1"],
+  ['escala_via1', "Escala Via1"],
+  ['planta_via1', "Planta Via1"],
+  ['porta_via1', "Porta Via1"],
+  ['resta_dades_adreca_via1', "Resta Dades Adreça Via1"],
+  ['pais_residencia_via1', "País Residència Via1"],
+  ['provincia_residencia_via1', "Província Residència Via1"],
+  ['municipi_residencia_via1', "Municipi Residència Via1"],
+  ['localitat_residencia_via1', "Localitat Residència Via1"],
+  ['codi_postal_via1', "Codi Postal Via1"],
+  ['telefon_via1', "Telèfon Via1"],
+  ['email_via1', "Email Via1"],
+  ['observacions_via1', "Observacions Via1"],
+  ['tipus_via2', "Tipus Via2"],
+  ['nom_via2', "Nom Via2"],
+  ['numero_via2', "Número Via2"],
+  ['bloc_via2', "Bloc Via2"],
+  ['escala_via2', "Escala Via2"],
+  ['planta_via2', "Planta Via2"],
+  ['porta_via2', "Porta Via2"],
+  ['resta_dades_adreca_via2', "Resta Dades Adreça Via2"],
+  ['pais_residencia_via2', "País Residència Via2"],
+  ['provincia_residencia_via2', "Província Residència Via2"],
+  ['municipi_residencia_via2', "Municipi Residència Via2"],
+  ['localitat_residencia_via2', "Localitat Residència Via2"],
+  ['codi_postal_via2', "Codi Postal Via2"],
+  ['telefon_via2', "Telèfon Via2"],
+  ['email_via2', "Email Via2"],
+  ['observacions_via2', "Observacions Via2"],
+  ['persona_juridica', "Persona Jurídica"],
+  ['tipus_document_tutor1', "Tipus Document Tutor1"],
+  ['numero_document_tutor1', "Número Document Tutor1"],
+  ['nom_tutor1', "Nom Tutor1"],
+  ['primer_cognom_tutor1', "Primer Cognom Tutor1"],
+  ['segon_cognom_tutor1', "Segon Cognom Tutor1"],
+  ['tipus_document_tutor2', "Tipus Document Tutor2"],
+  ['numero_document_tutor2', "Número Document Tutor2"],
+  ['nom_tutor2', "Nom Tutor2"],
+  ['primer_cognom_tutor2', "Primer Cognom Tutor2"],
+  ['segon_cognom_tutor2', "Segon Cognom Tutor2"],
+  ['curs_academic', "Curs Acadèmic"],
+  ['periode', "Període"],
+  ['codi_centre', "Codi Centre"],
+  ['codi_ensenyament', "Codi Ensenyament"],
+  ['especialitat_esportiva', "Especialitat esportiva"],
+  ['nivell', "Nivell"],
+  ['regim', "Règim"],
+  ['bloc_batx_nocturn', "Bloc Batx Nocturn"],
+  ['torn', "Torn"],
+  ['modalitat', "Modalitat"],
+  ['nese', "NESE"],
+  ['motiu_nese', "Motiu NESE"],
+  ['nese_validada_principal', "NESE validada Principal"],
+  ['nese_validada_secundaria', "NESE validada Secundària"],
+  ['ocupa_placa', "Ocupa Plaça"],
+  ['escolaritzacio_compartida', "Escolarització Compartida"],
+  ['codi_centre_comp', "Codi Centre Comp"],
+  ['codi_centre_exped', "Codi Centre Exped"],
+  ['data_ini_esc_comp', "Data Ini Esc Comp"],
+  ['data_fi_esc_comp', "Data Fi Esc Comp"],
+  ['data_matricula', "Data Matrícula"],
+  ['data_registre_matricula', "Data Registre Matrícula"],
+  ['data_baixa', "Data Baixa"],
+  ['data_registre_baixa_mat', "Data Registre Baixa Mat"],
+  ['motiu_baixa', "Motiu Baixa"],
+  ['estat_matricula', "Estat Matrícula"],
+  ['pendent_coordinar_esc_comp', "Pendent Coordinar Esc Comp"],
+  ['pendent_pagament', "Pendent Pagament"],
+  ['nota_qpre', "Nota QPRE"],
+  ['nota_q34', "Nota Q34"],
+  ['cessio_de_dades', "Cessió de dades"],
+  ['data_darrera_actualitzacio', "Data darrera actualització"],
+  ['data_caducitat_autoritzacio', "Data caducitat autorització"]
+];
+const CAP_MATRICULA_ = CAMPS_MATRICULA_.map((c) => c[0]).concat(['etapa', 'nivell_gestio', 'estat_gestio', 'importat', 'importat_per', 'actualitzat']);
+// Columnes que es veuen a la llista del mòdul (la resta es desa però no es mostra)
+const LLISTA_MATRICULA_ = ['id_ralc', 'nom', 'cognom1', 'cognom2', 'data_naixement', 'codi_ensenyament', 'nivell', 'etapa', 'nivell_gestio', 'curs_academic', 'estat_matricula', 'data_matricula',
+  'data_baixa', 'motiu_baixa', 'email_via1', 'telefon_via1', 'nom_tutor1', 'primer_cognom_tutor1', 'nom_tutor2', 'primer_cognom_tutor2', 'estat_gestio', 'importat', 'actualitzat'];
+function fullMatricula_() {
+  const ss = ssAlumnat_(); let sh = ss.getSheetByName(FULL.mat);
+  if (!sh) { sh = ss.insertSheet(FULL.mat); sh.getRange(1, 1, sh.getMaxRows(), Math.max(sh.getMaxColumns(), CAP_MATRICULA_.length)).setNumberFormat('@');
+    sh.getRange(1, 1, 1, CAP_MATRICULA_.length).setValues([CAP_MATRICULA_]).setFontWeight('bold'); sh.setFrozenRows(1); return sh; }
+  const act = sh.getLastColumn() ? sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0] : [], falten = CAP_MATRICULA_.filter((k) => act.indexOf(k) < 0);
+  if (falten.length) sh.getRange(1, act.length + 1, 1, falten.length).setValues([falten]).setFontWeight('bold');
+  return sh;
+}
+// «BATXLOE 2000» / «ESO LOE…» + nivell → etapa i nivell de GESTIO («1r BAT», «3r ESO»)
+function nivellMatricula_(codi, nivell) {
+  const n = Number(String(nivell || '').replace(/\D/g, '')) || 0, c = String(codi || '').toUpperCase();
+  if (/BATX/.test(c)) return { etapa: 'Batxillerat', nivell: NIVELLS_BAT[n - 1] || '' };
+  if (/ESO/.test(c)) return { etapa: 'ESO', nivell: NIVELLS_ESO[n - 1] || '' };
+  return { etapa: '', nivell: '' };
+}
+const dataIsoMat_ = (x) => { const m = /^(\d{1,2})\/(\d{1,2})\/(\d{4})$/.exec(String(x || '').trim()); return m ? m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) : String(x || '').trim(); };
+const DATES_MATRICULA_ = { data_naixement: 1, data_matricula: 1, data_registre_matricula: 1, data_baixa: 1, data_registre_baixa_mat: 1, data_ini_esc_comp: 1, data_fi_esc_comp: 1, data_darrera_actualitzacio: 1, data_caducitat_autoritzacio: 1 };
+function matriculaDades_(ctx) {
+  if (!pot_(ctx, 'matricula', 'consulta')) return { ok: false, error: 'sense_permis' };
+  const sh = ssAlumnat_().getSheetByName(FULL.mat);
+  const files = sh && sh.getLastRow() > 1 ? llegeixFull_(sh) : [];
+  const resum = {}; files.forEach((r) => { const k = (r.nivell_gestio || r.codi_ensenyament || '?') + ' · ' + (r.estat_matricula || '?'); resum[k] = (resum[k] || 0) + 1; });
+  return { ok: true, esquema: ESQUEMA, nivell: ctx.nivell('matricula'), obert: obert_(ctx), columnes: CAMPS_MATRICULA_.length,
+    files: files.map((r) => { const o = {}; LLISTA_MATRICULA_.forEach((k) => { o[k] = r[k] == null ? '' : String(r[k]); }); return o; }), resum: resum };
+}
+// req.files = [[capçalera…], [fila…], …] tal com és al fitxer; req.prova = true només compta (no desa)
+function matriculaImporta_(ctx, req) {
+  if (!pot_(ctx, 'matricula', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const F = Array.isArray(req.files) ? req.files : [];
+  if (F.length < 2 || F.length > 5001) return { ok: false, error: 'dades_invalides', errors: ['El fitxer no té files d\'alumnat (o en té més de 5.000).'] };
+  const cap = (F[0] || []).map(normCap_), idx = {}, desconegudes = [];
+  CAMPS_MATRICULA_.forEach((c) => { idx[c[0]] = cap.indexOf(normCap_(c[1])); });
+  if (idx.id_ralc < 0 || idx.nom < 0 || idx.cognom1 < 0) return { ok: false, error: 'dades_invalides', errors: ['No és l\'exportació de l\'alumnat assignat: falten les columnes «Identificador de l\'alumne/a», «Nom alumne» o «Primer cognom».'] };
+  (F[0] || []).forEach((h) => { const k = normCap_(h); if (k && !CAMPS_MATRICULA_.some((c) => normCap_(c[1]) === k)) desconegudes.push(String(h).trim()); });
+  const ara = ara_(), noves = [], errors = [], vist = {};
+  F.slice(1).forEach((r, i) => {
+    if (!Array.isArray(r) || !r.some((x) => String(x || '').trim())) return;
+    const o = {}; CAMPS_MATRICULA_.forEach((c) => { const j = idx[c[0]]; let v = j >= 0 ? String(r[j] == null ? '' : r[j]).trim().slice(0, 300) : ''; if (DATES_MATRICULA_[c[0]]) v = dataIsoMat_(v); o[c[0]] = v; });
+    if (!o.id_ralc) { errors.push('Fila ' + (i + 2) + ': sense identificador de l\'alumne/a.'); return; }
+    const clau = o.id_ralc + '|' + o.curs_academic; if (vist[clau]) { errors.push('Fila ' + (i + 2) + ': alumne/a repetit al fitxer (' + o.id_ralc + ').'); return; } vist[clau] = 1;
+    const nv = nivellMatricula_(o.codi_ensenyament, o.nivell); o.etapa = nv.etapa; o.nivell_gestio = nv.nivell;
+    noves.push(o);
+  });
+  if (!noves.length) return { ok: false, error: 'dades_invalides', errors: errors.length ? errors.slice(0, 10) : ['Cap fila amb dades.'] };
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    const sh = fullMatricula_(), vals = sh.getDataRange().getValues(), capF = vals[0].map(String), ix = {}; capF.forEach((k, j) => { ix[k] = j; });
+    const perClau = {}; for (let i = 1; i < vals.length; i++) perClau[vals[i][ix.id_ralc] + '|' + vals[i][ix.curs_academic]] = i;
+    let nous = 0, actualitzats = 0, iguals = 0; const canvis = [];
+    noves.forEach((o) => {
+      const i = perClau[o.id_ralc + '|' + o.curs_academic];
+      if (i === undefined) { nous++; o.estat_gestio = 'importada'; o.importat = ara; o.importat_per = ctx.email; o.actualitzat = ''; canvis.push(['nova', o]); return; }
+      const ant = vals[i], dif = CAMPS_MATRICULA_.some((c) => String(ant[ix[c[0]]] == null ? '' : ant[ix[c[0]]]) !== o[c[0]]);
+      if (!dif) { iguals++; return; }
+      actualitzats++; o.estat_gestio = String(ant[ix.estat_gestio] || 'importada'); o.importat = String(ant[ix.importat] || ''); o.importat_per = String(ant[ix.importat_per] || ''); o.actualitzat = ara; canvis.push(['fila', o, i]);
+    });
+    const res = { ok: true, prova: !!req.prova, files: noves.length, nous: nous, actualitzats: actualitzats, iguals: iguals, errors: errors.slice(0, 20), columnes_desconegudes: desconegudes.slice(0, 20),
+      per_nivell: noves.reduce((t, o) => { const k = o.nivell_gestio || o.codi_ensenyament || '?'; t[k] = (t[k] || 0) + 1; return t; }, {}),
+      baixes: noves.filter((o) => /baixa/i.test(o.estat_matricula)).length };
+    if (req.prova) return res;
+    const fila = (o) => capF.map((k) => (o[k] === undefined ? '' : o[k]));
+    canvis.filter((c) => c[0] === 'fila').forEach((c) => { sh.getRange(c[2] + 1, 1, 1, capF.length).setValues([fila(c[1])]); });
+    const nousF = canvis.filter((c) => c[0] === 'nova').map((c) => fila(c[1]));
+    if (nousF.length) sh.getRange(sh.getLastRow() + 1, 1, nousF.length, capF.length).setNumberFormat('@').setValues(nousF);
+    historial_(ctx.email, 'matricula_importa', FULL.mat, '', nous + ' noves · ' + actualitzats + ' actualitzades · ' + iguals + ' iguals');
+    marcaVersio_('matricula', ctx.email);
+    return Object.assign(res, { dades: matriculaDades_(ctx) });
+  } finally { lock.releaseLock(); }
 }
 // PAS 30 · ordre de les targetes: Professorat, PAS, Alumnat ESO, Alumnat Batxillerat, Nou professor/a, Control d'entrada
 function canviaOrdreModulsPAS30_() {
@@ -3804,7 +3984,9 @@ function reglesMotor_(cfg) {
     ['docent', 'Un docent no pot fer dues sessions alhora (també a la codocència).', 'assignacions[].id_professor · docents_aula'],
     ['grup', 'Un grup-classe no pot tenir dues sessions alhora; un subgrup ocupa el seu grup-classe.', 'assignacions[].grups_classe · subgrups[]'],
     ['aula', 'Una aula només pot tenir una sessió alhora.', 'aules[]'],
-    ['hores', 'Cada part de cada assignació fa totes les seves hores, en sessions segons la distribució (una sessió de 2 h és en franges seguides, sense esbarjo entremig).', 'assignacions[].parts[].hores · distribucio'],
+    ['hores', 'Cada part de cada assignació fa totes les seves hores, en sessions segons la distribució.', 'assignacions[].parts[].hores · distribucio'],
+    ['distribucio', 'La distribució mana: «2 1» = dues hores seguides un dia (sense esbarjo entremig) i l\'altra hora un altre dia; «1 1 1» = cada hora un dia diferent. Les sessions d\'una mateixa part, sempre en dies diferents.', 'assignacions[].parts[].distribucio · blocs_simultanis[].distribucio'],
+    ['desiderata', 'Cada grup el fa el docent de Currículum › Assignacions (la desiderata ja aplicada).', 'assignacions[].id_professor'],
     ['marc', 'Només es fan servir les franges lectives del marc horari.', 'marc_horari'],
     ['fixes_sessio', 'Les posicions fixes d\'una sessió s\'han de fer servir; les prohibides, no.', 'assignacions[].parts[].fixes · prohibides'],
     ['fixes_docent', 'El docent fa classe a les seves posicions fixes i mai a les prohibides.', 'docents[].fixes · prohibides'],
@@ -3819,10 +4001,9 @@ function reglesMotor_(cfg) {
     ['aula_capacitat', 'Si no hi ha lloc a l\'aula preferent ni a les alternatives, l\'aula ha de tenir prou capacitat.', 'aules[].capacitat']
   ].map((r) => ({ id: r[0], text: r[1], dades: r[2] }));
   const tv = [
-    ['seguides', 'Màxim de ' + T.max_hores_seguides_materia + ' h seguides d\'una mateixa matèria.', 'per cada hora de més', T.max_hores_seguides_materia > 0],
-    ['dies', 'Repartir les hores de cada matèria en dies diferents.', 'per cada sessió de més el mateix dia', T.repartir_en_dies_diferents],
+    // PAS 70: les hores seguides i el repartiment en dies diferents els marca la distribució, i el docent de cada grup és
+    // el del Currículum (desiderata aplicada): ja no són preferències sinó regles obligatòries
     ['forats', 'Evitar forats a l\'horari del professorat.', 'per cada hora buida entre classes, per docent i dia', T.minimitzar_forats_docents],
-    ['desiderata', 'Respectar la desiderata (docent de cada grup).', 'per cada grup amb un docent diferent del demanat', T.respectar_desiderata],
     ['aula_alternativa', 'Sessió en una aula del conjunt alternatiu (avís).', 'per cada hora fora de l\'aula preferent', true],
     ['aula_qualsevol', 'Sessió en qualsevol aula de capacitat suficient (avís).', 'per cada hora fora de la preferent i de les alternatives', true],
     // PAS 69
