@@ -3501,7 +3501,10 @@ function horarisSubgrupsDesa_(ctx, req) {
     if (!x.grups.length) err.push(nom + ': cal marcar de quins grups-classe surt l\'alumnat.');
     clau(x.clau, x.nom); });
   const sg = {}; subgrups.forEach((x) => { sg[x.id] = x; });
-  const ses = {}; sessionsHoraris_(cfg).forEach((a) => a.parts.forEach((p) => { ses[a.id + '#' + p.id] = { a: a, p: p }; }));
+  // PAS 69b: les parts que encara no s'han desat (p. ex. una sessió partida amb ✂ i posada en un bloc en el mateix «Desa»)
+  // es validen tal com són a la pantalla: el client les envia a «parts»
+  const ses = {}; sessionsHoraris_(cfg).forEach((a) => { const nou = req.parts && Array.isArray(req.parts[a.id]) ? req.parts[a.id] : null;
+    (nou ? nou.map((p, i) => ({ id: String(p.id || 'P' + (i + 1)), grup: String(p.grup || ''), hores: numCur_(p.hores) })) : a.parts).forEach((p) => { ses[a.id + '#' + p.id] = { a: a, p: p }; }); });
   const nouB = codiSeg_(q.blocs || [], 'B');
   const blocs = (q.blocs || []).map((b) => ({ id: nouB(b), nivell: String(b.nivell || ''), nom: String(b.nom || '').trim().slice(0, 60), tipus: TIPUS_SUBGRUP.indexOf(b.tipus) >= 0 ? b.tipus : 'altres',
     parts: (b.parts || []).map(String).filter((k, i, a) => a.indexOf(k) === i), mateix_dia: String(b.mateix_dia || '').trim().slice(0, 40),
