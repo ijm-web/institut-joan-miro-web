@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 68;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 69;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -108,17 +108,17 @@ const MODULS_PER_DEFECTE = [
   ['pas', 'PAS', 'Personal d\'administració i serveis: administració, consergeria… Graella amb filtres, alta, baixa i modificació.', 2, 'si', 'Personal'],
   ['alumnat', 'Alumnat ESO', 'Dades acadèmiques de l\'alumnat d\'ESO (1r a 4t): grups, optatives, itinerari, diversitat i autoritzacions.', 3, 'si', 'Alumnat'],
   ['batxillerat', 'Alumnat Batxillerat', 'Dades acadèmiques de l\'alumnat de batxillerat: grups, itinerari, matèries, pendents i autoritzacions.', 4, 'si', 'Alumnat'],
-  ['nou_alumne', 'Nou alumne/a', 'Formulari d\'alta d\'un alumne/a: nom, cognoms, nivell, estat i autoritzacions. La resta de dades les completa l\'equip directiu.', 5, 'si', 'Alumnat'],
-  ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si', 'Personal'],
+  ['nou_alumne', 'Nou alumne/a', 'Formulari d\'alta d\'un alumne/a: nom, cognoms, nivell, estat i autoritzacions. La resta de dades les completa l\'equip directiu.', 6, 'si', 'Secretaria'],
+  ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si', 'Secretaria'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si', 'Alumnat'],
   ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta el professorat amb accés al mòdul; registre, PDF per a la família, avisos i anàlisi.', 7, 'si', 'Alumnat'],
   ['curriculum', 'Currículum', 'Disseny curricular d\'ESO i batxillerat: matèries de cada nivell amb hores, especialitat i grups; assignació de cada matèria i grup a una especialitat i document dels equips docents.', 9, 'si', 'Organització del curs'],
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si', 'Alumnat'],
-  ['desiderata', 'Desiderata', 'Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit, observacions pedagògiques i coherència amb les hores lectives.', 9, 'si', 'Organització del curs'],
-  ['horaris', 'Horaris · planificador', 'Generador d\'horaris, fase PLANIFICADOR: marc horari, aules, regles i blocs paral·lels, i exportació de les dades per al MOTOR.', 10, 'si', 'Organització del curs'],
-  ['ocupacio', 'Ocupació', 'Hores fixes de cada docent: lectives d\'ESO i batxillerat, atenció individual, tutories, reduccions, guàrdies i càrrecs, amb el semàfor 18 + 4 = 22 (en proporció a la jornada).', 10, 'si', 'Organització del curs'],
-  ['horaris_editor', 'Horaris · editor', 'Generador d\'horaris, fase EDITOR: importa l\'horari calculat pel MOTOR i el mostra per docent i per grup-classe (PDF).', 10, 'si', 'Organització del curs'],
-  ['calendari', 'Calendari', 'Calendari del curs: esdeveniments generals i interns (per nivells), dates clau i festius; vistes de dia, setmana, mes i trimestre amb PDF, i publicació al web (Secretaria › Calendari escolar).', 11, 'si', 'Organització del curs'],
+  ['desiderata', 'Desiderata', 'Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit, observacions pedagògiques i coherència amb les hores lectives.', 10, 'si', 'Organització del curs'],
+  ['horaris', 'Horaris · planificador', 'Generador d\'horaris, fase PLANIFICADOR: marc horari, aules, regles i blocs paral·lels, i exportació de les dades per al MOTOR.', 12, 'si', 'Organització del curs'],
+  ['ocupacio', 'Ocupació', 'Hores fixes de cada docent: lectives d\'ESO i batxillerat, atenció individual, tutories, reduccions, guàrdies i càrrecs, amb el semàfor 18 + 4 = 22 (en proporció a la jornada).', 11, 'si', 'Organització del curs'],
+  ['horaris_editor', 'Horaris · editor', 'Generador d\'horaris, fase EDITOR: importa l\'horari calculat pel MOTOR i el mostra per docent i per grup-classe (PDF).', 13, 'si', 'Organització del curs'],
+  ['calendari', 'Calendari', 'Calendari del curs: esdeveniments generals i interns (per nivells), dates clau i festius; vistes de dia, setmana, mes i trimestre amb PDF, i publicació al web (Secretaria › Calendari escolar).', 14, 'si', 'Organització del curs'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si', 'Administració'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
@@ -651,6 +651,7 @@ function doPost(e) {
       case 'calendari_dades': return json_(calendariDades_(ctx));
       case 'horari_editor_dades': return json_(horariEditorDades_(ctx));   // PAS 64
       case 'horari_editor_importa': return json_(horariEditorImporta_(ctx, req));
+      case 'horari_editor_desa': return json_(horariEditorDesa_(ctx, req));   // PAS 69
       case 'ocupacio_dades': return json_(ocupacioDades_(ctx));
       case 'ocupacio_desa': return json_(ambHerencia_(ocupacioDesa_(ctx, req), true, ctx));
       case 'ocupacio_carrecs_desa': return json_(ocupacioCarrecsDesa_(ctx, req));
@@ -1827,6 +1828,7 @@ function configura() {
   // PAS 57: les hores (lectives, tutories, atenció individual i reduccions) es veuen i es canvien al mòdul Ocupació; a la
   // graella del Professorat s'arxiven (les dades es queden al full professorat, on les llegeixen els altres mòduls)
   if (esquema < 57) LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).map((x) => x[0]).concat(['hores_lectives', 'total_lectives']).forEach((k) => actualitzaCamp_('professorat', k, { actiu: 'no' }));
+  if (esquema < 69) canviaModulsPAS69_();
   columnesOcupacio_();
   posaConfig_('esquema', String(ESQUEMA));
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = ss.getSheetByName(n); if (f && f.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(f); });
@@ -2491,6 +2493,20 @@ function sincronitzaCamps_(modul, def, ampliar) {
   sh.getRange(2, 1, totes.length, cap.length).setValues(totes);
   historial_('configura', 'actualitzacio', FULL.camps, modul, 'afegits: ' + afegits.join(', ') + (ampliats.length ? ' · llistes ampliades: ' + ampliats.join(', ') : ''));
   Logger.log('Camps de ' + modul + ': afegits ' + (afegits.join(', ') || '—') + (ampliats.length ? '; llistes ampliades: ' + ampliats.join(', ') : '') + '.');
+}
+// PAS 69 · Categoria «Secretaria» (Nou professor/a i Nou alumne/a) i, a «Organització del curs», l'ordre Currículum,
+// Desiderata, Ocupació, Horaris · planificador, Horaris · editor i Calendari (els dos mòduls d'horaris, junts)
+function canviaModulsPAS69_() {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.mod);
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), cO = cap.indexOf('ordre'), cG = cap.indexOf('grup');
+  const def = {}; MODULS_PER_DEFECTE.forEach((m) => { def[m[0]] = m; });
+  const canvi = ['nou_professor', 'nou_alumne', 'curriculum', 'desiderata', 'ocupacio', 'horaris', 'horaris_editor', 'calendari'];
+  for (let i = 1; i < vals.length; i++) {
+    const d = def[String(vals[i][cap.indexOf('id_modul')])]; if (!d || canvi.indexOf(d[0]) < 0) continue;
+    if (cO >= 0) sh.getRange(i + 1, cO + 1).setValues([[d[3]]]);
+    if (cG >= 0 && d[5] === 'Secretaria') sh.getRange(i + 1, cG + 1).setValues([[d[5]]]);
+  }
+  Logger.log('Mòduls: categoria Secretaria (Nou professor/a, Nou alumne/a) i horaris junts a Organització del curs.');
 }
 // PAS 30 · ordre de les targetes: Professorat, PAS, Alumnat ESO, Alumnat Batxillerat, Nou professor/a, Control d'entrada
 function canviaOrdreModulsPAS30_() {
@@ -3382,8 +3398,10 @@ function validaMarc_(m) {
 }
 // PAS 49 · Aules i Regles i blocs (PLANIFICADOR). Mateix format que generador-horaris/dades/aules.json i regles.json
 const TIPUS_AULA = ['ordinaria', 'laboratori', 'informatica', 'idiomes', 'musica', 'gimnas', 'taller', 'dibuix', 'desdoblament', 'altres'];   // PAS 50: + idiomes; plàstica → dibuix
+// PAS 69: pati lliure (guàrdia d'esbarjo sense ocupació al costat), màxim d'ocupació diària i de permanència setmanal (0 = sense)
 const REGLES_PER_DEFECTE = { blocs_parallels: [], toves: { max_hores_seguides_materia: 2, repartir_en_dies_diferents: true, minimitzar_forats_docents: true, respectar_desiderata: true,
-  pesos: { forats: 3, seguides: 5, dies: 4, desiderata: 2, aula_alternativa: 2, aula_qualsevol: 4 } } };
+  pati_lliure: true, max_ocupacio_diaria: 6, max_permanencia_setmanal: 30,
+  pesos: { forats: 3, seguides: 5, dies: 4, desiderata: 2, aula_alternativa: 2, aula_qualsevol: 4, pati: 3, max_diaria: 3, permanencia: 2 } } };
 const baseMateria_ = (m) => String(m || '').replace(/^Optativa:\s*/, '').split(' (')[0].trim();
 // PAS 50: aules + conjunts d'aules alternatives ({id: 'C1', nom, aules: [codis]}); l'aula de cada matèria va a Sessions lectives
 function aulesHoraris_(cfg) {
@@ -3434,7 +3452,15 @@ function sessionsHoraris_(cfg) {
     return { id: r.id_assignacio, nivell: r.nivell, materia: r.materia, grup: r.grup, classes: classes, multinivell: multi, id_materia: r.id_materia || '', num_grup: Number(r.num_grup) || 1, hores: h, especialitat: r.especialitat || '', professor: r.professor || '', parts: parts };
   });
   const o = NIVELLS_ESO.concat(NIVELLS_BAT);
-  return ss.sort((a, b) => (o.indexOf(a.nivell) - o.indexOf(b.nivell)) || String(a.id_materia).localeCompare(String(b.id_materia)) || a.num_grup - b.num_grup || String(a.id).localeCompare(String(b.id)));
+  ss.sort((a, b) => (o.indexOf(a.nivell) - o.indexOf(b.nivell)) || String(a.id_materia).localeCompare(String(b.id_materia)) || a.num_grup - b.num_grup || String(a.id).localeCompare(String(b.id)));
+  // PAS 69 · Codocència (Docents a l'aula ≥ 2 i cada docent fa totes les hores): una sola sessió amb una sola configuració
+  // (parts, distribució, aules…). La primera assignació la porta; les altres hi són «codo_de» (el motor les fa alhora).
+  const perG = {}; ss.forEach((x) => { const m = mats[x.id_materia] || {}, tot = numCur_(m.hores_a) + numCur_(m.hores_b);
+    if (x.id_materia && Math.round(numCur_(m.docents)) > 1 && Math.abs(x.hores - tot) < 0.01) (perG[x.id_materia + '#' + x.num_grup] = perG[x.id_materia + '#' + x.num_grup] || []).push(x); });
+  Object.keys(perG).forEach((k) => { const ll = perG[k]; if (ll.length < 2) return;
+    ll[0].codocents = ll.slice(1).map((x) => ({ id: x.id, professor: x.professor }));
+    ll.slice(1).forEach((x) => { x.codo_de = ll[0].id; x.parts = JSON.parse(JSON.stringify(ll[0].parts)); }); });
+  return ss;
 }
 // PAS 54 · Subgrups: tot conjunt d'alumnes d'un nivell que no coincideix amb cap grup-classe. Tipus: diversitat (Català,
 // Castellà, Matemàtiques fora del grup-classe), hores_b (meitat d'un grup-classe), optativa (alumnat de tots els grups-classe
@@ -3444,7 +3470,8 @@ function sessionsHoraris_(cfg) {
 const TIPUS_SUBGRUP = ['diversitat', 'hores_b', 'optativa', 'altres'];
 function subgrupsHoraris_(cfg) {
   let r = {}; try { r = JSON.parse(String((cfg || llegeixConfig_()).horaris_subgrups || '')) || {}; } catch (e) { r = {}; }
-  return { classes: r.classes && typeof r.classes === 'object' ? r.classes : {}, subgrups: Array.isArray(r.subgrups) ? r.subgrups : [], blocs: Array.isArray(r.blocs) ? r.blocs : [] };
+  return { classes: r.classes && typeof r.classes === 'object' ? r.classes : {}, subgrups: Array.isArray(r.subgrups) ? r.subgrups : [], blocs: Array.isArray(r.blocs) ? r.blocs : [],
+    dies_diferents: Array.isArray(r.dies_diferents) ? r.dies_diferents : [] };   // PAS 69
 }
 const codiSeg_ = (ll, pre) => { let mx = 0; ll.forEach((x) => { const m = new RegExp('^' + pre + '(\\d+)$').exec(String(x.id || '')); if (m) mx = Math.max(mx, Number(m[1])); }); const vist = {};
   return (x) => { let id = String(x.id || ''); if (!new RegExp('^' + pre + '\\d+$').test(id) || vist[id]) id = pre + (++mx); vist[id] = 1; return id; }; };
@@ -3491,8 +3518,17 @@ function horarisSubgrupsDesa_(ctx, req) {
     // PAS 67: el mateix docent en dues sessions del bloc = grup combinat (una sola classe amb l'alumnat de totes dues): es permet
     if (!b.hores && Object.keys(hs).length > 1) err.push(nom + ': totes les sessions han de tenir les mateixes hores (ara ' + Object.keys(hs).join(', ') + '); si només en coincideixen unes quantes, indiqueu-les a «Hores que coincideixen».');
     cobertura_(b, ses, sg).forEach((e) => err.push(nom + ': ' + e)); });
+  // PAS 69 · «En dies diferents»: cada regla, dues o més sessions (matèria + grup-classe o subgrup) que no poden anar el mateix dia
+  const nouD = codiSeg_(q.dies_diferents || [], 'D'), blocDe = {}; blocs.forEach((b) => b.parts.forEach((k) => { blocDe[k] = b; }));
+  const dd = (q.dies_diferents || []).map((r) => ({ id: nouD(r), nivell: String(r.nivell || ''), nom: String(r.nom || '').trim().slice(0, 80), parts: (r.parts || []).map(String).filter((k, i, a) => a.indexOf(k) === i && ses[k]) }));
+  dd.forEach((r) => { const nom = 'En dies diferents «' + (r.nom || r.id) + '»';
+    if (r.parts.length < 2) err.push(nom + ': calen almenys dues sessions.');
+    if (r.parts.length > 5) err.push(nom + ': com a molt cinc sessions (una per dia).');
+    const bl = r.parts.map((k) => blocDe[k]).filter(Boolean), ids = bl.map((b) => b.id), et = bl.map((b) => b.mateix_dia).filter(Boolean);
+    if (ids.some((x, i) => ids.indexOf(x) !== i)) err.push(nom + ': hi ha dues sessions del mateix bloc simultani (es fan alhora).');
+    if (et.some((x, i) => et.indexOf(x) !== i)) err.push(nom + ': hi ha dues sessions de blocs «mateix dia».'); });
   if (err.length) return { ok: false, error: 'subgrups_invalids', errors: err.slice(0, 25) };
-  const net = { classes: classes, subgrups: subgrups, blocs: blocs };
+  const net = { classes: classes, subgrups: subgrups, blocs: blocs, dies_diferents: dd.filter((r) => r.parts.length >= 2) };
   posaConfig_('horaris_subgrups', JSON.stringify(net));
   historial_(ctx.email, 'horaris_subgrups', 'config', 'horaris_subgrups', subgrups.length + ' subgrups · ' + blocs.length + ' blocs');
   return { ok: true, subgrups: net };
@@ -3602,6 +3638,8 @@ function horarisSessionsDesa_(ctx, req) {
       if (p.fixes.length > (p.distribucio ? p.distribucio.length : p.hores)) err.push(np + ': més posicions fixes que sessions.'); });
     const p0 = parts[0];
     files.push({ id_assignacio: c.id, distribucio: p0.distribucio, aula: p0.aula, conjunt: p0.conjunt, fixes: p0.fixes.join('|'), prohibides: p0.prohibides.join('|'), parts: JSON.stringify(parts) });
+    // PAS 69: la configuració de la codocència es copia a les assignacions dels altres docents
+    (s0.codocents || []).forEach((x) => { files.push({ id_assignacio: x.id, distribucio: p0.distribucio, aula: p0.aula, conjunt: p0.conjunt, fixes: p0.fixes.join('|'), prohibides: p0.prohibides.join('|'), parts: JSON.stringify(parts) }); });
   });
   if (err.length) return { ok: false, error: 'sessions_invalides', errors: err.slice(0, 20) };
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
@@ -3679,8 +3717,8 @@ function horarisReglesDesa_(ctx, req) {
   });
   const t = r.toves || {}, n = (x, a, b, d) => { const v = Math.round(Number(x)); return isNaN(v) ? d : Math.min(b, Math.max(a, v)); };
   const toves = { max_hores_seguides_materia: n(t.max_hores_seguides_materia, 1, 6, 2), repartir_en_dies_diferents: !!t.repartir_en_dies_diferents, minimitzar_forats_docents: !!t.minimitzar_forats_docents,
-    respectar_desiderata: !!t.respectar_desiderata, pesos: {} };
-  ['forats', 'seguides', 'dies', 'desiderata', 'aula_alternativa', 'aula_qualsevol'].forEach((k) => { toves.pesos[k] = n((t.pesos || {})[k], 1, 5, REGLES_PER_DEFECTE.toves.pesos[k]); });
+    respectar_desiderata: !!t.respectar_desiderata, pati_lliure: !!t.pati_lliure, max_ocupacio_diaria: n(t.max_ocupacio_diaria, 0, 12, 6), max_permanencia_setmanal: n(t.max_permanencia_setmanal, 0, 50, 30), pesos: {} };
+  ['forats', 'seguides', 'dies', 'desiderata', 'aula_alternativa', 'aula_qualsevol', 'pati', 'max_diaria', 'permanencia'].forEach((k) => { toves.pesos[k] = n((t.pesos || {})[k], 1, 5, REGLES_PER_DEFECTE.toves.pesos[k]); });
   if (err.length) return { ok: false, error: 'regles_invalides', errors: err };
   const net = { blocs_parallels: blocs, toves: toves };
   posaConfig_('horaris_regles', JSON.stringify(net));
@@ -3740,6 +3778,7 @@ function dadesHoraris_() {
     regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata,
     classes_clickedu: SG.classes, subgrups: SG.subgrups.map((x) => ({ id: x.id, nom: x.nom, clau: x.clau, nivell: x.nivell, tipus: x.tipus, grups_classe: x.grups.map((l) => x.nivell + ' ' + l) })),
     blocs_simultanis: SG.blocs.map((b) => ({ id: b.id, nivell: b.nivell, nom: b.nom, tipus: b.tipus, mateix_dia: b.mateix_dia, hores: b.hores || '', distribucio: b.distribucio || '', parts: b.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),
+    dies_diferents: (SG.dies_diferents || []).map((r) => ({ id: r.id, nivell: r.nivell, nom: r.nom, parts: r.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),   // PAS 69
     guardies: Object.assign({ tipus: TIPUS_GUARDIA }, guardiesHoraris_(cfg)), reunions: reunionsHoraris_(cfg).reunions, trossos: trossosHoraris_(assignacions, mats), regles_motor: reglesMotor_(cfg) };
 }
 // PAS 62 · Matèries trossejades: un grup (matèria + número de grup) repartit en parts amb les tisores del Currículum (p. ex.
@@ -3769,6 +3808,7 @@ function reglesMotor_(cfg) {
     ['subgrups', 'Un subgrup ocupa els grups-classe d\'on surt l\'alumnat: mentre té classe, aquells grups-classe només poden fer sessions del mateix bloc simultani.', 'subgrups[].grups_classe · assignacions[].parts[].grup'],
     ['blocs_simultanis', 'Les sessions d\'un bloc simultani (diversitat, hores B, optatives) es fan a la mateixa hora, amb docents i aules diferents.', 'blocs_simultanis[].parts'],
     ['mateix_dia', 'Els blocs amb la mateixa etiqueta «mateix dia» (p. ex. les hores B d\'un grup-classe) es fan el mateix dia (no cal que siguin seguits).', 'blocs_simultanis[].mateix_dia'],
+    ['dies_diferents', 'En dies diferents: les sessions de cada regla (p. ex. l\'hora A d\'una matèria del grup-classe i les seves hores B) no poden anar el mateix dia.', 'dies_diferents[].parts'],
     ['guardies', 'Cada franja té les guàrdies demanades de cada tipus (ordinàries a les franges lectives; biblioteca i pati a l\'esbarjo) i cada docent fa les guàrdies que té assignades, en franges on no té classe.', 'guardies.demanda · docents[].guardies'],
     ['reunions', 'Cada reunió fixa (tutors i coordinació de nivell) es fa a la mateixa franja cada setmana, amb tots els seus docents lliures (no fan classe ni guàrdia).', 'reunions[].docents · hores · franja'],
     ['trossos', 'Si una matèria d\'un grup està trossejada (repartida en parts, encara que les facin docents diferents), totes les sessions de tots els trossos es fan en dies diferents.', 'trossos[].assignacions'],
@@ -3781,8 +3821,12 @@ function reglesMotor_(cfg) {
     ['forats', 'Evitar forats a l\'horari del professorat.', 'per cada hora buida entre classes, per docent i dia', T.minimitzar_forats_docents],
     ['desiderata', 'Respectar la desiderata (docent de cada grup).', 'per cada grup amb un docent diferent del demanat', T.respectar_desiderata],
     ['aula_alternativa', 'Sessió en una aula del conjunt alternatiu (avís).', 'per cada hora fora de l\'aula preferent', true],
-    ['aula_qualsevol', 'Sessió en qualsevol aula de capacitat suficient (avís).', 'per cada hora fora de la preferent i de les alternatives', true]
-  ].map((r) => ({ id: r[0], text: r[1], unitat: r[2], activa: !!r[3], pes: P[r[0]] || 0 }));
+    ['aula_qualsevol', 'Sessió en qualsevol aula de capacitat suficient (avís).', 'per cada hora fora de la preferent i de les alternatives', true],
+    // PAS 69
+    ['pati', 'Qui fa guàrdia de pati o de biblioteca, sense cap ocupació just abans ni just després de l\'esbarjo.', 'per cada hora ocupada al costat d\'una guàrdia d\'esbarjo', T.pati_lliure],
+    ['max_diaria', 'Màxim de ' + T.max_ocupacio_diaria + ' h d\'ocupació al dia per docent.', 'per cada hora de més, per docent i dia', T.max_ocupacio_diaria > 0, T.max_ocupacio_diaria],
+    ['permanencia', 'Màxim de ' + T.max_permanencia_setmanal + ' h de permanència a la setmana per docent (ocupació + forats).', 'per cada hora de més, per docent', T.max_permanencia_setmanal > 0, T.max_permanencia_setmanal]
+  ].map((r) => ({ id: r[0], text: r[1], unitat: r[2], activa: !!r[3], pes: P[r[0]] || 0, valor: r[4] === undefined ? '' : r[4] }));
   return { obligatories: ob, toves: tv, penalitzacio: 'Σ pes × unitats de totes les regles toves actives; el motor busca l\'horari amb la penalització més baixa.' };
 }
 function exportaHoraris() {
@@ -3986,7 +4030,7 @@ function ambHerencia_(r, cal, ctx) {
 }
 function professoratHores_() {
   return actiusPlanificacio_().map((p) => {
-    const o = { id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, especialitat: p.especialitat || '', carrec: p.carrec || '', jornada: p.jornada || '' };
+    const o = { id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom, curt: [p.nom, p.cognom1].filter(Boolean).join(' '), especialitat: p.especialitat || '', carrec: p.carrec || '', jornada: p.jornada || '' };
     CLAUS_LECTIVES_().forEach((k) => { o[k] = p[k] == null ? '' : String(p[k]); });
     o.hores_lectives = sumaLect_(p, LECTIVES_ALUMNAT); o.total_lectives = sumaLect_(p, LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS));
     return o;
@@ -4592,7 +4636,9 @@ function horarisReunionsDesa_(ctx, req) {
 // PAS 64 · HORARIS · EDITOR: l'horari calculat pel MOTOR (fitxer «horari-resultat») s'importa aquí i es consulta per
 // docent i per grup-classe. Les sessions van al full «horari_resultat» (una fila per hora); la resta, a config › horari_meta.
 // =============================================================================================
-const CAP_HRES = ['dia', 'franja', 'tipus', 'materia', 'nivell', 'grup', 'grups_classe', 'docents', 'aula', 'aula_on', 'durada', 'id_assignacio'];
+// PAS 69: «unitat» (les sessions que el motor col·loca juntes: un bloc simultani, una sessió de 2 h…; l'editor les mou
+// juntes), «ordre» (hora dins de la sessió) i les aules preferent i alternatives (assistent d'espais)
+const CAP_HRES = ['dia', 'franja', 'tipus', 'materia', 'nivell', 'grup', 'grups_classe', 'docents', 'aula', 'aula_on', 'durada', 'id_assignacio', 'unitat', 'ordre', 'aula_preferent', 'aules_alternatives'];
 const TIPUS_HORARI = ['classe', 'reunio', 'reduccio_lectiva', 'reduccio_guardia', 'guardia', 'guardia_b', 'guardia_p'];
 function horariMeta_(cfg) { try { return JSON.parse(String((cfg || llegeixConfig_()).horari_meta || '')) || null; } catch (e) { return null; } }
 function horariEditorDades_(ctx) {
@@ -4600,13 +4646,53 @@ function horariEditorDades_(ctx) {
   const meta = horariMeta_(), sh = SpreadsheetApp.getActive().getSheetByName(FULL.hres);
   const sessions = meta && sh && sh.getLastRow() > 1 ? llegeix_(FULL.hres).map((r) => ({ dia: r.dia, franja: r.franja, tipus: r.tipus, materia: r.materia, nivell: r.nivell, grup: r.grup,
     grups_classe: String(r.grups_classe || '').split(' | ').filter(Boolean), docents: String(r.docents || '').split(' | ').filter(Boolean), aula: r.aula || '', aula_on: r.aula_on || '',
-    durada: Number(r.durada) || 1, id_assignacio: r.id_assignacio || '' })) : [];
+    durada: Number(r.durada) || 1, id_assignacio: r.id_assignacio || '', unitat: r.unitat || '', ordre: Number(r.ordre) || 0, aula_preferent: r.aula_preferent || '',
+    aules_alternatives: String(r.aules_alternatives || '').split(' | ').filter(Boolean) })) : [];
   // Noms del professorat: els d'ara (GESTIO) i, si algú ja no hi és, els del fitxer importat
-  const noms = {}; ((meta && meta.docents) || []).forEach((d) => { noms[d.id] = d.nom; });
-  professoratHores_().forEach((p) => { noms[p.id] = p.nom; });
+  // PAS 69: també el nom curt (nom + 1r cognom) i les franges prohibides de cada docent (del fitxer del motor)
+  const noms = {}, curt = {}, proh = {}; ((meta && meta.docents) || []).forEach((d) => { noms[d.id] = d.nom; proh[d.id] = d.prohibides || []; });
+  professoratHores_().forEach((p) => { noms[p.id] = p.nom; curt[p.id] = p.curt; });
   return { ok: true, esquema: ESQUEMA, nivell: ctx.nivell('horaris_editor'), obert: obert_(ctx), meta: meta ? Object.assign({}, meta, { docents: undefined }) : null,
-    sessions: sessions, docents: Object.keys(noms).map((id) => ({ id: id, nom: noms[id] })).sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca')),
+    sessions: sessions, docents: Object.keys(noms).map((id) => ({ id: id, nom: noms[id], curt: curt[id] || '', prohibides: proh[id] || [] })).sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca')),
     grups_classe: meta && meta.grups_classe ? meta.grups_classe : grupsNivell_(ctx.cfg), marc_horari: meta && meta.marc_horari ? meta.marc_horari : marcHorari_(ctx.cfg) };
+}
+function filaHres_(s, net) {
+  return [s.dia, String(s.franja), s.tipus, net(s.materia), net(s.nivell, 30), net(s.grup, 60), (s.grups_classe || []).map((x) => net(x, 40)).join(' | '),
+    (s.docents || []).map((x) => net(x, 20)).join(' | '), net(s.aula, 30), net(s.aula_on, 20), Number(s.durada) || 1, net(s.id_assignacio, 20),
+    net(s.unitat, 80), Number(s.ordre) || 0, net(s.aula_preferent, 30), (s.aules_alternatives || []).map((x) => net(x, 30)).join(' | ')];
+}
+function escriuHres_(files) {
+  const ss = SpreadsheetApp.getActive();
+  let sh = ss.getSheetByName(FULL.hres);
+  if (!sh) sh = ss.insertSheet(FULL.hres);
+  sh.clearContents();
+  sh.getRange(1, 1, 1, CAP_HRES.length).setValues([CAP_HRES]).setFontWeight('bold');
+  if (files.length) sh.getRange(2, 1, files.length, CAP_HRES.length).setNumberFormat('@').setValues(files.map((f) => f.map(String)));
+}
+// PAS 69 · Micromoviments i canvis d'aula fets a l'editor: es desa l'horari sencer (mateix marc i mateixes hores) i a
+// horari_meta queda qui l'ha editat, quan i quants canvis s'hi han fet des de la importació
+function horariEditorDesa_(ctx, req) {
+  if (!pot_(ctx, 'horaris_editor', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const meta = horariMeta_(); if (!meta) return { ok: false, error: 'sense_horari' };
+  if (String(req.importat || '') !== String(meta.importat || '') || String(req.editat || '') !== String(meta.editat || '')) return { ok: false, error: 'conflicte_versio' };
+  const ses = req.sessions; if (!Array.isArray(ses) || ses.length > 20000) return { ok: false, error: 'dades_invalides' };
+  if (ses.length !== Number(meta.sessions)) return { ok: false, error: 'dades_invalides', errors: ['El nombre d\'hores ha canviat (' + ses.length + ' en lloc de ' + meta.sessions + ').'] };
+  const dies = meta.marc_horari.dies, fr = meta.marc_horari.franges.map((f) => f.id), err = [], net = (x, n) => String(x == null ? '' : x).slice(0, n || 200);
+  const files = ses.map((s, i) => {
+    if (dies.indexOf(s.dia) < 0 || fr.indexOf(String(s.franja)) < 0) err.push('Sessió ' + (i + 1) + ': dia o franja fora del marc.');
+    if (TIPUS_HORARI.indexOf(s.tipus) < 0) err.push('Sessió ' + (i + 1) + ': tipus desconegut.');
+    return filaHres_(s, net);
+  });
+  if (err.length) return { ok: false, error: 'horari_invalid', errors: err.slice(0, 20) };
+  const lock = LockService.getScriptLock(); lock.waitLock(30000);
+  try {
+    escriuHres_(files);
+    meta.editat = ara_(); meta.editat_per = ctx.email; meta.canvis = (Number(meta.canvis) || 0) + Math.max(0, Math.min(500, Number(req.canvis) || 0));
+    posaConfig_('horari_meta', JSON.stringify(meta));
+    historial_(ctx.email, 'horari_edita', FULL.hres, '', (Number(req.canvis) || 0) + ' canvis');
+    marcaVersio_('horaris_editor', ctx.email);
+  } finally { lock.releaseLock(); }
+  return Object.assign({ desat: true }, horariEditorDades_(ctx));
 }
 function horariEditorImporta_(ctx, req) {
   if (!pot_(ctx, 'horaris_editor', 'edicio')) return { ok: false, error: 'sense_permis' };
@@ -4619,23 +4705,21 @@ function horariEditorImporta_(ctx, req) {
   const files = h.sessions.map((s, i) => {
     if (dies.indexOf(s.dia) < 0 || fr.indexOf(String(s.franja)) < 0) err.push('Sessió ' + (i + 1) + ': dia o franja fora del marc (' + net(s.dia, 20) + ' ' + net(s.franja, 8) + ').');
     if (TIPUS_HORARI.indexOf(s.tipus) < 0) err.push('Sessió ' + (i + 1) + ': tipus desconegut «' + net(s.tipus, 30) + '».');
-    return [s.dia, String(s.franja), s.tipus, net(s.materia), net(s.nivell, 30), net(s.grup, 60), (s.grups_classe || []).map((x) => net(x, 40)).join(' | '),
-      (s.docents || []).map((x) => net(x, 20)).join(' | '), net(s.aula, 30), net(s.aula_on, 20), Number(s.durada) || 1, net(s.id_assignacio, 20)];
+    return filaHres_(s, net);
   });
   if (err.length) return { ok: false, error: 'horari_invalid', errors: err.slice(0, 20) };
   const lock = LockService.getScriptLock(); lock.waitLock(30000);
   try {
-    const ss = SpreadsheetApp.getActive();
-    let sh = ss.getSheetByName(FULL.hres);
-    if (!sh) sh = ss.insertSheet(FULL.hres);
-    sh.clearContents();
-    sh.getRange(1, 1, 1, CAP_HRES.length).setValues([CAP_HRES]).setFontWeight('bold');
-    if (files.length) sh.getRange(2, 1, files.length, CAP_HRES.length).setNumberFormat('@').setValues(files.map((f) => f.map(String)));
+    escriuHres_(files);
     const meta = { curs: net(h.curs, 20), generat: net(h.generat, 30), mode: h.mode || {}, resultat: ((r) => ({ estat: net(r.estat, 20), penalitzacio: Number(r.penalitzacio) || 0, temps_s: Number(r.temps_s) || 0, avisos: (r.avisos || []).slice(0, 60).map((x) => net(x, 300)),
         // PAS 68: on es concentra la penalització
         detall: ((d) => ({ per_regla: d.per_regla || {}, principals: (d.principals || []).slice(0, 15).map((p) => ({ regla: net(p.regla, 20), qui: net(p.qui, 120), punts: Number(p.punts) || 0 })) }))(r.penalitzacio_detall || {}) }))(h.resultat || {}), importat: ara_(), importat_per: ctx.email,
       sessions: files.length, marc_horari: { dies: dies, franges: (M.franges || []).map((f) => ({ id: String(f.id), inici: net(f.inici, 5), fi: net(f.fi, 5), esbarjo: !!f.esbarjo })) },
-      grups_classe: h.grups_classe || null, docents: (h.docents || []).map((d) => ({ id: net(d.id, 20), nom: net(d.nom, 120) })) };
+      grups_classe: h.grups_classe || null, docents: (h.docents || []).map((d) => ({ id: net(d.id, 20), nom: net(d.nom, 120), prohibides: (d.prohibides || []).slice(0, 60).map((x) => net(x, 30)) })),
+      // PAS 69: aules del planificador (assistent d'espais)
+      aules: (h.aules || []).slice(0, 300).map((x) => ({ id: net(x.id, 30), tipus: net(x.tipus, 30), capacitat: Number(x.capacitat) || 0 })), editat: '', editat_per: '', canvis: 0,
+      // PAS 69: regles «mateix dia» i «en dies diferents» (unitats del motor) per avisar a l'editor
+      relacions: (h.relacions || []).slice(0, 400).map((r) => ({ tipus: r.tipus === 'mateix_dia' ? 'mateix_dia' : 'dies_diferents', nom: net(r.nom, 80), unitats: (r.unitats || []).slice(0, 10).map((g) => (g || []).slice(0, 10).map((u) => net(u, 80))) })) };
     posaConfig_('horari_meta', JSON.stringify(meta));
     historial_(ctx.email, 'horari_importa', FULL.hres, '', files.length + ' hores · ' + net(h.generat, 30));
     marcaVersio_('horaris_editor', ctx.email);

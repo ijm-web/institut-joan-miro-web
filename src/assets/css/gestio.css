@@ -618,3 +618,19 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-he__s b, .gs-he__s small{ overflow-wrap:anywhere; }
 .gs-he__panells--3 .gs-he__s{ padding:2px 3px; }
 .gs-ok-nou{ padding:10px 14px; border-radius:8px; background:#E3F3EA; color:#14532D; font-weight:600; }
+/* PAS 69 · Editor d'horaris: micromoviments (arrossegar) i assistents */
+.gs-he__s[draggable="true"], .gs-he__g[draggable="true"]{ cursor: grab; }
+.gs-he__g[draggable="true"]{ border-bottom: 1px dotted currentColor; }
+.gs-he__s.is-drag, .gs-he__g.is-drag{ opacity: .45; }
+.gs-he__taula td.is-sobre{ outline: 2px dashed var(--color-blue, #1C0CBC); outline-offset: -2px; background: #EEF0FF; }
+.gs-he__sols{ margin: 6px 0 0; padding-left: 22px; max-height: 46vh; overflow: auto; }
+.gs-he__sols li{ margin: 0 0 8px; line-height: 1.45; }
+.gs-he__sols label{ cursor: pointer; }
+.gs-he__aules{ width: 100%; font-size: .9rem; }
+.gs-he__aules tr.is-actiu{ background: #F3F4FA; }
+.gs-he__aules small{ color: #6A6F85; }
+.gs-ok{ color: #1D7044; }
+.gs-he__aules{ border-collapse: collapse; }
+.gs-he__aules th, .gs-he__aules td{ padding: 4px 6px; border-bottom: 1px solid #E3E5EE; text-align: left; vertical-align: middle; }
+.gs-he__aules th{ font-size: .8rem; color: #5A6078; }
+#gsHeMax{ width: auto; display: inline-block; margin-left: 6px; }

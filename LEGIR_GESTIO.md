@@ -433,6 +433,14 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 
 - Portada: a les targetes dels mòduls sortia «undefined» en lloc de la icona. Dues variables `ICONES` (portada i botons comuns del PAS 61) es trepitjaven; la dels botons ara es diu `ICONES_BOTONS`.
 
+## PAS 69
+
+- **Portada**: icona pròpia per a cada mòdul; categoria nova **Secretaria** (Nou professor/a i Nou alumne/a) i, a Organització del curs, Ocupació abans dels dos mòduls d'horaris (ESQUEMA 69, `canviaModulsPAS69_`).
+- **Equips docents**: tipologia A/B de 4t (Català (A)/(B) a la fila Català amb [A]/[B]; la divisió, fila pròpia); ressaltat taronja (tutors, també cotutoria) i blau (docent amb 2+ matèries al grup-classe, comptant diversitats, optatives i franges) a totes les cel·les i a les franges; hores sumades per docent (Anglès 4t: 3 h + 1 h).
+- **Horaris · editor**: micromoviments (arrossegar) amb assistent de conflictes i solucions (màxim de canvis), assistent d'espais (doble clic), Desfés i Desa els canvis (`horari_editor_desa`), guàrdies de biblioteca primer, nom + 1r cognom, estadístiques del docent (ocupació, lectives, forats, permanència). Full `horari_resultat` amb `unitat`, `ordre`, `aula_preferent` i `aules_alternatives`.
+- **Horaris · planificador**: aules ordenades; codocència en una sola fila (`codocents` / `codo_de`); «3 · En dies diferents» (`horaris_subgrups.dies_diferents`, exportat com a `dies_diferents`); regles toves de pati, ocupació diària i permanència setmanal.
+- **Generador d'horaris**: «en dies diferents» obligatòria, regles toves noves, `unitat`, `aules` i `relacions` a la sortida, interfície en quatre pestanyes.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
