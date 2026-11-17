@@ -478,6 +478,15 @@ self.addEventListener('activate', function (e) {
 });
 ```
 
+## PAS 73
+
+- **Càrregues**: Calendari i Equips i permisos reutilitzen les dades llegides (`fresc()`), amb «Actualitza»; `calendari_desa` torna només els esdeveniments desats i els esborrats (`desats`, `esborrats_ids`) i el client els combina.
+- **Control d'entrada**: «Estat» sempre la primera columna (també amb una tria de columnes desada abans: `cols-tots|`); gestió de sancions (llista amb filtres, nova, edita, anul·la/recupera, esborra, CSV); estat de sanció `anul·lada` (entrades lliures); filtre d'estat de les entrades a la barra.
+- **Motor**: obligatòries noves `atencio_individual` (diverses sessions el mateix dia) i codocència de suport trossejada (`Unitat.acompanya`, `_fusiona_suport`); GESTIO marca les assignacions de suport (`acompanya`, etiqueta «Suport de …») i no les posa a `trossos`.
+- **Editor**: l'assistent proposa canviar l'aula de la sessió que ocupa l'aula si la moguda no en troba cap de lliure; l'atenció individual no avisa de «ja té classe aquell dia».
+- **Documents** (carpeta docs): «Planificador · 1 Cotutoria», «2 Codocència d'un grup-classe», «3 Codocència d'un subgrup», «4 Codocència d'un subgrup trossejada».
+- ESQUEMA 73.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

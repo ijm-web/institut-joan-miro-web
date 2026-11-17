@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 72 · 17 de novembre de 2026",
+  "versio": "PAS 73 · 17 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -680,7 +680,8 @@
             "**Grups**: si un equip té grups (p. ex. «1r ESO A»), els seus membres només veuen l'alumnat d'aquests grups als mòduls d'alumnat i al control d'entrada. Buit vol dir tots els grups.",
             "Hi ha un equip docent per grup-classe (EQ-1ESOA, EQ-1ESOGR, EQ-1BATA…), creat a partir del document d'equips docents, amb permís de consulta.",
             "**Membres** d'un equip: a l'esquerra, les persones que no en són membres; a la dreta, les que sí, totes per ordre del 1r cognom. Seleccioneu-ne una o diverses (Ctrl o Maj + clic) i passeu-les amb **Afegeix →** o **← Treu** (o amb doble clic). Cada llista té la seva cerca. Al final, **Desa els membres**.",
-            "En desar (equips, membres o permisos) ja no es tornen a carregar les dades: la graella queda com està i es continua treballant al mateix lloc."
+            "En desar (equips, membres o permisos) ja no es tornen a carregar les dades: la graella queda com està i es continua treballant al mateix lloc.",
+            "Les dades es llegeixen un cop: tornar al mòdul o desar no les torna a demanar. **Actualitza** les torna a llegir si algú altre les ha canviat."
           ]
         },
         {
@@ -740,7 +741,8 @@
             "**Període** (a dalt a l'esquerra), com a Amonestacions: **Curs actual** (per defecte, de l'1 de setembre al 31 d'agost del curs en què som segons la data d'avui), **Tots** o **Data a data**. Si no veieu entrades antigues o importades, trieu **Tots**. Es combina amb els filtres de les columnes; l'Excel i el PDF exporten el que es veu.",
             "Les entrades no es modifiquen a la cel·la.",
             "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne).",
-            "**Estat** (primera columna): un punt **blanc** = entrada sense sanció; **taronja** = forma part d'una sanció en tràmit; **verd** = sancionada. Es pot filtrar per estat amb el filtre de la columna."
+            "**Estat** (primera columna): un punt **blanc** = entrada sense sanció; **taronja** = forma part d'una sanció en tràmit; **verd** = sancionada. Es pot filtrar per estat amb el filtre de la columna.",
+            "La columna **Estat** sempre surt la primera, encara que tingueu desada una tria de columnes anterior (Visualització camps)."
           ]
         },
         {
@@ -760,9 +762,9 @@
           "claus": "sanció sancionar estat verd taronja blanc tràmit doble clic",
           "text": [
             "**Doble clic** a una entrada obre les entrades i les sancions d'aquell alumne/a.",
-            "Per crear una **sanció** (direcció, nivell admin): marqueu les entrades que en formen part (per defecte, les blanques), escriviu la **descripció**, la **data** i l'**estat** (**en tràmit** → les entrades passen a taronja; **sancionat** → a verd) i premeu **Crea la sanció**.",
-            "A la mateixa finestra, **Edita** canvia una sanció (p. ex. de «en tràmit» a «sancionat», o hi afegeix entrades) i **Esborra** l'elimina (les entrades tornen a blanc; en queda còpia a l'historial).",
-            "Una entrada només pot ser d'una sanció. El botó **Sancions (N)** de dalt llista totes les sancions."
+            "**Sancions (N)** (a dalt) obre la **gestió de les sancions**: la llista amb filtres (cerca per alumne/a, descripció o codi; estat; grup-classe; des del / fins al) i, amb el nivell admin, **+ Nova sanció** (trieu l'alumne/a), **Edita**, **Anul·la** (baixa: la sanció es conserva però les entrades tornen a blanc), **Recupera** (torna a «en tràmit») i **Esborra** (definitivament; en queda còpia a l'historial). **Descarrega (CSV)** baixa la llista filtrada.",
+            "En crear o editar una sanció: marqueu les entrades (per defecte, les blanques), escriviu la **descripció**, la **data** i l'**estat**: **en tràmit** (entrades taronja), **sancionat** (verd) o **anul·lada** (blanc).",
+            "Una entrada només pot ser d'una sanció activa. Al costat de l'avís hi ha el filtre **Estat** (tots, blanc, taronja, verd) per a les entrades."
           ]
         },
         {
@@ -1251,7 +1253,8 @@
             "**Diversitat i hores B**: cada grup-classe del bloc ha de tenir una sessió només seva (el grup sencer o un subgrup que només surt d'ell). Si no, part de l'alumnat es quedaria sense classe: és un **error** i no es pot desar. Els blocs que ja hi havia s'han convertit sols (sense hores que coincideixen = totes).",
             "Al desplegable **+ afegeix una sessió** d'un bloc, les sessions surten agrupades per nivell (primer el de la pestanya) i, dins de cada nivell, per ordre alfabètic de matèria.",
             "**Aula preferent**: el desplegable té les aules per ordre alfabètic.",
-            "**3 · En dies diferents** (obligatòria per al motor): sessions que **no poden anar el mateix dia**, p. ex. l'hora A de Tecnologia de 1r ESO A i les seves hores B (G1 i G2). És el contrari de «Mateix dia que». Cada regla té dues o més sessions (matèria + grup-classe o subgrup, també d'un bloc). **Proposa les del nivell** crea, per a cada matèria amb part del grup-classe i parts de subgrups, una regla «grup-classe ≠ subgrup» per a cada subgrup. No hi poden anar dues sessions del mateix bloc ni de blocs amb la mateixa etiqueta «Mateix dia que»."
+            "**3 · En dies diferents** (obligatòria per al motor): sessions que **no poden anar el mateix dia**, p. ex. l'hora A de Tecnologia de 1r ESO A i les seves hores B (G1 i G2). És el contrari de «Mateix dia que». Cada regla té dues o més sessions (matèria + grup-classe o subgrup, també d'un bloc). **Proposa les del nivell** crea, per a cada matèria amb part del grup-classe i parts de subgrups, una regla «grup-classe ≠ subgrup» per a cada subgrup. No hi poden anar dues sessions del mateix bloc ni de blocs amb la mateixa etiqueta «Mateix dia que».",
+            "**Codocència de suport (trossejada)** (PAS 73): si una matèria té *Docents a l'aula = 2*, una assignació amb totes les hores (la principal) i d'altres amb una part (p. ex. tres docents d'1 h), les de suport surten amb l'etiqueta **«Suport de …»**: el motor les posa a la mateixa hora i aula que una sessió de la principal (sense ocupar el grup-classe). Poseu-los distribució «1» i no les poseu en cap bloc. Vegeu els documents «Planificador · Cotutoria / Codocència» de la carpeta docs."
           ]
         },
         {
@@ -1300,7 +1303,8 @@
             "**Regles noves (PAS 69)**: qui fa guàrdia de **pati o de biblioteca**, sense ocupació just abans ni just després de l'esbarjo; **màxim d'hores d'ocupació diària** per docent (per defecte 6) i **màxim de permanència setmanal** (ocupació + forats, per defecte 30). Totes tres són preferències amb pes; 0 vol dir sense límit.",
             "**En dies diferents** és una regla obligatòria nova: vegeu Sessions lectives › 3 · En dies diferents.",
             "**PAS 70**: el màxim d'hores seguides, el repartiment en dies diferents i la desiderata ja **no** són preferències. Ara són **obligatòries**: la **distribució** mana («2 1» = dues hores seguides un dia i l'altra un altre dia; «1 1 1» = cada hora un dia diferent) i cada grup el fa el docent de Currículum › Assignacions (la desiderata ja aplicada).",
-            "Regla obligatòria (PAS 72): el professorat amb **mitja jornada** té un **dia lliure, dilluns o divendres** (cap classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca). El motor la compleix sempre; la jornada és la de Professorat."
+            "Regla obligatòria (PAS 72): el professorat amb **mitja jornada** té un **dia lliure, dilluns o divendres** (cap classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca). El motor la compleix sempre; la jornada és la de Professorat.",
+            "Regla obligatòria (PAS 73): l'**atenció individual** pot tenir **tantes sessions un mateix dia com franges** té el dia; per a la resta de matèries, mana la distribució (cada sessió d'una part, un dia diferent)."
           ]
         },
         {
@@ -1383,7 +1387,8 @@
             "A dalt diu quan s'ha editat a mà i quants canvis s'hi han fet des de la importació. En importar un horari nou, es perden.",
             "Un **bloc** (sessions que es fan alhora i comparteixen grup-classe: optatives, desdoblaments, hores B) es mou sempre **sencer**, també als horaris importats abans del PAS 69.",
             "L'assistent busca solucions amb moviments **derivats de qualsevol grup-classe o docent** (no només del grup de la primera sessió): primer prova les posicions que obliguen a moure menys sessions i descarta les impossibles.",
-            "Si un moviment deixa un docent de **mitja jornada** sense el dilluns ni el divendres lliure, l'assistent ho avisa."
+            "Si un moviment deixa un docent de **mitja jornada** sense el dilluns ni el divendres lliure, l'assistent ho avisa.",
+            "Els **canvis d'aula** també són moviments de les solucions: si la sessió moguda no troba cap aula lliure, l'assistent proposa canviar l'aula de la sessió que l'ocupa (compten dins del màxim de moviments)."
           ]
         },
         {
@@ -1424,7 +1429,8 @@
             "Filtres: **Categoria** i **Nivells**. Al desplegable de nivells es marquen els que es volen veure (també **Professorat**); **Cap** i **Tots** els desmarquen o marquen tots, **Accepta** aplica la tria i **Cancel·la** la deixa com era. Valen per a totes les vistes i per als PDF. Els esdeveniments sense nivell (de tot el centre) surten sempre.",
             "**Colors**: cada esdeveniment té el color del seu nivell; **gris** si és de més d'un nivell i **blanc** si és de tot el centre. La vora de l'esquerra diu la categoria: blava = General (es publica al web), taronja = Intern.",
             "Els dies de festiu, lliure disposició, festa local i vacances surten acolorits, i a la cel·la hi diu quin dia és. Si no hi cap tot, la vista es desplaça amb la barra vertical.",
-            "La vista i els filtres es recorden en aquest navegador."
+            "La vista i els filtres es recorden en aquest navegador.",
+            "Les dades es llegeixen un cop: tornar al mòdul o desar no les torna a demanar. **Actualitza** les torna a llegir si algú altre les ha canviat."
           ]
         },
         {
