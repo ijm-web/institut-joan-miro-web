@@ -685,3 +685,7 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-fm__text p{ margin: 4px 0; }
 .gs-fm__resp{ display: flex; flex-wrap: wrap; gap: 6px 16px; align-items: center; padding: 6px 0; font-weight: 600; }
 .gs-fm__estat{ margin-left: 6px; color: #1E7B3E; }
+/* PAS 73b · Gestió de sancions: finestra més ampla i alta */
+.gs-modal__box.gs-modal--sancions{ max-width: min(1500px, 97vw); width: 100%; }
+.gs-modal--sancions .gs-sanc__llistat{ height: calc(100vh - 360px); min-height: 260px; max-height: none; }
+.gs-modal--sancions .gs-sanc__llistat table{ width: 100%; }

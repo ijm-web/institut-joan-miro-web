@@ -203,7 +203,7 @@
     return new Promise(function (resol) {
       $('gsModalTitol').textContent = titol; $('gsModalText').innerHTML = html;
       $('gsModal').querySelector('.gs-modal__box').classList.toggle('gs-modal--petita', petita !== false);
-      $('gsModal').querySelector('.gs-modal__box').classList.remove('gs-modal--ample');
+      $('gsModal').querySelector('.gs-modal__box').classList.remove('gs-modal--ample', 'gs-modal--sancions');
       var caixa = $('gsModalBtns'); caixa.innerHTML = '';
       function tanca(v) { $('gsModal').hidden = true; document.removeEventListener('keydown', tecla); resol(v); }
       function tecla(e) { if (e.key === 'Escape') tanca(null); }
@@ -2692,7 +2692,7 @@
       .sort(function (a, b) { return String(b.data).localeCompare(String(a.data)) || plega(a.alumne).localeCompare(plega(b.alumne), 'ca'); }); };
     var cos = function () { var l = filtra();
       return '<p class="gs-gris">' + l.length + ' de ' + totes.length + ' sancions · en tràmit ' + l.filter(function (x) { return x.estat === 'en tràmit'; }).length + ' · sancionades ' + l.filter(function (x) { return x.estat === 'sancionat'; }).length + ' · anul·lades ' + l.filter(function (x) { return x.estat === 'anul·lada'; }).length + '</p>' +
-        '<div class="gs-sanc__ents" style="max-height:52vh"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th></th><th>Data</th><th>Alumne/a</th><th>Grup-Classe</th><th>Descripció</th><th>Estat</th><th>Entrades</th>' + (pot ? '<th></th>' : '') + '</tr></thead><tbody>' +
+        '<div class="gs-sanc__ents gs-sanc__llistat"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th></th><th>Data</th><th>Alumne/a</th><th>Grup-Classe</th><th>Descripció</th><th>Estat</th><th>Entrades</th>' + (pot ? '<th></th>' : '') + '</tr></thead><tbody>' +
         (l.length ? l.map(function (x) { return '<tr' + (x.estat === 'anul·lada' ? ' class="gs-gris"' : '') + '><td><span class="gs-punt gs-punt--' + COLOR_SANCIO[x.estat] + '"></span></td><td>' + esc(dataVista(x.data)) + '</td><td><b>' + esc(x.alumne) + '</b></td><td>' + esc(x.grup || x.nivell || '') + '</td><td>' + esc(x.descripcio) + ' <small class="gs-gris">' + esc(x.id_sancio) + '</small></td><td>' + esc(x.estat) + '</td><td class="gs-cen">' + x.entrades.length + '</td>' +
           (pot ? '<td style="white-space:nowrap"><button type="button" class="gs-enllac" data-gsan="edita" data-id="' + esc(x.id_sancio) + '">Edita</button> · ' + (x.estat === 'anul·lada' ? '<button type="button" class="gs-enllac" data-gsan="recupera" data-id="' + esc(x.id_sancio) + '">Recupera</button>' : '<button type="button" class="gs-enllac" data-gsan="anul·la" data-id="' + esc(x.id_sancio) + '">Anul·la</button>') + ' · <button type="button" class="gs-enllac gs-perill" data-gsan="esborra" data-id="' + esc(x.id_sancio) + '">Esborra</button></td>' : '') + '</tr>'; }).join('')
           : '<tr><td colspan="8" class="gs-gris">Cap sanció amb aquests filtres.</td></tr>') + '</tbody></table></div>'; };
@@ -2707,7 +2707,7 @@
     var accio = null;
     var obre = pregunta('Sancions del control d’entrada', html, (pot ? [{ t: '+ Nova sanció', valor: 'nova', abans: function () { if (!$('gsSanNou').value) { toast('Trieu primer l’alumne/a.', true); return false; } accio = { a: 'nova', k: $('gsSanNou').value }; } }] : [])
       .concat([{ t: 'Descarrega (CSV)', valor: 'csv', tipus: 'ghost' }, { t: 'Tanca', valor: 0, tipus: 'ghost' }]), false);
-    $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample');
+    $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample', 'gs-modal--sancions');   // PAS 73b: més ampla i alta
     var refresca = function () { F.q = $('gsSanQ').value; F.estat = $('gsSanE').value; F.grup = $('gsSanG').value; F.des = $('gsSanD').value; F.fins = $('gsSanF').value; $('gsSanCos').innerHTML = cos(); };
     ['gsSanE', 'gsSanG', 'gsSanD', 'gsSanF'].forEach(function (id) { $(id).addEventListener('change', refresca); }); $('gsSanQ').addEventListener('input', refresca);
     $('gsSanCos').addEventListener('click', function (e) { var b = e.target.closest('[data-gsan]'); if (!b) return; accio = { a: b.dataset.gsan, id: b.dataset.id }; $('gsModalBtns').lastChild.click(); });
