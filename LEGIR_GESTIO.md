@@ -457,6 +457,27 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Desiderata**: canviar d'especialitat demana una resposta lleugera (`lleuger:true`, sense la llista del professorat, que es reutilitza).
 - **Disseny** (proposta, no implementat): manifest PWA, service worker i mòdul NOTIFICACIONS (Administració) — vegeu la proposta de disseny, «Canvis del PAS 71».
 
+## PAS 72
+
+- **Càrregues**: Ocupació, Horaris · planificador i Horaris · editor reutilitzen les dades ja llegides si cap altre mòdul n'ha desat res després (`S.llegit`/`S.escrit`, marcades a `api()`); botó «Actualitza» a l'Ocupació i a l'editor. Desar al planificador ja no torna a llegir-lo (els subgrups tampoc); `horaris_regles_desa` torna `regles_motor`; `horari_editor_desa` torna només la meta (`lleuger`).
+- **Editor · assistent**: els blocs (classes a la mateixa hora que comparteixen grup-classe) són una sola unitat, també en horaris sense «unitat»; la cerca ordena els candidats pel nombre d'unitats que caldria moure (`costHE`) i descarta els impossibles, de manera que troba moviments derivats d'altres grups-classe i docents; avís de mitja jornada.
+- **Control d'entrada**: camp `estat` (blanc/taronja/verd, primera columna, filtre) i `id_sancio`; sancions a ijm_alumnat_db › `sancions` (`sancio_desa`, `sancio_esborra`, nivell admin); doble clic → entrades i sancions de l'alumne/a; anàlisi amb blancs/taronges/verds; casella «compta les verdes» a l'avís. `configura` afegeix els camps i posa «blanc» a les entrades antigues.
+- **Planificador / motor**: regla obligatòria `mitja_jornada` (jornada 1/2 → dilluns o divendres lliure). Generador: `Motor._mitja_jornada`.
+- **Matrícula**: formalització presencial amb el formulari del centre (`src/assets/dades/matricula-formulari.json`, a partir dels models de 1r d'ESO 2026-2027), `matricula_formulari` i `matricula_formulari_desa` (columnes `formulari`, `formalitzada`, `formalitzada_per`, `via_formalitzacio`), PDF per signar. Config: `matricula_direccio`, `matricula_iban_afa`, `matricula_iban_taquilles` (no al codi).
+- **PWA**: `src/manifest.webmanifest`, `src/sw.js` (xarxa primer; mai GESTIO, Programacions, /api, /.netlify ni PDF), `src/offline.njk`, icones 512 i maskable, registre a `base.njk` (no a localhost), capçaleres a `netlify.toml`. Notificacions: el service worker ja escolta `push` i `notificationclick`; el mòdul NOTIFICACIONS és a la proposta de disseny.
+- ESQUEMA 72.
+
+### Desactivar el service worker (si mai calgués)
+Substituïu el contingut de `src/sw.js` per aquest i publiqueu (els navegadors el canvien en la visita següent i el treuen):
+
+```js
+self.addEventListener('install', function () { self.skipWaiting(); });
+self.addEventListener('activate', function (e) {
+  e.waitUntil(caches.keys().then(function (ks) { return Promise.all(ks.map(function (k) { return caches.delete(k); })); })
+    .then(function () { return self.registration.unregister(); }));
+});
+```
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

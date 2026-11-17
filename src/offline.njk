@@ -1,0 +1,27 @@
+---
+layout: base.njk
+title: "Sense connexió — Institut Joan Miró"
+permalink: "offline.html"
+lang: ca
+slug: ""
+noindex: true
+eleventyExcludeFromCollections: true
+pageStyles: |
+  /* ============ PAS 72 · Pàgina sense connexió (la mostra el service worker) ============ */
+  .offl{ max-width: 760px; margin: 0 auto; padding: clamp(56px, 9vw, 110px) clamp(16px, 4vw, 48px); text-align: center; }
+  .offl h1{ margin: 0 0 12px; font-size: clamp(22px, 3vw, 30px); font-weight: 500; color: var(--color-blue); }
+  .offl p{ margin: 0 auto 8px; max-width: 600px; color: var(--color-text); line-height: 1.6; }
+  .offl p[lang]{ color: #5A6070; font-size: 15px; }
+  .offl button{ margin-top: 24px; padding: 12px 24px; border-radius: 999px; border: 0; background: var(--color-blue); color: #fff; font: inherit; font-weight: 700; cursor: pointer; }
+  .offl button:hover{ background: var(--color-orange); }
+pageScript: |
+  document.getElementById('offlTorna').addEventListener('click', function () { location.reload(); });
+  window.addEventListener('online', function () { location.reload(); });
+---
+<div class="offl">
+  <h1>No hi ha connexió a internet</h1>
+  <p>Aquesta pàgina no es pot carregar ara mateix. Quan torneu a tenir connexió, es carregarà sola.</p>
+  <p lang="es">No hay conexión a internet. La página se cargará sola cuando vuelva la conexión.</p>
+  <p lang="en">You are offline. The page will load as soon as the connection is back.</p>
+  <button type="button" id="offlTorna">Torna-ho a provar</button>
+</div>

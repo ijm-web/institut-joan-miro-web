@@ -4,6 +4,8 @@ module.exports = async function (eleventyConfig) {
 
   eleventyConfig.addPassthroughCopy("src/assets");
   eleventyConfig.addPassthroughCopy({ "src/favicon.ico": "favicon.ico" });   // PAS 31: icona del web (motiu Miró: punt verd i estrella)
+  // PAS 72 · PWA: manifest i service worker (a l'arrel, perquè el seu abast sigui tot el web)
+  eleventyConfig.addPassthroughCopy({ "src/manifest.webmanifest": "manifest.webmanifest", "src/sw.js": "sw.js" });
 
   // Filtres per a les dades de src/_data/centre.json
   const conj = { ca: " i ", es: " y ", en: " and " };

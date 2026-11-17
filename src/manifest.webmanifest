@@ -1,0 +1,47 @@
+{
+  "name": "Institut Joan Miró",
+  "short_name": "IJM",
+  "description": "Web de l'Institut Joan Miró",
+  "id": "/",
+  "start_url": "/?origen=app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#FFFFFF",
+  "theme_color": "#1C0CBC",
+  "lang": "ca",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/assets/icones/icona-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icones/icona-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/assets/icones/icona-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Calendari escolar",
+      "url": "/calendari-escolar.html"
+    },
+    {
+      "name": "Notícies",
+      "url": "/noticies.html"
+    },
+    {
+      "name": "Contacte",
+      "url": "/contacte.html"
+    }
+  ]
+}

@@ -14,6 +14,8 @@
 <link rel="icon" href="/favicon.ico" sizes="any">
 <link rel="icon" type="image/png" sizes="32x32" href="/assets/icones/favicon-32.png">
 <link rel="apple-touch-icon" href="/assets/icones/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">{# PAS 72: PWA #}
+<meta name="theme-color" content="#1C0CBC">
 {%- if noindex %}
 <meta name="robots" content="noindex, nofollow">
 {%- endif %}
@@ -1411,6 +1413,12 @@
     update();
   })();
 {{ pageScript | safe }}
+</script>
+<script>
+/* PAS 72 · PWA: registra el service worker (no en local, per no interferir amb les proves) */
+if ('serviceWorker' in navigator && !/^(localhost|127\.0\.0\.1)$/.test(location.hostname)) {
+  window.addEventListener('load', function () { navigator.serviceWorker.register('/sw.js').catch(function () { /* sense PWA: el web funciona igual */ }); });
+}
 </script>
 
 </body>

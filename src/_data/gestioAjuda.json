@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 71 · 17 de novembre de 2026",
+  "versio": "PAS 72 · 17 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -163,6 +163,16 @@
         "claus": "mòbil tauleta fitxes",
         "text": [
           "Al mòbil es mostren fitxes de consulta. Per editar, feu servir un ordinador."
+        ]
+      },
+      {
+        "id": "comu-carrega",
+        "titol": "Càrrega de les dades i «Actualitza»",
+        "claus": "actualitza carregar recarregar dades lent memòria",
+        "text": [
+          "Les dades de cada mòdul es llegeixen un cop per sessió de la pàgina. Tornar a un mòdul o desar no les torna a demanar: desar actualitza només el que ha canviat.",
+          "Si un altre mòdul ha desat alguna cosa després (p. ex. el Currículum abans d'obrir l'Ocupació o el Planificador), en tornar-hi es tornen a llegir soles.",
+          "**Actualitza** les torna a llegir quan cal (p. ex. si una altra persona hi ha fet canvis)."
         ]
       }
     ]
@@ -582,7 +592,7 @@
     "matricula": {
       "titol": "Matrícula",
       "graella": false,
-      "intro": "Matrícula de l'alumnat (Secretaria). El mòdul importa l'exportació del Departament amb l'alumnat assignat al centre, permet donar d'alta, modificar i donar de baixa cada registre, afegir registres de prova i preparar la convocatòria de les famílies («Convoca la família»; de moment no s'envia cap correu). Més endavant hi haurà la matrícula en línia i presencial i la validació (vegeu la proposta de disseny).",
+      "intro": "Matrícula de l'alumnat (Secretaria). El mòdul importa l'exportació del Departament amb l'alumnat assignat al centre, permet donar d'alta, modificar i donar de baixa cada registre, afegir registres de prova i preparar la convocatòria de les famílies («Convoca la família»; de moment no s'envia cap correu) i formalitzar la matrícula presencial amb el formulari i el PDF per signar. Més endavant hi haurà la matrícula en línia i presencial i la validació (vegeu la proposta de disseny).",
       "temes": [
         {
           "id": "mat-importa",
@@ -638,6 +648,19 @@
             "3. **Actualitza la previsualització i desa la plantilla** desa el text (queda per a la propera vegada) i mostra el correu de cada família.",
             "Queden fora, amb el motiu: els registres de prova, les baixes i qui no té un correu vàlid.",
             "**Descarrega la llista (CSV)** baixa a qui s'enviaria. **De moment no s'envia cap correu**: el botó «Envia» s'activarà quan estigui fet el formulari en línia amb accés verificat."
+          ]
+        },
+        {
+          "id": "mat-formalitza",
+          "titol": "Formalització (formulari i PDF per signar)",
+          "claus": "formalitza formulari matrícula presencial pdf signar autoritzacions optativa menjador",
+          "text": [
+            "A la fitxa, **Formalització** obre el formulari de matrícula del centre: dades de l'alumne/a, acadèmiques, de naixement, família, sanitàries, de contacte, observacions, 1r i 2n responsable, i els documents (carta de compromís, atenció mèdica, normativa de mòbils, autoritzacions, serveis, AFA i optativa).",
+            "Les dades del Departament ja hi són; reviseu-les amb la família i completeu la resta. Els camps condicionals (p. ex. «quina incidència») apareixen quan cal. Al costat de cada document, ✓ = respost.",
+            "**Desa l'esborrany** guarda sense comprovar. **Formalitza** comprova els obligatoris (*) i que s'hagin acceptat la carta de compromís, l'atenció mèdica i la normativa de mòbils, i marca la matrícula com a **formalitzada** (presencial).",
+            "**PDF per signar**: el document sencer amb les respostes i una caixa de signatura a cada full que la demana (amb el logo).",
+            "Els noms i comptes que surten als documents (directora, IBAN de l'AFA i de les taquilles) es posen a GESTIO › config (`matricula_direccio`, `matricula_iban_afa`, `matricula_iban_taquilles`); no són al codi.",
+            "Els textos del formulari són els dels models del centre (1r d'ESO, curs 2026-2027): fitxer `src/assets/dades/matricula-formulari.json`. Cal revisar-los cada curs (quotes, dates)."
           ]
         }
       ]
@@ -716,7 +739,8 @@
             "La graella mostra totes les entrades, de la més recent a la més antiga: alumne, nivell, grup-classe, data i hora. Es pot filtrar per qualsevol camp i exportar a Excel o PDF.",
             "**Període** (a dalt a l'esquerra), com a Amonestacions: **Curs actual** (per defecte, de l'1 de setembre al 31 d'agost del curs en què som segons la data d'avui), **Tots** o **Data a data**. Si no veieu entrades antigues o importades, trieu **Tots**. Es combina amb els filtres de les columnes; l'Excel i el PDF exporten el que es veu.",
             "Les entrades no es modifiquen a la cel·la.",
-            "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne)."
+            "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne).",
+            "**Estat** (primera columna): un punt **blanc** = entrada sense sanció; **taronja** = forma part d'una sanció en tràmit; **verd** = sancionada. Es pot filtrar per estat amb el filtre de la columna."
           ]
         },
         {
@@ -731,12 +755,24 @@
           ]
         },
         {
+          "id": "ce-sancions",
+          "titol": "Sancions",
+          "claus": "sanció sancionar estat verd taronja blanc tràmit doble clic",
+          "text": [
+            "**Doble clic** a una entrada obre les entrades i les sancions d'aquell alumne/a.",
+            "Per crear una **sanció** (direcció, nivell admin): marqueu les entrades que en formen part (per defecte, les blanques), escriviu la **descripció**, la **data** i l'**estat** (**en tràmit** → les entrades passen a taronja; **sancionat** → a verd) i premeu **Crea la sanció**.",
+            "A la mateixa finestra, **Edita** canvia una sanció (p. ex. de «en tràmit» a «sancionat», o hi afegeix entrades) i **Esborra** l'elimina (les entrades tornen a blanc; en queda còpia a l'historial).",
+            "Una entrada només pot ser d'una sanció. El botó **Sancions (N)** de dalt llista totes les sancions."
+          ]
+        },
+        {
           "id": "ce-analisi",
           "titol": "Anàlisi per alumne",
           "claus": "anàlisi informe vegades alumne nivell grup data pdf",
           "text": [
             "**Anàlisi** permet triar el nivell, el grup-classe i una data (en blanc = tot el període). Mostra, per ordre alfabètic, quantes vegades s'ha registrat cada alumne. Amb una data, només es compten les entrades d'aquella data en endavant.",
-            "L'informe es pot descarregar en PDF."
+            "L'informe es pot descarregar en PDF.",
+            "L'anàlisi també compta, per a cada alumne/a i en total, les entrades **blanques**, **taronges** i **verdes**."
           ]
         },
         {
@@ -746,7 +782,8 @@
           "text": [
             "A dalt de la graella: **Avís: N retards o més en un període** (per defecte, 5 o més en 1 mes). La quantitat va de 3 a 20 i el període pot ser 1, 2 o 3 setmanes o 1 mes, **comptat enrere des d'avui**: 1 setmana = els darrers 7 dies; 1 mes = des del mateix dia del mes anterior (avui 5 de novembre → des del 5 d'octubre). Al costat surt la data d'inici («des del …»). Només qui administra el mòdul pot canviar el criteri, que val per a tothom.",
             "El botó **⚠ N alumnes** obre la llista dels alumnes que arriben al criteri (amb el nombre de retards i el darrer), amb PDF. A la graella, al costat del nom d'aquests alumnes surt **⚠** i el nombre de retards.",
-            "En registrar una **Nova entrada**, si l'alumne arriba al criteri, surt un avís."
+            "En registrar una **Nova entrada**, si l'alumne arriba al criteri, surt un avís.",
+            "La casella **compta les verdes** (al costat de l'avís) decideix si les entrades ja sancionades compten per a l'avís. Per defecte, sí; si la desmarqueu, l'avís només té en compte les entrades blanques i taronges. Es recorda en aquest navegador."
           ]
         }
       ]
@@ -1262,7 +1299,8 @@
             "Entre les **obligatòries** hi ha la de les **matèries trossejades**: si una matèria d'un grup està repartida en trossos (docents diferents), totes les sessions de tots els trossos es fan en dies diferents. La validació avisa si una matèria trossejada té més sessions que dies.",
             "**Regles noves (PAS 69)**: qui fa guàrdia de **pati o de biblioteca**, sense ocupació just abans ni just després de l'esbarjo; **màxim d'hores d'ocupació diària** per docent (per defecte 6) i **màxim de permanència setmanal** (ocupació + forats, per defecte 30). Totes tres són preferències amb pes; 0 vol dir sense límit.",
             "**En dies diferents** és una regla obligatòria nova: vegeu Sessions lectives › 3 · En dies diferents.",
-            "**PAS 70**: el màxim d'hores seguides, el repartiment en dies diferents i la desiderata ja **no** són preferències. Ara són **obligatòries**: la **distribució** mana («2 1» = dues hores seguides un dia i l'altra un altre dia; «1 1 1» = cada hora un dia diferent) i cada grup el fa el docent de Currículum › Assignacions (la desiderata ja aplicada)."
+            "**PAS 70**: el màxim d'hores seguides, el repartiment en dies diferents i la desiderata ja **no** són preferències. Ara són **obligatòries**: la **distribució** mana («2 1» = dues hores seguides un dia i l'altra un altre dia; «1 1 1» = cada hora un dia diferent) i cada grup el fa el docent de Currículum › Assignacions (la desiderata ja aplicada).",
+            "Regla obligatòria (PAS 72): el professorat amb **mitja jornada** té un **dia lliure, dilluns o divendres** (cap classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca). El motor la compleix sempre; la jornada és la de Professorat."
           ]
         },
         {
@@ -1342,7 +1380,10 @@
             "**Aplica la solució** fa tots els moviments; **Mou igualment** el fa amb conflictes (per resoldre'ls a mà); **Cancel·la** no fa res.",
             "Les guàrdies de pati i de biblioteca només poden anar a l'esbarjo; les altres sessions, a franges lectives. Una sessió de 2 h necessita dues franges seguides sense esbarjo.",
             "**↶ Desfés** desfà l'últim canvi. Els canvis no es guarden fins que premeu **Desa els canvis (N)**. Si algú altre ha desat o importat l'horari mentre l'editàveu, cal tornar-lo a carregar.",
-            "A dalt diu quan s'ha editat a mà i quants canvis s'hi han fet des de la importació. En importar un horari nou, es perden."
+            "A dalt diu quan s'ha editat a mà i quants canvis s'hi han fet des de la importació. En importar un horari nou, es perden.",
+            "Un **bloc** (sessions que es fan alhora i comparteixen grup-classe: optatives, desdoblaments, hores B) es mou sempre **sencer**, també als horaris importats abans del PAS 69.",
+            "L'assistent busca solucions amb moviments **derivats de qualsevol grup-classe o docent** (no només del grup de la primera sessió): primer prova les posicions que obliguen a moure menys sessions i descarta les impossibles.",
+            "Si un moviment deixa un docent de **mitja jornada** sense el dilluns ni el divendres lliure, l'assistent ho avisa."
           ]
         },
         {

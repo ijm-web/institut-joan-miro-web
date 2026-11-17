@@ -1,0 +1,816 @@
+{
+ "_llegeix": "PAS 72 · Formulari de matrícula (presencial i en línia). Textos dels models de 1r d’ESO del curs 2026-2027. Marques: {curs}, {direccio}, {iban_afa} i {iban_taquilles} (de GESTIO › config), {alumne}, {responsable}, {dni_responsable}, {resposta}. Sense dades personals: no hi poseu noms ni comptes reals.",
+ "versio": "2026-2027 · 1r ESO",
+ "titol": "Matrícula · curs {curs}",
+ "presentacio": [
+  "L’equip docent i directiu us donem la més cordial benvinguda al nostre centre.",
+  "El procés de matriculació consta de dues fases: 1a) omplir aquest formulari i signar els documents; 2a) pagar la quota de matrícula a la secretaria del centre.",
+  "Cal aportar còpia de: DNI de l’alumne/a i dels responsables (per les dues cares), targeta sanitària, llibre de vacunació i llibre de família (només les pàgines dels pares i de l’alumne/a) o partida de naixement."
+ ],
+ "quotes": [
+  [
+   "Material",
+   "50 €"
+  ],
+  [
+   "Clickedu",
+   "23,5 €"
+  ],
+  [
+   "Aparcament de bicicleta/patinet (opcional)",
+   "25 €"
+  ],
+  [
+   "Quota AFA",
+   "26 € (1r fill/a) + 6 € (germà/na)"
+  ],
+  [
+   "Taquilla (opcional)",
+   "35 €"
+  ],
+  [
+   "Curset de natació (1r ESO)",
+   "97,2 € anuals"
+  ]
+ ],
+ "dades": [
+  {
+   "id": "alumne",
+   "titol": "Dades de l’alumne/a",
+   "camps": [
+    {
+     "clau": "nom",
+     "nom": "Nom",
+     "tipus": "text",
+     "obl": true,
+     "de": "nom"
+    },
+    {
+     "clau": "cognom1",
+     "nom": "Primer cognom",
+     "tipus": "text",
+     "obl": true,
+     "de": "cognom1"
+    },
+    {
+     "clau": "cognom2",
+     "nom": "Segon cognom",
+     "tipus": "text",
+     "de": "cognom2"
+    },
+    {
+     "clau": "document",
+     "nom": "DNI/NIE/Passaport",
+     "tipus": "text",
+     "de": [
+      "dni",
+      "nie",
+      "pass"
+     ]
+    },
+    {
+     "clau": "sexe",
+     "nom": "Sexe",
+     "tipus": "opcions",
+     "opcions": [
+      "Home",
+      "Dona"
+     ],
+     "de": "sexe"
+    }
+   ]
+  },
+  {
+   "id": "academiques",
+   "titol": "Dades acadèmiques",
+   "camps": [
+    {
+     "clau": "centre_procedencia",
+     "nom": "Centre escolar de procedència",
+     "tipus": "text"
+    },
+    {
+     "clau": "darrer_curs",
+     "nom": "Darrer curs escolar",
+     "tipus": "text"
+    },
+    {
+     "clau": "idioma",
+     "nom": "Idioma estranger cursat",
+     "tipus": "text"
+    },
+    {
+     "clau": "llengues",
+     "nom": "Llengües que entén",
+     "tipus": "opcions",
+     "opcions": [
+      "Català",
+      "Castellà",
+      "Català i Castellà"
+     ]
+    },
+    {
+     "clau": "nee",
+     "nom": "L’alumne/a és NEE (necessitat educativa especial)?",
+     "tipus": "opcions",
+     "opcions": [
+      "Sí",
+      "No"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "naixement",
+   "titol": "Dades de naixement",
+   "camps": [
+    {
+     "clau": "lloc_naixement",
+     "nom": "Lloc de naixement",
+     "tipus": "text",
+     "de": "municipi_naixement"
+    },
+    {
+     "clau": "data_naixement",
+     "nom": "Data de naixement",
+     "tipus": "data",
+     "obl": true,
+     "de": "data_naixement"
+    },
+    {
+     "clau": "pais_naixement",
+     "nom": "País de naixement",
+     "tipus": "text",
+     "de": "pais_naixement"
+    },
+    {
+     "clau": "nacionalitat",
+     "nom": "Nacionalitat",
+     "tipus": "text",
+     "de": "nacionalitat"
+    }
+   ]
+  },
+  {
+   "id": "familia",
+   "titol": "Família",
+   "camps": [
+    {
+     "clau": "germans",
+     "nom": "L’alumne/a té germans/nes al centre?",
+     "tipus": "opcions",
+     "opcions": [
+      "Sí",
+      "No"
+     ]
+    },
+    {
+     "clau": "germans_noms",
+     "nom": "Si en té, noms complets dels germans/nes",
+     "tipus": "text",
+     "si": "germans=Sí"
+    },
+    {
+     "clau": "separacio",
+     "nom": "Hi ha separació o divorci dels progenitors?",
+     "tipus": "opcions",
+     "opcions": [
+      "Sí",
+      "No"
+     ]
+    },
+    {
+     "clau": "mesura_comunicacio",
+     "nom": "En l’acord, hi ha alguna mesura que afecti la comunicació amb el centre? (si és que sí, cal adjuntar el document justificatiu)",
+     "tipus": "opcions",
+     "opcions": [
+      "Sí",
+      "No"
+     ],
+     "si": "separacio=Sí"
+    }
+   ]
+  },
+  {
+   "id": "sanitaries",
+   "titol": "Dades sanitàries",
+   "camps": [
+    {
+     "clau": "cip",
+     "nom": "CIP (targeta sanitària)",
+     "tipus": "text",
+     "de": "tis"
+    },
+    {
+     "clau": "incidencia",
+     "nom": "Presenta alguna incidència mèdica que pugui repercutir en l’estada al centre (malalties, operacions, al·lèrgies, problemes físics, tractaments)?",
+     "tipus": "opcions",
+     "opcions": [
+      "Sí",
+      "No"
+     ]
+    },
+    {
+     "clau": "incidencia_quina",
+     "nom": "Quina? (si s’escau, caldrà adjuntar documentació acreditativa)",
+     "tipus": "llarg",
+     "si": "incidencia=Sí"
+    }
+   ]
+  },
+  {
+   "id": "contacte",
+   "titol": "Dades de contacte",
+   "camps": [
+    {
+     "clau": "telefon_fix",
+     "nom": "Telèfon fix",
+     "tipus": "tel"
+    },
+    {
+     "clau": "telefon_mobil",
+     "nom": "Mòbil de l’alumne/a",
+     "tipus": "tel"
+    },
+    {
+     "clau": "domicili",
+     "nom": "Domicili (carrer, número, pis)",
+     "tipus": "text",
+     "de": [
+      "tipus_via1",
+      "nom_via1",
+      "numero_via1",
+      "bloc_via1",
+      "escala_via1",
+      "planta_via1",
+      "porta_via1"
+     ]
+    },
+    {
+     "clau": "codi_postal",
+     "nom": "Codi postal",
+     "tipus": "text",
+     "de": "codi_postal_via1"
+    },
+    {
+     "clau": "poblacio",
+     "nom": "Població",
+     "tipus": "text",
+     "de": "municipi_residencia_via1"
+    },
+    {
+     "clau": "provincia",
+     "nom": "Província",
+     "tipus": "text",
+     "de": "provincia_residencia_via1"
+    }
+   ]
+  },
+  {
+   "id": "observacions",
+   "titol": "Observacions",
+   "camps": [
+    {
+     "clau": "observacions",
+     "nom": "Aspectes que el centre ha de tenir en compte per al desenvolupament acadèmic i personal de l’alumne/a",
+     "tipus": "llarg"
+    }
+   ]
+  },
+  {
+   "id": "responsable1",
+   "titol": "Dades de matrícula · 1r responsable",
+   "opcional": false,
+   "camps": [
+    {
+     "clau": "r1_nom",
+     "nom": "Nom",
+     "tipus": "text",
+     "obl": true,
+     "de": "nom_tutor1"
+    },
+    {
+     "clau": "r1_cognom1",
+     "nom": "Primer cognom",
+     "tipus": "text",
+     "obl": true,
+     "de": "primer_cognom_tutor1"
+    },
+    {
+     "clau": "r1_cognom2",
+     "nom": "Segon cognom",
+     "tipus": "text",
+     "de": "segon_cognom_tutor1"
+    },
+    {
+     "clau": "r1_document",
+     "nom": "DNI/NIE/Passaport",
+     "tipus": "text",
+     "obl": true,
+     "de": [
+      "dni_tutor1",
+      "nie_tutor1",
+      "pass_tutor1"
+     ]
+    },
+    {
+     "clau": "r1_sexe",
+     "nom": "Sexe",
+     "tipus": "opcions",
+     "opcions": [
+      "Home",
+      "Dona"
+     ]
+    },
+    {
+     "clau": "r1_lloc_naixement",
+     "nom": "Lloc de naixement",
+     "tipus": "text"
+    },
+    {
+     "clau": "r1_data_naixement",
+     "nom": "Data de naixement",
+     "tipus": "data"
+    },
+    {
+     "clau": "r1_pais_naixement",
+     "nom": "País de naixement",
+     "tipus": "text"
+    },
+    {
+     "clau": "r1_nacionalitat",
+     "nom": "Nacionalitat",
+     "tipus": "text"
+    },
+    {
+     "clau": "r1_email",
+     "nom": "Correu electrònic",
+     "tipus": "correu",
+     "obl": true,
+     "de": "email_via1"
+    },
+    {
+     "clau": "r1_fix",
+     "nom": "Telèfon fix",
+     "tipus": "tel"
+    },
+    {
+     "clau": "r1_mobil",
+     "nom": "Telèfon mòbil",
+     "tipus": "tel",
+     "obl": true,
+     "de": "telefon_via1"
+    },
+    {
+     "clau": "r1_mateixa_adreca",
+     "nom": "Adreça postal",
+     "tipus": "opcions",
+     "opcions": [
+      "La mateixa que la de l’alumne/a",
+      "Una adreça diferent"
+     ]
+    },
+    {
+     "clau": "r1_domicili",
+     "nom": "Domicili",
+     "tipus": "text",
+     "si": "r1_mateixa_adreca=Una adreça diferent"
+    },
+    {
+     "clau": "r1_codi_postal",
+     "nom": "Codi postal",
+     "tipus": "text",
+     "si": "r1_mateixa_adreca=Una adreça diferent"
+    },
+    {
+     "clau": "r1_poblacio",
+     "nom": "Població",
+     "tipus": "text",
+     "si": "r1_mateixa_adreca=Una adreça diferent"
+    },
+    {
+     "clau": "r1_provincia",
+     "nom": "Província",
+     "tipus": "text",
+     "si": "r1_mateixa_adreca=Una adreça diferent"
+    }
+   ]
+  },
+  {
+   "id": "responsable2",
+   "titol": "Dades de matrícula · 2n responsable",
+   "opcional": true,
+   "camps": [
+    {
+     "clau": "r2_nom",
+     "nom": "Nom",
+     "tipus": "text",
+     "de": "nom_tutor2"
+    },
+    {
+     "clau": "r2_cognom1",
+     "nom": "Primer cognom",
+     "tipus": "text",
+     "de": "primer_cognom_tutor2"
+    },
+    {
+     "clau": "r2_cognom2",
+     "nom": "Segon cognom",
+     "tipus": "text",
+     "de": "segon_cognom_tutor2"
+    },
+    {
+     "clau": "r2_document",
+     "nom": "DNI/NIE/Passaport",
+     "tipus": "text",
+     "de": [
+      "dni_tutor2",
+      "nie_tutor2",
+      "pass_tutor2"
+     ]
+    },
+    {
+     "clau": "r2_sexe",
+     "nom": "Sexe",
+     "tipus": "opcions",
+     "opcions": [
+      "Home",
+      "Dona"
+     ]
+    },
+    {
+     "clau": "r2_lloc_naixement",
+     "nom": "Lloc de naixement",
+     "tipus": "text"
+    },
+    {
+     "clau": "r2_data_naixement",
+     "nom": "Data de naixement",
+     "tipus": "data"
+    },
+    {
+     "clau": "r2_pais_naixement",
+     "nom": "País de naixement",
+     "tipus": "text"
+    },
+    {
+     "clau": "r2_nacionalitat",
+     "nom": "Nacionalitat",
+     "tipus": "text"
+    },
+    {
+     "clau": "r2_email",
+     "nom": "Correu electrònic",
+     "tipus": "correu"
+    },
+    {
+     "clau": "r2_fix",
+     "nom": "Telèfon fix",
+     "tipus": "tel"
+    },
+    {
+     "clau": "r2_mobil",
+     "nom": "Telèfon mòbil",
+     "tipus": "tel"
+    },
+    {
+     "clau": "r2_mateixa_adreca",
+     "nom": "Adreça postal",
+     "tipus": "opcions",
+     "opcions": [
+      "La mateixa que la de l’alumne/a",
+      "Una adreça diferent"
+     ]
+    },
+    {
+     "clau": "r2_domicili",
+     "nom": "Domicili",
+     "tipus": "text",
+     "si": "r2_mateixa_adreca=Una adreça diferent"
+    },
+    {
+     "clau": "r2_codi_postal",
+     "nom": "Codi postal",
+     "tipus": "text",
+     "si": "r2_mateixa_adreca=Una adreça diferent"
+    },
+    {
+     "clau": "r2_poblacio",
+     "nom": "Població",
+     "tipus": "text",
+     "si": "r2_mateixa_adreca=Una adreça diferent"
+    },
+    {
+     "clau": "r2_provincia",
+     "nom": "Província",
+     "tipus": "text",
+     "si": "r2_mateixa_adreca=Una adreça diferent"
+    }
+   ]
+  }
+ ],
+ "documents": [
+  {
+   "id": "compromis",
+   "titol": "Carta de compromís educatiu",
+   "text": [
+    "Les persones sotasignades, {direccio}, directora de l’Institut Joan Miró, i {responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, conscients que l’educació d’infants i joves implica l’acció conjunta de la família i de l’escola, signem aquesta carta de compromís educatiu, la qual comporta els compromisos següents:",
+    "1. Compromisos del Centre",
+    "-   Formació integral: Facilitar una formació de qualitat que contribueixi al desenvolupament integral de la personalitat, fomentant valors ciutadans i el sentiment de pertinença a la comunitat educativa.",
+    "-   Drets i deures: Vetllar pel compliment dels drets i deures de l’alumnat.",
+    "-   Convivència: Crear un clima de convivència respectuós amb les diferències culturals, sempre que no afectin el funcionament del centre.",
+    "-   Informació: Garantir la transparència sobre el Projecte Educatiu (PEC) i les Normes d’Organització i Funcionament del Centre (NOFC).",
+    "-   Avaluació: Informar sobre els criteris d’avaluació, aplicant-los amb objectivitat.",
+    "-   Atenció a la diversitat: Adoptar les mesures educatives necessàries per atendre les necessitats específiques de l’alumnat.",
+    "-   Comunicació: Mantenir una comunicació regular sobre l’evolució acadèmica i personal. Notificar les faltes d’assistència no justificades i qualsevol incidència rellevant.",
+    "-   Atenció a les famílies: Atendre en un termini raonable les sol·licituds d’entrevista o comunicació de les famílies.",
+    "2. Compromisos de la Família",
+    "-   Normativa: Acceptar i respectar el funcionament del centre (PEC i NOFC).",
+    "-   Corresponsabilitat: Estimular el fill/a perquè se senti part activa del centre i reconegui l’autoritat del professorat i l’equip directiu.",
+    "-   Seguiment acadèmic: Ajudar en l’organització del temps d’estudi a casa, vetllar pel compliment de les tasques encomanades i tenir el material necessari a punt.",
+    "-   Col·laboració: Informar de qualsevol circumstància rellevant per al procés d’aprenentatge i atendre les peticions de comunicació o entrevista del centre.",
+    "-   Gestió de conflictes: Adreçar-se al centre per canalitzar suggeriments, discrepàncies o consultes.",
+    "-   Informació: Transmetre a l’alumne/a el contingut d’aquests compromisos.",
+    "3. Informació Acadèmica i de Gestió",
+    "-   Comunicació oficial: El canal preferent d’informació és la pàgina web http://institutjoanmiro.cat i la plataforma Clickedu.",
+    "-   Material: Els llibres de text, dossiers i llicències digitals són eines imprescindibles per al seguiment de les classes.",
+    "-   Activitats: Els criteris d'accés a sortides, viatges i activitats estan recollits en les NOFC."
+   ],
+   "nota": "Llei 12/2009, del 10 de juliol, d’educació, article 20 i Decret 102/2010, de 3 d’agost, d’autonomia dels centres educatius, article 7.",
+   "resposta": {
+    "tipus": "accepta",
+    "clau": "compromis",
+    "text": "Signo aquesta carta de compromís educatiu, acceptant les condicions exposades."
+   },
+   "signa_direccio": true
+  },
+  {
+   "id": "atencio_medica",
+   "titol": "Criteris d’atenció mèdica",
+   "text": [
+    "Davant d’una INDISPOSICIÓ LLEU d’un alumne/a, el Centre es posarà en contacte, segons els números facilitats a les dades de matrícula, amb els pares o un familiar proper i autoritzat per aquests per tal que vinguin a recollir l’alumne/ a l’Institut si així ho consideren.",
+    "Per a l’alumnat de 1r i 2n de l’ESO",
+    "Quan es produeixi un ACCIDENT O INDISPOSICIÓ i l’alumne/a necessiti atenció mèdica, es contactarà amb la família perquè es faci càrrec de la situació, i si és necessari aquest/a serà traslladat/ada amb la màxima rapidesa al Centre d’Assistència Primària (CAP) Martí i Julià, ambulatori de la seguretat social més proper, situat a l’Av. Baix Llobregat núm. 17.",
+    "Per a l’alumnat de 3r i 4t de l’ESO i batxillerat",
+    "Quan es produeixi un ACCIDENT O INDISPOSICIÓ i l’alumne/a necessiti atenció mèdica, es comunicarà amb la família perquè es faci càrrec de la situació, i si és necessari, aquest serà traslladat amb la màxima rapidesa al Centre d’Assistència Primària (CAP) Martí i Julià, ambulatori de la seguretat social més proper, situat a l’Av. Baix Llobregat núm. 17.",
+    "Aquest alumnat de 3r d’ESO a 2n de batxillerat té la cobertura de l’Assegurança escolar obligatòria, que ofereix l’assistència en uns determinats centres concertats que consten a la web de la Seguretat Social (llistat de centres mèdics col·laboradors amb l’AEO).",
+    "En cas d'anar a un centre sanitari diferent dels concertats, l'assegurança escolar cobreix l'abonament de les factures, d'acord amb el sistema de tarifes, i deixa a càrrec de la família la possible diferència, si n'hi ha. La cobertura de l'AEO en aquest cas però, es faria a través de la sol·licitud a la DG de l'INSS que hauria de presentar la família.",
+    "Per altra banda, les prestacions que ofereix l'AEO (per exemple, rehabilitació de traumatologia) podrà ser emprada per l'alumnat indistintament que hagin rebut primerament l'assistència sanitària del sistema públic. Ara bé, aquest tràmit es realitzarà mitjançant la presentació de la corresponent sol·licitud de prestació de serveis que haurà de realitzar directament la família a la Seu electrònica o presencialment a les oficines de la Seguretat Social. La resolució de la sol·licitud correspondrà a la DG de l'INSS competent.",
+    "Davant un ACCIDENT GREU el Centre actuarà amb la màxima rapidesa i es posarà en contacte amb els serveis mèdics d’urgència i amb la família per tal d’informar-la."
+   ],
+   "resposta": {
+    "tipus": "accepta",
+    "clau": "atencio_medica",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, em dono per informat/da dels criteris mèdics davant qualsevol incident escolar del meu fill/a i em comprometo a facilitar al centre tots els telèfons disponibles de contacte."
+   }
+  },
+  {
+   "id": "mobil",
+   "titol": "Normativa d’ús de dispositius mòbils",
+   "text": [
+    "Als efectes d'aquesta normativa, el terme 'dispositiu mòbil' engloba tot el ventall d'aparells amb connectivitat: telèfons intel·ligents, rellotges intel·ligents (smartwatches), tauletes, reproductors multimèdia i així com qualsevol altre dispositiu electrònic personal amb capacitat de comunicació o accés a la xarxa, exceptuant l'ordinador portàtil d'ús educatiu.",
+    "L’ús de dispositius està restringit per a l’alumnat en tots els espais del centre educatiu i en totes les activitats educatives que puguin tenir lloc fora del centre. L’alumnat NO ha de portar cap dispositiu mòbil a l’Institut. En el cas de dur-lo, en entrar al centre, l’alumne l’ha d’apagar i desar dintre de la motxilla, o a la taquilla en cas de disposar-ne. En cap moment ha de ser visible, ha d’apagar-se de manera que no es pugui accedir a les dades personals que el dispositiu emmagatzema.",
+    "Aquestes indicacions també s'han de complir en les activitats efectuades fora del centre que complementen i/o formen part de la programació general anual. S’inclouen, per tant, sortides, colònies, viatges, projectes compartits amb altres centres, activitats extraescolars, activitats amb participació de les famílies o la comunitat educativa, activitats amb entitats de l’entorn, etc. Es considera que els espais del centre com la biblioteca, el pati, els passadissos, els laboratoris, el gimnàs, les aules específiques, els tallers i anàlegs, són espais on habitualment es duen a terme activitats lectives i, per tant, s’hi ha d'aplicar la mateixa indicació.",
+    "El centre no es fa responsable de la seva pèrdua, sostracció o desperfecte. L’alumnat és responsable únic i directe del dispositiu mòbil.",
+    "L’ús del dispositiu mòbil per part d’un alumne sense el consentiment previ d’un docent, si no afecta els drets fonamentals o la protecció de dades, constitueix una falta lleu, si afecta, una falta greument perjudicial per a la convivència. En aquest darrer cas la Comissió de Convivència valorarà els fets i proposarà les mesures adients. En tots dos casos, el dispositiu mòbil queda custodiat pel centre fins al final de la jornada. La negació per part de l’alumnat a lliurar el dispositiu mòbil quan se li demani per un ús indegut és considerat una falta especialment greu per a la convivència del centre, i s’apliquen les sancions corresponents a aquest tipus de falta.",
+    "Protocol per un ús indegut del dispositiu mòbil:",
+    "1.  L’alumnat que sigui advertit per part d’un professor per utilitzar el dispositiu mòbil, o per tenir-lo fora de la taquilla o de la motxilla, el lliurarà al professor.",
+    "2.  El/La professor/a, en acabar la seva classe, portarà el dispositiu mòbil de l’alumne al despatx de direcció i redactarà una amonestació lleu escrita indicant objectivament els fets ocorreguts. Posteriorment, s’enviarà l’amonestació escrita als responsables mitjançant un missatge clickedu.",
+    "3.  La direcció registrarà i comptabilitzarà l’ús indegut del dispositiu mòbil per part de l’alumne. La direcció custodiarà el dispositiu mòbil fins al final de la jornada lectiva, moment que es retornarà el dispositiu mòbil a l’alumne.",
+    "4.  Si un alumne ha estat amonestat dues vegades per l’ús indegut del dispositiu mòbil, la direcció proposarà una sanció d’un dia de no assistència al centre. Aquesta sanció la ratificarà la Comissió de Convivència del centre.",
+    "5.  Cal recordar que alguns usos indeguts poden comportar l’aplicació de mesures correctores i sancionadores i, fins i tot, ser susceptibles de delicte i denúncia."
+   ],
+   "resposta": {
+    "tipus": "accepta",
+    "clau": "mobil",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, entenc i accepto la normativa d’ús dels dispositius mòbils de l’Institut."
+   }
+  },
+  {
+   "id": "imatges",
+   "titol": "Autorització d’ús d’imatges i publicació de dades",
+   "text": [
+    "El centre disposa d’espais de comunicació i difusió, inclosos els espais web (adreça o adreces web), on informa i fa difusió de les activitats escolars lectives, complementàries i extraescolars.",
+    "En aquests espais es poden publicar vídeos/imatges/àudios en què apareguin, individualment o en grup, alumnes que fan les activitats esmentades.",
+    "El centre educatiu demana el consentiment als pares, mares o tutors/res legals i es compromet a fer una publicació curosa de les dades personals als espais de comunicació i difusió. El fet de no autoritzar la publicació de les dades no afectarà el desenvolupament de les activitats programades dins de l’activitat lectiva.",
+    "Els vídeos/imatges/àudios corresponen a les activitats escolars lectives, complementàries i extraescolars organitzades pel centre i publicades en la web del centre, el canal de youtube del centre i a la xarxa social del centre (instagram)",
+    "Els vídeos/imatges/àudios que es recullin i tractin no se cediran a tercers ni se'n faran usos comercials sense el consentiment exprés i per escrit de les persones interessades."
+   ],
+   "proteccio": [
+    "Responsable del tractament: direcció del centre educatiu.",
+    "Finalitat: autorització de difusió d’imatge/veu i material elaborat als espais de comunicació i difusió del centre.",
+    "Drets: accedir a les dades, rectificar-les, suprimir-les, oposar-se al tractament i sol·licitar-ne la limitació.",
+    "Informació addicional: a la pàgina web del Departament d’Educació."
+   ],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "imatges",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que {resposta} autoritzo l’ús de vídeos/imatges/àudios i la publicació de dades."
+   },
+   "peu": "En cas de modificació d’aquesta autorització, em comprometo a notificar-ho per escrit a la secretaria del centre."
+  },
+  {
+   "id": "sortides",
+   "titol": "Autorització sortides pedagògiques d’un dia",
+   "text": [
+    "El centre organitza diferents sortides didàctiques al llarg de l’ESO que tenen una durada no superior a un dia, promogudes per l’Ajuntament, l’Institut Municipal d’Educació o pel mateix centre i els seus departaments.",
+    "L’Institut es reserva el dret a excloure de la sortida als alumnes que presentin una amonestació greu o acumulació d’amonestacions lleus. En aquest cas NO es retornarà l’import de la sortida."
+   ],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "sortides",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que {resposta} autoritzo que el meu fill/a pugui sortir del centre per participar en les activitats pedagògiques escolars que es fan fora del recinte de l’institut i que ha aprovat el Consell Escolar."
+   },
+   "peu": "En cas de modificació d’aquesta autorització, em comprometo a notificar-ho per escrit a la secretaria del centre."
+  },
+  {
+   "id": "piscina",
+   "titol": "Autorització sortida a la piscina",
+   "nivells": [
+    "1r ESO"
+   ],
+   "text": [
+    "El centre ha incorporat al currículum dels alumnes de 1r d’ESO com a part de l’assignatura d’Educació Física, la realització de piscina. Els alumnes que realitzen una hora setmanal de piscina s’han de traslladar al Complex Esportiu Municipal, situat al costat del centre."
+   ],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "piscina",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que {resposta} autoritzo que el meu fill/a pugui sortir del centre acompanyat pel professorat per fer una hora setmanal de piscina al complex esportiu municipal."
+   },
+   "peu": "En cas de modificació d’aquesta autorització, em comprometo a notificar-ho per escrit a la secretaria del centre."
+  },
+  {
+   "id": "educacio_fisica",
+   "titol": "Autorització participació activitats Educació Física",
+   "text": [],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "educacio_fisica",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que {resposta} autoritzo el meu fill/a a participar en les activitats d’Educació Física, ja que no conec cap motiu físic o de qualsevol altra mena que li impedeixi fer amb plena normalitat les activitats de condició física i destreses esportives habituals de l’assignatura."
+   },
+   "peu": "En cas de modificació d’aquesta autorització, em comprometo a notificar-ho per escrit a la secretaria del centre."
+  },
+  {
+   "id": "sortida_anticipada",
+   "titol": "Autorització de sortida del centre a darreres hores en dies especials",
+   "text": [
+    "Al llarg del curs se celebren diversos dies especials, com són la Castanyada, el Carnestoltes i la Diada de Sant Jordi, entre d’altres, en què l’activitat lectiva habitual es veu substituïda per activitats de caràcter cultural i lúdic. En algunes d’aquestes jornades, els actes de celebració poden finalitzar abans de les 14:45.",
+    "Així mateix, en dies de sortides trimestrals o en jornades com pot ser el dia de lliurament de notes de final de curs, l’horari habitual al centre pot quedar reduït.",
+    "En aquestes situacions, es pot donar el cas que l’alumnat pugui sortir del centre abans de les 14.45. Per tal de fer-ho efectiu, és imprescindible disposar de l’autorització prèvia de mares, pares o tutor/es legals."
+   ],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "sortida_anticipada",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, {resposta} autoritzo que el meu fill/a pugui marxar cap a casa abans de la finalització de l’horari lectiu en algun dels dies esmentats, amb comunicació prèvia del centre."
+   },
+   "despres": [
+    "Declaro que ESTIC ASSABENTAT/DA que la normativa general dels centres docents de Catalunya estableix que l’alumnat s’haurà d’estar a l’interior del recinte durant tot el temps corresponent a l’horari lectiu, tret dels casos en què, per circumstàncies específiques, els responsables legals n’autoritzin la sortida del centre. En aquest supòsit, em responsabilitzo plenament de qualsevol incidència que se’n pugui derivar."
+   ],
+   "peu": "En cas de modificació d’aquesta autorització, em comprometo a notificar-ho per escrit a la secretaria del centre."
+  },
+  {
+   "id": "ordinador",
+   "titol": "Ordinador portàtil",
+   "nomes_nous": true,
+   "text": [
+    "(A emplenar només per les famílies de l’ESO noves al centre)",
+    "L’Institut Joan Miró ha rebut com a dotació ordinadors portàtils per a l’alumnat amb les següents condicions:",
+    "-   L’ordinador forma part dels equipaments del centre i es deixa en préstec de forma nominal a l’alumnat.",
+    "-   L’ordinador té instal·lat un programari bàsic educatiu. No es poden fer canvis en el programari ni afegir nous programes. En cas d’haver d’instal·lar algun programa privat haurà de consultar amb el Coordinador Digital. Es disposa d’un repositori de programes gratuïts a l’aplicatiu Company Portal, instal·lat al mateix ordinador.",
+    "En cas d’Acceptació la família es compromet a:",
+    "-   La família es compromet a tenir cura de l’ordinador, tant dels programes com de la part física.",
+    "-   La família es compromet a retornar-lo si l’alumne/a deixa de cursar estudis al centre. Cal retornar tant l’ordinador com el seu carregador.",
+    "-   En el cas de desperfecte o avaria no coberta pel servei de manteniment, la família es compromet a cobrir les despeses de la reparació, o si no pot ser, el cost de la reposició de l’ordinador segons preu de mercat (Vegeu NOFC)."
+   ],
+   "resposta": {
+    "tipus": "opcions",
+    "clau": "ordinador",
+    "opcions": [
+     "Accepto les condicions i compromisos que figuren en aquest escrit",
+     "Renuncio a l’ordinador portàtil assignat en préstec"
+    ],
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que: {resposta}."
+   }
+  },
+  {
+   "id": "taquilla",
+   "titol": "Servei de taquilles",
+   "text": [
+    "Benvolgudes famílies i alumnat,",
+    "Enguany tornem a posar en marxa la reserva de taquilles per al curs vinent {curs}. Us demanem que llegiu amb atenció aquesta circular i preneu nota de les instruccions per tal de gaudir d’aquest servei:",
+    "▪ Lloguer per a tot el curs acadèmic: 35,00 €",
+    "▪ Canvi de pany trencat o pèrdua de claus: 10,00 €.",
+    "Per tal de garantir la disponibilitat de taquilles a l’inici del curs, servei que sempre podrà contractar, recomanem a l’alumnat interessat, fer l'ingrés abans del 17 de juliol, al compte corrent de “La Caixa” {iban_taquilles} (s’haurà de fer constar el nom complet de l'alumne i el curs que farà a l'hora de fer la transferència o ingrés).",
+    "La clau de l’armariet s’entregarà la primera setmana de setembre a la cantina, i caldrà aportar aquest full degudament omplert juntament amb el comprovant de la transferència bancària. Sense aquests dos documents no es lliurarà cap clau. Aquests documents romandran a l'institut per a la seva posterior destrucció.",
+    "El contingut de la taquilla és responsabilitat absoluta de l’alumne/a, així com el bon ús i el control en tot moment de la clau. L’empresa no es responsabilitza de la pèrdua o sostracció de materials o béns. En cas d’incidència truqueu al números de telèfon indicats",
+    "NOTA: Acabat el curs haureu de deixar l’armariet buit per tal de procedir al seu manteniment i caldrà retornar les claus a la cantina.",
+    "Per a qualsevol altra informació truqueu al 93 427 49 83 o 686 40 41 88."
+   ],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "taquilla",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que {resposta} sol·licito el servei de taquilles i n’accepto les condicions."
+   }
+  },
+  {
+   "id": "bici",
+   "titol": "Servei d’aparcament de bicis/patinets",
+   "text": [
+    "L’INS Joan Miró aposta per a la mobilitat sostenible i per l’acceptació i utilització del mitjà de “transport rodat” que una part de l’alumnat ha adoptat per arribar al Centre.",
+    "Per a aparcar en lloc segur, i protegir-ho dels amics de l’aliè, s’ha creat un espai tancat i amb reixa des del terra fins al sostre i porta amb cadenat, càmera de vigilància, i amb accés personalitzat al costat de la porta d’entrada al Centre.",
+    "El recinte s’obre cada matí de 8:05 a 8:20 (aprox.) per poder deixar el patinet o bicicleta i altre cop a darrera hora, de 14:40 a 14:50 (aprox.) per poder retirar-la. Cada propietari té la contrasenya del cadenat d’accés per si n’ha de fer ús entremig d’aquest horari.",
+    "L’alumne/a es farà responsable de no compartir la contrasenya amb ningú per poder garantir la inviolabilitat del recinte. De la mateixa manera és responsable de lligar la bicicleta o patinet i tenir cura del recinte.",
+    "El Centre no es pot fer responsable de sostraccions i/o desperfectes que es puguin ocasionar.",
+    "El lloguer consta d’un pagament únic de 25 € per curs."
+   ],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "bici",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que {resposta} sol·licito el servei d’aparcament de bici/patinet. En cas de sol·licitud, autoritzo el pagament de 25 € en un únic pagament anual i accepto les condicions del servei."
+   }
+  },
+  {
+   "id": "menjador",
+   "titol": "Servei de menjador",
+   "text": [
+    "El Centre no disposa de menjador escolar pròpiament dit, a tal efecte, la cafeteria del Centre ha habilitat el seu espai per a poder suplir el servei de menjador. A causa de les dimensions de la cafeteria, i per poder atendre correctament a tothom, l’aforament es limita a un màxim de 40 alumnes.",
+    "Entenem que és un nombre limitat en relació amb la quantitat d’alumnat del Centre, per tant, donem prioritat a:",
+    "1. Alumnat que segueix al menjador",
+    "2. Alumnat d’activitats extraescolars",
+    "3. L’alumnat dels cursos inferiors",
+    "El preu serà de 9 € per persona i dia. El cobrament es realitzarà per avançat, mensualment i en efectiu, a la cantina del centre.",
+    "Si no s’ha realitzat el pagament, entendrem que NO està interessat a fer servir aquest servei i en cap cas podrà fer ús del menjador. La previsió del nombre d’alumnes que es quedaran a dinar, és mensual, de tal manera que, si en començar el mes no es comunica cap canvi, no se li podrà retornar res, exceptuant casos extraordinaris, ja que la previsió i encàrrec està feta comptant amb la totalitat.",
+    "En cas d’absència d’un alumne, només es podrà retornar l’import del menú si s’avisa amb 48 h d’antelació.",
+    "L’elaboració dels menús és mensual i se’n lliurarà una còpia a tots els usuaris; en el cas concret que s’hagi d’elaborar un menú especial es negociarà amb la persona responsable de la cuina.",
+    "La cuina és de mercat; els dinars són elaborats diàriament per dues persones, a la mateixa cuina de la cafeteria, que es fan responsables del menjador.",
+    "Per a oferir el millor servei, hem de fer una previsió de cara al curs vinent. Per tant, si us heu de quedar a dinar, contesteu afirmativament en el següent apartat i indiqueu els dies que fareu ús d’aquest servei."
+   ],
+   "resposta": {
+    "tipus": "menjador",
+    "clau": "menjador",
+    "dies": [
+     "Dilluns",
+     "Dimarts",
+     "Dimecres",
+     "Dijous",
+     "Divendres"
+    ],
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, declaro que {resposta} sol·licito el servei de menjador{dies} i que accepto les condicions del servei descrites."
+   }
+  },
+  {
+   "id": "afa",
+   "titol": "Associació de Famílies (AFA)",
+   "text": [
+    "L’Associació de Famílies d’Alumnes de l’INS Joan Miró som TOTES LES FAMÍLIES DEL CENTRE. Al capdavant d’aquesta associació hi ha una Junta Directiva formada per una presidenta, una vicepresidenta, una tresorera i una secretària, a més de 3 comissions de famílies (Subvencions i projectes AFA, Millorem el Miró i Fem Xarxa).",
+    "La nostra activitat consisteix a col·laborar amb l’alumnat, l’equip docent i les famílies; participar en les reunions del Consell Escolar i mantenir un diàleg constant i actiu amb l’equip directiu del centre.",
+    "Col·laborem mitjançant les iniciatives següents:",
+    "• Suport a les festes organitzades per l’Institut: Castanyada, Carnestoltes i Sant Jordi, festes de final d’ESO i de Batxillerat.",
+    "• Gestió de l’intercanvi/reciclatge de llibres de text i lectura a tots els cursos, gestió dels armariets de l’alumnat, lliurament de la carpeta de l’Institut a l’alumnat...",
+    "• Informació i suport a les famílies en els temes que es plantegin i que siguin d’interès general.",
+    "• Participació en l’adquisició de material pel Centre, amb aportacions econòmiques que permeten que el nostre centre i, per tant, les/els nostres filles/fills, puguin gaudir dels equipaments adients i de les condicions idònies per treballar.",
+    "• Organització d’activitats per a alumnes i famílies com xerrades i tallers de temàtiques diverses vinculades a l’educació, tant en l’àmbit docent com familiar.",
+    "Tot plegat és possible gràcies a les aportacions de les nostres sòcies mitjançant la quota anual de 26 € pel primer fill/a (més 6 € per a cada germà/na), a alguna subvenció de l’Ajuntament i a la col·laboració desinteressada d’algunes famílies.",
+    "Gràcies a tot això, es poden realitzar activitats amb la finalitat de contribuir a la millora de la qualitat de l’educació que reben els/les nostres fills/es.",
+    "D’altra banda, ens podeu seguir al nostre compte d’instagram @afamiro on es troba tota la informació generada des de l’AFA més la que considerem d’interès per a les famílies i la que genera la Comissió de Seguiment Educatiu.",
+    "En qualsevol cas, podeu fer les vostres peticions i/o consultes i suggeriments, en horari lectiu, al telèfon del Centre, preguntant per la persona de contacte de l’AFA, o al correu electrònic afa@institutjoanmiro.cat i ens posarem en contacte amb vosaltres com més aviat millor.",
+    "Aprofitem per animar-vos a col·laborar amb nosaltres. Us convidem a participar com a famílies col·laboradores o formant part de la Junta.",
+    "El motor que impulsa les activitats generades per l’AFA és el benestar, l’educació en valors i la formació integral de les nostres filles i fills.",
+    "Per tal de formalitzar l’adhesió al AFA caldrà fer una sola transferència per família al compte de A.M.P.A. I.E.S. JOAN MIRO amb IBAN {iban_afa} posant com a concepte NOM ALUMNE/S I CURS QUE FARÀ i import 26 € + 6 €/germà-germana al centre."
+   ],
+   "resposta": {
+    "tipus": "si_no",
+    "clau": "afa",
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, {resposta} sol·licito formar part de l’AFA del centre."
+   }
+  },
+  {
+   "id": "optativa",
+   "titol": "Optativa · ordre de preferència",
+   "nivells": [
+    "1r ESO"
+   ],
+   "text": [
+    "A primer d’ESO, a part de les matèries comunes, l’alumnat cursa una matèria optativa d’entre les 7 que s’ofereixen: Alemany, Francès, Italià, Anglès, Esport amb raquetes, Construïm coneixement científic i Tècniques d’estudi.",
+    "En el formulari de matrícula cal enumerar l’ordre de preferència de l'1 al 5 d’aquesta matèria optativa (1 la més preferent, 5 la menys preferent)",
+    "Observacions: Per a l’assignació definitiva es tindrà en compte l’ordre de preferència i la informació acadèmica de 6è de primària. L’ordre de priorització es tindrà en compte, però pot donar-se el cas que no coincideixi amb l’assignació definitiva una vegada aplicats els criteris anteriors."
+   ],
+   "resposta": {
+    "tipus": "ordre",
+    "clau": "optativa",
+    "opcions": [
+     "Alemany",
+     "Francès",
+     "Italià",
+     "Anglès",
+     "Esport amb raquetes",
+     "Construïm coneixement científic",
+     "Tècniques d’estudi"
+    ],
+    "places": 5,
+    "text": "{responsable}, amb DNI/NIE/Passaport {dni_responsable}, com a pare/mare/tutor/a legal de l’alumne/a {alumne}, informo de l’ordre de preferència de la matèria optativa indicat en aquest full."
+   },
+   "peu": "NOTA: En base a l’assignació definitiva de la plantilla del centre, pot haver-hi alguna modificació de l’oferta de les matèries optatives que no són llengües estrangeres. Si es donés aquest cas, les famílies afectades seran informades per fer els canvis oportuns."
+  }
+ ]
+}
