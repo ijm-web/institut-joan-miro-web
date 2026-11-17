@@ -657,3 +657,15 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-he__m--orig{ background: #FFF !important; color: #C62828; text-decoration: line-through; outline: 1px dashed #C62828; }
 .gs-he__prevll{ font-size: .78rem; margin-top: 6px; }
 .gs-he__prevll .gs-he__m{ display: inline-block; }
+/* PAS 71 · Matrícula: fitxa i convocatòria */
+.gs-mat__fila{ cursor: pointer; }
+.gs-mat__fila:hover td{ background: #F6F7FC; }
+.gs-mat__grup{ border: 1px solid #E3E5EE; border-radius: 8px; padding: 6px 10px; margin: 8px 0; }
+.gs-mat__grup summary{ font-weight: 600; cursor: pointer; color: #1C0CBC; }
+.gs-mat__camps{ display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px 12px; margin-top: 8px; }
+.gs-mat__camps label{ display: flex; flex-direction: column; font-size: .82rem; color: #5A6078; gap: 2px; }
+.gs-mat__camps input{ font-size: .9rem; }
+.gs-mat__cos{ display: flex; flex-direction: column; gap: 4px; }
+.gs-mat__cos textarea{ width: 100%; font: inherit; font-size: .9rem; }
+.gs-mat__conv{ max-height: 36vh; overflow: auto; border: 1px solid #E3E5EE; border-radius: 8px; padding: 6px 10px; }
+.gs-mat__conv pre{ white-space: pre-wrap; font: inherit; font-size: .85rem; background: #F6F7FC; padding: 8px; border-radius: 6px; }

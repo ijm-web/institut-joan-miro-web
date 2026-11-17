@@ -406,7 +406,9 @@
     // Les dades ja llegides en aquesta pàgina es reutilitzen: tornar al mòdul no torna a cridar el full
     // PAS 62: les dues vistes del Currículum es tornen a llegir sempre (les hores de les matèries canviades a «Matèries» han
     // d'arribar a «Assignacions»; abans quedava l'avís ⚠ amb les hores antigues)
-    if (S.cache[m.id] && !/^curriculum/.test(m.id)) return mostraDades(S.cache[m.id]);
+    // PAS 71: el Currículum també aprofita les dades ja llegides; només es tornen a llegir quan un canvi les ha deixat
+    // obsoletes (desar les matèries invalida les assignacions; generar, separar o aplicar la desiderata, també)
+    if (S.cache[m.id]) return mostraDades(S.cache[m.id]);
     carregaDades();
   }
 
@@ -1230,6 +1232,8 @@
         });
         S.canvis = {}; S.altes = {}; marcaBrut(false);
         if (r.versio) { S.d.versio = r.versio; amagaAvisCanvis(); }
+        // PAS 71: les hores i els grups de les matèries arriben a les assignacions: la vista d'assignacions es tornarà a llegir
+        if (S.modul.id === 'curriculum') delete S.cache.curriculum_grups;
         document.querySelectorAll('#gsTaula .gs-canviat').forEach(function (el) { el.classList.remove('gs-canviat'); });
         S.taula.getRows().forEach(function (rw) { rw.reformat(); });
         aplicaFiltre();
@@ -1653,6 +1657,7 @@
       api('hores_lectives_desa', { canvis: horesLectives.c }, 'Desant les hores lectives…').then(function (r2) {
         if (!r2.ok) return toast(text(r2.error), true);
         delete S.cache.professorat; S.d.professorat_hores = r2.professorat;
+        ['curriculum', 'curriculum_grups'].forEach(function (k) { if (S.cache[k]) S.cache[k].professorat_hores = r2.professorat; });   // PAS 71: sense tornar a llegir
         toast('Hores lectives desades (' + r2.desats + ' docents).');
       });
     });
@@ -2690,8 +2695,11 @@
   // El cap de departament proposa, per a cada assignació de la seva especialitat (Currículum › Assignacions), quins docents
   // la imparteixen i quants grups fa cadascun (els grups concrets els assigna després la direcció). Comptadors d'hores,
   // observacions pedagògiques, coherència amb les hores lectives de cada docent, PDF, Excel i, per a l'administració, «Anàlisi».
-  function carregaDesiderata(esp) {
-    api('desiderata_dades', esp ? { especialitat: esp } : {}, 'Carregant la desiderata…').then(function (r) {
+  // PAS 71: en canviar d'especialitat, el professorat (igual per a totes) no es torna a demanar
+  function carregaDesiderata(esp, lleuger) {
+    var prof = lleuger && S.des && S.des.professorat;
+    api('desiderata_dades', Object.assign(esp ? { especialitat: esp } : {}, prof ? { lleuger: true } : {}), 'Carregant la desiderata…').then(function (r) {
+      if (r.ok && prof && !r.professorat) r.professorat = prof;
       if (!r.ok) { $('gsAvis').innerHTML = r.error === 'sense_especialitat' ? 'No trobem la vostra especialitat a la fitxa del professorat: la direcció l’hi ha de posar (o us pot obrir la desiderata d’una especialitat).' : textError(r); $('gsAvis').hidden = false; return; }
       S.des = r; S.desDades = JSON.parse(JSON.stringify(r.dades || {})); S.d = { files: [], camps: [], nivell: S.modul.nivell };
       pintaDesiderata();
@@ -2768,7 +2776,7 @@
       else if (b.dataset.a === 'treu') b.closest('.gs-des__doc').remove();
       refresca();
     });
-    if ($('gsDesEsp')) $('gsDesEsp').addEventListener('change', function () { if (S.brut && !confirm('Hi ha canvis sense desar. Voleu canviar d’especialitat igualment?')) { this.value = R.especialitat; return; } brutDes(false); carregaDesiderata(this.value); });
+    if ($('gsDesEsp')) $('gsDesEsp').addEventListener('change', function () { if (S.brut && !confirm('Hi ha canvis sense desar. Voleu canviar d’especialitat igualment?')) { this.value = R.especialitat; return; } brutDes(false); carregaDesiderata(this.value, true); });
     refresca(); brutDes(false);
   }
   // PAS 53 · Administració: data de tancament i bloqueig
@@ -3532,12 +3540,16 @@
     return cands.filter(function (a, i) { return a && cands.indexOf(a) === i && a !== s.aula; }).filter(function (a) { return poss.every(function (k) { return !(occ[k] || []).some(function (x) { return x.aula === a && x._u !== s._u; }); }); })[0] || '';
   }
   // Cerca de solucions: el moviment principal + com a molt «max - 1» moviments d'altres unitats (i canvis d'aula si cal)
-  function cercaHE(k0, desti, max) {
-    var sols = [], vist = {}, nodes = 0, LIM = 15000;
+  // PAS 71 · Cerca en amplada creixent (aprofundiment iteratiu): primer totes les solucions d'1 moviment, després les de
+  // 2… fins al màxim. Abans era en profunditat i, amb un màxim alt, gastava el pressupost en camins llargs i no trobava
+  // solucions amb menys moviments.
+  function cercaHE(k0, desti, maxTot) {
+    var sols = [], trobades = {}, vist, nodes, LIM = 6000, max, t0 = Date.now();
     var origen = S.he.U[k0];
+    var sigMv = function (mv) { return Object.keys(mv).sort().map(function (k) { return k + '>' + mv[k].dia + JSON.stringify(mv[k].map); }).join(';'); };
     function prova(mv, ordre) {
-      if (++nodes > LIM || sols.length >= 30) return;
-      var sig = Object.keys(mv).sort().map(function (k) { return k + '>' + mv[k].dia + JSON.stringify(mv[k].map); }).join(';'); if (vist[sig]) return; vist[sig] = 1;
+      if (++nodes > LIM || Date.now() - t0 > 8000) return;
+      var sig = sigMv(mv); if (vist[sig]) return; vist[sig] = 1;
       var occ = ocupacioHE(mv), pendents = [], aules = [], avisos = [];
       for (var i = 0; i < ordre.length; i++) { var c = conflictesHE(S.he.U[ordre[i]], mv, occ); if (c.durs.length) return;
         Object.keys(c.unitats).forEach(function (k) { if (pendents.indexOf(k) < 0) pendents.push(k); }); c.aules.forEach(function (a) { aules.push(a); }); avisos = avisos.concat(c.avisos); }
@@ -3546,7 +3558,7 @@
         var canvisAula = [], ok = true;
         aules.forEach(function (a) { var u = S.he.U[a.s._u], poss = u.ses.filter(function (x) { return x.aula === a.aula; }).map(function (x) { var p = onEsHE(x, mv); return p.dia + '|' + p.franja; });
           var nova = aulaLliureHE(a.s, poss, occ); if (!nova) ok = false; else if (!canvisAula.some(function (c) { return c.u === a.s._u && c.de === a.aula; })) canvisAula.push({ u: a.s._u, de: a.aula, a: nova }); });
-        if (ok && ordre.length + canvisAula.length <= max) sols.push({ mv: mv, ordre: ordre, aules: canvisAula, avisos: avisos.filter(function (x, i) { return avisos.indexOf(x) === i; }) });
+        if (ok && ordre.length + canvisAula.length <= max && !trobades[sig]) { trobades[sig] = 1; sols.push({ mv: mv, ordre: ordre, aules: canvisAula, avisos: avisos.filter(function (x, i) { return avisos.indexOf(x) === i; }) }); }
         return;
       }
       if (ordre.length >= max) return;
@@ -3556,7 +3568,8 @@
       var o0 = origen.ses[0].dia; cands.sort(function (a, b) { return (b.dia === o0 ? 1 : 0) - (a.dia === o0 ? 1 : 0); });
       cands.forEach(function (x) { var m2 = Object.assign({}, mv); m2[k] = x; prova(m2, ordre.concat([k])); });
     }
-    var mv0 = {}; mv0[k0] = desti; prova(mv0, [k0]);
+    var mv0 = {}; mv0[k0] = desti;
+    for (max = 1; max <= maxTot && sols.length < 8; max++) { vist = {}; nodes = 0; prova(mv0, [k0]); }
     return sols.sort(function (a, b) { return (a.ordre.length + a.aules.length) - (b.ordre.length + b.aules.length) || a.avisos.length - b.avisos.length; }).slice(0, 8);
   }
   function textMovHE(k, x) { var u = S.he.U[k], fs = franjesUnitatHE(u), nf = fs.map(function (f) { return x.map[f]; }); return '<b>' + esc(descUnitatHE(u)) + '</b> → ' + esc(x.dia + ' ' + nf[0] + (nf.length > 1 ? '–' + nf[nf.length - 1] : '')); }
@@ -3703,7 +3716,9 @@
     M.dies.forEach(function (d) {
       var o = M.franges.map(function (f) { return !!occ[d + '|' + f.id]; }), pri = o.indexOf(true), dar = o.lastIndexOf(true);
       for (var i = pri + 1; i < dar; i++) { if (o[i] || M.franges[i].esbarjo) continue;
-        var vora = (M.franges[i - 1] && M.franges[i - 1].esbarjo && o[i - 1]) || (M.franges[i + 1] && M.franges[i + 1].esbarjo && o[i + 1]); forats += vora ? 0.5 : 1; }
+        // PAS 71: el mig forat només si la guàrdia d'esbarjo del costat NO és extrema; si ho és, el forat compta sencer
+        var extrema = function (j) { return o.slice(0, j).indexOf(true) < 0 || o.slice(j + 1).indexOf(true) < 0; };
+        var vora = [i - 1, i + 1].some(function (j) { return M.franges[j] && M.franges[j].esbarjo && o[j] && !extrema(j); }); forats += vora ? 0.5 : 1; }
     });
     // PAS 70: una guàrdia de pati o de biblioteca «extrema» (aquell dia no hi ha cap altra ocupació abans, o cap després)
     // compta com a mitja hora d'ocupació
@@ -4757,44 +4772,125 @@
   }
   // ------------------------------------------------------------------ PAS 68 · NOU ALUMNE/A
   // Alta mínima: nom, cognoms, nivell, estat i autoritzacions. Va a Alumnat ESO o Alumnat Batxillerat segons el nivell.
-  // ------------------------------------------------------------------ PAS 70 · MATRÍCULA (Secretaria)
-  // De moment, només la importació de l'exportació del Departament amb l'alumnat assignat al centre (fitxer CSV separat per
-  // «;», en codificació de Windows o UTF-8). El fitxer es llegeix al navegador; abans de desar, es mostra què canviarà.
+  // ------------------------------------------------------------------ PAS 70/71 · MATRÍCULA (Secretaria)
+  // Importació de l'exportació del Departament (CSV «;», UTF-8 o Windows-1252) i, PAS 71, alta, modificació, baixa i
+  // esborrat de cada registre, registres de prova i «Convoca la família» (de moment, NOMÉS prepara i previsualitza els
+  // correus: no se n'envia cap).
   function carregaMatricula() {
-    S.mat = S.mat || { q: '', niv: '', estat: '' };
+    S.mat = S.mat || { q: '', niv: '', estat: '', baixes: false, sel: {} };
     return api('matricula_dades', {}, 'Carregant la matrícula…').then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
-      if (!(r.esquema >= 70)) { $('gsAvis').innerHTML = 'Cal l’Apps Script del PAS 70 o posterior: enganxeu el Code.gs nou, executeu «configura» i feu una nova implementació.'; $('gsAvis').hidden = false; return; }
+      if (!(r.esquema >= 71)) { $('gsAvis').innerHTML = 'Cal l’Apps Script del PAS 71 o posterior: enganxeu el Code.gs nou, executeu «configura» i feu una nova implementació.'; $('gsAvis').hidden = false; return; }
       S.mat.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert }; lligaMatricula(); pintaMatricula();
     });
   }
   var edMat = function () { return S.mat.r && nivellIdx(S.mat.r.nivell) >= 1 && S.mat.r.obert; };
+  var adminMat = function () { return S.mat.r && nivellIdx(S.mat.r.nivell) >= 2; };
   var nomMat = function (f) { return [f.cognom1, f.cognom2].filter(Boolean).join(' ') + ', ' + f.nom; };
+  var clauMat = function (f) { return f.id_ralc + '|' + f.curs_academic; };
+  var deBaixaMat = function (f) { return f.estat_gestio === 'baixa'; };
   function filesMat() {
     var q = plega(S.mat.q || '');
     return S.mat.r.files.filter(function (f) {
-      return (!S.mat.niv || (f.nivell_gestio || f.codi_ensenyament) === S.mat.niv) && (!S.mat.estat || f.estat_matricula === S.mat.estat) &&
+      return (S.mat.baixes || !deBaixaMat(f)) && (!S.mat.niv || (f.nivell_gestio || f.codi_ensenyament) === S.mat.niv) && (!S.mat.estat || f.estat_matricula === S.mat.estat) &&
         (!q || plega(nomMat(f) + ' ' + f.id_ralc + ' ' + f.email_via1).indexOf(q) >= 0);
     }).sort(function (a, b) { return String(a.nivell_gestio).localeCompare(String(b.nivell_gestio), 'ca') || nomMat(a).localeCompare(nomMat(b), 'ca'); });
   }
   function pintaMatricula() {
-    var R = S.mat.r, ed = edMat(), ll = filesMat();
+    var R = S.mat.r, ed = edMat(), ll = filesMat(), nSel = Object.keys(S.mat.sel).filter(function (k) { return S.mat.sel[k]; }).length;
     var nivs = R.files.map(function (f) { return f.nivell_gestio || f.codi_ensenyament; }).filter(function (x, i, a) { return x && a.indexOf(x) === i; }).sort();
     var ests = R.files.map(function (f) { return f.estat_matricula; }).filter(function (x, i, a) { return x && a.indexOf(x) === i; }).sort();
+    var nB = R.files.filter(deBaixaMat).length;
     $('gsEines').innerHTML = '<input type="search" class="gs-cal__cerca" data-mat="cerca" placeholder="Cerca alumne/a, identificador o correu…" value="' + esc(S.mat.q) + '">' +
       '<select data-mat="niv" aria-label="Nivell"><option value="">Tots els nivells</option>' + nivs.map(function (n) { return '<option' + (n === S.mat.niv ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>' +
       '<select data-mat="estat" aria-label="Estat de la matrícula"><option value="">Tots els estats</option>' + ests.map(function (n) { return '<option' + (n === S.mat.estat ? ' selected' : '') + '>' + esc(n) + '</option>'; }).join('') + '</select>' +
-      '<span class="gs-espai"></span>' + (ed ? '<button type="button" class="prog-btn" data-mat="importa">Importa el fitxer del Departament</button><input type="file" id="gsMatFitxer" accept=".csv,text/csv" hidden>' : '') +
+      (nB ? '<label class="gs-check"><input type="checkbox" data-mat="baixes"' + (S.mat.baixes ? ' checked' : '') + '> Mostra les baixes (' + nB + ')</label>' : '') +
+      '<span class="gs-espai"></span>' +
+      (ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-mat="alta">+ Alta</button><button type="button" class="prog-btn prog-btn--ghost" data-mat="prova" title="Un registre inventat per provar el procés (no es convoca mai)">+ Registre de prova</button>' +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-mat="convoca"' + (nSel ? '' : ' disabled title="Marqueu primer a qui convoqueu (caselles de l’esquerra)"') + '>Convoca la família' + (nSel ? ' (' + nSel + ')' : '') + '</button>' +
+        '<button type="button" class="prog-btn" data-mat="importa">Importa el fitxer del Departament</button><input type="file" id="gsMatFitxer" accept=".csv,text/csv" hidden>' : '') +
       '<p class="gs-ajuda gs-cal__ajuda">Alumnat assignat al centre segons l’exportació del Departament (fitxer <code>.csv</code>, separat per «;»). <b>Importa</b> afegeix l’alumnat nou i actualitza el que ja hi és (per l’identificador de l’alumne/a i el curs); abans de desar, es mostra el que canviarà. ' +
-        R.files.length + ' alumnes · ' + Object.keys(R.resum).sort().map(function (k) { return esc(k) + ': ' + R.resum[k]; }).join(' · ') + '</p>';
+        (ed ? 'Un clic a una fila obre la <b>fitxa</b> (modificar, donar de baixa). Les caselles de l’esquerra trien a qui es <b>convoca</b>. ' : '') +
+        R.files.length + ' registres · ' + Object.keys(R.resum).sort().map(function (k) { return esc(k) + ': ' + R.resum[k]; }).join(' · ') + '</p>';
     var t = $('gsTaula'); t.className = 'gs-ocu gs-mat';
-    t.innerHTML = !R.files.length ? '<p class="gs-ajuda" style="padding:12px">Encara no s’ha importat cap fitxer.' + (ed ? ' Premeu <b>Importa el fitxer del Departament</b>.' : '') + '</p>' :
-      '<table class="gs-form-taula gs-informe__taula gs-mat__taula"><thead><tr><th>Identificador</th><th>Alumne/a</th><th>Naixement</th><th>Nivell</th><th>Ensenyament</th><th>Estat</th><th>Data matrícula</th><th>Correu</th><th>Telèfon</th><th>Responsables</th><th>GESTIO</th></tr></thead><tbody>' +
-      ll.map(function (f) { return '<tr' + (/baixa/i.test(f.estat_matricula) ? ' class="gs-gris"' : '') + '><td>' + esc(f.id_ralc) + '</td><td><b>' + esc(nomMat(f)) + '</b></td><td>' + esc(dataVista(f.data_naixement)) + '</td><td>' + esc(f.nivell_gestio || f.nivell) + '</td><td>' + esc(f.codi_ensenyament) + '</td>' +
+    var totsSel = ll.length && ll.every(function (f) { return S.mat.sel[clauMat(f)]; });
+    t.innerHTML = !R.files.length ? '<p class="gs-ajuda" style="padding:12px">Encara no hi ha cap registre.' + (ed ? ' Premeu <b>Importa el fitxer del Departament</b> o feu una <b>alta</b>.' : '') + '</p>' :
+      '<table class="gs-form-taula gs-informe__taula gs-mat__taula"><thead><tr>' + (ed ? '<th><input type="checkbox" data-mat="sel-tots" aria-label="Marca tots els que es veuen"' + (totsSel ? ' checked' : '') + '></th>' : '') +
+      '<th>Identificador</th><th>Alumne/a</th><th>Naixement</th><th>Nivell</th><th>Ensenyament</th><th>Estat</th><th>Data matrícula</th><th>Correu</th><th>Telèfon</th><th>Responsables</th><th>GESTIO</th></tr></thead><tbody>' +
+      ll.map(function (f) { var k = clauMat(f);
+        return '<tr data-k="' + esc(k) + '" class="' + (ed ? 'gs-mat__fila' : '') + (deBaixaMat(f) || /baixa/i.test(f.estat_matricula) ? ' gs-gris' : '') + '">' + (ed ? '<td><input type="checkbox" data-mat="sel"' + (S.mat.sel[k] ? ' checked' : '') + ' aria-label="Convoca"></td>' : '') +
+        '<td>' + esc(f.id_ralc) + (f.prova === 'sí' ? ' <span class="gs-codo">prova</span>' : '') + '</td><td><b>' + esc(nomMat(f)) + '</b></td><td>' + esc(dataVista(f.data_naixement)) + '</td><td>' + esc(f.nivell_gestio || f.nivell) + '</td><td>' + esc(f.codi_ensenyament) + '</td>' +
         '<td>' + esc(f.estat_matricula) + (f.data_baixa ? '<br><small>' + esc(dataVista(f.data_baixa)) + (f.motiu_baixa ? ' · ' + esc(f.motiu_baixa) : '') + '</small>' : '') + '</td><td>' + esc(dataVista(f.data_matricula)) + '</td><td>' + esc(f.email_via1) + '</td><td>' + esc(f.telefon_via1) + '</td>' +
         '<td>' + esc([[f.nom_tutor1, f.primer_cognom_tutor1].filter(Boolean).join(' '), [f.nom_tutor2, f.primer_cognom_tutor2].filter(Boolean).join(' ')].filter(Boolean).join(' · ')) + '</td><td>' + esc(f.estat_gestio) + (f.actualitzat ? '<br><small>act. ' + esc(dataHoraHE(f.actualitzat)) + '</small>' : '') + '</td></tr>'; }).join('') +
-      '</tbody></table><p class="gs-gris" style="margin:8px 0">' + ll.length + ' de ' + R.files.length + ' alumnes.</p>';
+      '</tbody></table><p class="gs-gris" style="margin:8px 0">' + ll.length + ' de ' + R.files.length + ' registres' + (nSel ? ' · ' + nSel + ' marcats per convocar' : '') + '.</p>';
     ajustaAlcada();
+  }
+  // Fitxa d'un registre: tots els camps del fitxer del Departament, agrupats
+  var GRUPS_MAT = [['Alumne/a', /^(nom|cognom1|cognom2|sexe|nacionalitat|data_naixement|pais_naixement|provincia_naixement|municipi_naixement|dni|nie|pass|tis|emancipat|tutelat|custodia_compartida)$/],
+    ['Adreça i contacte', /via1$/], ['Segona adreça', /via2$/], ['Responsables', /tutor[12]$|persona_juridica/],
+    ['Matrícula', /^(estat_alumne|curs_academic|periode|codi_centre|codi_ensenyament|especialitat_esportiva|nivell|regim|bloc_batx_nocturn|torn|modalitat|ocupa_placa|data_matricula|data_registre_matricula|data_baixa|data_registre_baixa_mat|motiu_baixa|estat_matricula|pendent_pagament)$/],
+    ['NESE', /nese/], ['Altres', /./]];
+  function fitxaMat(f, nou, prova) {
+    var R = S.mat.r, ed = edMat(), usat = {}, v = f || {};
+    var camps = R.camps.filter(function (c) { return c.clau !== 'id_ralc'; });
+    var grups = GRUPS_MAT.map(function (g) { var cs = camps.filter(function (c) { if (usat[c.clau] || !g[1].test(c.clau)) return false; usat[c.clau] = 1; return true; }); return [g[0], cs]; }).filter(function (g) { return g[1].length; });
+    var data = function (k) { return /^data_/.test(k); };
+    var html = (nou ? '<p class="gs-ajuda">' + (prova ? 'Registre de <b>prova</b>: dades inventades per provar el procés. Surt marcat «prova» i no es convoca mai.' : 'Alta manual (alumne/a que no és al fitxer del Departament). Si no sabeu l’identificador (RALC), es posarà «MAN-…».') + '</p>' +
+        '<div class="gs-form-fila"><label>Identificador (RALC) <input type="text" id="gsMatId" placeholder="' + (prova ? 'PROVA-… (automàtic)' : 'en blanc = MAN-…') + '"></label></div>' :
+        '<p><b>' + esc(v.id_ralc) + '</b> · curs ' + esc(v.curs_academic) + ' · ' + esc(v.estat_gestio || '') + (v.prova === 'sí' ? ' · <span class="gs-codo">prova</span>' : '') + (v.actualitzat ? ' · modificat el ' + esc(dataHoraHE(v.actualitzat)) + (v.actualitzat_per ? ' per ' + esc(v.actualitzat_per) : '') : '') + '</p>') +
+      grups.map(function (g, gi) { return '<details class="gs-mat__grup"' + (gi < 2 ? ' open' : '') + '><summary>' + esc(g[0]) + '</summary><div class="gs-mat__camps">' + g[1].map(function (c) {
+        var x = v[c.clau] || ''; return '<label><span>' + esc(c.nom) + '</span><input type="text" data-mk="' + esc(c.clau) + '" value="' + esc(data(c.clau) ? dataVista(x) : x) + '"' + (ed ? '' : ' disabled') + (data(c.clau) ? ' placeholder="dd/mm/aaaa"' : '') + '></label>'; }).join('') + '</div></details>'; }).join('') +
+      '<p class="prog-avis" id="gsMatErr" hidden></p>';
+    var botons = ed ? [{ t: nou ? 'Dona d’alta' : 'Desa', valor: 'desa', abans: function () { fitxaMat.v = llegeixFitxaMat(); } }] : [];
+    if (ed && !nou) botons.push(deBaixaMat(v) ? { t: 'Recupera (treu la baixa)', valor: 'recupera', tipus: 'ghost' } : { t: 'Dona de baixa', valor: 'baixa', tipus: 'ghost' });
+    if (!nou && adminMat()) botons.push({ t: 'Esborra', valor: 'esborra', tipus: 'danger' });
+    botons.push({ t: ed ? 'Cancel·la' : 'Tanca', valor: 0, tipus: 'ghost' });
+    var obre = pregunta(nou ? (prova ? 'Registre de prova' : 'Alta de matrícula') : nomMat(v), html, botons, false);
+    $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample');
+    if (prova) { var P = { nom: 'Prova', cognom1: 'Matrícula', cognom2: 'Inventada', data_naixement: '01/01/2014', codi_ensenyament: 'ESO LOE', nivell: '1', estat_matricula: 'ALTA', email_via1: 'prova@exemple.cat', telefon_via1: '600000000', nom_tutor1: 'Família', primer_cognom_tutor1: 'Prova' };
+      Object.keys(P).forEach(function (k) { var i = document.querySelector('#gsModalText [data-mk="' + k + '"]'); if (i) i.value = P[k]; }); }
+    obre.then(function (b) {
+      if (!b) return;
+      var cos = b === 'desa' ? Object.assign({ valors: fitxaMat.v }, nou ? { nou: true, prova: !!prova, id_ralc: ($('gsMatId') || {}).value || '' } : { id_ralc: v.id_ralc, curs_academic: v.curs_academic }) :
+        b === 'baixa' || b === 'recupera' ? { id_ralc: v.id_ralc, curs_academic: v.curs_academic, valors: {}, estat_gestio: b === 'baixa' ? 'baixa' : (v.origen === 'importat' || !v.origen ? 'importada' : v.prova === 'sí' ? 'prova' : 'alta manual') } : null;
+      if (b === 'esborra') return pregunta('Esborra el registre', '<p>S’esborrarà definitivament <b>' + esc(nomMat(v)) + '</b> (' + esc(v.id_ralc) + '). No es pot desfer. Per a l’alumnat real, millor «Dona de baixa».</p>', [{ t: 'Esborra', valor: 1, tipus: 'danger' }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (ok) {
+        if (ok) api('matricula_esborra', { id_ralc: v.id_ralc, curs_academic: v.curs_academic }, 'Esborrant…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.mat.r = r; delete S.mat.sel[clauMat(v)]; pintaMatricula(); toast('Registre esborrat.'); }); });
+      api('matricula_desa', cos, 'Desant…').then(function (r) {
+        if (!r.ok) { toast(r.errors ? r.errors.join(' ') : text(r.error), true); if (b === 'desa') fitxaMat(Object.assign({}, v, fitxaMat.v), nou, prova); return; }
+        S.mat.r = r; pintaMatricula(); toast(r.sense_canvis ? 'No hi havia cap canvi.' : nou ? (prova ? 'Registre de prova afegit.' : 'Alta feta.') : b === 'baixa' ? 'Registre donat de baixa (es pot recuperar amb «Mostra les baixes»).' : b === 'recupera' ? 'Baixa treta.' : 'Desat.');
+      });
+    });
+  }
+  function llegeixFitxaMat() { var o = {}; [].forEach.call(document.querySelectorAll('#gsModalText [data-mk]'), function (i) { o[i.dataset.mk] = i.value.trim(); }); return o; }
+  // «Convoca la família»: a qui (els marcats), plantilla del correu (es pot canviar i desar) i previsualització. No s'envia res.
+  function convocaMat() {
+    var ids = Object.keys(S.mat.sel).filter(function (k) { return S.mat.sel[k]; });
+    if (!ids.length) return toast('Marqueu primer a qui convoqueu.', true);
+    var pinta = function (r) {
+      $('gsMatConv').innerHTML = '<p><b>' + r.correus.length + '</b> famílies rebrien el correu' + (r.exclosos.length ? ' · <b>' + r.exclosos.length + '</b> no (' + r.exclosos.map(function (x) { return esc(x.nom) + ': ' + esc(x.motiu); }).join('; ') + ')' : '') + '.</p>' +
+        (r.correus.filter(function (c) { return c.ja_convocada; }).length ? '<p class="prog-avis">Algunes ja s’havien convocat abans.</p>' : '') +
+        '<div class="gs-mat__conv">' + r.correus.slice(0, 50).map(function (c) { return '<details><summary><b>' + esc(c.nom) + '</b> · ' + esc(c.nivell) + ' · ' + esc(c.a) + '</summary><p><b>Assumpte:</b> ' + esc(c.assumpte) + '</p><pre>' + esc(c.cos) + '</pre></details>'; }).join('') + '</div>' +
+        (r.correus.length > 50 ? '<p class="gs-gris">… i ' + (r.correus.length - 50) + ' més.</p>' : '');
+      convocaMat.r = r;
+    };
+    api('matricula_convoca', { ids: ids }, 'Preparant la convocatòria…').then(function (r) {
+      if (!r.ok) return toast(text(r.error), true);
+      pregunta('Convoca la família', '<p class="prog-avis">⚠ De moment <b>no s’envia cap correu</b>: aquí es prepara i es revisa la convocatòria. L’enviament s’activarà quan estigui fet l’accés verificat al formulari en línia.</p>' +
+        '<div class="gs-form-fila"><label style="flex:1">Assumpte <input type="text" id="gsMatAss" value="' + esc(r.plantilla.assumpte) + '"></label></div>' +
+        '<label class="gs-mat__cos">Text del correu <textarea id="gsMatCos" rows="9">' + esc(r.plantilla.cos) + '</textarea></label>' +
+        '<p class="gs-gris">Marques: <code>{alumne}</code> (nom complet), <code>{nom}</code>, <code>{nivell}</code>, <code>{curs}</code>, <code>{identificador}</code>, <code>{enllac}</code> (enllaç personal al formulari). <button type="button" class="gs-enllac" id="gsMatPrev">Actualitza la previsualització i desa la plantilla</button></p><div id="gsMatConv"></div>',
+        [{ t: 'Descarrega la llista (CSV)', valor: 'csv', tipus: 'ghost' }, { t: 'Envia (encara no disponible)', valor: 'envia', abans: function () { toast('L’enviament encara no està activat: no s’ha enviat res.', true); return false; } }, { t: 'Tanca', valor: 0, tipus: 'ghost' }], false).then(function (v) {
+        if (v !== 'csv') return;
+        var R = convocaMat.r, q = function (x) { return '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"'; };
+        var csv = '﻿' + ['Alumne/a;Nivell;Correu;Assumpte'].concat(R.correus.map(function (c) { return [c.nom, c.nivell, c.a, c.assumpte].map(q).join(';'); })).join('\r\n');
+        var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'convocatoria-matricula.csv'; document.body.appendChild(a); a.click(); setTimeout(function () { a.remove(); }, 500);
+      });
+      $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample');
+      pinta(r);
+      $('gsMatPrev').addEventListener('click', function () {
+        api('matricula_convoca', { ids: ids, plantilla: { assumpte: $('gsMatAss').value, cos: $('gsMatCos').value } }, 'Desant la plantilla…').then(function (r2) { if (!r2.ok) return toast(r2.errors ? r2.errors.join(' ') : text(r2.error), true); S.mat.r.plantilla = r2.plantilla; pinta(r2); toast('Plantilla desada.'); });
+      });
+    });
   }
   // Llegeix el CSV (UTF-8 o, si no ho és, Windows-1252) i el parteix en files (separador «;» o «,», cometes dobles)
   function llegeixCsvMat(buf) {
@@ -4834,11 +4930,21 @@
   function lligaMatricula() {
     if (lligaMatricula.fet) return; lligaMatricula.fet = true;
     var actiu = function () { return S.modul && S.modul.id === 'matricula' && S.mat && S.mat.r; };
-    $('gsEines').addEventListener('click', function (e) { if (!actiu()) return; var b = e.target.closest('[data-mat]'); if (b && b.dataset.mat === 'importa') $('gsMatFitxer').click(); });
+    $('gsEines').addEventListener('click', function (e) { if (!actiu()) return; var b = e.target.closest('[data-mat]'); if (!b) return;
+      if (b.dataset.mat === 'importa') $('gsMatFitxer').click();
+      else if (b.dataset.mat === 'alta') fitxaMat(null, true, false);
+      else if (b.dataset.mat === 'prova') fitxaMat(null, true, true);
+      else if (b.dataset.mat === 'convoca') convocaMat(); });
     $('gsEines').addEventListener('change', function (e) { if (!actiu()) return; var x = e.target;
       if (x.id === 'gsMatFitxer' && x.files[0]) { importaMatricula(x.files[0]); x.value = ''; }
-      else if (x.dataset.mat === 'niv') { S.mat.niv = x.value; pintaMatricula(); } else if (x.dataset.mat === 'estat') { S.mat.estat = x.value; pintaMatricula(); } });
+      else if (x.dataset.mat === 'niv') { S.mat.niv = x.value; pintaMatricula(); } else if (x.dataset.mat === 'estat') { S.mat.estat = x.value; pintaMatricula(); }
+      else if (x.dataset.mat === 'baixes') { S.mat.baixes = x.checked; pintaMatricula(); } });
     $('gsEines').addEventListener('input', function (e) { if (!actiu() || e.target.dataset.mat !== 'cerca') return; S.mat.q = e.target.value; var p = e.target.selectionStart; pintaMatricula(); var c = document.querySelector('[data-mat="cerca"]'); if (c) { c.focus(); c.setSelectionRange(p, p); } });
+    $('gsTaula').addEventListener('change', function (e) { if (!actiu()) return; var x = e.target;
+      if (x.dataset.mat === 'sel') { S.mat.sel[x.closest('tr').dataset.k] = x.checked; pintaMatricula(); }
+      else if (x.dataset.mat === 'sel-tots') { filesMat().forEach(function (f) { S.mat.sel[clauMat(f)] = x.checked; }); pintaMatricula(); } });
+    $('gsTaula').addEventListener('click', function (e) { if (!actiu() || !edMat() || e.target.closest('input')) return; var tr = e.target.closest('tr[data-k]'); if (!tr) return;
+      var f = S.mat.r.files.filter(function (x) { return clauMat(x) === tr.dataset.k; })[0]; if (f) fitxaMat(f, false, false); });
   }
   function carregaNouAlumne() {
     api('nou_alumne', {}, 'Preparant el formulari…').then(function (r) {

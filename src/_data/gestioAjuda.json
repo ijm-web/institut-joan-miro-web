@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 70 · 16 de novembre de 2026",
+  "versio": "PAS 71 · 17 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -582,7 +582,7 @@
     "matricula": {
       "titol": "Matrícula",
       "graella": false,
-      "intro": "Matrícula de l'alumnat (Secretaria). De moment, el mòdul importa l'exportació del Departament amb l'alumnat assignat al centre i la mostra. Més endavant hi haurà la matrícula en línia i presencial i la validació (vegeu la proposta de disseny).",
+      "intro": "Matrícula de l'alumnat (Secretaria). El mòdul importa l'exportació del Departament amb l'alumnat assignat al centre, permet donar d'alta, modificar i donar de baixa cada registre, afegir registres de prova i preparar la convocatòria de les famílies («Convoca la família»; de moment no s'envia cap correu). Més endavant hi haurà la matrícula en línia i presencial i la validació (vegeu la proposta de disseny).",
       "temes": [
         {
           "id": "mat-importa",
@@ -592,6 +592,7 @@
             "1. Baixeu l'exportació de l'alumnat assignat al centre (fitxer `.csv`, separat per «;»; p. ex. `report_actual….csv`).",
             "2. **Importa el fitxer del Departament** → trieu el fitxer. El navegador el llegeix (UTF-8 o Windows) i GESTIO diu què passarà: quants alumnes hi ha per nivell, quants són **nous**, quants **canvien**, quants són **iguals** i quants tenen la matrícula de **baixa**.",
             "3. **Importa** desa les dades a ijm_alumnat_db › matricula. Cada alumne/a s'identifica per l'**identificador** (RALC) i el **curs**: tornar a importar un fitxer més nou actualitza els que han canviat i no duplica res.",
+            "Tornar a importar no esborra res del que s'ha fet a GESTIO: es mantenen les baixes, les altes manuals, els registres de prova i les dades de convocatòria.",
             "Es desen totes les columnes del fitxer (dades personals, adreces, responsables, ensenyament i nivell, estat i dates de la matrícula…). El nivell de GESTIO («1r BAT», «3r ESO») surt del codi d'ensenyament i el nivell.",
             "El fitxer conté dades personals: no el deixeu en carpetes compartides ni el pugeu a cap repositori."
           ]
@@ -602,7 +603,41 @@
           "claus": "cerca filtre nivell estat baixa",
           "text": [
             "La llista té l'identificador, el nom, la data de naixement, el nivell, l'ensenyament, l'estat i la data de la matrícula, el correu, el telèfon i els responsables. Les matrícules de **baixa** surten en gris.",
-            "Filtres: **cerca** (nom, identificador o correu), **nivell** i **estat** de la matrícula."
+            "Filtres: **cerca** (nom, identificador o correu), **nivell** i **estat** de la matrícula.",
+            "Les baixes fetes a GESTIO no surten a la llista: marqueu **Mostra les baixes** per veure-les (en gris)."
+          ]
+        },
+        {
+          "id": "mat-fitxa",
+          "titol": "Alta, modificació i baixa",
+          "claus": "alta nou alumne modificar fitxa baixa recupera esborra editar",
+          "text": [
+            "**Modificar**: un clic a una fila obre la **fitxa** amb tots els camps, agrupats (alumne/a, adreça i contacte, segona adreça, responsables, matrícula, NESE, altres). Canvieu el que calgui i **Desa**. Les dates s'escriuen dd/mm/aaaa.",
+            "**Alta**: **+ Alta** obre una fitxa buida per a un alumne/a que no és al fitxer del Departament. Cal com a mínim el **nom** i el **primer cognom**. Si no sabeu l'identificador (RALC), es posa «MAN-…»; quan arribi al fitxer del Departament, podeu corregir-lo.",
+            "**Baixa**: a la fitxa, **Dona de baixa**. El registre no s'esborra: deixa de sortir a la llista i no es convoca. Amb **Mostra les baixes**, la fitxa té **Recupera (treu la baixa)**.",
+            "**Esborra** (només direcció/admin): l'esborra definitivament. Per a l'alumnat real, millor la baixa.",
+            "Cada canvi desa qui l'ha fet i quan (columna GESTIO)."
+          ]
+        },
+        {
+          "id": "mat-prova",
+          "titol": "Registre de prova",
+          "claus": "prova registre inventat provar",
+          "text": [
+            "**+ Registre de prova** obre una fitxa amb dades inventades (es poden canviar) i, en desar, crea un registre amb identificador «PROVA-…» i l'etiqueta **prova**.",
+            "Serveix per provar el procés (fitxa, convocatòria, més endavant el formulari en línia) sense tocar dades reals. Els registres de prova **no es convoquen mai** i es poden esborrar quan ja no calen."
+          ]
+        },
+        {
+          "id": "mat-convoca",
+          "titol": "Convoca la família",
+          "claus": "convoca família correu plantilla enllaç convocatòria",
+          "text": [
+            "1. Marqueu a qui voleu convocar amb les caselles de l'esquerra (la de la capçalera marca tots els que es veuen; combineu-la amb els filtres, p. ex. un nivell).",
+            "2. **Convoca la família (N)** obre la convocatòria: l'**assumpte** i el **text** del correu, amb les marques `{alumne}`, `{nom}`, `{nivell}`, `{curs}`, `{identificador}` i `{enllac}` (l'enllaç personal al formulari de matrícula).",
+            "3. **Actualitza la previsualització i desa la plantilla** desa el text (queda per a la propera vegada) i mostra el correu de cada família.",
+            "Queden fora, amb el motiu: els registres de prova, les baixes i qui no té un correu vàlid.",
+            "**Descarrega la llista (CSV)** baixa a qui s'enviaria. **De moment no s'envia cap correu**: el botó «Envia» s'activarà quan estigui fet el formulari en línia amb accés verificat."
           ]
         }
       ]
@@ -874,7 +909,8 @@
             "El botó de nivell (Tots, 1r ESO…) filtra la graella. **+ Afegeix matèria** i la paperera, des d'edició.",
             "Les matèries inicials venen del document d'equips docents 26-27: cal revisar-les (sobretot les optatives, 4t d'ESO i batxillerat).",
             "Les opcions del desplegable **Especialitat** surten per ordre alfabètic.",
-            "**Nivell ESO-BAT**: per a les matèries **multinivell**, com l'atenció individual. Sempre tenen el grup «X» (un per docent: «X, X» si en fan dos). Al planificador surten a la pestanya del nivell ESO-BAT amb l'etiqueta «Multinivell», i a Ocupació compten com a atenció individual."
+            "**Nivell ESO-BAT**: per a les matèries **multinivell**, com l'atenció individual. Sempre tenen el grup «X» (un per docent: «X, X» si en fan dos). Al planificador surten a la pestanya del nivell ESO-BAT amb l'etiqueta «Multinivell», i a Ocupació compten com a atenció individual.",
+            "Les dades es carreguen un sol cop: tornar a la pestanya o al mòdul, o desar, ja no les torna a demanar al servidor (desar actualitza només el que ha canviat). **Actualitza** (o recarregar la pàgina) les torna a llegir si algú altre les ha canviat."
           ]
         },
         {
@@ -997,7 +1033,8 @@
           "text": [
             "La direcció (nivell admin) defineix els **departaments/àmbits** amb el botó **Departaments/àmbits**: nom, **especialitats** que hi pertanyen i **cap** (un docent del claustre).",
             "La primera vegada surt una proposta de partida per revisar. Una especialitat només pot ser d'un departament/àmbit; a sota s'indiquen les especialitats que encara no en tenen.",
-            "En desar, els caps passen a ser l'equip **Caps de departament/àmbit** (el manté sol: no cal tocar Equips i permisos) i cada cap gestiona **totes les especialitats** del seu departament/àmbit."
+            "En desar, els caps passen a ser l'equip **Caps de departament/àmbit** (el manté sol: no cal tocar Equips i permisos) i cada cap gestiona **totes les especialitats** del seu departament/àmbit.",
+            "Canviar d'especialitat només demana les assignacions d'aquella especialitat; la llista del professorat ja carregada es reutilitza."
           ]
         },
         {
@@ -1291,7 +1328,7 @@
             "**PDF**: un full per a cada graella oberta. **PDF de tots**: un full per a cada element del tipus de la primera graella. Si una casella té **més de tres docents**, al PDF la casella només té un número i el contingut complet va a la llegenda del peu (sense repetir-lo si surt en més caselles). A les graelles de **guàrdies** no s'aplica: s'hi escriuen tots els docents.",
             "**Aules**: si una sessió no té aula preferent (o és ocupada), el motor hi posa una aula ordinària lliure, si pot ser la que el grup ja fa servir. Si la pestanya **Espai** no té cap aula, l'horari es va calcular abans d'aquest canvi o sense aules: calculeu-lo de nou.",
             "**Penalització**: l'enllaç «penalització N» de dalt obre l'índex de penalització del motor (per regla) i el que més penalitza (matèries amb dues sessions el mateix dia, docents amb forats, guàrdies sense cobrir).",
-            "**Vista d'un docent**: al costat del nom, les hores d'**ocupació**, les **lectives** (alumnat + reduccions lectives), les **guàrdies** totals i, entre parèntesis, les ordinàries, de pati, de biblioteca i les reduccions de guàrdia, els **forats** i la **permanència**. Una guàrdia de pati o de biblioteca **extrema** (aquell dia no hi ha cap altra ocupació abans, o cap després) compta com a **mitja hora** d'ocupació. Un forat és una franja lectiva lliure entre dues d'ocupades del mateix dia; l'esbarjo lliure no compta; una franja lliure just abans o just després d'una guàrdia de pati o de biblioteca compta com a mig forat. Permanència = ocupació + forats."
+            "**Vista d'un docent**: al costat del nom, les hores d'**ocupació**, les **lectives** (alumnat + reduccions lectives), les **guàrdies** totals i, entre parèntesis, les ordinàries, de pati, de biblioteca i les reduccions de guàrdia, els **forats** i la **permanència**. Una guàrdia de pati o de biblioteca **extrema** (aquell dia no hi ha cap altra ocupació abans, o cap després) compta com a **mitja hora** d'ocupació. Un forat és una franja lectiva lliure entre dues d'ocupades del mateix dia; l'esbarjo lliure no compta; una franja lliure just abans o just després d'una guàrdia de pati o de biblioteca compta com a mig forat, excepte si la guàrdia és extrema: aleshores el forat compta sencer (1). Permanència = ocupació + forats."
           ]
         },
         {
@@ -1300,7 +1337,7 @@
           "claus": "moure arrossegar micromoviment assistent conflicte solució canvis desfés desa intercanvi graella passos surt arriba vuit",
           "text": [
             "Amb nivell d'edició, cada sessió es pot **arrossegar** a una altra casella des de qualsevol graella (docent, grup-classe, espai o guàrdies; a les guàrdies, cada docent per separat). Es mou tot el que va junt: un bloc simultani amb totes les seves sessions, o les **dues hores seguides** d'una distribució «2» (no hi ha sessions de 2 h: són dues hores seguides de la mateixa matèria, que es mouen juntes).",
-            "Si la casella és lliure i no hi ha cap problema, es mou de seguida. Si **xoca** (docent o grup-classe ocupat, aula ocupada, franja prohibida del docent, la mateixa matèria ja té classe aquell dia, una regla «mateix dia» o «en dies diferents»…), s'obre l'**assistent**: diu els conflictes i proposa **solucions** movent altres sessions (primer l'intercanvi), amb un **màxim de moviments** (1 a 8, per defecte 8). Si l'única pega és l'aula, proposa una aula lliure.",
+            "Si la casella és lliure i no hi ha cap problema, es mou de seguida. Si **xoca** (docent o grup-classe ocupat, aula ocupada, franja prohibida del docent, la mateixa matèria ja té classe aquell dia, una regla «mateix dia» o «en dies diferents»…), s'obre l'**assistent**: diu els conflictes i proposa **solucions** movent altres sessions (primer l'intercanvi), amb un **màxim de moviments** (1 a 8, per defecte 8). És un màxim: l'assistent busca primer les solucions d'1 moviment, després les de 2, 3… fins al màxim, i les mostra de menys a més moviments. Si l'única pega és l'aula, proposa una aula lliure.",
             "La finestra té dues parts: a l'esquerra, els conflictes i les **solucions** (cada pas és un botó); a la dreta, una **graella** d'un grup-classe o d'un docent (desplegables a dalt) amb la solució aplicada. Un clic a un pas el mostra: la sessió surt amb vora verda on **arriba** i ratllada en vermell d'on **surt**; les altres sessions mogudes de la solució, amb vora discontínua. Si el grup-classe o el docent que es veu no hi surt, la graella canvia sola al del pas.",
             "**Aplica la solució** fa tots els moviments; **Mou igualment** el fa amb conflictes (per resoldre'ls a mà); **Cancel·la** no fa res.",
             "Les guàrdies de pati i de biblioteca només poden anar a l'esbarjo; les altres sessions, a franges lectives. Una sessió de 2 h necessita dues franges seguides sense esbarjo.",

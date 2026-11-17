@@ -449,6 +449,14 @@ Ho pot fer qui té **edició** del mòdul Alumnat (coordinacions de nivell).
 - **Planificador**: regles toves «hores seguides», «dies diferents» i «desiderata» eliminades; ara són obligatòries (`distribucio`, `desiderata`). El planificador demana l'ESQUEMA 70 (si l'Apps Script desplegat és anterior, ho diu: la codocència en una fila ho necessita).
 - **Generador**: distribució obligatòria (cada sessió d'una part, un dia diferent).
 
+## PAS 71
+
+- **Matrícula**: alta (`+ Alta`, identificador «MAN-…» si no se sap), modificació (fitxa amb tots els camps, agrupats), baixa i recuperació (`estat_gestio`; no s'esborra), esborrat (només admin) i **registres de prova** («PROVA-…», no es convoquen mai). Reimportar conserva les columnes de GESTIO. «Convoca la família»: tria per caselles, plantilla editable (desada a config › `matricula_plantilla`), previsualització i llista CSV; **no s'envia cap correu** (`enviament_actiu:false`, el Code.gs no té MailApp/GmailApp). Accions noves `matricula_desa`, `matricula_esborra`, `matricula_convoca` (ESQUEMA 71; `configura` afegeix les columnes `prova`, `origen`, `convocada`, `convocada_per`, `actualitzat_per`).
+- **Horaris · editor**: l'assistent busca per aprofundiment iteratiu (1, 2, 3… fins al màxim de moviments), de manera que les solucions curtes no es perden; un forat al costat d'una guàrdia de pati/biblioteca **extrema** compta 1 (no 0,5).
+- **Currículum**: les dades es carreguen un cop; desar ja no força una recàrrega (s'actualitza la memòria cau local).
+- **Desiderata**: canviar d'especialitat demana una resposta lleugera (`lleuger:true`, sense la llista del professorat, que es reutilitza).
+- **Disseny** (proposta, no implementat): manifest PWA, service worker i mòdul NOTIFICACIONS (Administració) — vegeu la proposta de disseny, «Canvis del PAS 71».
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
