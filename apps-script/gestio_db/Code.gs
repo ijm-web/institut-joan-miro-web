@@ -3694,14 +3694,20 @@ function comprovaDesiderata_(ctx) {
   const AL = aliesSubstitucio_(); Object.keys(AL).forEach((k) => { if (!/, /.test(k) && !noms[k]) noms[k] = AL[k].nom; });   // PAS 56: la desiderata de la persona substituïda és del substitut
   const actius = {}; Object.keys(noms).forEach((k) => { actius[noms[k]] = 1; });
   const des = {}; llegeix_(FULL.des).forEach((r) => { try { des[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
-  const per = {};
-  llegeix_(FULL.curg).forEach((r) => { const k = String(r.especialitat || '') + '¦' + (r.id_materia || (r.nivell + '·' + r.materia)) + '|' + numCur_(r.hores);
+  // PAS 73c: es compara per matèria (nivell + nom + hores), no per fila del Currículum: si una matèria s'ha separat amb les
+  // tisores (p. ex. la diversitat AB amb codocència en una fila nova), la desiderata desada abans (a la fila original) i la
+  // de la fila nova es sumen; abans sortien incoherències «Falten grups» encara que l'assignació fos correcta.
+  const per = {}, fam = {};
+  llegeix_(FULL.curg).forEach((r) => { const kf = String(r.especialitat || '') + '¦' + (r.id_materia || (r.nivell + '·' + r.materia)) + '|' + numCur_(r.hores);
+    const k = String(r.especialitat || '') + '¦' + r.nivell + '·' + r.materia + '|' + numCur_(r.hores); fam[kf] = k;
     const x = per[k] = per[k] || { nivell: r.nivell, materia: r.materia, hores: numCur_(r.hores), especialitat: r.especialitat || '', grups: 0, profs: {} };
     const pr = r.professor && AL[r.professor] ? AL[r.professor].nom : r.professor;
     x.grups++; if (pr) { x.profs[pr] = (x.profs[pr] || 0) + 1; ((x.grupsDe = x.grupsDe || {})[pr] = x.grupsDe[pr] || []).push(r.grup); } });
+  // desiderata de cada matèria = la de totes les seves files (claus id_materia|hores)
+  const desF = {}; Object.keys(fam).forEach((kf) => { const esp = kf.split('¦')[0], d = (des[esp] || {})[kf.split('¦')[1]]; if (d) desF[fam[kf]] = (desF[fam[kf]] || []).concat(d); });
   const inc = [], ok = { assignacions: 0 };
   Object.keys(per).forEach((k) => {
-    const x = per[k], esp = x.especialitat, clau = k.split('¦')[1], d = (des[esp] || {})[clau];
+    const x = per[k], esp = x.especialitat, d = desF[k];
     if (!d) return;
     const vol = {}; d.forEach((y) => { const n = noms[y.prof] || ('(docent que ja no és en actiu: ' + y.prof + ')'); vol[n] = (vol[n] || 0) + (Number(y.grups) || 0); });
     const nom = x.nivell + ' ' + x.materia + ' (' + x.hores + ' h)';
@@ -3715,7 +3721,7 @@ function comprovaDesiderata_(ctx) {
     });
     if (be) ok.assignacions++;
   });
-  const sense = Object.keys(per).filter((k) => { const x = per[k]; return !((des[x.especialitat] || {})[k.split('¦')[1]]); }).length;
+  const sense = Object.keys(per).filter((k) => !desF[k]).length;
   return { ok: true, incoherencies: inc, correctes: ok.assignacions, sense_desiderata: sense, bloqueig: bloqueigDesiderata_(ctx.cfg) };
 }
 function desiderataDades_(ctx, req) {

@@ -487,6 +487,10 @@ self.addEventListener('activate', function (e) {
 - **Documents** (carpeta docs): «Planificador · 1 Cotutoria», «2 Codocència d'un grup-classe», «3 Codocència d'un subgrup», «4 Codocència d'un subgrup trossejada».
 - ESQUEMA 73.
 
+## PAS 73c
+
+- **Comprova la desiderata**: compara per matèria (especialitat + nivell + nom + hores) i suma la desiderata de totes les files de la matèria (claus `id_materia|hores`); així una fila separada amb les tisores (p. ex. diversitat AB amb codocència) no dona incoherències falses.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

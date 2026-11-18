@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 73 · 17 de novembre de 2026",
+  "versio": "PAS 73c · 18 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -1006,6 +1006,7 @@
             "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT).",
             "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata).",
             "**Comprova la desiderata**: compara les assignacions (també els canvis fets a mà) amb la desiderata: per a cada assignació i docent, els grups de la desiderata i els assignats. Avisa de grups que falten o sobren, docents que no són a la desiderata i docents que ja no són en actiu. Per a cada docent amb incoherències surten els grups on és assignat, per trobar-lo a la graella. Al filtre de la columna Professor/a, els docents que ja no són en actiu surten amb «(fora de la llista)». Per substituir-los pel docent de la desiderata, feu **Aplica la desiderata** amb «Substitueix també els que ja tenen professor/a».",
+            "La comprovació es fa per **matèria** (nivell, nom i hores), no per fila: si una matèria s'ha separat amb les tisores (p. ex. la diversitat AB amb codocència en una fila nova), la desiderata desada abans de separar-la compta igualment.",
             "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes).",
             "**Franja** (només 4t d'ESO): 1, 2 o 3 per a cada grup de les matèries de franja (p. ex. Biologia G1 → 1, Biologia G2 → 2). Serveix per al document dels equips docents.",
             "**Matèria trossejada** (p. ex. Matemàtiques div. de 3 h repartida 1 h + 2 h entre dos docents amb les tisores): el generador d'horaris posa **totes les sessions de tots els trossos en dies diferents**, encara que siguin de docents diferents. Per tant, una matèria trossejada no pot tenir més sessions que dies lectius.",
