@@ -4464,7 +4464,9 @@
   }
   // Mateix docent en dues sessions del bloc = grup combinat (una sola classe per a l'alumnat de totes dues)
   var combinats = function (xs) { var pr = {}, o = []; xs.forEach(function (x) { if (!x.a.professor) return; if (pr[x.a.professor] && o.indexOf(x.a.professor) < 0) o.push(x.a.professor); pr[x.a.professor] = 1; }); return o; };
-  var etiquetaPart = function (x) { return x.a.materia + ' · ' + (x.p.grup ? nomGrup(x.p.grup) : x.a.grup) + ' · ' + fmtH(x.p.hores) + ' h' + (x.a.professor ? ' · ' + x.a.professor : ''); };
+  // PAS 73d: amb codocència, tots els docents («A + B (codocència)»)
+  var etiquetaPart = function (x) { var co = (x.a.codocents || []).map(function (c) { return c.professor || '—'; }), pr = [x.a.professor || (co.length ? '—' : '')].concat(co).filter(Boolean);
+    return x.a.materia + ' · ' + (x.p.grup ? nomGrup(x.p.grup) : x.a.grup) + ' · ' + fmtH(x.p.hores) + ' h' + (pr.length ? ' · ' + pr.join(' + ') + (co.length ? ' (codocència)' : '') : ''); };
 
   function errorsSubgrups() {
     var e = [], noms = {}, claus = {};
