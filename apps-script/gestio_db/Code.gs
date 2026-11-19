@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 73;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 74;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -2788,8 +2788,8 @@ function matriculaFormulariDesa_(ctx, req) {
     sh.getRange(i + 1, 1, 1, fila.length).setValues([fila.map((x) => String(x == null ? '' : x))]);
     historial_(ctx.email, req.complet ? 'matricula_formalitza' : 'matricula_formulari', FULL.mat, String(req.id_ralc), '');
     marcaVersio_('matricula', ctx.email);
+    return { ok: true, desat: true, fila: filaMatObj_(cap, fila) };   // PAS 74: resposta lleugera
   } finally { lock.releaseLock(); }
-  return Object.assign({ desat: true }, matriculaDades_(ctx));
 }
 // req.files = [[capçalera…], [fila…], …] tal com és al fitxer; req.prova = true només compta (no desa)
 function matriculaImporta_(ctx, req) {
@@ -2842,6 +2842,8 @@ function matriculaImporta_(ctx, req) {
 // PAS 71 · Alta, modificació, baixa (i esborrat) d'un registre de matrícula. Clau: identificador (RALC) + curs acadèmic.
 // Una alta manual sense identificador rep «MAN-…»; un registre de prova, «PROVA-…» i prova = sí (no es convoca mai).
 const EDITABLES_MATRICULA_ = CAMPS_MATRICULA_.map((c) => c[0]).filter((k) => k !== 'id_ralc');
+// PAS 74 · Resposta lleugera de la matrícula: només la fila desada (el client la combina amb les que ja té)
+function filaMatObj_(cap, fila) { const o = {}; CAP_MATRICULA_.forEach((k) => { const j = cap.indexOf(k); const v = j >= 0 && fila[j] != null ? String(fila[j]) : ''; o[k] = k === 'formulari' ? (v ? 'sí' : '') : v; }); return o; }
 function matriculaDesa_(ctx, req) {
   if (!pot_(ctx, 'matricula', 'edicio')) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
@@ -2853,6 +2855,7 @@ function matriculaDesa_(ctx, req) {
   if (o.email_via1 && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(o.email_via1)) err.push('El correu no és vàlid.');
   if (err.length) return { ok: false, error: 'dades_invalides', errors: err };
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  let resposta = null;
   try {
     const sh = fullMatricula_(), vals = sh.getDataRange().getValues(), cap = vals[0].map(String), ix = {}; cap.forEach((k, j) => { ix[k] = j; });
     const ara = ara_(), curs = String(nou ? (o.curs_academic || String(req.curs || '') || cursMatricula_(ctx)) : req.curs_academic || '');
@@ -2864,23 +2867,26 @@ function matriculaDesa_(ctx, req) {
       const nv = nivellMatricula_(o.codi_ensenyament, o.nivell);
       const f = Object.assign({}, o, { id_ralc: id, curs_academic: curs, etapa: nv.etapa, nivell_gestio: nv.nivell || o.nivell_gestio || '', estat_gestio: prova ? 'prova' : 'alta manual', prova: prova ? 'sí' : '', origen: prova ? 'prova' : 'manual',
         importat: ara, importat_per: ctx.email, estat_matricula: o.estat_matricula || 'ALTA' });
-      sh.getRange(sh.getLastRow() + 1, 1, 1, cap.length).setNumberFormat('@').setValues([cap.map((k) => (f[k] === undefined ? '' : f[k]))]);
+      const nova = cap.map((k) => (f[k] === undefined ? '' : f[k]));
+      sh.getRange(sh.getLastRow() + 1, 1, 1, cap.length).setNumberFormat('@').setValues([nova]);
       historial_(ctx.email, 'matricula_alta', FULL.mat, id, prova ? 'registre de prova' : 'alta manual');
+      resposta = filaMatObj_(cap, nova);
     } else {
       const i = vals.findIndex((r, j) => j > 0 && String(r[ix.id_ralc]) === id && String(r[ix.curs_academic]) === curs);
       if (i < 1) return { ok: false, error: 'no_trobat' };
       const fila = vals[i].map((x) => (x == null ? '' : String(x))), canvis = [];
       Object.keys(o).forEach((k) => { if (ix[k] !== undefined && fila[ix[k]] !== o[k]) { canvis.push(k); fila[ix[k]] = o[k]; } });
       if (req.estat_gestio !== undefined && ['baixa', 'importada', 'alta manual', 'prova', 'convocada', 'formalitzada'].indexOf(String(req.estat_gestio)) >= 0 && fila[ix.estat_gestio] !== req.estat_gestio) { canvis.push('estat_gestio'); fila[ix.estat_gestio] = String(req.estat_gestio); }
-      if (!canvis.length) return Object.assign({ sense_canvis: true }, matriculaDades_(ctx));
+      if (!canvis.length) return { ok: true, sense_canvis: true, fila: filaMatObj_(cap, fila) };
       const nv = nivellMatricula_(fila[ix.codi_ensenyament], fila[ix.nivell]); if (nv.nivell) { fila[ix.etapa] = nv.etapa; fila[ix.nivell_gestio] = nv.nivell; }
       fila[ix.actualitzat] = ara; if (ix.actualitzat_per !== undefined) fila[ix.actualitzat_per] = ctx.email;
       sh.getRange(i + 1, 1, 1, cap.length).setValues([fila]);
       historial_(ctx.email, 'matricula_modifica', FULL.mat, id, canvis.join(', ').slice(0, 300));
+      resposta = filaMatObj_(cap, fila);
     }
     marcaVersio_('matricula', ctx.email);
   } finally { lock.releaseLock(); }
-  return Object.assign({ desat: true }, matriculaDades_(ctx));
+  return { ok: true, desat: true, fila: resposta };
 }
 // Esborrat definitiu (només administració): pensat per als registres de prova i les altes fetes per error
 function matriculaEsborra_(ctx, req) {
@@ -2894,7 +2900,7 @@ function matriculaEsborra_(ctx, req) {
     historial_(ctx.email, 'matricula_esborra', FULL.mat, String(req.id_ralc), '');
     marcaVersio_('matricula', ctx.email);
   } finally { lock.releaseLock(); }
-  return Object.assign({ esborrat: true }, matriculaDades_(ctx));
+  return { ok: true, esborrat: true, id_ralc: String(req.id_ralc || ''), curs_academic: String(req.curs_academic || '') };
 }
 const cursMatricula_ = (ctx) => { const c = String((ctx.cfg || {}).curs || ''); return /^\d{4}-\d{4}$/.test(c) ? c.slice(0, 4) : String(new Date().getFullYear()); };
 // PAS 71 · «Convoca la família» (DISSENY: de moment NO envia cap correu). Prepara, per als registres triats, el correu que
@@ -3645,15 +3651,16 @@ function aplicaDesiderata_(ctx, req) {
   const noms = {}; professoratHores_().forEach((p) => { noms[p.id] = p.nom; });
   const AL = aliesSubstitucio_(); Object.keys(AL).forEach((k) => { if (!/, /.test(k) && !noms[k]) noms[k] = AL[k].nom; });   // PAS 56
   const des = {}; llegeix_(FULL.des).forEach((r) => { try { des[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
-  const lock = LockService.getScriptLock();
-  lock.waitLock(20000);
+  // PAS 74: la prova no bloqueja ni revisa les columnes del full (abans hi havia dues proves seguides i semblava penjat)
+  const lock = req.prova ? null : LockService.getScriptLock();
+  if (lock) lock.waitLock(20000);
   try {
-    const MG = MODULS.curriculum_grups, sh = fullModul_(MG, campsDe_('curriculum_grups', true));
-    if (sh.getLastRow() < 2) return { ok: true, posats: 0, canviats: 0, sobren: [] };
+    const MG = MODULS.curriculum_grups, sh = req.prova ? (MG.ss ? MG.ss() : SpreadsheetApp.getActive()).getSheetByName(MG.full) || fullModul_(MG, campsDe_('curriculum_grups', true)) : fullModul_(MG, campsDe_('curriculum_grups', true));
+    if (sh.getLastRow() < 2) return { ok: true, posats: 0, canviats: 0, buits: 0, altres: 0, sobren: [] };
     const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), col = (k) => cap.indexOf(k);
     const per = {};
     vals.slice(1).forEach((r, i) => { const k = String(r[col('especialitat')]) + '¦' + (r[col('id_materia')] || (r[col('nivell')] + '·' + r[col('materia')])) + '|' + numCur_(r[col('hores')]); (per[k] = per[k] || []).push(i + 1); });
-    let posats = 0, canviats = 0; const sobren = [], ara = ara_();
+    let posats = 0, canviats = 0, buits = 0, altres = 0; const sobren = [], ara = ara_();
     Object.keys(des).forEach((esp) => Object.keys(des[esp]).forEach((clau) => {
       const files = (per[esp + '¦' + clau] || []).sort((a, b) => (Number(vals[a][col('num_grup')]) || 0) - (Number(vals[b][col('num_grup')]) || 0) || String(vals[a][col('grup')]).localeCompare(String(vals[b][col('grup')])));
       const llista = []; des[esp][clau].forEach((x) => { for (let g = 0; g < (Number(x.grups) || 0); g++) llista.push(noms[x.prof] || ''); });
@@ -3662,6 +3669,7 @@ function aplicaDesiderata_(ctx, req) {
         const nou = llista[j]; if (!nou) return;
         const ara0 = String(vals[f][col('professor')] || '');
         if (ara0 === nou) return;
+        if (ara0) altres++; else buits++;   // PAS 74: tots dos recomptes en una sola crida
         if (ara0 && !req.sobreescriu) return;
         if (ara0) canviats++; else posats++;
         vals[f][col('professor')] = nou; vals[f][col('data')] = ara; vals[f][col('desat_per')] = ctx.email;
@@ -3672,8 +3680,8 @@ function aplicaDesiderata_(ctx, req) {
       historial_(ctx.email, 'aplica_desiderata', MG.full, '', posats + ' posats, ' + canviats + ' canviats');
       marcaVersio_('curriculum_grups', ctx.email);
     }
-    return { ok: true, prova: !!req.prova, posats: posats, canviats: canviats, sobren: sobren, bloqueig: bloqueigDesiderata_(ctx.cfg) };
-  } finally { lock.releaseLock(); }
+    return { ok: true, prova: !!req.prova, posats: posats, canviats: canviats, buits: buits, altres: altres, sobren: sobren, bloqueig: bloqueigDesiderata_(ctx.cfg) };
+  } finally { if (lock) lock.releaseLock(); }
 }
 // PAS 53 · Data de tancament i bloqueig de la desiderata (config). Bloquejada: els caps només consulten; l'administració pot editar.
 const bloqueigDesiderata_ = (cfg) => ({ bloquejada: ['si', 'sí'].indexOf(norm_((cfg || llegeixConfig_()).desiderata_bloquejada)) >= 0, tancament: String((cfg || llegeixConfig_()).desiderata_tancament || '').slice(0, 10) });

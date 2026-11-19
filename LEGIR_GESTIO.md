@@ -491,6 +491,15 @@ self.addEventListener('activate', function (e) {
 
 - **Comprova la desiderata**: compara per matèria (especialitat + nivell + nom + hores) i suma la desiderata de totes les files de la matèria (claus `id_materia|hores`); així una fila separada amb les tisores (p. ex. diversitat AB amb codocència) no dona incoherències falses.
 
+## PAS 74
+
+- **Càrregues**: Nou professor/a, Nou alumne/a i Matrícula reutilitzen les dades llegides (`fresc()`); `matricula_desa`, `matricula_esborra` i `matricula_formulari_desa` tornen només la fila desada/esborrada (`fila`, `filaMatObj_`) i el client la combina (`combinaMat`). En donar d'alta un docent, s'afegeix a la llista «Substitueix a» sense tornar-la a llegir.
+- **Calendari**: botó «Imatge» (PNG de la vista actual amb html2canvas 1.4.1 de cdnjs; còpia sense desplaçament).
+- **Currículum › Aplica la desiderata**: una sola prova (`buits`/`altres` a la resposta) i sense bloqueig ni revisió de columnes en la prova.
+- **Planificador**: botó «⟳ Actualitza les dades» més visible.
+- **Departaments/àmbits**: anàlisi i proposta de mòdul a la proposta de disseny (PAS 74).
+- ESQUEMA 74.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

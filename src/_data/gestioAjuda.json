@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 73c · 18 de novembre de 2026",
+  "versio": "PAS 74 · 19 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -543,7 +543,8 @@
             "Ompliu **Nom**, **1r cognom** (obligatoris), **2n cognom**, **Nivell**, **Estat** i les autoritzacions (**imatge**, **dies especials**, **medicaments**: sí, no o en blanc) i premeu **Dona d'alta**.",
             "**Estat**: tot l'alumnat que ve **de fora del centre** és **alumne extern** (surt per defecte). Els altres estats (promociona, repeteix…) només són per a l'alumnat que ja estudia al centre.",
             "Segons el nivell, l'alumne/a va a **Alumnat ESO** (1r a 4t d'ESO) o a **Alumnat Batxillerat**. Si ja n'hi ha un amb el mateix nom i cognoms, GESTIO avisa abans de desar.",
-            "La resta de dades (grup-classe, optatives, itinerari, diversitat…) les completa l'**equip directiu** al mòdul corresponent. Cal nivell d'edició al mòdul Nou alumne/a."
+            "La resta de dades (grup-classe, optatives, itinerari, diversitat…) les completa l'**equip directiu** al mòdul corresponent. Cal nivell d'edició al mòdul Nou alumne/a.",
+            "Les dades del formulari es llegeixen un cop; desar no les torna a demanar (només s'actualitza el registre desat)."
           ]
         }
       ]
@@ -584,7 +585,8 @@
             "- **Desa**: dona d'alta el docent al professorat (es torna a comprovar tot; si el correu o el NIF ja hi són, no es desa). Es mostra el codi intern (PRO-…).",
             "- La **data d'arribada al centre** no s'escriu: la posa GESTIO, el dia que es desa.",
             "- **Cancel·la**: buida el formulari (pregunta si hi havia dades). Després de desar, el botó es diu **Nova alta**.",
-            "- **PDF per signar**: genera el full **en blanc** (un sol full A4, amb el logo del centre i les dades agrupades) perquè el docent l'ompli a mà i el signi a la casella de signatura i data. Després, secretaria copia les dades al formulari i desa."
+            "- **PDF per signar**: genera el full **en blanc** (un sol full A4, amb el logo del centre i les dades agrupades) perquè el docent l'ompli a mà i el signi a la casella de signatura i data. Després, secretaria copia les dades al formulari i desa.",
+            "Les dades del formulari es llegeixen un cop; desar no les torna a demanar (només s'actualitza el registre desat)."
           ]
         }
       ]
@@ -660,7 +662,8 @@
             "**Desa l'esborrany** guarda sense comprovar. **Formalitza** comprova els obligatoris (*) i que s'hagin acceptat la carta de compromís, l'atenció mèdica i la normativa de mòbils, i marca la matrícula com a **formalitzada** (presencial).",
             "**PDF per signar**: el document sencer amb les respostes i una caixa de signatura a cada full que la demana (amb el logo).",
             "Els noms i comptes que surten als documents (directora, IBAN de l'AFA i de les taquilles) es posen a GESTIO › config (`matricula_direccio`, `matricula_iban_afa`, `matricula_iban_taquilles`); no són al codi.",
-            "Els textos del formulari són els dels models del centre (1r d'ESO, curs 2026-2027): fitxer `src/assets/dades/matricula-formulari.json`. Cal revisar-los cada curs (quotes, dates)."
+            "Els textos del formulari són els dels models del centre (1r d'ESO, curs 2026-2027): fitxer `src/assets/dades/matricula-formulari.json`. Cal revisar-los cada curs (quotes, dates).",
+            "Les dades del formulari es llegeixen un cop; desar no les torna a demanar (només s'actualitza el registre desat)."
           ]
         }
       ]
@@ -1004,7 +1007,7 @@
             "El nom del **grup** no s'edita aquí: surt dels grups-classe de la matèria (pestanya Grups i distribució). El **professor/a** és opcional (desplegable del professorat actual).",
             "Les files de **codocència** (o **cotutoria**, si és una tutoria) es marquen amb una etiqueta (p. ex. «Codocència ×2»): n'hi ha una per docent, cadascuna amb totes les hores, i no és un error.",
             "Els filtres de la columna **Nivell** surten en l'ordre de les etapes (1r ESO … 4t ESO, 1r BAT, 2n BAT).",
-            "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata).",
+            "**Aplica la desiderata**: posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits (vegeu el mòdul Desiderata). La comprovació prèvia es fa en una sola crida (abans en feia dues i semblava que s'hagués penjat); mentre dura, surt la barra de progrés.",
             "**Comprova la desiderata**: compara les assignacions (també els canvis fets a mà) amb la desiderata: per a cada assignació i docent, els grups de la desiderata i els assignats. Avisa de grups que falten o sobren, docents que no són a la desiderata i docents que ja no són en actiu. Per a cada docent amb incoherències surten els grups on és assignat, per trobar-lo a la graella. Al filtre de la columna Professor/a, els docents que ja no són en actiu surten amb «(fora de la llista)». Per substituir-los pel docent de la desiderata, feu **Aplica la desiderata** amb «Substitueix també els que ja tenen professor/a».",
             "La comprovació es fa per **matèria** (nivell, nom i hores), no per fila: si una matèria s'ha separat amb les tisores (p. ex. la diversitat AB amb codocència en una fila nova), la desiderata desada abans de separar-la compta igualment.",
             "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes).",
@@ -1328,7 +1331,8 @@
             "**Exporta per al motor**: un **sol fitxer** `horaris-dades-AAAAMMDD-HHMM.json` amb tot el que necessita el motor (totes les pestanyes: marc horari, aules, subgrups, sessions, professorat, guàrdies, reunions i regles, a més de les assignacions, la desiderata i les reduccions d'Ocupació). No cal exportar res per pestanya.",
             "**On es desa**: a Chrome i Edge s'obre una finestra per triar la carpeta (la propera vegada proposa l'última); deseu-lo a `generador-horaris\\dades`. En altres navegadors va a la carpeta de baixades i cal moure'l. Conté noms del professorat: no es puja a cap repositori.",
             "Després, el **motor** calcula l'horari (`python -m horaris.motor`, amb els modes total o parcial, lectives i guàrdies) i el resultat s'importa a **Horaris · editor**. L'exportació inclou les reduccions lectives i de guàrdia de cada docent (d'Ocupació).",
-            "**Actualitza** (fletxes en cercle) torna a llegir les dades (Currículum, assignacions, professorat…). Si hi ha canvis sense desar, avisa abans."
+            "**Actualitza** (fletxes en cercle) torna a llegir les dades (Currículum, assignacions, professorat…). Si hi ha canvis sense desar, avisa abans.",
+            "**⟳ Actualitza les dades** (a dalt) torna a llegir totes les dades del planificador (Currículum, assignacions, professorat…). Si hi ha canvis sense desar, abans ho pregunta. En tornar al planificador des d'un altre mòdul, les dades es tornen a llegir soles si s'ha desat alguna cosa en un altre mòdul."
           ]
         }
       ]
@@ -1431,7 +1435,8 @@
             "**Colors**: cada esdeveniment té el color del seu nivell; **gris** si és de més d'un nivell i **blanc** si és de tot el centre. La vora de l'esquerra diu la categoria: blava = General (es publica al web), taronja = Intern.",
             "Els dies de festiu, lliure disposició, festa local i vacances surten acolorits, i a la cel·la hi diu quin dia és. Si no hi cap tot, la vista es desplaça amb la barra vertical.",
             "La vista i els filtres es recorden en aquest navegador.",
-            "Les dades es llegeixen un cop: tornar al mòdul o desar no les torna a demanar. **Actualitza** les torna a llegir si algú altre les ha canviat."
+            "Les dades es llegeixen un cop: tornar al mòdul o desar no les torna a demanar. **Actualitza** les torna a llegir si algú altre les ha canviat.",
+            "**Imatge** desa la vista actual (mes, setmana, dia, trimestre, llista o dates clau) com a imatge PNG, tal com es veu i amb els filtres aplicats; les vistes amb barra de desplaçament surten senceres."
           ]
         },
         {

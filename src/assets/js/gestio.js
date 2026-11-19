@@ -23,7 +23,8 @@
   var LIBS = {
     xlsx: 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js',
     jspdf: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js',
-    autotable: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js'
+    autotable: 'https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js',
+    html2canvas: 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js'   // PAS 74: calendari com a imatge
   };
   var NIVELLS = ['consulta', 'edicio', 'admin'];
   var NOM_NIVELL = { consulta: 'Consulta', edicio: 'Edició', admin: 'Administració' };
@@ -220,8 +221,8 @@
   }
   // PAS 72 · Frescor de les dades: quan es llegeixen les dades d'un mòdul i quan un mòdul desa. Les dades d'un mòdul són
   // fresques si cap ALTRE mòdul ha desat res després de llegir-les (els canvis propis ja s'apliquen a la memòria local).
-  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', calendari_dades: 'calendari', equips: 'equips' };
-  var NOMES_LECTURA = /(^dades$|_dades$|_informe|_analisi|_pdf$|_cerca|_llista$|_historial|^versio|_exporta|_convoca$|^sessio|^jo$)/;
+  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', calendari_dades: 'calendari', equips: 'equips', matricula_dades: 'matricula', nou_professor: 'nou_professor', nou_alumne: 'nou_alumne' };
+  var NOMES_LECTURA = /(^dades$|_dades$|_informe|_analisi|_pdf$|_cerca|_llista$|_historial|^versio|_exporta|_convoca$|^matricula_formulari$|^sessio|^jo$)/;
   function fresc(m) { return S.llegit[m] && S.llegit[m].t >= S.escrit; }
   function api(accio, cos, progres) {
     var crida = fetch(API + 'api', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', cache: 'no-store',
@@ -1867,9 +1868,10 @@
   // PAS 48 · La direcció passa la desiderata a les assignacions: cada grup rep el professor/a, per ordre de grup
   function aplicaDesiderata() {
     if (S.brut) return toast('Primer deseu o descarteu els canvis.', true);
+    // PAS 74: una sola comprovació (abans n'hi havia dues seguides i la segona no mostrava cap progrés: semblava penjat)
     api('curriculum_aplica_desiderata', { prova: true, sobreescriu: true }, 'Comprovant la desiderata…').then(function (r) {
       if (!r.ok) return toast(text(r.error), true);
-      api('curriculum_aplica_desiderata', { prova: true }, '').then(function (r0) {
+      (r.buits !== undefined ? Promise.resolve({ posats: r.buits }) : api('curriculum_aplica_desiderata', { prova: true }, 'Comprovant la desiderata…')).then(function (r0) {
         if (!r.posats && !r.canviats) return toast('Les assignacions ja tenen el professorat de la desiderata (o encara no n’hi ha cap de desada).');
         var Bq = r.bloqueig || {};
         pregunta('Aplica la desiderata', (Bq.bloquejada ? '<p class="gs-des__estat is-bloc">🔒 La desiderata està <strong>bloquejada</strong>: els caps ja no la poden canviar.</p>' : '<p class="gs-des__estat is-avis">⚠ La desiderata <strong>no està bloquejada</strong>' + (Bq.tancament ? ' (tancament: ' + esc(dataVista(Bq.tancament)) + ')' : '') + ': els caps encara la poden canviar.</p>') + '<p>La desiderata desada de cada departament/àmbit diu quants grups fa cada docent; aquí es posa el <strong>professor/a de cada grup</strong> (per ordre de grup: 1r ESO A, B…). Després es pot canviar a mà a la columna Professor/a.</p><ul>' +
@@ -3151,6 +3153,31 @@
     S.cal.data = d; pintaCalendari();
   }
   function desaPrefCal() { guarda.desa('calendari', { vista: S.cal.vista, data: S.cal.data, cat: S.cal.cat, niv: S.cal.niv }); }
+  // PAS 74 · La vista actual del calendari com a imatge (PNG), tal com es veu, amb el títol, el període i els filtres.
+  // Es fa d'una còpia sense desplaçament (les vistes amb barra de desplaçament surten senceres).
+  function imatgeCal() {
+    var t = $('gsTaula'); if (!t) return;
+    var V = { mes: 'mes', setmana: 'setmana', dia: 'dia', trimestre: 'trimestre', llista: 'llista', dates: 'dates-clau' }, v = S.cal.vista, I = v !== 'llista' && v !== 'dates' ? intervalCal() : null;
+    var filtres = [S.cal.cat || 'totes les categories', S.cal.niv.length ? S.cal.niv.join(', ') : 'tots els nivells'].join(' · ');
+    var crida = carregaScript(LIBS.html2canvas).then(function () {
+      return window.html2canvas(t, { backgroundColor: '#ffffff', scale: 2, useCORS: true, windowWidth: Math.max(document.documentElement.clientWidth, t.scrollWidth + 40),
+        onclone: function (doc) {
+          var c = doc.getElementById('gsTaula'); c.style.height = 'auto'; c.style.maxHeight = 'none'; c.style.overflow = 'visible';
+          [].forEach.call(c.querySelectorAll('*'), function (el) { var cs = doc.defaultView.getComputedStyle(el); if (/auto|scroll/.test(cs.overflowY) || /auto|scroll/.test(cs.overflowX)) { el.style.overflow = 'visible'; el.style.maxHeight = 'none'; el.style.height = 'auto'; } });
+          [].forEach.call(c.querySelectorAll('[data-cal="nou"], .gs-cal__afegeix'), function (el) { el.remove(); });
+          var h = doc.createElement('div'); h.style.cssText = 'font:600 18px Montserrat,system-ui,sans-serif;color:#1C0CBC;margin:0 0 4px';
+          h.textContent = 'Institut Joan Miró · Calendari' + (v === 'dates' ? ' · Dates clau' : v === 'llista' ? ' · Llista' : '');   // el període ja surt al títol de la vista
+          var f = doc.createElement('div'); f.style.cssText = 'font:12px Montserrat,system-ui,sans-serif;color:#5A6078;margin:0 0 10px'; f.textContent = filtres;
+          c.insertBefore(f, c.firstChild); c.insertBefore(h, c.firstChild); c.style.padding = '16px';
+        } });
+    }).then(function (canvas) {
+      return new Promise(function (ok) { canvas.toBlob(function (b) { ok(b); }, 'image/png'); });
+    }).then(function (blob) {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'calendari-' + (V[v] || v) + '-' + (S.cal.data || avuiIso()) + '.png';
+      document.body.appendChild(a); a.click(); setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 800); toast('Imatge desada (' + a.download + ').');
+    }).catch(function (e) { if (window.console) console.error(e); toast('No s’ha pogut fer la imatge.', true); });
+    return window.Progres ? Progres.amb(crida, 'Fent la imatge…') : crida;
+  }
   function pintaCalendari() {
     desaPrefCal();
     var R = S.cal.r, v = S.cal.vista, ed = edCal(), I = intervalCal(), nav = v !== 'llista' && v !== 'dates';
@@ -3165,6 +3192,7 @@
       '<span class="gs-espai"></span>' + '<button type="button" class="prog-btn prog-btn--ghost" data-accio="mod-actualitza" title="Torna a llegir les dades (p. ex. si algú altre les ha canviat)">Actualitza</button>' +
       (ed && v !== 'dates' ? '<button type="button" class="prog-btn" data-cal="nou">+ Nou esdeveniment</button>' : '') +
       (v !== 'dates' ? '<button type="button" class="prog-btn prog-btn--ghost" data-cal="pdf" title="PDF de la vista actual (amb els filtres)">PDF</button>' : '') +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-cal="imatge" title="Imatge (PNG) de la vista actual, tal com es veu (amb els filtres)">Imatge</button>' +
       (adminCal() ? '<button type="button" class="prog-btn prog-btn--ghost" data-cal="importa" title="Afegeix els esdeveniments del full del calendari (config › font_calendari) que encara no hi són">Importa del full</button>' +
         '<button type="button" class="prog-btn prog-btn--ghost" data-cal="publica" title="Publica les dates clau i els esdeveniments «General» a Secretaria › Calendari escolar">Publica</button>' : '') +
       '<p class="gs-ajuda gs-cal__ajuda">' + (v === 'dates' ? 'Inici i final de classes, inici dels trimestres, festius, dies de lliure disposició, festes locals i vacances. Surten a totes les vistes i, en publicar, al web (els trimestres, no).' :
@@ -3390,7 +3418,7 @@
       else if (a === 'niv-cap' || a === 'niv-tots') [].forEach.call(document.querySelectorAll('#gsEines input[data-cal="nivx"]'), function (c) { c.checked = a === 'niv-tots'; });
       else if (a === 'niv-cancela') pintaCalendari();
       else if (a === 'niv-accepta') { var tr = [].map.call(document.querySelectorAll('#gsEines input[data-cal="nivx"]:checked'), function (c) { return c.value; }); S.cal.niv = tr.length === S.cal.r.nivells.length ? [] : tr; pintaCalendari(); }
-      else if (a === 'pdf') pdfCal(); else if (a === 'publica') publicaCal(); else if (a === 'importa') importaCal();
+      else if (a === 'pdf') pdfCal(); else if (a === 'imatge') imatgeCal(); else if (a === 'publica') publicaCal(); else if (a === 'importa') importaCal();
     });
     $('gsEines').addEventListener('change', function (e) {
       var x = e.target, a = x.dataset && x.dataset.cal; if (!a || !actiu()) return;
@@ -4251,7 +4279,7 @@
     var pes = { marc: R.per_defecte, aules: R.aules_per_defecte, regles: R.regles_per_defecte, subgrups: R.regles_per_defecte }[tab] || false;
     $('gsEines').innerHTML = '<div class="gs-pestanyes" role="tablist">' + [['marc', 'Marc horari'], ['aules', 'Aules'], ['subgrups', 'Subgrups'], ['sessions', 'Sessions lectives'], ['professorat', 'Professorat'], ['guardies', 'Guàrdies'], ['reunions', 'Reunions'], ['regles', 'Regles']].map(function (t) { return '<button type="button" role="tab" data-accio="hor-tab" data-tab="' + t[0] + '" aria-selected="' + (tab === t[0]) + '">' + t[1] + (S.horBrut[t[0]] || (t[0] === 'subgrups' && S.horBrut.blocs) ? ' *' : '') + '</button>'; }).join('') + '</div>' +
       '<span class="gs-espai"></span>' + (tab === 'professorat' && ed ? '<label class="prog-btn prog-btn--ghost gs-hor__imp" title="Claus de Clickedu del professorat a partir de la llista del professorat de Peñalara (CSV)">Claus de Clickedu (CSV)<input type="file" id="gsProfImp" accept=".csv,text/csv" hidden></label>' : '') + (tab === 'subgrups' && ed ? '<label class="prog-btn prog-btn--ghost gs-hor__imp" title="Grups-classe i subgrups amb les claus: llistes de grups o de subgrups de Peñalara (CSV) o exportació de Clickedu (XML)">Grups de Clickedu/Peñalara (CSV/XML)<input type="file" id="gsGrupsImp" accept=".xml,.csv,text/xml,application/xml,text/csv" hidden></label>' : '') + (tab === 'aules' && ed ? '<label class="prog-btn prog-btn--ghost gs-hor__imp" title="Assigna les claus de Clickedu a partir de l’exportació de Clickedu (XML) o de la llista d’aules de Peñalara (CSV)">Claus de Clickedu (XML/CSV)<input type="file" id="gsAulesImp" accept=".xml,.csv,text/xml,application/xml,text/csv" hidden></label>' : '') + (tab === 'marc' ? '<label class="prog-btn prog-btn--ghost gs-hor__imp" title="Carrega un marc_horari.json">Importa JSON<input type="file" id="gsHorImp" accept=".json,application/json" hidden></label><button type="button" class="prog-btn prog-btn--ghost" data-accio="hor-json" title="Descarrega marc_horari.json">marc_horari.json</button>' : '') +
-      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="hor-actualitza" title="Torna a llegir les dades (Currículum, assignacions, professorat…)">Actualitza</button>' +
+      '<button type="button" class="prog-btn prog-btn--ghost gs-hor__act" data-accio="hor-actualitza" title="Torna a llegir totes les dades del planificador (Currículum, assignacions, professorat, ocupació…). Si hi ha canvis sense desar, abans ho pregunta.">⟳ Actualitza les dades</button>' +
       (ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="hor-exporta" title="Descarrega totes les dades per al MOTOR (horaris-dades.json)">Exporta per al motor</button><button type="button" class="prog-btn" data-accio="hor-desa">' + (brut ? 'Desa *' : 'Desa') + '</button>' : '') +
       '<p class="gs-ajuda" style="flex:1 1 100%;margin:4px 0 0"><strong>Planificador</strong> del generador d’horaris (planificador → motor → editor → exportador). ' +
       { reunions: '<strong>Reunions fixes</strong> de nivell (tutors/es i coordinació de nivell): cada reunió es fa a la mateixa franja cada setmana, amb tots els docents lliures. La franja es pot deixar perquè la triï el motor.', marc: 'Dies lectius i franges horàries (amb els esbarjos). Totes les franges són lectives per a tots els nivells.', aules: 'Les aules del centre (amb el tipus) i els <strong>conjunts d’aules alternatives</strong> que després es poden posar a cada sessió.', sessions: 'Cada matèria i grup en <strong>parts</strong> (qui la fa: grup-classe o subgrup), amb la <strong>distribució</strong> (111 = tres sessions d’1 h; 21 = una de 2 h i una d’1 h), l’<strong>aula preferent</strong>, les <strong>alternatives</strong> i la <strong>graella</strong>; i els <strong>blocs simultanis</strong> (sessions a la mateixa hora en aules diferents).', professorat: 'Una graella per docent amb les <strong>posicions fixes</strong> (ha de fer classe aquella hora) i <strong>prohibides</strong> (no hi pot fer classe). Per defecte, totes són lliures.', subgrups: 'Els <strong>grups-classe</strong> i els <strong>subgrups</strong> (tot conjunt d’alumnes del nivell que no és un grup-classe: diversitat, hores B, optatives…) amb el nom i la clau de Clickedu.', guardies: '<strong>Guàrdies</strong>: quantes en calen a cada franja (ordinàries a les lectives; biblioteca i pati a l’esbarjo), quantes en fa cada docent i si estan cobertes.', regles: '<strong>Regles</strong>: preferències del motor, amb un pes de 1 (poc) a 5 (molt), i les regles obligatòries.' }[tab] +
@@ -4982,11 +5010,22 @@
   // correus: no se n'envia cap).
   function carregaMatricula() {
     S.mat = S.mat || { q: '', niv: '', estat: '', baixes: false, sel: {} };
-    return api('matricula_dades', {}, 'Carregant la matrícula…').then(function (r) {
+    var crida = S.mat.r && fresc('matricula') && !carregaMatricula.forca ? Promise.resolve(S.mat.r) : api('matricula_dades', {}, 'Carregant la matrícula…');   // PAS 74
+    carregaMatricula.forca = false;
+    return crida.then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
       if (!(r.esquema >= 71)) { $('gsAvis').innerHTML = 'Cal l’Apps Script del PAS 71 o posterior: enganxeu el Code.gs nou, executeu «configura» i feu una nova implementació.'; $('gsAvis').hidden = false; return; }
       S.mat.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert }; lligaMatricula(); pintaMatricula();
     });
+  }
+  // PAS 74 · Combina la resposta lleugera del servidor (fila desada o esborrada) amb les dades ja llegides
+  function combinaMat(r) {
+    var R = S.mat.r; if (r.files) { S.mat.r = r; return; }
+    var k = r.fila ? clauMat(r.fila) : r.esborrat ? r.id_ralc + '|' + r.curs_academic : '';
+    if (!k) return;
+    var i = R.files.map(clauMat).indexOf(k);
+    if (r.fila) { if (i >= 0) R.files[i] = r.fila; else R.files.push(r.fila); } else if (i >= 0) R.files.splice(i, 1);
+    R.resum = {}; R.files.forEach(function (f) { var c = (f.nivell_gestio || f.codi_ensenyament || '?') + ' · ' + (f.estat_matricula || '?'); R.resum[c] = (R.resum[c] || 0) + 1; });
   }
   var edMat = function () { return S.mat.r && nivellIdx(S.mat.r.nivell) >= 1 && S.mat.r.obert; };
   var adminMat = function () { return S.mat.r && nivellIdx(S.mat.r.nivell) >= 2; };
@@ -5060,10 +5099,10 @@
         b === 'baixa' || b === 'recupera' ? { id_ralc: v.id_ralc, curs_academic: v.curs_academic, valors: {}, estat_gestio: b === 'baixa' ? 'baixa' : (v.origen === 'importat' || !v.origen ? 'importada' : v.prova === 'sí' ? 'prova' : 'alta manual') } : null;
       if (b === 'formalitza') return formulariMat(v);
       if (b === 'esborra') return pregunta('Esborra el registre', '<p>S’esborrarà definitivament <b>' + esc(nomMat(v)) + '</b> (' + esc(v.id_ralc) + '). No es pot desfer. Per a l’alumnat real, millor «Dona de baixa».</p>', [{ t: 'Esborra', valor: 1, tipus: 'danger' }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (ok) {
-        if (ok) api('matricula_esborra', { id_ralc: v.id_ralc, curs_academic: v.curs_academic }, 'Esborrant…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.mat.r = r; delete S.mat.sel[clauMat(v)]; pintaMatricula(); toast('Registre esborrat.'); }); });
+        if (ok) api('matricula_esborra', { id_ralc: v.id_ralc, curs_academic: v.curs_academic }, 'Esborrant…').then(function (r) { if (!r.ok) return toast(text(r.error), true); combinaMat(r); delete S.mat.sel[clauMat(v)]; pintaMatricula(); toast('Registre esborrat.'); }); });
       api('matricula_desa', cos, 'Desant…').then(function (r) {
         if (!r.ok) { toast(r.errors ? r.errors.join(' ') : text(r.error), true); if (b === 'desa') fitxaMat(Object.assign({}, v, fitxaMat.v), nou, prova); return; }
-        S.mat.r = r; pintaMatricula(); toast(r.sense_canvis ? 'No hi havia cap canvi.' : nou ? (prova ? 'Registre de prova afegit.' : 'Alta feta.') : b === 'baixa' ? 'Registre donat de baixa (es pot recuperar amb «Mostra les baixes»).' : b === 'recupera' ? 'Baixa treta.' : 'Desat.');
+        combinaMat(r); pintaMatricula(); toast(r.sense_canvis ? 'No hi havia cap canvi.' : nou ? (prova ? 'Registre de prova afegit.' : 'Alta feta.') : b === 'baixa' ? 'Registre donat de baixa (es pot recuperar amb «Mostra les baixes»).' : b === 'recupera' ? 'Baixa treta.' : 'Desat.');
       });
     });
   }
@@ -5147,7 +5186,7 @@
         if (v === 'pdf') return pdfFormulariMat(D, f, cos, cfg);
         api('matricula_formulari_desa', { id_ralc: f.id_ralc, curs_academic: f.curs_academic, respostes: cos, complet: v === 'formalitza' }, v === 'formalitza' ? 'Formalitzant…' : 'Desant…').then(function (r2) {
           if (!r2.ok) { toast(r2.errors ? r2.errors.slice(0, 4).join(' ') : text(r2.error), true); return; }
-          S.mat.r = r2; pintaMatricula(); toast(v === 'formalitza' ? 'Matrícula formalitzada. Imprimiu el PDF per signar.' : 'Esborrany desat.');
+          combinaMat(r2); pintaMatricula(); toast(v === 'formalitza' ? 'Matrícula formalitzada. Imprimiu el PDF per signar.' : 'Esborrany desat.');
         });
       });
     }).catch(function () { toast('No s’ha pogut carregar la definició del formulari.', true); });
@@ -5286,7 +5325,8 @@
       var f = S.mat.r.files.filter(function (x) { return clauMat(x) === tr.dataset.k; })[0]; if (f) fitxaMat(f, false, false); });
   }
   function carregaNouAlumne() {
-    api('nou_alumne', {}, 'Preparant el formulari…').then(function (r) {
+    // PAS 74: el formulari (nivells, estats) es llegeix un cop; donar d'alta no el torna a demanar
+    (S.na && fresc('nou_alumne') ? Promise.resolve(S.na) : api('nou_alumne', {}, 'Preparant el formulari…')).then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
       S.na = r; S.d = { nivell: S.modul.nivell, obert: r.obert, camps: [], files: [] }; pintaNouAlumne();
     });
@@ -5319,8 +5359,10 @@
     });
   }
   function carregaNouProfessor() {
-    api('nou_professor', {}, 'Preparant el formulari…').then(function (r) {
+    // PAS 74: els camps i el professorat (per a «Substitueix a») es llegeixen un cop; desar hi afegeix el docent nou
+    (S.npR && fresc('nou_professor') ? Promise.resolve(S.npR) : api('nou_professor', {}, 'Preparant el formulari…')).then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
+      S.npR = r;
       S.d = { nivell: S.modul.nivell, obert: r.obert, camps: r.camps, curs: r.curs, files: [], professorat: r.professorat || [], provincies: r.provincies || {} };
       pintaNouProfessor();
     });
@@ -5390,6 +5432,7 @@
     api('alta_professor', { valors: valorsNou() }, 'Desant el docent nou…').then(function (r) {
       if (r.ok) {
         // PAS 36: el docent nou s'afegeix al professorat ja carregat (sense tornar-lo a llegir)
+        if (r.valors && Array.isArray(S.d.professorat)) S.d.professorat.push({ nom: [r.valors.cognom1, r.valors.cognom2].filter(Boolean).join(' ') + ', ' + r.valors.nom, carrec: r.valors.carrec || '' });   // PAS 74
         S.brut = false; if (S.cache.professorat && r.valors) S.cache.professorat.files.push(Object.assign({ id: r.id, data: r.data || '', desat_per: S.sessio.email, equips: [] }, r.valors));
         toast('Docent desat: ' + r.id + '.'); var v = valorsNou();
         S.nouArribada = (r.valors && r.valors.data_arribada_centre) || new Date().toISOString().slice(0, 10);
