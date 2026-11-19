@@ -500,6 +500,11 @@ self.addEventListener('activate', function (e) {
 - **Departaments/àmbits**: anàlisi i proposta de mòdul a la proposta de disseny (PAS 74).
 - ESQUEMA 74.
 
+## PAS 74b
+
+- **Comprova la desiderata**: si una matèria separada amb les tisores té desiderata a la fila original i a la nova amb el mateix docent (desada abans i després de separar), l'excés de la fila original no es compta (`desK`, `nf`). Abans: «Grups diferents» (2 a la desiderata, 1 assignat).
+- **Separa** (tisores de Grups i distribució): la desiderata dels docents dels grups que es mouen passa a la fila nova (`mouDesiderata_`).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

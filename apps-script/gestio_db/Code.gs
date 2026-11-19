@@ -3705,14 +3705,24 @@ function comprovaDesiderata_(ctx) {
   // PAS 73c: es compara per matèria (nivell + nom + hores), no per fila del Currículum: si una matèria s'ha separat amb les
   // tisores (p. ex. la diversitat AB amb codocència en una fila nova), la desiderata desada abans (a la fila original) i la
   // de la fila nova es sumen; abans sortien incoherències «Falten grups» encara que l'assignació fos correcta.
-  const per = {}, fam = {};
+  const per = {}, fam = {}, nf = {};
   llegeix_(FULL.curg).forEach((r) => { const kf = String(r.especialitat || '') + '¦' + (r.id_materia || (r.nivell + '·' + r.materia)) + '|' + numCur_(r.hores);
-    const k = String(r.especialitat || '') + '¦' + r.nivell + '·' + r.materia + '|' + numCur_(r.hores); fam[kf] = k;
+    const k = String(r.especialitat || '') + '¦' + r.nivell + '·' + r.materia + '|' + numCur_(r.hores); fam[kf] = k; nf[kf] = (nf[kf] || 0) + 1;
     const x = per[k] = per[k] || { nivell: r.nivell, materia: r.materia, hores: numCur_(r.hores), especialitat: r.especialitat || '', grups: 0, profs: {} };
     const pr = r.professor && AL[r.professor] ? AL[r.professor].nom : r.professor;
     x.grups++; if (pr) { x.profs[pr] = (x.profs[pr] || 0) + 1; ((x.grupsDe = x.grupsDe || {})[pr] = x.grupsDe[pr] || []).push(r.grup); } });
   // desiderata de cada matèria = la de totes les seves files (claus id_materia|hores)
-  const desF = {}; Object.keys(fam).forEach((kf) => { const esp = kf.split('¦')[0], d = (des[esp] || {})[kf.split('¦')[1]]; if (d) desF[fam[kf]] = (desF[fam[kf]] || []).concat(d); });
+  const desK = {}; Object.keys(fam).forEach((kf) => { const esp = kf.split('¦')[0], d = (des[esp] || {})[kf.split('¦')[1]]; if (d) desK[kf] = d.map((y) => ({ prof: y.prof, grups: Number(y.grups) || 0 })); });
+  // PAS 74b: desiderata desada abans de separar amb les tisores i tornada a desar després: la fila original encara porta el
+  // docent que ara és a la fila nova (més grups dels que té). Aquest excés no es compta si el docent ja és a la desiderata
+  // d'una fila germana (mateixa matèria); abans sortia «Grups diferents» (2 a la desiderata, 1 assignat).
+  Object.keys(desK).forEach((kf) => {
+    let sobra = desK[kf].reduce((t, y) => t + y.grups, 0) - (nf[kf] || 0);
+    if (sobra <= 0) return;
+    const germans = Object.keys(desK).filter((k2) => k2 !== kf && fam[k2] === fam[kf]);
+    desK[kf].forEach((y) => { if (sobra > 0 && y.grups > 0 && germans.some((k2) => desK[k2].some((z) => z.prof === y.prof && z.grups > 0))) { const t = Math.min(sobra, y.grups); y.grups -= t; sobra -= t; } });
+  });
+  const desF = {}; Object.keys(desK).forEach((kf) => { desF[fam[kf]] = (desF[fam[kf]] || []).concat(desK[kf]); });
   const inc = [], ok = { assignacions: 0 };
   Object.keys(per).forEach((k) => {
     const x = per[k], esp = x.especialitat, d = desF[k];
@@ -4324,12 +4334,14 @@ function curriculumSepara_(ctx, req) {
       if (ci >= 0 && cn >= 0) {
         const nouNum = {}; let ka = 0, kb = 0;
         GM.forEach((g, i) => { nouNum[i + 1] = ix.indexOf(i) >= 0 ? { id: b[MM.id], n: ++kb } : { id: id, n: ++ka }; });
+        const moguts = [], ce = gcap.indexOf('especialitat'), ch = gcap.indexOf('hores'), cp = gcap.indexOf('professor');
         for (let i = 1; i < gv.length; i++) {
           if (String(gv[i][ci]) !== id) continue;
           const x = nouNum[Number(gv[i][cn])]; if (!x) continue;
-          if (x.id !== id) mogudes++;
+          if (x.id !== id) { mogudes++; moguts.push({ esp: String(gv[i][ce] || ''), h: numCur_(gv[i][ch]), prof: String(gv[i][cp] || '') }); }
           gv[i][ci] = x.id; gv[i][cn] = String(x.n);
         }
+        if (moguts.length) mouDesiderata_(moguts, id, b[MM.id]);
         shg.getRange(2, ci + 1, gv.length - 1, 1).setValues(gv.slice(1).map((r) => [r[ci]]));
         shg.getRange(2, cn + 1, gv.length - 1, 1).setValues(gv.slice(1).map((r) => [r[cn]]));
         if (mogudes) marcaVersio_('curriculum_grups', ctx.email);
@@ -4340,6 +4352,36 @@ function curriculumSepara_(ctx, req) {
     const out = (o) => Object.assign({ id: o[MM.id] }, o);
     return { ok: true, fila: out(a), nova: out(b) };
   } finally { lock.releaseLock(); }
+}
+// PAS 74b · En separar, la desiderata dels docents dels grups que passen a la fila nova també hi passa (abans es quedava a
+// la fila original i, en tornar-la a desar a la fila nova, el docent quedava comptat dues vegades).
+function mouDesiderata_(moguts, deId, aId) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.des);
+  if (!sh || sh.getLastRow() < 2) return;
+  // nom del docent a la graella → codis possibles a la desiderata (el seu i, si substitueix algú, el de la persona substituïda)
+  const ids = {}, afeg = (n, i) => { (ids[n] = ids[n] || []).push(i); };
+  professoratHores_().forEach((p) => afeg(p.nom, p.id));
+  const AL = aliesSubstitucio_(); Object.keys(AL).forEach((k) => { if (!/, /.test(k) && AL[k].nom) afeg(AL[k].nom, k); });
+  const vals = sh.getDataRange().getValues(), cap = vals[0].map(norm_), ie = cap.indexOf('especialitat'), id = cap.indexOf('dades');
+  if (ie < 0 || id < 0) return;
+  for (let i = 1; i < vals.length; i++) {
+    const esp = String(vals[i][ie] || ''), ms = moguts.filter((m) => m.esp === esp);
+    if (!ms.length) continue;
+    let d; try { d = JSON.parse(vals[i][id] || '{}') || {}; } catch (e) { continue; }
+    let canvi = false;
+    ms.forEach((m) => {
+      const ko = deId + '|' + m.h, kn = aId + '|' + m.h, cand = ids[m.prof] || [];
+      const e = (d[ko] || []).filter((x) => cand.indexOf(x.prof) >= 0 && Number(x.grups) > 0)[0];
+      if (!e) return;
+      const pid = e.prof;
+      e.grups = Number(e.grups) - 1;
+      d[ko] = d[ko].filter((x) => Number(x.grups) > 0); if (!d[ko].length) delete d[ko];
+      const ll = d[kn] = d[kn] || [], f = ll.filter((x) => x.prof === pid)[0];
+      if (f) f.grups = (Number(f.grups) || 0) + 1; else ll.push({ prof: pid, grups: 1 });
+      canvi = true;
+    });
+    if (canvi) sh.getRange(i + 1, id + 1).setValue(JSON.stringify(d));
+  }
 }
 // PAS 45 · Migració: el camp «Grups» desapareix; el nombre de grups passa al format de «Grups-classe» (comes = separats,
 // + = units). Si hi havia tants grups com grups-classe → un per grup-classe; si menys, es fan blocs seguits (4 grups-classe
