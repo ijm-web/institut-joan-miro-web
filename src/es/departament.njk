@@ -1,0 +1,14 @@
+---
+layout: base.njk
+pagination:
+  data: departaments.llista
+  size: 1
+  alias: dep
+permalink: "es/departaments/{{ dep.slug }}.html"
+lang: es
+extraCss: /assets/css/departaments.css
+eleventyComputed:
+  title: "{{ dep.nom }} — Departamentos y ámbitos — Institut Joan Miró"
+  slug: "departaments/{{ dep.slug }}.html"
+---
+{% include "departament.njk" %}

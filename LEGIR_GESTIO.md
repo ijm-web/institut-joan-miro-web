@@ -516,6 +516,10 @@ self.addEventListener('activate', function (e) {
 - **Matrícula**: ordre i filtre per columna (`COLS_MAT`, `S.mat.ord`, `S.mat.fc`).
 - ESQUEMA 75.
 
+## PAS 75b
+- Departaments i àmbits també en castellà i anglès: `/es/departaments-i-ambits.html`, `/en/…` i `/es|en/departaments/{slug}.html` (abans el selector d'idioma i el menú en es/en portaven a un 404). Els títols i apartats es tradueixen; el contingut que escriuen els caps es mostra en català, amb un avís.
+- Plantilles a `src/_includes/departaments-i-ambits.njk` i `src/_includes/departament.njk`; textos a `src/_data/departaments.js` (`text`).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

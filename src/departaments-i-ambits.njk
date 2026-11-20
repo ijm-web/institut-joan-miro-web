@@ -6,28 +6,4 @@ lang: ca
 slug: departaments-i-ambits.html
 extraCss: /assets/css/departaments.css
 ---
-{#- PAS 75 · El Nostre Centre › Departaments i àmbits: una targeta per departament/àmbit (dades de GESTIO › Departaments/àmbits,
-    botó «Publica»). Cada targeta porta a la seva pàgina (src/departament.njk). -#}
-<div class="dep-page">
-  <header class="dep-cap">
-    <p class="dep-kicker">El Nostre Centre</p>
-    <h1>Departaments i àmbits</h1>
-    <p class="dep-lead">Cada departament i àmbit presenta el seu professorat, les matèries que imparteix, els criteris de qualificació, els projectes i les feines d’estiu.</p>
-  </header>
-  {%- if departaments.llista.length %}
-  <ul class="dep-targetes">
-    {%- for d in departaments.llista %}
-    <li>
-      <a class="dep-targeta" href="/departaments/{{ d.slug }}.html">
-        {%- if d.imatge %}<img src="{{ d.imatge }}" alt="" loading="lazy" width="480" height="270">{% else %}<span class="dep-targeta__inicial" aria-hidden="true">{{ d.nom | first }}</span>{% endif %}
-        <span class="dep-targeta__nom">{{ d.nom }}</span>
-        <span class="dep-targeta__esp">{{ d.especialitats | join(" · ") }}</span>
-        {%- if d.resum %}<span class="dep-targeta__resum">{{ d.resum }}{% if d.resum.length >= 220 %}…{% endif %}</span>{% endif %}
-      </a>
-    </li>
-    {%- endfor %}
-  </ul>
-  {%- else %}
-  <p class="dep-buit">Properament.</p>
-  {%- endif %}
-</div>
+{% include "departaments-i-ambits.njk" %}

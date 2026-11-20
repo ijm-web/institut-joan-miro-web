@@ -27,4 +27,17 @@ const llista = ((publicat && publicat.departaments) || []).map((d) => {
   };
 }).sort((a, b) => a.nom.localeCompare(b.nom, "ca"));
 
-module.exports = { llista, publicat: publicat ? publicat.publicat : null };
+// Textos de les pàgines en ca/es/en (el contingut que escriuen els caps i les matèries es mostren tal com són, en català)
+const text = {
+  ca: { kicker: "El Nostre Centre", titol: "Departaments i àmbits", lead: "Cada departament i àmbit presenta el seu professorat, les matèries que imparteix, els criteris de qualificació, els projectes i les feines d’estiu.", properament: "Properament.", nomesCa: "", molla: "Molla de pa",
+    presentacio: "Presentació", professorat: "Professorat", programacions: "Programacions", progProperament: "Properament es podran consultar aquí les programacions de les matèries del departament.", criteris: "Criteris de qualificació", criterisText: "PDF amb els criteris de qualificació publicats de les matèries del departament, per nivell:", materies: "Matèries i professorat", nivell: "Nivell", materia: "Matèria", projectes: "Projectes", estiu: "Feines d’estiu", altres: "Altres",
+    js: { generant: "Generant el PDF dels criteris de qualificació…", senseCriteris: "Encara no s’han publicat els criteris de qualificació de les matèries d’aquest departament per a", error: "No s’ha pogut generar el PDF. Torneu-ho a provar d’aquí a una estona." } },
+  es: { kicker: "Nuestro Centro", titol: "Departamentos y ámbitos", lead: "Cada departamento y ámbito presenta su profesorado, las materias que imparte, los criterios de calificación, los proyectos y los trabajos de verano.", properament: "Próximamente.", nomesCa: "El contenido de los departamentos está en catalán.", molla: "Ruta de navegación",
+    presentacio: "Presentación", professorat: "Profesorado", programacions: "Programaciones", progProperament: "Próximamente se podrán consultar aquí las programaciones de las materias del departamento.", criteris: "Criterios de calificación", criterisText: "PDF con los criterios de calificación publicados de las materias del departamento, por nivel:", materies: "Materias y profesorado", nivell: "Nivel", materia: "Materia", projectes: "Proyectos", estiu: "Trabajos de verano", altres: "Otros",
+    js: { generant: "Generando el PDF de los criterios de calificación…", senseCriteris: "Todavía no se han publicado los criterios de calificación de las materias de este departamento para", error: "No se ha podido generar el PDF. Vuelva a intentarlo dentro de un rato." } },
+  en: { kicker: "Our School", titol: "Departments", lead: "Each department presents its teaching staff, the subjects it teaches, the grading criteria, its projects and the summer work.", properament: "Coming soon.", nomesCa: "Department content is in Catalan.", molla: "Breadcrumb",
+    presentacio: "Introduction", professorat: "Teaching staff", programacions: "Syllabuses", progProperament: "The syllabuses of the department’s subjects will soon be available here.", criteris: "Grading criteria", criterisText: "PDF with the published grading criteria of the department’s subjects, by level:", materies: "Subjects and teaching staff", nivell: "Level", materia: "Subject", projectes: "Projects", estiu: "Summer work", altres: "Other",
+    js: { generant: "Generating the grading criteria PDF…", senseCriteris: "The grading criteria of this department’s subjects have not been published yet for", error: "The PDF could not be generated. Please try again later." } },
+};
+
+module.exports = { text, llista, publicat: publicat ? publicat.publicat : null };

@@ -1,0 +1,26 @@
+{%- set L = departaments.text[lang] or departaments.text.ca %}{% set pref = "" if lang == "ca" else "/" + lang %}
+{#- PAS 75 · El Nostre Centre › Departaments i àmbits: una targeta per departament/àmbit (dades de GESTIO › Departaments/àmbits,
+    botó «Publica»). Cada targeta porta a la seva pàgina (src/departament.njk). -#}
+<div class="dep-page">
+  <header class="dep-cap">
+    <p class="dep-kicker">{{ L.kicker }}</p>
+    <h1>{{ L.titol }}</h1>
+    <p class="dep-lead">{{ L.lead }}</p>{% if lang != "ca" %}<p class="dep-gris">{{ L.nomesCa }}</p>{% endif %}
+  </header>
+  {%- if departaments.llista.length %}
+  <ul class="dep-targetes">
+    {%- for d in departaments.llista %}
+    <li>
+      <a class="dep-targeta" href="{{ pref }}/departaments/{{ d.slug }}.html">
+        {%- if d.imatge %}<img src="{{ d.imatge }}" alt="" loading="lazy" width="480" height="270">{% else %}<span class="dep-targeta__inicial" aria-hidden="true">{{ d.nom | first }}</span>{% endif %}
+        <span class="dep-targeta__nom">{{ d.nom }}</span>
+        <span class="dep-targeta__esp">{{ d.especialitats | join(" · ") }}</span>
+        {%- if d.resum %}<span class="dep-targeta__resum">{{ d.resum }}{% if d.resum.length >= 220 %}…{% endif %}</span>{% endif %}
+      </a>
+    </li>
+    {%- endfor %}
+  </ul>
+  {%- else %}
+  <p class="dep-buit">{{ L.properament }}</p>
+  {%- endif %}
+</div>
