@@ -363,6 +363,10 @@
 .gs-codo{ display:inline-block; margin-left:6px; padding:1px 8px; border-radius:999px; background:#ECEAFD; color:#1C0CBC; font-size:11px; font-weight:700; white-space:nowrap; }
 .gs-bal{ overflow:auto; max-height:70vh; border:1px solid #E1E5EE; border-radius:12px; background:#fff; }
 .gs-bal svg{ display:block; margin:0 auto; max-width:none; }
+/* PAS 75: balanç i transferències més gran; les caixes s'arrosseguen */
+.gs-modal__box.gs-modal--gran{ max-width: min(1600px, 98vw); width: 100%; }
+.gs-modal--gran .gs-bal{ max-height: calc(100vh - 260px); min-height: 320px; }
+.gs-bal__caixa{ cursor: grab; } .gs-bal__caixa:active{ cursor: grabbing; }
 .gs-bal__fl:hover path{ opacity:1; stroke:#B54700; }
 .gs-bal__l{ display:inline-block; padding:0 8px; border-radius:999px; font-weight:700; font-size:12px; }
 .gs-bal__l--0{ background:#E3F3EA; color:#0F9D58; } .gs-bal__l--n{ background:#FDE8E8; color:#C62828; } .gs-bal__l--p{ background:#ECEAFD; color:#1C0CBC; }
@@ -635,10 +639,12 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-he__aules th{ font-size: .8rem; color: #5A6078; }
 #gsHeMax{ width: auto; display: inline-block; margin-left: 6px; }
 /* PAS 70 · Assistent de moviments: solucions a l'esquerra i graella a la dreta */
-.gs-modal--assist{ max-width: min(1240px, 97vw); }
+.gs-modal--assist{ max-width: min(1700px, 98vw); width: 100%; }   /* PAS 75: més gran */
 .gs-he__ass{ display: grid; grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.1fr); gap: 18px; align-items: start; }
 @media (max-width: 860px){ .gs-he__ass{ grid-template-columns: 1fr; } }
-.gs-he__assE{ max-height: 66vh; overflow: auto; padding-right: 4px; }
+.gs-he__assE{ max-height: calc(100vh - 230px); overflow: auto; padding-right: 4px; }
+.gs-modal--assist .gs-he__sols{ max-height: none; }
+.gs-he__docs{ color: #5A6078; font-weight: 600; }
 .gs-he__assD{ position: sticky; top: 0; }
 .gs-he__pas{ display: block; width: 100%; text-align: left; background: none; border: 1px solid transparent; border-radius: 6px; padding: 3px 6px; margin: 2px 0 2px 18px; font: inherit; font-size: .88rem; cursor: pointer; color: inherit; }
 .gs-he__pas:hover{ background: #F1F2FA; }
@@ -690,3 +696,28 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-modal--sancions .gs-sanc__llistat{ height: calc(100vh - 360px); min-height: 260px; max-height: none; }
 .gs-modal--sancions .gs-sanc__llistat table{ width: 100%; }
 .gs-hor__act{ font-weight: 700; }   /* PAS 74 */
+
+/* PAS 75: llista de matrícula amb ordre i filtre per columna */
+.gs-mat__ord{ background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: inherit; cursor: pointer; text-align: left; }
+.gs-mat__ord:hover{ text-decoration: underline; }
+.gs-mat__filtres th{ padding: 2px 4px; background: #F6F7FC; }
+.gs-mat__filtres input{ width: 100%; min-width: 60px; font-size: 12px; padding: 3px 6px; border: 1px solid #D6DAE6; border-radius: 6px; }
+
+/* PAS 75: Departaments/àmbits (pàgina web) */
+.gs-dw__cos{ display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(260px, 1fr); gap: 20px; align-items: start; padding: 4px; }
+@media (max-width: 900px){ .gs-dw__cos{ grid-template-columns: 1fr; } }
+.gs-dw__sec{ margin: 0 0 16px; }
+.gs-dw__sec h3{ font-size: 16px; margin: 0 0 8px; color: #1C0CBC; }
+.gs-dw__sec h4{ font-size: 14px; margin: 0 0 6px; }
+.gs-dw__form textarea, .gs-dw__form input[type="text"]{ width: 100%; box-sizing: border-box; font: inherit; padding: 6px 8px; border: 1px solid #D6DAE6; border-radius: 8px; }
+.gs-dw__img{ display: flex; gap: 12px; align-items: center; margin: 8px 0; }
+.gs-dw__img img{ max-width: 220px; max-height: 140px; border-radius: 8px; border: 1px solid #E1E5EE; }
+.gs-dw__peu{ display: block; } .gs-dw__peu span, .gs-dw__item label span{ display: block; font-size: 12px; color: #5A6078; margin-bottom: 2px; }
+.gs-dw__item{ position: relative; display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 6px 10px; padding: 10px 34px 10px 10px; border: 1px solid #E1E5EE; border-radius: 10px; margin: 0 0 8px; background: #FAFBFE; }
+.gs-dw__item .gs-dw__ample{ grid-column: 1 / -1; }
+.gs-dw__item .gs-perill{ position: absolute; top: 6px; right: 6px; }
+.gs-dw__auto{ background: #F6F7FC; border: 1px solid #E1E5EE; border-radius: 12px; padding: 12px 14px; }
+.gs-dw__auto h3{ margin: 0 0 10px; font-size: 15px; }
+.gs-dw__auto ul{ margin: 0 0 8px; padding-left: 18px; }
+.gs-dw__previ h2{ color: #1C0CBC; margin: 0 0 10px; } .gs-dw__previ figure{ margin: 0 0 12px; } .gs-dw__previ img{ max-width: 100%; border-radius: 10px; }
+.gs-dw__previ figcaption{ font-size: 13px; color: #5A6078; } .gs-dw__pv h3{ font-size: 16px; color: #1C0CBC; margin: 16px 0 6px; }

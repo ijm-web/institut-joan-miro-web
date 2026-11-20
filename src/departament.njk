@@ -1,0 +1,110 @@
+---
+layout: base.njk
+pagination:
+  data: departaments.llista
+  size: 1
+  alias: dep
+permalink: "departaments/{{ dep.slug }}.html"
+lang: ca
+extraCss: /assets/css/departaments.css
+eleventyComputed:
+  title: "{{ dep.nom }} — Departaments i àmbits — Institut Joan Miró"
+  slug: "departaments/{{ dep.slug }}.html"
+---
+{#- PAS 75 · Pàgina d'un departament/àmbit, el mateix format per a tots. Ordre: presentació (amb imatge), professorat,
+    programacions, criteris de qualificació, matèries i professorat, projectes, feines d'estiu i altres. Un apartat buit no
+    surt. Del professorat, només el nom complet; cap dada d'alumnat. Els enllaços externs s'obren en una pestanya nova. -#}
+<div class="dep-page">
+  <nav class="dep-molla" aria-label="Molla de pa"><a href="/departaments-i-ambits.html">Departaments i àmbits</a> <span aria-hidden="true">›</span> {{ dep.nom }}</nav>
+  <header class="dep-cap">
+    <p class="dep-kicker">{{ dep.especialitats | join(" · ") }}</p>
+    <h1>{{ dep.nom }}</h1>
+  </header>
+
+  {%- if dep.presentacio or dep.imatge %}
+  <section class="dep-sec dep-presentacio" aria-labelledby="dep-pres">
+    <h2 id="dep-pres">Presentació</h2>
+    {%- if dep.imatge %}<figure class="dep-figura"><img src="{{ dep.imatge }}" alt="{{ dep.peu_imatge or dep.nom }}">{% if dep.peu_imatge %}<figcaption>{{ dep.peu_imatge }}</figcaption>{% endif %}</figure>{% endif %}
+    <div class="dep-text">{{ dep.presentacio | safe }}</div>
+  </section>
+  {%- endif %}
+
+  {%- if dep.professorat.length %}
+  <section class="dep-sec" aria-labelledby="dep-prof">
+    <h2 id="dep-prof">Professorat</h2>
+    <ul class="dep-prof">{% for p in dep.professorat %}<li>{{ p }}</li>{% endfor %}</ul>
+  </section>
+  {%- endif %}
+
+  <section class="dep-sec" aria-labelledby="dep-prog">
+    <h2 id="dep-prog">Programacions</h2>
+    <p class="dep-gris">Properament es podran consultar aquí les programacions de les matèries del departament.</p>
+  </section>
+
+  {%- if dep.criteris.length %}
+  <section class="dep-sec" aria-labelledby="dep-crit">
+    <h2 id="dep-crit">Criteris de qualificació</h2>
+    <p>PDF amb els criteris de qualificació publicats de les matèries del departament, per nivell:</p>
+    <p class="dep-botons">{% for c in dep.criteris %}<a class="dep-boto" href="#dep-crit" data-criteris-dep="{{ c.api }}" data-nom="{{ c.nivell }}" data-materies="{{ c.materies | dump }}">{{ c.nivell }}</a>{% endfor %}</p>
+  </section>
+  {%- endif %}
+
+  {%- if dep.perNivell.length %}
+  <section class="dep-sec" aria-labelledby="dep-mat">
+    <h2 id="dep-mat">Matèries i professorat</h2>
+    <div class="dep-taula-wrap"><table class="dep-taula">
+      <thead><tr><th scope="col">Nivell</th><th scope="col">Matèria</th><th scope="col">Professorat</th></tr></thead>
+      <tbody>
+      {%- for g in dep.perNivell %}{% for m in g.materies %}
+        <tr>{% if loop.first %}<th scope="rowgroup" rowspan="{{ g.materies.length }}">{{ g.nivell }}</th>{% endif %}<td>{{ m.materia }}</td><td>{% for x in m.docents %}{{ x.nom }}{% if x.grups.length %} <small>({{ x.grups | join(", ") }})</small>{% endif %}{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>
+      {%- endfor %}{% endfor %}
+      </tbody>
+    </table></div>
+  </section>
+  {%- endif %}
+
+  {%- macro llista(items) -%}
+  <ul class="dep-llista">{% for x in items %}<li>
+    {%- if x.nivell %}<span class="dep-nivell">{{ x.nivell }}</span> {% endif -%}
+    {%- if x.enllac %}<a href="{{ x.enllac }}" target="_blank" rel="noopener">{{ x.titol or x.enllac }}</a>{% else %}<strong>{{ x.titol }}</strong>{% endif -%}
+    {%- if x.curs %} <small>({{ x.curs }})</small>{% endif -%}
+    {%- if x.text %}<p>{{ x.text }}</p>{% endif -%}
+  </li>{% endfor %}</ul>
+  {%- endmacro %}
+  {%- if dep.projectes.length %}<section class="dep-sec" aria-labelledby="dep-proj"><h2 id="dep-proj">Projectes</h2>{{ llista(dep.projectes) }}</section>{% endif %}
+  {%- if dep.feines_estiu.length %}<section class="dep-sec" aria-labelledby="dep-estiu"><h2 id="dep-estiu">Feines d’estiu</h2>{{ llista(dep.feines_estiu) }}</section>{% endif %}
+  {%- if dep.altres.length %}<section class="dep-sec" aria-labelledby="dep-altres"><h2 id="dep-altres">Altres</h2>{{ llista(dep.altres) }}</section>{% endif %}
+</div>
+{%- if dep.criteris.length %}
+<script src="/assets/js/criteris-pdf.js" defer></script>
+{% raw %}
+<script>
+  // Criteris de qualificació del departament: /api/criteris-publics del nivell, només les matèries del departament → PDF
+  document.addEventListener('DOMContentLoaded', function(){
+    var plega = function(t){ return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim(); };
+    var data = function(d){ var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[3]) + '/' + Number(m[2]) + '/' + m[1] : ''; };
+    var dep = (document.querySelector('.dep-cap h1') || {}).textContent || '';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-criteris-dep]'), function(a){
+      a.addEventListener('click', function(ev){
+        ev.preventDefault();
+        var nivell = a.getAttribute('data-criteris-dep'), nom = a.getAttribute('data-nom'), noms = JSON.parse(a.getAttribute('data-materies') || '[]').map(plega);
+        var w = window.open('', '_blank'), avis = function(t){ if (w && !w.closed) w.document.body.innerHTML = '<p style="font:16px/1.6 Montserrat,system-ui,sans-serif;max-width:560px;margin:15vh auto;padding:0 16px;text-align:center">' + t + '</p>'; };
+        avis('Generant el PDF dels criteris de qualificació…');
+        Promise.all([fetch('/api/criteris-publics?nivell=' + encodeURIComponent(nivell)).then(function(r){ return r.json(); }), CriterisPdf.prepara()]).then(function(x){
+          var d = x[0], R = x[1]; if (!d || !d.ok) throw new Error((d && d.error) || 'error');
+          var del = function(m){ var p = plega(m.materia); return noms.some(function(n){ return n && (p === n || p.indexOf(n) >= 0 || n.indexOf(p) >= 0); }); };
+          var mats = d.materies.filter(del).filter(function(m){ var i = m.info || {}; return m.criteris.length || m.competencies.length || i.criteri_aprovar || i.recuperacio || i.millora; });
+          if (!mats.length) return avis('Encara no s’han publicat els criteris de qualificació de les matèries d’aquest departament per a ' + nom + '.');
+          var doc = CriterisPdf.genera(R, { curs: d.curs, lang: 'ca', capcalera: 'Criteris de qualificació',
+            portada: { titol: 'Criteris de qualificació', subtitol: dep + ' · ' + nom + ' · Curs ' + d.curs, head: [['Matèria', 'Actualització']], body: mats.map(function(m){ return [m.materia, data((m.info || {}).data) || '—']; }), columnStyles: { 1: { cellWidth: 34 } } },
+            competenciesDigitals: d.competencies_digitals, assoliment: !/^BAT/.test(nivell),
+            materies: mats.map(function(m){ return { titol: m.materia, pagina: nom + ' · ' + m.materia, subtitol: nom, senseCD: /^BAT/.test(nivell), sensePendents: /^(ESO 4t|BAT 2n)$/.test(nivell), criteris: m.criteris, competencies: m.competencies, info: m.info || {} }; }) });
+          var fitxer = 'criteris-qualificacio-' + nivell.toLowerCase().replace(/\s+/g, '-') + '-' + d.curs + '.pdf';
+          if (w && !w.closed) w.location.href = doc.output('bloburl', { filename: fitxer }); else doc.save(fitxer);
+        }).catch(function(){ avis('No s’ha pogut generar el PDF. Torneu-ho a provar d’aquí a una estona.'); });
+      });
+    });
+  });
+</script>
+{% endraw %}
+{%- endif %}

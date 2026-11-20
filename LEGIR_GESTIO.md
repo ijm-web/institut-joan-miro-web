@@ -505,6 +505,17 @@ self.addEventListener('activate', function (e) {
 - **Comprova la desiderata**: si una matèria separada amb les tisores té desiderata a la fila original i a la nova amb el mateix docent (desada abans i després de separar), l'excés de la fila original no es compta (`desK`, `nf`). Abans: «Grups diferents» (2 a la desiderata, 1 assignat).
 - **Separa** (tisores de Grups i distribució): la desiderata dels docents dels grups que es mouen passa a la fila nova (`mouDesiderata_`).
 
+## PAS 75
+
+- **Càrregues**: desar a l'alumnat (ESO, batxillerat, amonestacions, control d'entrada, consell orientador) només deixa obsoletes Matrícula, Nou alumne/a i el formulari d'amonestació (`MODULS_ALUMNAT`, `ESCRIU_ALUMNAT` a `marcaFrescor`); la resta de mòduls ja llegits es continuen aprofitant.
+- **Currículum › Balanç i transferències**: finestra gran (`gs-modal--gran`), caixes arrossegables (`B.mou`, també al PDF) i codocència a les fletxes (`*` i text del pas del ratolí).
+- **Planificador › Blocs simultanis**: l'etiqueta de la principal diu els suports de la codocència de suport trossejada («3 suports (1+1+1 h: …)», `suportsDe`).
+- **Mòdul Departaments/àmbits** (`departaments`, nou): fulls `departaments_web` (presentació, imatge a Drive + miniatura, projectes, feines d'estiu, altres) i `departaments_publicat`; accions `departaments_web_dades`, `departaments_web_desa`, `departaments_web_imatge`, `departaments_publica`; `publics` → `quin: 'departaments'` (amb les imatges en base64). Permís: EQ-CAPS edició (cada cap, el seu); admin, tots i publica. Config: `carpeta_departaments`, `departaments_publicat`. Web: `lib/departaments-publicat.js` (build → `.cache/departaments-publicat.json` i `.cache/departaments-img/` → `/assets/img/departaments/`), `src/_data/departaments.js`, `src/departaments-i-ambits.njk`, `src/departament.njk` (paginació), `src/assets/css/departaments.css`; menú El Nostre Centre (només si hi ha publicació). Cal **configura** (mòdul, permís i fulls).
+- **Editor › assistent**: fins a 10 moviments; finestra gran; docents a cada moviment; solucions sense incomplir cap regla obligatòria (distribució, mateix dia, dies diferents, trossejades, posicions fixes/prohibides de la sessió i del docent, mitja jornada, guàrdies `deficitsHE`). Necessita un horari del generador del PAS 75 (`posicions`, `docents[].fixes`, relacions de distribució i trossejades). Prova: `proves/e2e75c.mjs`.
+- **Editor**: ocupació, cada franja 1 (també pati i biblioteca); doble clic amb diverses sessions: tria la clicada i intercanvia l'aula dins del bloc.
+- **Matrícula**: ordre i filtre per columna (`COLS_MAT`, `S.mat.ord`, `S.mat.fc`).
+- ESQUEMA 75.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

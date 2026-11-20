@@ -1,0 +1,31 @@
+/* PAS 75 · El Nostre Centre › Departaments i àmbits */
+.dep-page{ max-width: 1100px; margin: 0 auto; padding: 32px 16px 56px; }
+.dep-cap h1{ font-size: clamp(28px, 4vw, 42px); color: #1C0CBC; margin: 0 0 8px; }
+.dep-kicker{ text-transform: uppercase; letter-spacing: .08em; font-weight: 700; color: #E8600C; margin: 0 0 6px; font-size: 13px; }
+.dep-lead{ font-size: 18px; color: #3A3F55; max-width: 760px; }
+.dep-molla{ font-size: 14px; margin: 0 0 16px; color: #5A6078; } .dep-molla a{ color: #1C0CBC; }
+.dep-targetes{ list-style: none; padding: 0; margin: 28px 0 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 20px; }
+.dep-targeta{ display: flex; flex-direction: column; height: 100%; text-decoration: none; color: inherit; border: 1px solid #E1E5EE; border-radius: 16px; overflow: hidden; background: #fff; transition: box-shadow .2s, transform .2s; }
+.dep-targeta:hover, .dep-targeta:focus-visible{ box-shadow: 0 10px 28px rgba(28, 12, 188, .14); transform: translateY(-2px); }
+.dep-targeta img{ width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.dep-targeta__inicial{ display: grid; place-items: center; aspect-ratio: 16 / 9; background: #ECEAFD; color: #1C0CBC; font-size: 56px; font-weight: 800; }
+.dep-targeta__nom{ font-weight: 800; font-size: 19px; color: #1C0CBC; padding: 14px 16px 2px; }
+.dep-targeta__esp{ font-size: 13px; color: #E8600C; font-weight: 600; padding: 0 16px; }
+.dep-targeta__resum{ font-size: 14px; color: #3A3F55; padding: 8px 16px 16px; }
+.dep-buit, .dep-gris{ color: #5A6078; }
+.dep-sec{ margin: 32px 0 0; } .dep-sec h2{ font-size: 22px; color: #1C0CBC; margin: 0 0 12px; border-bottom: 2px solid #ECEAFD; padding-bottom: 6px; }
+.dep-presentacio{ overflow: hidden; } .dep-figura{ float: right; width: min(420px, 45%); margin: 0 0 12px 20px; }
+.dep-figura img{ width: 100%; border-radius: 12px; } .dep-figura figcaption{ font-size: 13px; color: #5A6078; margin-top: 4px; }
+@media (max-width: 700px){ .dep-figura{ float: none; width: 100%; margin: 0 0 12px; } }
+.dep-text p{ line-height: 1.65; } .dep-text a, .dep-llista a{ color: #1C0CBC; }
+.dep-prof{ list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 6px 18px; }
+.dep-prof li::before{ content: "•"; color: #E8600C; margin-right: 8px; }
+.dep-botons{ display: flex; flex-wrap: wrap; gap: 8px; }
+.dep-boto{ display: inline-block; padding: 8px 14px; border-radius: 999px; background: #1C0CBC; color: #fff; text-decoration: none; font-weight: 700; font-size: 14px; }
+.dep-boto:hover{ background: #13088A; }
+.dep-taula-wrap{ overflow-x: auto; } .dep-taula{ width: 100%; border-collapse: collapse; font-size: 15px; }
+.dep-taula th, .dep-taula td{ text-align: left; padding: 8px 10px; border-bottom: 1px solid #E1E5EE; vertical-align: top; }
+.dep-taula thead th{ background: #F6F7FC; color: #1C0CBC; } .dep-taula small{ color: #5A6078; }
+.dep-llista{ list-style: none; padding: 0; margin: 0; display: grid; gap: 12px; }
+.dep-llista li{ border: 1px solid #E1E5EE; border-radius: 12px; padding: 12px 14px; background: #FAFBFE; } .dep-llista p{ margin: 6px 0 0; }
+.dep-nivell{ display: inline-block; font-size: 12px; font-weight: 700; color: #fff; background: #E8600C; border-radius: 999px; padding: 2px 8px; margin-right: 6px; }

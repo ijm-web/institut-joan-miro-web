@@ -975,6 +975,7 @@
                   </div>
                 </div>
                 <a href="/{{ langPrefix }}professorat.html">{{ t.menu.professorat }}</a>
+                {%- if departaments and departaments.llista.length %}<a href="/departaments-i-ambits.html">{{ t.menu.departaments }}</a>{% endif %}
                 <a href="https://sites.google.com/institutjoanmiro.cat/biblioteca-institut-joan-miro/la-biblioteca" target="_blank" rel="noopener">{{ t.menu.biblioteca }}</a>
                 <a href="/{{ langPrefix }}afa.html">{{ t.menu.afa }}</a>
                 <a href="/{{ langPrefix }}contacte.html#mapa">{{ t.menu.onTrobarNos }}</a>
@@ -1104,6 +1105,7 @@
             <li><a href="/{{ langPrefix }}organigrama-coordinacions.html" class="mobile-submenu__sub">{{ t.menu.coordinacions }}</a></li>
             <li><a href="/{{ langPrefix }}organigrama-tutories.html" class="mobile-submenu__sub">{{ t.menu.tutories }}</a></li>
             <li><a href="/{{ langPrefix }}professorat.html">{{ t.menu.professorat }}</a></li>
+            {%- if departaments and departaments.llista.length %}<li><a href="/departaments-i-ambits.html">{{ t.menu.departaments }}</a></li>{% endif %}
             <li><a href="https://sites.google.com/institutjoanmiro.cat/biblioteca-institut-joan-miro/la-biblioteca" target="_blank" rel="noopener">{{ t.menu.biblioteca }}</a></li>
             <li><a href="/{{ langPrefix }}afa.html">{{ t.menu.afa }}</a></li>
             <li><a href="/{{ langPrefix }}contacte.html#mapa">{{ t.menu.onTrobarNos }}</a></li>

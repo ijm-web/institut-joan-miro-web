@@ -1,8 +1,11 @@
 module.exports = async function (eleventyConfig) {
   // PAS 56: calendari publicat des de GESTIO (si n'hi ha), abans de llegir src/_data/calendari.js
   await require("./lib/calendari-publicat.js").descarrega();
+  // PAS 75: departaments/àmbits publicats des de GESTIO (i les seves imatges)
+  await require("./lib/departaments-publicat.js").descarrega();
 
   eleventyConfig.addPassthroughCopy("src/assets");
+  eleventyConfig.addPassthroughCopy({ ".cache/departaments-img": "assets/img/departaments" });   // PAS 75
   eleventyConfig.addPassthroughCopy({ "src/favicon.ico": "favicon.ico" });   // PAS 31: icona del web (motiu Miró: punt verd i estrella)
   // PAS 72 · PWA: manifest i service worker (a l'arrel, perquè el seu abast sigui tot el web)
   eleventyConfig.addPassthroughCopy({ "src/manifest.webmanifest": "manifest.webmanifest", "src/sw.js": "sw.js" });
