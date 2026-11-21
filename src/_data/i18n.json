@@ -58,7 +58,9 @@
       "clickeduGuia": "Guia per a famílies",
       "clickeduGuiaSub": "App i versió d'escriptori",
       "instagramLabel": "Instagram de l'Institut Joan Miró",
-      "youtubeLabel": "Youtube de l'Institut Joan Miró"
+      "youtubeLabel": "Youtube de l'Institut Joan Miró",
+      "areaPrivada": "Àrea privada",
+      "areaPrivadaSub": "GESTIO · personal del centre"
     },
     "search": {
       "placeholder": "Cerca al site...",
@@ -173,7 +175,9 @@
       "clickeduGuia": "Guía para familias",
       "clickeduGuiaSub": "App y versión de escritorio (en catalán)",
       "instagramLabel": "Instagram del Institut Joan Miró",
-      "youtubeLabel": "Youtube del Institut Joan Miró"
+      "youtubeLabel": "Youtube del Institut Joan Miró",
+      "areaPrivada": "Área privada",
+      "areaPrivadaSub": "GESTIO · personal del centro"
     },
     "search": {
       "placeholder": "Buscar en el sitio...",
@@ -288,7 +292,9 @@
       "clickeduGuia": "Guide for families",
       "clickeduGuiaSub": "App and desktop version (in Catalan)",
       "instagramLabel": "Instagram of Institut Joan Miró",
-      "youtubeLabel": "Youtube of Institut Joan Miró"
+      "youtubeLabel": "Youtube of Institut Joan Miró",
+      "areaPrivada": "Private area",
+      "areaPrivadaSub": "GESTIO · school staff"
     },
     "search": {
       "placeholder": "Search the site...",

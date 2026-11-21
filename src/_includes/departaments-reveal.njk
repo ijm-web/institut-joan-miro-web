@@ -1,0 +1,10 @@
+{#- PAS 76 · Aparició suau en fer scroll (com a Projectes › Llengües estrangeres). Sense JavaScript, tot es veu. -#}
+<script>
+  (function(){
+    var els = document.querySelectorAll('.dp-reveal');
+    if (!('IntersectionObserver' in window) || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    document.documentElement.classList.add('dp-anima');
+    var io = new IntersectionObserver(function(ents){ ents.forEach(function(e){ if (e.isIntersecting){ e.target.classList.add('is-in'); io.unobserve(e.target); } }); }, { rootMargin: '0px 0px -8% 0px' });
+    Array.prototype.forEach.call(els, function(el){ io.observe(el); });
+  })();
+</script>

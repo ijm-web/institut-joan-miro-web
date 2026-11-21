@@ -1,69 +1,12 @@
-{%- set L = departaments.text[lang] or departaments.text.ca %}{% set pref = "" if lang == "ca" else "/" + lang %}
-{#- PAS 75 · Pàgina d'un departament/àmbit, el mateix format per a tots. Ordre: presentació (amb imatge), professorat,
-    programacions, criteris de qualificació, matèries i professorat, projectes, feines d'estiu i altres. Un apartat buit no
-    surt. Del professorat, només el nom complet; cap dada d'alumnat. Els enllaços externs s'obren en una pestanya nova. -#}
-<div class="dep-page">
-  <nav class="dep-molla" aria-label="{{ L.molla }}"><a href="{{ pref }}/departaments-i-ambits.html">{{ L.titol }}</a> <span aria-hidden="true">›</span> {{ dep.nom }}</nav>
-  <header class="dep-cap">
-    <p class="dep-kicker">{{ dep.especialitats | join(" · ") }}</p>
-    <h1>{{ dep.nom }}</h1>
-    {%- if lang != "ca" %}<p class="dep-gris">{{ L.nomesCa }}</p>{% endif %}
-  </header>
-
-  {%- if dep.presentacio or dep.imatge %}
-  <section class="dep-sec dep-presentacio" aria-labelledby="dep-pres">
-    <h2 id="dep-pres">{{ L.presentacio }}</h2>
-    {%- if dep.imatge %}<figure class="dep-figura"><img src="{{ dep.imatge }}" alt="{{ dep.peu_imatge or dep.nom }}">{% if dep.peu_imatge %}<figcaption>{{ dep.peu_imatge }}</figcaption>{% endif %}</figure>{% endif %}
-    <div class="dep-text">{{ dep.presentacio | safe }}</div>
-  </section>
-  {%- endif %}
-
-  {%- if dep.professorat.length %}
-  <section class="dep-sec" aria-labelledby="dep-prof">
-    <h2 id="dep-prof">{{ L.professorat }}</h2>
-    <ul class="dep-prof">{% for p in dep.professorat %}<li>{{ p }}</li>{% endfor %}</ul>
-  </section>
-  {%- endif %}
-
-  <section class="dep-sec" aria-labelledby="dep-prog">
-    <h2 id="dep-prog">{{ L.programacions }}</h2>
-    <p class="dep-gris">{{ L.progProperament }}</p>
-  </section>
-
-  {%- if dep.criteris.length %}
-  <section class="dep-sec" aria-labelledby="dep-crit">
-    <h2 id="dep-crit">{{ L.criteris }}</h2>
-    <p>{{ L.criterisText }}</p>
-    <p class="dep-botons">{% for c in dep.criteris %}<a class="dep-boto" href="#dep-crit" data-criteris-dep="{{ c.api }}" data-nom="{{ c.nivell }}" data-materies="{{ c.materies | dump }}">{{ c.nivell }}</a>{% endfor %}</p>
-  </section>
-  {%- endif %}
-
-  {%- if dep.perNivell.length %}
-  <section class="dep-sec" aria-labelledby="dep-mat">
-    <h2 id="dep-mat">{{ L.materies }}</h2>
-    <div class="dep-taula-wrap"><table class="dep-taula">
-      <thead><tr><th scope="col">{{ L.nivell }}</th><th scope="col">{{ L.materia }}</th><th scope="col">{{ L.professorat }}</th></tr></thead>
-      <tbody>
-      {%- for g in dep.perNivell %}{% for m in g.materies %}
-        <tr>{% if loop.first %}<th scope="rowgroup" rowspan="{{ g.materies.length }}">{{ g.nivell }}</th>{% endif %}<td>{{ m.materia }}</td><td>{% for x in m.docents %}{{ x.nom }}{% if x.grups.length %} <small>({{ x.grups | join(", ") }})</small>{% endif %}{% if not loop.last %}<br>{% endif %}{% endfor %}</td></tr>
-      {%- endfor %}{% endfor %}
-      </tbody>
-    </table></div>
-  </section>
-  {%- endif %}
-
-  {%- macro llista(items) -%}
-  <ul class="dep-llista">{% for x in items %}<li>
-    {%- if x.nivell %}<span class="dep-nivell">{{ x.nivell }}</span> {% endif -%}
-    {%- if x.enllac %}<a href="{{ x.enllac }}" target="_blank" rel="noopener">{{ x.titol or x.enllac }}</a>{% else %}<strong>{{ x.titol }}</strong>{% endif -%}
-    {%- if x.curs %} <small>({{ x.curs }})</small>{% endif -%}
-    {%- if x.text %}<p>{{ x.text }}</p>{% endif -%}
-  </li>{% endfor %}</ul>
-  {%- endmacro %}
-  {%- if dep.projectes.length %}<section class="dep-sec" aria-labelledby="dep-proj"><h2 id="dep-proj">{{ L.projectes }}</h2>{{ llista(dep.projectes) }}</section>{% endif %}
-  {%- if dep.feines_estiu.length %}<section class="dep-sec" aria-labelledby="dep-estiu"><h2 id="dep-estiu">{{ L.estiu }}</h2>{{ llista(dep.feines_estiu) }}</section>{% endif %}
-  {%- if dep.altres.length %}<section class="dep-sec" aria-labelledby="dep-altres"><h2 id="dep-altres">{{ L.altres }}</h2>{{ llista(dep.altres) }}</section>{% endif %}
-</div>
+{#- PAS 75/76 · Pàgina d'un departament/àmbit, el mateix format per a tots (disseny com Projectes › Llengües estrangeres).
+    Ordre: presentació (amb imatge), professorat, programacions, criteris de qualificació, matèries i professorat, projectes,
+    feines d'estiu i altres. Un apartat buit no surt. L'HTML el fa src/assets/js/departament-pagina.js (el mateix codi que la
+    «Vista prèvia» de GESTIO). Del professorat, només el nom complet; cap dada d'alumnat. -#}
+{%- set L = departaments.text[lang] or departaments.text.ca %}
+{%- set H = dep.html[lang] or dep.html.ca %}
+{{ H.hero | safe }}
+{{ H.cos | safe }}
+{% include "departaments-reveal.njk" %}
 {%- if dep.criteris.length %}
 <script src="/assets/js/criteris-pdf.js" defer></script>
 <script>window.DEP_TXT = {{ L.js | dump | safe }};</script>
@@ -73,7 +16,7 @@
   document.addEventListener('DOMContentLoaded', function(){
     var plega = function(t){ return String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/\s*\(.*?\)\s*/g, ' ').replace(/[^a-z0-9]+/g, ' ').trim(); };
     var data = function(d){ var m = String(d || '').match(/^(\d{4})-(\d{2})-(\d{2})/); return m ? Number(m[3]) + '/' + Number(m[2]) + '/' + m[1] : ''; };
-    var dep = (document.querySelector('.dep-cap h1') || {}).textContent || '';
+    var dep = (document.querySelector('.dp-hero .qs-hero__subtitle') || {}).textContent || '';
     Array.prototype.forEach.call(document.querySelectorAll('[data-criteris-dep]'), function(a){
       a.addEventListener('click', function(ev){
         ev.preventDefault();

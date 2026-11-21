@@ -520,6 +520,18 @@ self.addEventListener('activate', function (e) {
 - Departaments i àmbits també en castellà i anglès: `/es/departaments-i-ambits.html`, `/en/…` i `/es|en/departaments/{slug}.html` (abans el selector d'idioma i el menú en es/en portaven a un 404). Els títols i apartats es tradueixen; el contingut que escriuen els caps es mostra en català, amb un avís.
 - Plantilles a `src/_includes/departaments-i-ambits.njk` i `src/_includes/departament.njk`; textos a `src/_data/departaments.js` (`text`).
 
+## PAS 76
+- **Configura obligatori** (ESQUEMA 76): mòdul **Sancions**; columnes `estat` i `id_sancio` a les amonestacions; `tipus` i `amonestacions` al full `sancions`; columnes `estat`, `data_tancat`, `tancat_per` a `departaments_web`; config `departaments_limit` i `departaments_bloqueig`. Les entrades taronja passen a vermell.
+- **Control d'entrada**: estats blanc (res), groc (justificat, no compta mai; clic de l'administració al punt), vermell (sanció en curs) i verd (sancionat). Cada entrada compta segons l'hora: 8:15–9:15 = 1, 9:15–10:15 = 2, 10:15–11:45 = 3, 11:45–12:45 = 4, 12:45–13:45 = 5, després = 6 (`pesRetard`).
+- **Amonestacions**: estat (blanc, vermell, verd) que només canvia l'administració amb una sanció; avís en línia (ESO/BAT/període) amb «compta les verdes» i la nota de les NOFC; doble clic = finestra de l'alumne/a (esquerra: sancions, només administració; dreta: amonestacions amb els fets).
+- **Sancions** (mòdul nou): totes les sancions (acumulació de retards, ús del mòbil, acumulació d'amonestacions lleus, amonestació greu), llista amb filtres i ordre per columna, nova/edita/anul·la/recupera/esborra, PDF. Accions `sancions_dades`, `sancio_desa` (amb `tipus`, `entrades`, `amonestacions`), `sancio_esborra`, `entrada_estat`.
+- **Departaments/àmbits**: subapartats Edició i Administració; barra del cap (Desa, Tanca/Obre); ajuda de format (negreta, cursiva, llistes, enllaços); vista prèvia en una pestanya nova amb el mateix codi que el web (`src/assets/js/departament-pagina.js`); data límit, bloqueig, tanca les obertes; només es publiquen les tancades. Web redissenyat (com Projectes › Llengües estrangeres) i imatge ajustada.
+- **Balanç i transferències**: el marc s'ajusta a totes les caixes i a la finestra (cap caixa tallada).
+- **Horaris**: subgrups de tipus **itinerari** (batxillerat) i columna «Itineraris» als altres subgrups; l'exportació porta `subgrups[].itineraris`; el resultat del motor porta `sessions[].recursos` (columna nova del full `horari_resultat`); l'editor fa servir els recursos. Regla obligatòria «classe cada dia» (catàleg i assistent de l'editor).
+- **Calendari**: en entrar, sempre avui (amb la vista recordada).
+- **Web**: icona «Àrea privada» (cadenat) a la capçalera i al menú mòbil, que porta a GESTIO (imprescindible a l'aplicació instal·lada).
+- **Generador** (bundle `generador-horaris-pas76.bundle`): regla «classe cada dia», penalització en viu, Pausa/Continua i Atura amb les sessions que costen més de col·locar, itineraris.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

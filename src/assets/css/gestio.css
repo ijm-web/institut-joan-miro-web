@@ -721,3 +721,47 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-dw__auto ul{ margin: 0 0 8px; padding-left: 18px; }
 .gs-dw__previ h2{ color: #1C0CBC; margin: 0 0 10px; } .gs-dw__previ figure{ margin: 0 0 12px; } .gs-dw__previ img{ max-width: 100%; border-radius: 10px; }
 .gs-dw__previ figcaption{ font-size: 13px; color: #5A6078; } .gs-dw__pv h3{ font-size: 16px; color: #1C0CBC; margin: 16px 0 6px; }
+/* PAS 76 · Departaments/àmbits: subapartats Edició i Administració, estat de les pàgines, barra del cap i icones */
+.gs-dw__tabs{ display: inline-flex; border: 1px solid #D6DAE6; border-radius: 999px; overflow: hidden; margin-right: 8px; }
+.gs-dw__tab{ display: inline-flex; align-items: center; gap: 6px; border: 0; background: #fff; color: #1C0CBC; font: 600 13px/1 inherit; font-family: inherit; padding: 8px 14px; cursor: pointer; }
+.gs-dw__tab + .gs-dw__tab{ border-left: 1px solid #D6DAE6; }
+.gs-dw__tab.is-actiu{ background: #1C0CBC; color: #fff; }
+.gs-dw__tab svg, .gs-dw__ic svg, .gs-dw__estat svg, .gs-dw__sec h3 svg{ width: 16px; height: 16px; vertical-align: -3px; }
+.gs-dw__ic{ display: inline-flex; align-items: center; gap: 6px; }
+.gs-dw__barra{ display: flex; flex-wrap: wrap; align-items: center; gap: 8px 10px; padding: 10px 12px; margin: 0 0 12px; border: 1px solid #E1E5EE; border-radius: 12px; background: #F6F7FC; position: sticky; top: 0; z-index: 2; }
+.gs-dw__estat{ display: inline-flex; align-items: center; gap: 6px; font-weight: 700; font-size: 13px; border-radius: 999px; padding: 4px 10px; }
+.gs-dw__estat--oberta{ background: #FFF4E5; color: #B54700; }
+.gs-dw__estat--tancada{ background: #E3F3EA; color: #0F7A45; }
+.gs-dw__fmt{ margin: 0 0 14px; border: 1px solid #E1E5EE; border-radius: 10px; padding: 8px 12px; background: #fff; font-size: 13px; }
+.gs-dw__fmt summary{ cursor: pointer; font-weight: 700; color: #1C0CBC; }
+.gs-dw__fmt p{ margin: 6px 0 0; line-height: 1.6; } .gs-dw__fmt code{ background: #F1F2F8; border-radius: 4px; padding: 0 4px; }
+.gs-dw__admin{ padding: 4px; max-width: 1100px; }
+.gs-dw__panell{ border: 1px solid #E1E5EE; border-radius: 12px; padding: 12px 14px; background: #FAFBFE; }
+.gs-dw__panell .gs-form-fila{ display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.gs-dw__perill{ background: #C62828; border-color: #C62828; }
+.gs-dw__estats td{ vertical-align: middle; }
+.gs-dw__accions{ white-space: nowrap; }
+.gs-dw__ib{ display: inline-grid; place-items: center; width: 30px; height: 30px; border: 1px solid #D6DAE6; border-radius: 8px; background: #fff; color: #1C0CBC; cursor: pointer; margin: 0 2px; }
+.gs-dw__ib:hover, .gs-dw__ib:focus-visible{ background: #ECEAFD; }
+.gs-dw__ib svg{ width: 16px; height: 16px; }
+/* PAS 76 · Estats dels registres: blanc = res; groc = justificat; vermell = sanció en curs; verd = sancionat */
+.gs-punt--groc{ background: #FACC15; border-color: #CA8A04; }
+.gs-punt--vermell{ background: #E53935; border-color: #B71C1C; }
+.gs-punt--taronja{ background: #E53935; border-color: #B71C1C; }   /* dades antigues abans del «configura» */
+.gs-punt--clic{ cursor: pointer; box-shadow: 0 0 0 2px rgba(28, 12, 188, .12); }
+.gs-punt--clic:hover{ box-shadow: 0 0 0 3px rgba(28, 12, 188, .3); }
+.gs-retards__info{ cursor: help; }
+/* PAS 76 · Sancions i finestra de l'alumne/a a Amonestacions */
+.gs-san__wrap{ overflow: auto; max-height: calc(100vh - 300px); }
+.gs-san__taula thead th{ position: sticky; top: 0; background: #F6F7FC; z-index: 1; }
+.gs-san__taula thead tr.gs-mat__filtres th{ top: 34px; }
+.gs-san__acc{ white-space: nowrap; }
+.gs-amsan{ display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+.gs-amsan--sol{ grid-template-columns: minmax(0, 1fr); }
+@media (max-width: 900px){ .gs-amsan{ grid-template-columns: 1fr; } }
+.gs-amsan__esq{ border-right: 1px solid #E1E5EE; padding-right: 18px; }
+@media (max-width: 900px){ .gs-amsan__esq{ border-right: 0; padding-right: 0; } }
+.gs-amsan__llista{ list-style: none; margin: 0 0 10px; padding: 0; max-height: 180px; overflow: auto; border: 1px solid #E1E5EE; border-radius: 10px; }
+.gs-amsan__item{ display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: #fff; text-align: left; padding: 7px 10px; font: inherit; cursor: pointer; border-bottom: 1px solid #F0F1F6; }
+.gs-amsan__item:hover{ background: #F6F7FC; } .gs-amsan__item.is-actiu{ background: #ECEAFD; font-weight: 700; color: #1C0CBC; }
+.gs-amsan__det{ border: 1px solid #E1E5EE; border-radius: 12px; padding: 10px 14px; background: #FAFBFE; }

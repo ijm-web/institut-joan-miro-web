@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 75 · 20 de novembre de 2026",
+  "versio": "PAS 76 · 21 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -742,14 +742,15 @@
         {
           "id": "ce-consulta",
           "titol": "Consultar les entrades",
-          "claus": "entrades retards llistat graella consulta filtrar",
+          "claus": "entrades retards llistat graella consulta filtrar estat groc justificat vermell verd",
           "text": [
             "La graella mostra totes les entrades, de la més recent a la més antiga: alumne, nivell, grup-classe, data i hora. Es pot filtrar per qualsevol camp i exportar a Excel o PDF.",
             "**Període** (a dalt a l'esquerra), com a Amonestacions: **Curs actual** (per defecte, de l'1 de setembre al 31 d'agost del curs en què som segons la data d'avui), **Tots** o **Data a data**. Si no veieu entrades antigues o importades, trieu **Tots**. Es combina amb els filtres de les columnes; l'Excel i el PDF exporten el que es veu.",
             "Les entrades no es modifiquen a la cel·la.",
             "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne).",
-            "**Estat** (primera columna): un punt **blanc** = entrada sense sanció; **taronja** = forma part d'una sanció en tràmit; **verd** = sancionada. Es pot filtrar per estat amb el filtre de la columna.",
-            "La columna **Estat** sempre surt la primera, encara que tingueu desada una tria de columnes anterior (Visualització camps)."
+            "La columna **Estat** sempre surt la primera, encara que tingueu desada una tria de columnes anterior (Visualització camps).",
+            "**Estat** (primera columna, PAS 76): un punt **blanc** = res; **groc** = justificat (p. ex. arriba tard amb una causa justificada: no compta mai per a l'avís); **vermell** = sanció en curs (en tràmit); **verd** = sancionat. Al costat de l'avís hi ha el filtre **Estat**.",
+            "Amb el nivell admin, **un clic al punt** d'una entrada blanca la marca com a **justificada** (groc); un altre clic ho treu. Les entrades d'una sanció no es poden justificar."
           ]
         },
         {
@@ -766,12 +767,13 @@
         {
           "id": "ce-sancions",
           "titol": "Sancions",
-          "claus": "sanció sancionar estat verd taronja blanc tràmit doble clic",
+          "claus": "sanció sancionar estat verd vermell groc blanc tràmit doble clic",
           "text": [
-            "**Doble clic** a una entrada obre les entrades i les sancions d'aquell alumne/a.",
-            "**Sancions (N)** (a dalt) obre la **gestió de les sancions**: la llista amb filtres (cerca per alumne/a, descripció o codi; estat; grup-classe; des del / fins al) i, amb el nivell admin, **+ Nova sanció** (trieu l'alumne/a), **Edita**, **Anul·la** (baixa: la sanció es conserva però les entrades tornen a blanc), **Recupera** (torna a «en tràmit») i **Esborra** (definitivament; en queda còpia a l'historial). **Descarrega (CSV)** baixa la llista filtrada.",
-            "En crear o editar una sanció: marqueu les entrades (per defecte, les blanques), escriviu la **descripció**, la **data** i l'**estat**: **en tràmit** (entrades taronja), **sancionat** (verd) o **anul·lada** (blanc).",
-            "Una entrada només pot ser d'una sanció activa. Al costat de l'avís hi ha el filtre **Estat** (tots, blanc, taronja, verd) per a les entrades."
+            "**Doble clic** a una entrada obre les entrades i les sancions d'aquell alumne/a (sancions d'**acumulació de retards**).",
+            "**Sancions (N)** (a dalt) obre la gestió de les sancions de retards: llista amb filtres i, amb el nivell admin, **+ Nova sanció**, **Edita**, **Anul·la** (les entrades tornen a blanc), **Recupera** i **Esborra**. Totes les sancions (també les de mòbil i d'amonestacions) són al mòdul **Sancions**.",
+            "En crear o editar una sanció: marqueu les entrades (per defecte, les blanques), escriviu la **descripció**, la **data** i l'**estat**: **en tràmit** (entrades **vermelles**: sanció en curs), **sancionat** (**verd**) o **anul·lada** (blanc).",
+            "Les sancions **mai no es posen soles**: les valora i les crea l'administració.",
+            "Una entrada només pot ser d'una sanció activa."
           ]
         },
         {
@@ -781,18 +783,20 @@
           "text": [
             "**Anàlisi** permet triar el nivell, el grup-classe i una data (en blanc = tot el període). Mostra, per ordre alfabètic, quantes vegades s'ha registrat cada alumne. Amb una data, només es compten les entrades d'aquella data en endavant.",
             "L'informe es pot descarregar en PDF.",
-            "L'anàlisi també compta, per a cada alumne/a i en total, les entrades **blanques**, **taronges** i **verdes**."
+            "L'anàlisi també compta, per a cada alumne/a i en total, les entrades **blanques**, **taronges** i **verdes**.",
+            "PAS 76: l'anàlisi també dona els **retards** comptats (pes per hora) i les entrades de cada estat (blanques, grogues, vermelles i verdes)."
           ]
         },
         {
           "id": "ce-retards",
           "titol": "Avís de retards",
-          "claus": "avís retards quantitat període setmana mes alerta",
+          "claus": "avís retards quantitat període setmana mes alerta pes hora 9:15 10:15 justificat groc compta",
           "text": [
-            "A dalt de la graella: **Avís: N retards o més en un període** (per defecte, 5 o més en 1 mes). La quantitat va de 3 a 20 i el període pot ser 1, 2 o 3 setmanes o 1 mes, **comptat enrere des d'avui**: 1 setmana = els darrers 7 dies; 1 mes = des del mateix dia del mes anterior (avui 5 de novembre → des del 5 d'octubre). Al costat surt la data d'inici («des del …»). Només qui administra el mòdul pot canviar el criteri, que val per a tothom.",
-            "El botó **⚠ N alumnes** obre la llista dels alumnes que arriben al criteri (amb el nombre de retards i el darrer), amb PDF. A la graella, al costat del nom d'aquests alumnes surt **⚠** i el nombre de retards.",
-            "En registrar una **Nova entrada**, si l'alumne arriba al criteri, surt un avís.",
-            "La casella **compta les verdes** (al costat de l'avís) decideix si les entrades ja sancionades compten per a l'avís. Per defecte, sí; si la desmarqueu, l'avís només té en compte les entrades blanques i taronges. Es recorda en aquest navegador."
+            "**Avís: N retards o més en [període]** (a dalt): el botó ⚠ diu quants alumnes arriben al criteri i obre la llista. Qui administra el mòdul canvia el nombre i el període (val per a tothom).",
+            "**Cada entrada compta segons l'hora d'arribada** (PAS 76): entre 8:15 i 9:15, **1** retard (el de les 8:15); entre 9:15 i 10:15, **2** (el de les 8:15 i el de les 9:15); entre 10:15 i 11:45, **3**; entre 11:45 i 12:45, **4**; entre 12:45 i 13:45, **5**; a partir de 13:45, **6**. Exemple: si un alumne entra a les 9:25 compta 2 retards; a les 10:28, 3. El símbol (i) al costat de l'avís ho recorda.",
+            "Les entrades **justificades** (grogues) **no compten mai**.",
+            "**compta les verdes**: si no es marca, les entrades ja sancionades (verdes) no compten. Es recorda en aquest navegador.",
+            "La llista diu, per a cada alumne/a, els retards comptats i quantes entrades són. A la graella, el nom porta ⚠ N (els retards del període)."
           ]
         }
       ]
@@ -821,16 +825,19 @@
             "Una fila per amonestació, de la més recent a la més antiga: data dels fets, alumne, nivell, grup-classe, professor/a, curs i data de redacció. Els **fets** no surten a la graella: la icona de la columna Fets els mostra; la icona **PDF** obre el document en una pestanya nova.",
             "**Període** (a dalt a l'esquerra): **Curs actual** (per defecte), **Tots** o **Data a data** (del … al …). Es combina amb els filtres de les columnes.",
             "Les amonestacions no es modifiquen a la cel·la. Una feta per error s'esborra amb la **paperera** (edició): el PDF va a la paperera de Drive i queda una còpia a l'historial.",
-            "**Excel** i **PDF** exporten les files que es veuen. L'Excel inclou els fets; el PDF, no (per mida)."
+            "**Excel** i **PDF** exporten les files que es veuen. L'Excel inclou els fets; el PDF, no (per mida).",
+            "**Estat** (primera columna, PAS 76): un punt **blanc** = res; **vermell** = sanció en curs; **verd** = sancionat. **Només l'administració** el canvia, amb una sanció (doble clic a l'alumne/a). Ni el professorat ni la coordinació de nivell el poden canviar."
           ]
         },
         {
           "id": "am-visor",
-          "titol": "Veure una amonestació",
-          "claus": "visor doble clic fets anterior següent navegar",
+          "titol": "Finestra de l’alumne/a (doble clic)",
+          "claus": "visor fets doble clic alumne sanció esquerra dreta",
           "text": [
-            "**Doble clic** a una fila obre el visor amb totes les dades, també els fets, i l'enllaç al PDF.",
-            "**‹ Anterior** i **Següent ›** (o les fletxes del teclat) recorren les files que es veuen ara, amb el període, els filtres i l'ordre de la graella."
+            "**Doble clic** a una amonestació obre la finestra de l'alumne/a, en dues parts (PAS 76).",
+            "**Dreta** (tothom): les amonestacions de l'alumne/a que veieu, amb la data, el professor/a i l'estat; cliqueu-ne una (o ‹ ›) per veure'n els fets i el PDF.",
+            "**Esquerra** (només l'administració): les sancions de l'alumne/a i **Nova sanció**: tipus (**acumulació d'amonestacions lleus** o **amonestació greu**), descripció, data i estat (**en tràmit** = vermell, **sancionat** = verd, **anul·lada** = blanc), i les amonestacions que en formen part (marcades). **Edita** i **Esborra** a cada sanció. Mai no es posen soles.",
+            "Totes les sancions són també al mòdul **Sancions**."
           ]
         },
         {
@@ -853,10 +860,11 @@
         {
           "id": "am-avis",
           "titol": "Avís d'amonestacions",
-          "claus": "avís acumulació cinc dues eso batxillerat comissió convivència",
+          "claus": "avís acumulació cinc dues eso batxillerat comissió convivència NOFC compta verdes",
           "text": [
-            "A dalt: **Avís: ESO N o més · BAT M o més** en un període (per defecte, tot el curs). Les NOFC (5.3.2) preveuen mesures a partir de **cinc** amonestacions lleus a l'ESO i de **dues** al batxillerat.",
-            "El botó **⚠ N alumnes** obre la llista (amb PDF). A la graella, al costat del nom surt **⚠** i el nombre d'amonestacions."
+            "**Avís: ESO N · BAT N amonestacions o més en [període]** (a dalt), com al Control d'entrada: l'administració canvia els nombres i el període aquí mateix (val per a tothom). Les **NOFC** (5.3.2) regulen **ESO 5 o més · BAT 2 o més**.",
+            "**compta les verdes**: si no es marca, les amonestacions ja sancionades (verdes) no compten per a l'avís.",
+            "El botó ⚠ diu quants alumnes hi arriben i obre la llista."
           ]
         },
         {
@@ -1041,7 +1049,8 @@
             "- **Assignades d'altres especialitats**: hores de matèries d'altres especialitats que ha d'impartir aquesta.",
             "- **Professorat** de l'especialitat amb el càrrec i les hores lectives.",
             "- **Balanç**: total de l'especialitat − cedides + assignades = hores a impartir; hores lectives del professorat − hores a impartir = balanç (positiu: sobren hores; negatiu: en falten).",
-            "**PDF** fa el de l'especialitat triada; **PDF de totes**, un PDF amb una pàgina (o més) per especialitat."
+            "**PDF** fa el de l'especialitat triada; **PDF de totes**, un PDF amb una pàgina (o més) per especialitat.",
+            "PAS 76: el marc s'ajusta a totes les caixes i ocupa tota la finestra: les caixes es poden portar fins a la vora (i més enllà: apareix la barra de desplaçament) sense que quedin tallades."
           ]
         },
         {
@@ -1342,6 +1351,27 @@
             "**Actualitza** (fletxes en cercle) torna a llegir les dades (Currículum, assignacions, professorat…). Si hi ha canvis sense desar, avisa abans.",
             "**⟳ Actualitza les dades** (a dalt) torna a llegir totes les dades del planificador (Currículum, assignacions, professorat…). Si hi ha canvis sense desar, abans ho pregunta. En tornar al planificador des d'un altre mòdul, les dades es tornen a llegir soles si s'ha desat alguna cosa en un altre mòdul."
           ]
+        },
+        {
+          "id": "hor-itineraris",
+          "titol": "Itineraris de batxillerat",
+          "claus": "itinerari batxillerat científic humanístic modalitat subgrup 1r BAT B",
+          "text": [
+            "Un grup-classe amb alumnat de dues modalitats (p. ex. **1r BAT B**: Científic + Humanístic) es parteix en **itineraris**: a **Subgrups**, un subgrup de tipus **Itinerari** per a cada modalitat (d'un sol grup-classe; almenys dos per grup). Noms com «1BATB-Cie» i «1BATB-Hum» es reconeixen sols en importar.",
+            "Les matèries de cada modalitat es fan amb el seu itinerari (Sessions lectives: grup = l'itinerari). El generador les pot posar **a la mateixa hora que les de l'altre itinerari, lliurement** (sense blocs fixos); les comunes (grup-classe sencer) ocupen tots dos itineraris.",
+            "Una matèria compartida amb un altre grup (p. ex. HMC dels humanístics de B amb el grup C): el subgrup amb els grups B i C i, a la columna **Itineraris**, només «1BATB-Hum». Sense cap itinerari marcat, l'alumnat surt de tots.",
+            "El validador compta les hores de cada itinerari i avisa si un itinerari té menys hores que franges (l'alumnat tindria hores sense classe)."
+          ]
+        },
+        {
+          "id": "hor-dia",
+          "titol": "Regla «classe cada dia»",
+          "claus": "regla obligatòria classe cada dia guàrdies mitja jornada dos terços dies lliures",
+          "text": [
+            "Regla obligatòria del generador (PAS 76): cada docent fa alguna **classe amb alumnat cada dia** (les reduccions, les reunions i les guàrdies no compten: cap dia amb només guàrdies).",
+            "**Mitja jornada** o **⅔ de jornada**: fins a **dos dies del tot lliures** (sense res); la resta, amb classe.",
+            "No s'aplica a qui té menys sessions de classe que dies (el validador ho avisa) ni, en un càlcul parcial sense horari base, a qui té classes d'altres nivells."
+          ]
         }
       ]
     },
@@ -1427,6 +1457,15 @@
             "Les **divisions** (p. ex. Matemàtiques (div.)) són, a Clickedu, la **mateixa matèria** que Matemàtiques amb un **subgrup**: les correspondències (`python -m horaris.correspondencies`) les relacionen així.",
             "**Correspondències**: no cal fer-les a cada exportació ni a cada càlcul. Es fan una vegada quan el currículum (assignacions) i l'exportació de Clickedu del curs són definitius, i es tornen a fer només si canvia alguna de les dues coses (Genera els grups, tisores, docents o aules nous, o una exportació nova de Clickedu). Si el fitxer per a Clickedu avisa «sense sessió de Clickedu (correspondències)», cal refer-les."
           ]
+        },
+        {
+          "id": "he-pas76",
+          "titol": "Regles noves (PAS 76)",
+          "claus": "classe cada dia itinerari assistent",
+          "text": [
+            "L'assistent i els moviments respecten també la regla **classe cada dia** (jornada reduïda: fins a dos dies lliures): no proposa cap moviment que deixi un docent un dia sense classe si abans en tenia.",
+            "Amb **itineraris** (batxillerat), les classes de dos itineraris del mateix grup-classe poden coincidir: no és cap conflicte."
+          ]
         }
       ]
     },
@@ -1440,6 +1479,7 @@
           "titol": "Vistes i filtres",
           "claus": "llista dia setmana mes trimestre vista avui anterior següent filtre categoria nivell cerca",
           "text": [
+            "**En entrar al mòdul** (PAS 76) sempre surt **avui**, amb la vista que teníeu: vista Dia → avui; Setmana → la setmana d'avui; Mes → el mes d'avui; Trimestre → el trimestre d'avui. **Actualitza** manté la data que miràveu.",
             "Les pestanyes canvien la vista: **Llista** (tot el curs, per mesos, amb cerca), **Dia**, **Setmana**, **Mes**, **Trimestre** (els mesos en petit, amb punts, i la llista del trimestre) i **Dates clau**.",
             "Amb ◀ **Avui** ▶ i el calendari petit es canvia de dia, setmana, mes o trimestre. Un clic en el número d'un dia obre la vista del dia.",
             "Filtres: **Categoria** i **Nivells**. Al desplegable de nivells es marquen els que es volen veure (també **Professorat**); **Cap** i **Tots** els desmarquen o marquen tots, **Accepta** aplica la tria i **Cancel·la** la deixa com era. Valen per a totes les vistes i per als PDF. Els esdeveniments sense nivell (de tot el centre) surten sempre.",
@@ -1514,20 +1554,37 @@
       "temes": [
         {
           "id": "dw-editar",
-          "titol": "Què escriu el cap",
-          "claus": "presentació imatge peu projectes feines estiu altres desa cap departament àmbit",
+          "titol": "Edició: què escriu el cap",
+          "claus": "presentació imatge peu projectes feines estiu altres desa cap departament àmbit format negreta cursiva llista enllaç",
           "text": [
-            "Trieu el departament/àmbit al desplegable (✎ = el podeu editar). **Cada cap edita només el seu**; l'administració els pot editar tots.",
-            "**Presentació**: paràgrafs separats per una línia en blanc. Format bàsic: `**negreta**`, `*cursiva*` i enllaços `[text](https://…)`.",
-            "**Imatge** (opcional): **Afegeix una imatge** la redueix al navegador (màxim 1.600 px) i la desa de seguida a Drive (carpeta config › carpeta_departaments; en blanc, «GESTIO · Departaments»). **Treu la imatge** l'esborra. El **peu** és opcional.",
-            "**Projectes** (títol, descripció, enllaç i curs), **Feines d'estiu** (nivell, títol, indicacions i enllaç) i **Altres** (opcional): **+ Afegeix** una fila i **×** la treu. Els enllaços han de començar per `https://`.",
-            "**Desa** guarda els canvis. **Vista prèvia** mostra com quedarà la pàgina. Al web no surt fins que l'administració **publica**."
+            "Trieu el departament/àmbit al desplegable (amb un llapis = és vostre; amb un cadenat = tancat). **Cada cap edita només el seu**; l'administració els pot editar tots.",
+            "A dalt, la **barra del cap**: l'estat (**Oberta** o **Tancada**), **Desa** i **Tanca** / **Obre**.",
+            "**Presentació** (el primer paràgraf surt destacat a dalt de la pàgina), una **imatge** opcional (es redueix sola; al web s'ajusta a la columna) i el seu peu, **Projectes**, **Feines d'estiu** i **Altres** (+ Afegeix / ×). Els enllaços han de començar per https://.",
+            "**Format del text** (requadre de dalt): `**negreta**`, `*cursiva*`, línia en blanc = paràgraf nou, `- element` = llista de pics, `1. element` = llista numerada, `[text](https://…)` = enllaç. Hi ha un enllaç a una guia completa (Markdown Guide)."
+          ]
+        },
+        {
+          "id": "dw-estat",
+          "titol": "Tancar i obrir la pàgina",
+          "claus": "tanca obre tancada oberta verificada bloquejada",
+          "text": [
+            "Quan la pàgina està llesta, el cap prem **Tanca**: informa que està **editada i verificada** (si hi havia canvis sense desar, primer es desen). Una pàgina tancada no es pot canviar.",
+            "Per canviar-la, **Obre** (si l'edició no està bloquejada).",
+            "Només es publiquen les pàgines **tancades**."
+          ]
+        },
+        {
+          "id": "dw-previ",
+          "titol": "Vista prèvia",
+          "claus": "vista prèvia pestanya nova",
+          "text": [
+            "**Vista prèvia** obre una **pestanya nova** amb la pàgina tal com sortirà al web (mateix disseny), també amb els canvis encara sense desar. La imatge hi surt en petit."
           ]
         },
         {
           "id": "dw-auto",
           "titol": "Què surt sol",
-          "claus": "professorat matèries criteris qualificació programacions automàtic",
+          "claus": "professorat matèries criteris programacions automàtic",
           "text": [
             "**Professorat**: docents en actiu (GESTIO › Professorat) amb una especialitat del departament/àmbit. **Només el nom complet**; cap altra dada personal i cap dada d'alumnat.",
             "**Matèries i professorat**: les matèries de les especialitats del departament/àmbit (Currículum) per nivell, amb el professorat i els grups de Currículum › Assignacions.",
@@ -1537,13 +1594,49 @@
           ]
         },
         {
-          "id": "dw-publica",
-          "titol": "Publicar al web",
-          "claus": "publica web build hook netlify menú",
+          "id": "dw-admin",
+          "titol": "Administració: estats, data límit i publicació",
+          "claus": "administració data límit bloqueja publica estats tanca obertes",
           "text": [
-            "**Publica** (administració) desa una còpia de tots els departaments/àmbits (el que ja està desat) i torna a construir el web amb el build hook de Netlify (config › netlify_build_hook), com el Calendari. En uns minuts, els canvis són al web.",
-            "Mentre no s'ha publicat res, l'apartat **Departaments i àmbits** no surt al menú d'El Nostre Centre.",
-            "Ordre de cada pàgina: presentació (amb la imatge), professorat, programacions, criteris de qualificació, matèries i professorat, projectes, feines d'estiu i altres. Un apartat buit no surt. Els enllaços externs s'obren en una pestanya nova."
+            "Pestanya **Administració** (només l'administració): **Termini d'edició** amb la **data límit** (l'endemà l'edició es **bloqueja** sola) i **Bloqueja ara** / **Desbloqueja**. Amb l'edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines; l'administració sí, i pot **tancar totes les obertes**.",
+            "**Estat de les pàgines**: cada departament/àmbit amb el cap, l'estat, el darrer desat i quan es va tancar; icones per **tancar/obrir**, **editar** i **vista prèvia**.",
+            "**Publica les pàgines tancades**: només es publiquen les tancades i es torna a construir el web (build hook de Netlify). Les obertes no hi surten fins que es tanquin i es torni a publicar."
+          ]
+        }
+      ]
+    },
+    "sancions": {
+      "titol": "Sancions",
+      "graella": false,
+      "intro": "Totes les sancions de l'alumnat. **Mai no es posen soles**: les valora i les crea l'administració (aquí, al Control d'entrada o a Amonestacions).",
+      "temes": [
+        {
+          "id": "sa-tipus",
+          "titol": "Tipus i estats",
+          "claus": "tipus retards mòbil amonestacions greu estat tràmit sancionat anul·lada",
+          "text": [
+            "Quatre tipus: **Acumulació de retards** (amb entrades del Control d'entrada), **Ús indegut del mòbil**, **Acumulació d'amonestacions lleus** (amb amonestacions) i **Amonestació greu** (pot portar amonestacions o cap).",
+            "Estats: **en tràmit** (sanció en curs: els registres associats queden **vermells**), **sancionat** (**verds**) i **anul·lada** (els registres tornen a **blanc**; la sanció es conserva)."
+          ]
+        },
+        {
+          "id": "sa-llista",
+          "titol": "La llista",
+          "claus": "llista filtrar ordenar columna PDF",
+          "text": [
+            "Una fila per sanció: estat, data, alumne/a, grup-classe, tipus, descripció, registres (entrades amb els retards comptats, o amonestacions) i codi.",
+            "**Ordenar**: cliqueu el títol d'una columna (un altre clic inverteix l'ordre). **Filtrar**: escriviu a la fila de sota dels títols, o trieu **Tipus** i **Estat** a dalt.",
+            "**PDF** fa la llista que es veu (amb el logo)."
+          ]
+        },
+        {
+          "id": "sa-nova",
+          "titol": "Nova sanció i edició (administració)",
+          "claus": "nova sanció edita anul·la recupera esborra alumne",
+          "text": [
+            "**+ Nova sanció**: trieu l'alumne/a (escriviu-ne el nom o el grup), el tipus, la descripció, la data i l'estat. Segons el tipus, marqueu les **entrades** (retards; les justificades no es poden triar) o les **amonestacions**. Les d'una altra sanció no es poden triar.",
+            "**Edita** · **Anul·la** (els registres tornen a blanc) · **Recupera** (torna a en tràmit) · **Esborra** (definitivament; còpia a l'historial).",
+            "Ho poden fer els administradors dels mòduls Sancions, Control d'entrada o Amonestacions."
           ]
         }
       ]

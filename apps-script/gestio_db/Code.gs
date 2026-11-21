@@ -55,7 +55,7 @@ const CAP = {
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
 };
-const ESQUEMA = 75;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 76;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -108,6 +108,8 @@ const CONFIG_PER_DEFECTE = [
   ['copia_tancament_batxillerat', '', 'La posa el tancament de curs del batxillerat (per a desfesTancamentBatxillerat).'],
   ['carpeta_departaments', '', 'Departaments/àmbits: carpeta de Drive on es desen les imatges de les presentacions (en blanc = «GESTIO · Departaments» a l\'arrel).'],
   ['departaments_publicat', '', 'Departaments/àmbits › darrera publicació (data, qui i quants). La posa el botó «Publica» del web: no la canvieu a mà.'],
+  ['departaments_limit', '', 'Departaments/àmbits › data límit d\'edició (AAAA-MM-DD). L\'endemà l\'edició queda bloquejada sola. Es canvia des del web (Administració).'],   // PAS 76
+  ['departaments_bloqueig', '', 'Departaments/àmbits › «si» = edició bloquejada per l\'administració (botó «Bloqueja» del web).'],
 ];
 const MODULS_PER_DEFECTE = [
   ['professorat', 'Professorat', 'Dades administratives de cada docent: graella amb filtres, alta, baixa i modificació.', 1, 'si', 'Personal'],
@@ -119,6 +121,7 @@ const MODULS_PER_DEFECTE = [
   ['nou_professor', 'Nou professor/a', 'Formulari d\'alta d\'un docent nou (secretaria): dades, validació i PDF per signar.', 5, 'si', 'Secretaria'],
   ['control_entrada', 'Control d\'entrada', 'Registre de les entrades amb retard de l\'alumnat (ESO i batxillerat) i anàlisi per alumne.', 6, 'si', 'Alumnat'],
   ['amonestacions', 'Amonestacions', 'Amonestacions lleus (NOFC 5.3): les redacta el professorat amb accés al mòdul; registre, PDF per a la família, avisos i anàlisi.', 7, 'si', 'Alumnat'],
+  ['sancions', 'Sancions', 'Sancions de l\'alumnat (les valora i les aplica l\'administració, mai automàticament): acumulació de retards (Control d\'entrada), ús indegut del mòbil, acumulació d\'amonestacions lleus i amonestació greu.', 8, 'si', 'Alumnat'],   // PAS 76
   ['curriculum', 'Currículum', 'Disseny curricular d\'ESO i batxillerat: matèries de cada nivell amb hores, especialitat i grups; assignació de cada matèria i grup a una especialitat i document dels equips docents.', 9, 'si', 'Organització del curs'],
   ['consell_orientador', 'Consell orientador 4t ESO', 'Orientació inicial i final de l\'alumnat de 4t d\'ESO: les omple el tutor/a; PDF per grup per lliurar i anàlisi per grup.', 8, 'si', 'Alumnat'],
   ['desiderata', 'Desiderata', 'Proposta de cada cap de departament/àmbit: quin docent imparteix cada assignació de les especialitats del seu departament/àmbit, observacions pedagògiques i coherència amb les hores lectives.', 10, 'si', 'Organització del curs'],
@@ -370,6 +373,8 @@ const CAMPS_BATXILLERAT = [
 // PAS 29: CONTROL D'ENTRADA · una fila per entrada amb retard (es registra des del web: «Nova entrada»)
 // PAS 35: amonestacions (pestanya «amonestacions» d'ijm_alumnat_db). Els fets no surten a la graella: es veuen amb la icona.
 const CAMPS_AMONESTACIONS = [
+  // PAS 76: estat (blanc = res; vermell = sanció en curs; verd = sancionat). El posa la sanció (només l'administració).
+  ['estat', 'Estat', 'llista', 'blanc|vermell|verd', 'no', 'no', 'consulta', 'gestio'],
   ['data_fets', 'Data dels fets', 'data', '', 'si', 'no', 'consulta', 'gestio'],
   ['alumne', 'Alumne/a', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['nivell', 'Nivell', 'llista', ['1r ESO', '2n ESO', '3r ESO', '4t ESO', '1r BAT', '2n BAT'].join('|'), 'no', 'no', 'consulta', 'gestio'],
@@ -381,6 +386,7 @@ const CAMPS_AMONESTACIONS = [
   ['redactat_el', 'Redactada el', 'text', '', 'no', 'no', 'consulta', 'gestio'],
   ['id_alumne', 'Codi alumne', 'text', '', 'no', 'no', 'admin', 'gestio'],
   ['id_professor', 'Codi professor', 'text', '', 'no', 'no', 'admin', 'gestio'],
+  ['id_sancio', 'Sanció', 'text', '', 'no', 'no', 'consulta', 'gestio'],   // PAS 76
 ];
 // PAS 38: consell orientador de 4t d'ESO. Alumne, grup, curs, PDF i codi venen de l'alumnat o els posa GESTIO: no s'editen.
 const ORIENTACIONS_CONSELL = ['Cursar estudis de Batxillerat (Cientificotecnològic)', 'Cursar estudis de Batxillerat (Humanístic)', 'Cursar estudis de Batxillerat (Social)',
@@ -434,8 +440,9 @@ const CAMPS_CURR_GRUPS = [
 ];
 const PERIODES_AMON = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30, '2 mesos': 61, '3 mesos': 92, 'tot el curs': 0 };
 const CAMPS_CONTROL = [
-  // PAS 72: estat de l'entrada (blanc = res; taronja = en una sanció en tràmit; verd = sancionada). El posa la sanció.
-  ['estat', 'Estat', 'llista', 'blanc|taronja|verd', 'no', 'no', 'consulta', 'gestio'],
+  // PAS 72/76: estat de l'entrada: blanc = res; groc = justificat (no compta mai); vermell = sanció en curs; verd = sancionat.
+  // El vermell i el verd els posa la sanció; el groc, l'administració del mòdul.
+  ['estat', 'Estat', 'llista', 'blanc|groc|vermell|verd', 'no', 'no', 'consulta', 'gestio'],
   ['alumne', 'Alumne', 'text', '', 'si', 'no', 'consulta', 'gestio'],
   ['nivell', 'Nivell', 'llista', NIVELLS_ESO.concat(NIVELLS_BAT).join('|'), 'no', 'no', 'consulta', 'gestio'],
   ['grup', 'Grup-Classe', 'text', '', 'no', 'no', 'consulta', 'gestio'],
@@ -663,6 +670,8 @@ function doPost(e) {
       case 'matricula_formulari_desa': return json_(matriculaFormulariDesa_(ctx, req));
       case 'sancio_desa':    return json_(sancioDesa_(ctx, req));     // PAS 72
       case 'sancio_esborra': return json_(sancioEsborra_(ctx, req));
+      case 'entrada_estat': return json_(entradaEstat_(ctx, req));     // PAS 76: justificat (groc)
+      case 'sancions_dades': return json_(sancionsDades_(ctx));        // PAS 76: mòdul Sancions
       case 'calendari_dades': return json_(calendariDades_(ctx));
       case 'horari_editor_dades': return json_(horariEditorDades_(ctx));   // PAS 64
       case 'horari_editor_importa': return json_(horariEditorImporta_(ctx, req));
@@ -683,6 +692,8 @@ function doPost(e) {
       case 'departaments_web_desa': return json_(depwDesa_(ctx, req));
       case 'departaments_web_imatge': return json_(depwImatge_(ctx, req));
       case 'departaments_publica': return json_(depwPublica_(ctx));
+      case 'departaments_estat': return json_(depwEstat_(ctx, req));        // PAS 76: tanca/obre una pàgina
+      case 'departaments_admin': return json_(depwAdmin_(ctx, req));        // PAS 76: data límit i bloqueig
       case 'calendari_importa': return json_(calendariImporta_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
@@ -722,7 +733,7 @@ function baseContext_() {
 }
 function invalidaCtx_() { CTX_CFG_ = null; try { CacheService.getScriptCache().remove(CLAU_CTX_); } catch (e) { /* res */ } }
 const TAULES_CTX_ = () => [FULL.prof, FULL.pas, FULL.memb, FULL.eq, FULL.perm, FULL.conf];
-const ACCIONS_CTX_ = ['departaments_publica', 'desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa', 'departaments_desa', 'horaris_marc_desa', 'horaris_aules_desa', 'horaris_regles_desa', 'horaris_subgrups_desa', 'desiderata_config', 'horaris_guardies_desa', 'calendari_dates_desa', 'calendari_publica', 'ocupacio_carrecs_desa', 'horaris_reunions_desa'];
+const ACCIONS_CTX_ = ['departaments_estat', 'departaments_admin', 'departaments_publica', 'desa', 'esborra', 'equips_desa', 'membres_desa', 'equip_esborra', 'permisos_desa', 'permisos_matriu_desa', 'retards_desa', 'amonestacions_config', 'consell_config', 'alta_professor', 'tanca_curs', 'hores_lectives_desa', 'curriculum_classes_desa', 'departaments_desa', 'horaris_marc_desa', 'horaris_aules_desa', 'horaris_regles_desa', 'horaris_subgrups_desa', 'desiderata_config', 'horaris_guardies_desa', 'calendari_dates_desa', 'calendari_publica', 'ocupacio_carrecs_desa', 'horaris_reunions_desa'];
 function context_(email) {
   const B = baseContext_();
   const cfg = B.cfg; CTX_CFG_ = cfg;
@@ -837,8 +848,9 @@ function dades_(ctx, modul) {
     // PAS 37: l'alumnat de «Nova entrada» arriba amb les dades (obrir la finestra no fa cap altra crida)
     alumnes_entrada: modul === 'control_entrada' && pot_(ctx, modul, 'edicio') ? entradaAlumnes_(ctx).alumnes : undefined,
     retards: modul === 'control_entrada' ? Object.assign(retardsCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
-    sancions: modul === 'control_entrada' ? sancionsDe_(ctx) : undefined,   // PAS 72
-    pot_sancionar: modul === 'control_entrada' ? pot_(ctx, modul, 'admin') && obert_(ctx) : undefined,
+    sancions: modul === 'control_entrada' || modul === 'amonestacions' ? sancionsDe_(ctx, modul) : undefined,   // PAS 72/76
+    pot_sancionar: modul === 'control_entrada' || modul === 'amonestacions' ? pot_(ctx, modul, 'admin') && obert_(ctx) : undefined,
+    tipus_sancio: modul === 'control_entrada' || modul === 'amonestacions' ? TIPUS_SANCIO_ : undefined,
     avis_amon: modul === 'amonestacions' ? Object.assign(avisAmonCfg_(ctx.cfg), { pot_canviar: pot_(ctx, modul, 'admin') }) : undefined,
     nomes_propies: ctx.nomesPropies ? ctx.nomesPropies(modul) : false,
     tutoria: modul === 'amonestacions' && ctx.nomesPropies && ctx.nomesPropies(modul) ? ((tc) => [Object.keys(tc.grups).length ? 'del grup-classe' : '', Object.keys(tc.nivells).length ? 'del nivell (' + Object.keys(tc.nivells).join(', ') + ')' : ''].filter(Boolean).join(' i '))(tutoriaCoord_(ctx)) : '',
@@ -1236,8 +1248,14 @@ function activaPdfsPendents() {
 // Configuració (admin del mòdul): carpeta dels PDF i avís
 function amonestacionsConfig_(ctx, req) {
   if (!pot_(ctx, 'amonestacions', 'admin')) return { ok: false, error: 'sense_permis' };
-  const eso = Number(req.eso), bat = Number(req.bat), per = String(req.periode || ''), carpeta = String(req.carpeta || '').trim();
+  // PAS 76: el criteri de l'avís també es canvia des de la barra del mòdul (sense la carpeta: es manté la que hi ha)
+  const eso = Number(req.eso), bat = Number(req.bat), per = String(req.periode || ''), carpeta = req.carpeta === undefined ? String(ctx.cfg.carpeta_amonestacions || '').trim() : String(req.carpeta || '').trim();
   if (!(eso >= 1 && eso <= 20 && bat >= 1 && bat <= 20) || PERIODES_AMON[per] === undefined) return { ok: false, error: 'peticio_invalida' };
+  if (req.carpeta === undefined) {
+    [['amonestacions_avis_eso', String(Math.round(eso))], ['amonestacions_avis_bat', String(Math.round(bat))], ['amonestacions_periode', per]].forEach((kv) => posaConfig_(kv[0], kv[1]));
+    historial_(ctx.email, 'config', FULL.conf, 'amonestacions', JSON.stringify({ eso: eso, bat: bat, periode: per }));
+    return { ok: true, avis_amon: Object.assign(avisAmonCfg_(llegeixConfig_()), { pot_canviar: true }) };
+  }
   const idC = (carpeta.match(/[-\w]{25,}/) || [''])[0];
   if (!idC) return { ok: false, error: 'carpeta_invalida' };
   try { DriveApp.getFolderById(idC).getName(); } catch (e) { return { ok: false, error: 'carpeta_sense_acces' }; }
@@ -1811,6 +1829,9 @@ function configura() {
     fullModul_(MODULS.control_entrada, campsDe_('control_entrada', true));
     estatEntradesPAS72_();
     fullSancions_();
+    if (llegeix_(FULL.camps).some((c) => c.modul === 'amonestacions')) sincronitzaCamps_('amonestacions', CAMPS_AMONESTACIONS);   // PAS 76: estat i sanció
+    fullModul_(MODULS.amonestacions, campsDe_('amonestacions', true));
+    estatsPAS76_();
     fullModul_(MODULS.amonestacions, campsDe_('amonestacions', true));
     fullModul_(MODULS.consell_orientador, campsDe_('consell_orientador', true));
     fullMatricula_();   // PAS 70
@@ -2274,17 +2295,22 @@ function entradaNova_(ctx, req) {
     return { ok: true, fila: Object.assign({ id: o[M.id] }, o) };
   } finally { lock.releaseLock(); }
 }
-// ------------------------------------------------------------------ PAS 72 · SANCIONS (control d'entrada)
-// Una sanció agrupa entrades d'un alumne/a: descripció, data i estat («en tràmit» o «sancionat»). Les entrades associades
-// prenen l'estat taronja (en tràmit) o verd (sancionat); les que no en tenen cap, blanc. Full ijm_alumnat_db › sancions.
-const CAP_SANCIONS_ = ['id_sancio', 'id_alumne', 'alumne', 'nivell', 'grup', 'descripcio', 'data', 'estat', 'entrades', 'creat', 'creat_per', 'actualitzat', 'actualitzat_per'];
-const ESTATS_SANCIO_ = { 'en tràmit': 'taronja', 'sancionat': 'verd', 'anul·lada': 'blanc' };   // PAS 73: anul·lada = de baixa (les entrades queden lliures)
+// ------------------------------------------------------------------ PAS 72/76 · SANCIONS
+// Una sanció és d'un alumne/a: tipus, descripció, data i estat («en tràmit», «sancionat» o «anul·lada»). Mai no es posa
+// sola: la valora i la crea l'administració. PAS 76: quatre tipus; la d'acumulació de retards agrupa entrades del Control
+// d'entrada i les d'amonestacions (lleus o greu) poden agrupar amonestacions. Els registres associats prenen l'estat
+// vermell (sanció en curs) o verd (sancionat); quan en surten, blanc. Full ijm_alumnat_db › sancions.
+const CAP_SANCIONS_ = ['id_sancio', 'id_alumne', 'alumne', 'nivell', 'grup', 'descripcio', 'data', 'estat', 'entrades', 'creat', 'creat_per', 'actualitzat', 'actualitzat_per', 'tipus', 'amonestacions'];
+const ESTATS_SANCIO_ = { 'en tràmit': 'vermell', 'sancionat': 'verd', 'anul·lada': 'blanc' };   // PAS 73: anul·lada = de baixa (els registres queden lliures)
+const TIPUS_SANCIO_ = { retards: 'Acumulació de retards', mobil: 'Ús indegut del mòbil', amonestacions: 'Acumulació d\'amonestacions lleus', greu: 'Amonestació greu' };   // PAS 76
+// Mòduls de sancions: qui les gestiona (admin d'algun d'aquests) i qui les veu
+const potSancionar_ = (ctx) => ['sancions', 'control_entrada', 'amonestacions'].some((m) => pot_(ctx, m, 'admin'));
 function fullSancions_() {
   const ss = ssAlumnat_(); let sh = ss.getSheetByName(FULL.sanc);
   if (!sh) { sh = ss.insertSheet(FULL.sanc); sh.getRange(1, 1, sh.getMaxRows(), Math.max(sh.getMaxColumns(), CAP_SANCIONS_.length)).setNumberFormat('@');
     sh.getRange(1, 1, 1, CAP_SANCIONS_.length).setValues([CAP_SANCIONS_]).setFontWeight('bold'); sh.setFrozenRows(1); return sh; }
   const act = sh.getLastColumn() ? sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0] : [], falten = CAP_SANCIONS_.filter((k) => act.indexOf(k) < 0);
-  if (falten.length) sh.getRange(1, act.length + 1, 1, falten.length).setValues([falten]).setFontWeight('bold');
+  if (falten.length) { sh.getRange(1, act.length + 1, sh.getMaxRows(), falten.length).setNumberFormat('@'); sh.getRange(1, act.length + 1, 1, falten.length).setValues([falten]).setFontWeight('bold'); }
   return sh;
 }
 // Les entrades antigues (sense estat) passen a «blanc»
@@ -2294,72 +2320,140 @@ function estatEntradesPAS72_() {
   const rg = sh.getRange(2, j + 1, sh.getLastRow() - 1, 1), v = rg.getDisplayValues();
   if (v.some((r) => !String(r[0]).trim())) rg.setValues(v.map((r) => [String(r[0]).trim() || 'blanc']));
 }
-function sancionsDe_(ctx) {
+// PAS 76 · Colors nous: taronja (en tràmit) → vermell; llista de l'estat del control d'entrada amb el groc (justificat);
+// amonestacions sense estat → blanc; sancions antigues → tipus «retards»
+function estatsPAS76_() {
+  actualitzaCamp_('control_entrada', 'estat', { valors: 'blanc|groc|vermell|verd' });
+  [MODULS.control_entrada, MODULS.amonestacions].forEach((M) => { const sh = M.ss().getSheetByName(M.full); if (!sh || sh.getLastRow() < 2) return;
+    const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_), j = cap.indexOf('estat'); if (j < 0) return;
+    const rg = sh.getRange(2, j + 1, sh.getLastRow() - 1, 1), v = rg.getDisplayValues();
+    if (v.some((r) => !String(r[0]).trim() || r[0] === 'taronja')) rg.setValues(v.map((r) => [r[0] === 'taronja' ? 'vermell' : String(r[0]).trim() || 'blanc'])); });
+  const sh = fullSancions_(); if (sh.getLastRow() < 2) return;
+  const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0], j = cap.indexOf('tipus'); if (j < 0) return;
+  const rg = sh.getRange(2, j + 1, sh.getLastRow() - 1, 1), v = rg.getDisplayValues();
+  if (v.some((r) => !String(r[0]).trim())) rg.setValues(v.map((r) => [String(r[0]).trim() || 'retards']));
+}
+// Totes les sancions (dins de l'abast del mòdul des d'on es demanen)
+function sancionsDe_(ctx, modul) {
   const sh = ssAlumnat_().getSheetByName(FULL.sanc); if (!sh || sh.getLastRow() < 2) return [];
-  const ab = ctx.abast ? ctx.abast('control_entrada') : null;
+  const ab = ctx.abast ? ctx.abast(modul || 'control_entrada') : null;
   const v = sh.getDataRange().getDisplayValues(), cap = v[0];
-  return v.slice(1).filter((r) => r.join('') !== '').map((r) => { const o = {}; cap.forEach((k, i) => { o[k] = r[i]; }); o.entrades = String(o.entrades || '').split(' | ').filter(Boolean); return o; })
-    .filter((o) => dinsAbast_(ab, o.grup));
+  return v.slice(1).filter((r) => r.join('') !== '').map((r) => { const o = {}; cap.forEach((k, i) => { o[k] = r[i]; }); o.entrades = String(o.entrades || '').split(' | ').filter(Boolean);
+    o.amonestacions = String(o.amonestacions || '').split(' | ').filter(Boolean); o.tipus = TIPUS_SANCIO_[o.tipus] ? o.tipus : 'retards'; return o; })
+    .filter((o) => dinsAbast_(ab, o.grup) && (modul !== 'control_entrada' || o.tipus === 'retards') && (modul !== 'amonestacions' || o.tipus === 'amonestacions' || o.tipus === 'greu'));
+}
+// Registres (entrades o amonestacions) d'un mòdul: llegeix el full i torna les files triades
+function registresSancio_(M, ids) {
+  const sh = M.ss().getSheetByName(M.full), v = sh.getDataRange().getValues(), c = v[0].map(norm_);
+  const ix = { e: c.indexOf('estat'), s: c.indexOf('id_sancio'), id: c.indexOf(M.id), a: c.indexOf('id_alumne'), al: c.indexOf('alumne'), n: c.indexOf('nivell'), g: c.indexOf('grup'), d: c.indexOf(M === MODULS.amonestacions ? 'data_fets' : 'data') };
+  return { sh: sh, v: v, ix: ix, triades: v.map((r, i) => ({ r: r, i: i })).filter((x) => x.i > 0 && ids.indexOf(String(x.r[ix.id])) >= 0) };
+}
+// Posa l'estat (color) i la sanció als registres triats i deixa en blanc els que en surten
+function lligaRegistres_(R, ids, sid, color, lliga) {
+  const canvi = [], ix = R.ix;
+  R.v.forEach((r, i) => { if (i < 1) return; const id = String(r[ix.id]), dins = lliga && ids.indexOf(id) >= 0, era = String(r[ix.s] || '') === sid;
+    if (dins && (r[ix.e] !== color || String(r[ix.s]) !== sid)) { R.sh.getRange(i + 1, ix.e + 1).setValue(color); R.sh.getRange(i + 1, ix.s + 1).setValue(sid); canvi.push({ id: id, estat: color, id_sancio: sid }); }
+    else if (!dins && era) { R.sh.getRange(i + 1, ix.e + 1).setValue('blanc'); R.sh.getRange(i + 1, ix.s + 1).setValue(''); canvi.push({ id: id, estat: 'blanc', id_sancio: '' }); } });
+  return canvi;
 }
 function sancioDesa_(ctx, req) {
-  if (!pot_(ctx, 'control_entrada', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!potSancionar_(ctx)) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
-  const desc = String(req.descripcio || '').trim().slice(0, 500), data = String(req.data || '').trim(), estat = String(req.estat || ''), ids = (req.entrades || []).map(String).filter((x, i, a) => x && a.indexOf(x) === i);
+  const desc = String(req.descripcio || '').trim().slice(0, 500), data = String(req.data || '').trim(), estat = String(req.estat || '');
+  const ids = (req.entrades || []).map(String).filter((x, i, a) => x && a.indexOf(x) === i), amIds = (req.amonestacions || []).map(String).filter((x, i, a) => x && a.indexOf(x) === i);
+  const tipus = TIPUS_SANCIO_[req.tipus] ? String(req.tipus) : (amIds.length ? 'amonestacions' : 'retards');
   const err = [];
   if (!desc) err.push('Cal la descripció.');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) err.push('Cal la data.');
   if (!ESTATS_SANCIO_[estat]) err.push('L\'estat ha de ser «en tràmit», «sancionat» o «anul·lada».');
-  if (!ids.length) err.push('Cal triar almenys una entrada.');
-  if (ids.length > 200) err.push('Massa entrades.');
+  if (tipus === 'retards' && !ids.length) err.push('Cal triar almenys una entrada (retard).');
+  if (tipus === 'amonestacions' && !amIds.length) err.push('Cal triar almenys una amonestació.');
+  if (tipus !== 'retards' && ids.length) err.push('Només les sancions per acumulació de retards porten entrades.');
+  if ((tipus === 'retards' || tipus === 'mobil') && amIds.length) err.push('Aquest tipus de sanció no porta amonestacions.');
+  if (ids.length > 200 || amIds.length > 200) err.push('Massa registres.');
+  if (!ids.length && !amIds.length && !String(req.id_alumne || '')) err.push('Cal triar l\'alumne/a.');
   if (err.length) return { ok: false, error: 'dades_invalides', errors: err };
-  const M = MODULS.control_entrada, lock = LockService.getScriptLock(); lock.waitLock(20000);
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
-    const she = M.ss().getSheetByName(M.full), ve = she.getDataRange().getValues(), ce = ve[0].map(norm_);
-    const iE = ce.indexOf('estat'), iS = ce.indexOf('id_sancio'), iId = ce.indexOf(M.id), iA = ce.indexOf('id_alumne'), iAl = ce.indexOf('alumne');
-    if (iE < 0 || iS < 0) return { ok: false, error: 'cal_configura' };
     const shs = fullSancions_(), vs = shs.getDataRange().getValues(), cs = vs[0].map(String), col = (k) => cs.indexOf(k);
     let fila = -1, sid = String(req.id_sancio || '');
     if (sid) { fila = vs.findIndex((r, i) => i > 0 && String(r[col('id_sancio')]) === sid); if (fila < 1) return { ok: false, error: 'no_trobat' }; }
-    // totes les entrades han de ser del mateix alumne/a i no ser d'una altra sanció
-    const triades = ve.map((r, i) => ({ r: r, i: i })).filter((x) => x.i > 0 && ids.indexOf(String(x.r[iId])) >= 0);
-    if (triades.length !== ids.length) return { ok: false, error: 'dades_invalides', errors: ['Alguna entrada ja no existeix.'] };
-    const alu = String(triades[0].r[iA] || norm_(triades[0].r[iAl]));
-    if (triades.some((x) => String(x.r[iA] || norm_(x.r[iAl])) !== alu)) return { ok: false, error: 'dades_invalides', errors: ['Totes les entrades han de ser del mateix alumne/a.'] };
-    const altra = triades.filter((x) => String(x.r[iS] || '') && String(x.r[iS]) !== sid);
-    if (altra.length) return { ok: false, error: 'dades_invalides', errors: ['Hi ha entrades que ja són d\'una altra sanció (' + altra.map((x) => x.r[iS]).filter((v, i, a) => a.indexOf(v) === i).join(', ') + ').'] };
-    if (!dinsAbast_(ctx.abast ? ctx.abast('control_entrada') : null, String(triades[0].r[ce.indexOf('grup')] || ''))) return { ok: false, error: 'fora_abast' };
+    // Registres triats: tots del mateix alumne/a i de cap altra sanció
+    const RE = registresSancio_(MODULS.control_entrada, ids), RA = registresSancio_(MODULS.amonestacions, amIds);
+    if (RE.triades.length !== ids.length || RA.triades.length !== amIds.length) return { ok: false, error: 'dades_invalides', errors: ['Algun registre ja no existeix.'] };
+    const triats = RE.triades.map((x) => ({ r: x.r, ix: RE.ix })).concat(RA.triades.map((x) => ({ r: x.r, ix: RA.ix })));
+    let alu = null;
+    if (triats.length) {
+      const k = (x) => String(x.r[x.ix.a] || norm_(x.r[x.ix.al]));
+      if (triats.some((x) => k(x) !== k(triats[0]))) return { ok: false, error: 'dades_invalides', errors: ['Tots els registres han de ser del mateix alumne/a.'] };
+      const altra = triats.filter((x) => String(x.r[x.ix.s] || '') && String(x.r[x.ix.s]) !== sid);
+      if (altra.length) return { ok: false, error: 'dades_invalides', errors: ['Hi ha registres que ja són d\'una altra sanció (' + altra.map((x) => x.r[x.ix.s]).filter((v, i, a) => a.indexOf(v) === i).join(', ') + ').'] };
+      const d = triats.slice().sort((a, b) => String(b.r[b.ix.d]).localeCompare(String(a.r[a.ix.d])))[0];
+      alu = { id: String(d.r[d.ix.a] || ''), nom: String(d.r[d.ix.al] || ''), nivell: String(d.r[d.ix.n] || ''), grup: String(d.r[d.ix.g] || '') };
+    } else if (fila > 0 && !req.id_alumne) {
+      alu = { id: String(vs[fila][col('id_alumne')] || ''), nom: String(vs[fila][col('alumne')] || ''), nivell: String(vs[fila][col('nivell')] || ''), grup: String(vs[fila][col('grup')] || '') };
+    } else {
+      const a = alumnePerId_(String(req.id_alumne || '')); if (!a) return { ok: false, error: 'no_existeix' };
+      alu = { id: a.id, nom: a.nom, nivell: a.nivell, grup: a.grup };
+    }
+    if (!dinsAbast_(ctx.abast ? ctx.abast('sancions') : null, alu.grup) && !dinsAbast_(ctx.abast ? ctx.abast('control_entrada') : null, alu.grup)) return { ok: false, error: 'fora_abast' };
     const ara = ara_(), color = ESTATS_SANCIO_[estat];
     if (fila < 0) { const n = vs.slice(1).map((r) => Number(String(r[col('id_sancio')]).replace(/\D/g, '')) || 0).reduce((m, x) => Math.max(m, x), 0); sid = 'SAN-' + ('00000' + (n + 1)).slice(-5); }
-    const darrera = triades.slice().sort((a, b) => String(b.r[ce.indexOf('data')]).localeCompare(String(a.r[ce.indexOf('data')])))[0].r;
-    const o = { id_sancio: sid, id_alumne: String(darrera[iA] || ''), alumne: String(darrera[iAl] || ''), nivell: String(darrera[ce.indexOf('nivell')] || ''), grup: String(darrera[ce.indexOf('grup')] || ''),
-      descripcio: desc, data: data, estat: estat, entrades: ids.join(' | '), actualitzat: ara, actualitzat_per: ctx.email };
+    const o = { id_sancio: sid, id_alumne: alu.id, alumne: alu.nom, nivell: alu.nivell, grup: alu.grup, tipus: tipus,
+      descripcio: desc, data: data, estat: estat, entrades: ids.join(' | '), amonestacions: amIds.join(' | '), actualitzat: ara, actualitzat_per: ctx.email };
     if (fila < 0) { o.creat = ara; o.creat_per = ctx.email; shs.appendRow(cs.map((k) => (o[k] !== undefined ? o[k] : ''))); }
     else { const r = vs[fila].slice(); Object.keys(o).forEach((k) => { if (col(k) >= 0) r[col(k)] = o[k]; }); shs.getRange(fila + 1, 1, 1, r.length).setValues([r.map(String)]); }
-    // estat de les entrades: les triades, del color de la sanció; les que en surten, blanc
-    const canvi = [];
-    const lliga = estat !== 'anul·lada';   // PAS 73: una sanció anul·lada deixa les entrades lliures (blanques)
-    ve.forEach((r, i) => { if (i < 1) return; const id = String(r[iId]), dins = lliga && ids.indexOf(id) >= 0, era = String(r[iS] || '') === sid;
-      if (dins && (r[iE] !== color || String(r[iS]) !== sid)) { she.getRange(i + 1, iE + 1).setValue(color); she.getRange(i + 1, iS + 1).setValue(sid); canvi.push({ id: id, estat: color, id_sancio: sid }); }
-      else if (!dins && era) { she.getRange(i + 1, iE + 1).setValue('blanc'); she.getRange(i + 1, iS + 1).setValue(''); canvi.push({ id: id, estat: 'blanc', id_sancio: '' }); } });
-    historial_(ctx.email, fila < 0 ? 'sancio_nova' : 'sancio_edita', FULL.sanc, sid, ids.length + ' entrades · ' + estat);
-    marcaVersio_('control_entrada', ctx.email);
-    return { ok: true, sancio: Object.assign({}, o, { entrades: ids }), entrades: canvi, sancions: sancionsDe_(ctx) };
+    const lliga = estat !== 'anul·lada';   // PAS 73: una sanció anul·lada deixa els registres lliures (blancs)
+    const canvi = RE.ix.e >= 0 && RE.ix.s >= 0 ? lligaRegistres_(RE, ids, sid, color, lliga) : [];
+    const canviA = RA.ix.e >= 0 && RA.ix.s >= 0 ? lligaRegistres_(RA, amIds, sid, color, lliga) : [];
+    historial_(ctx.email, fila < 0 ? 'sancio_nova' : 'sancio_edita', FULL.sanc, sid, TIPUS_SANCIO_[tipus] + ' · ' + ids.length + ' entrades · ' + amIds.length + ' amonestacions · ' + estat);
+    ['control_entrada', 'amonestacions', 'sancions'].forEach((m) => marcaVersio_(m, ctx.email));
+    return { ok: true, sancio: Object.assign({}, o, { entrades: ids, amonestacions: amIds }), entrades: canvi, amonestacions: canviA, sancions: sancionsDe_(ctx, req.modul) };
   } finally { lock.releaseLock(); }
 }
 function sancioEsborra_(ctx, req) {
-  if (!pot_(ctx, 'control_entrada', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!potSancionar_(ctx)) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
-  const sid = String(req.id_sancio || ''), M = MODULS.control_entrada, lock = LockService.getScriptLock(); lock.waitLock(20000);
+  const sid = String(req.id_sancio || ''), lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     const shs = fullSancions_(), vs = shs.getDataRange().getValues(), cs = vs[0].map(String), fila = vs.findIndex((r, i) => i > 0 && String(r[cs.indexOf('id_sancio')]) === sid);
     if (fila < 1) return { ok: false, error: 'no_trobat' };
-    const she = M.ss().getSheetByName(M.full), ve = she.getDataRange().getValues(), ce = ve[0].map(norm_), iE = ce.indexOf('estat'), iS = ce.indexOf('id_sancio'), iId = ce.indexOf(M.id), canvi = [];
-    ve.forEach((r, i) => { if (i > 0 && iS >= 0 && String(r[iS]) === sid) { she.getRange(i + 1, iE + 1).setValue('blanc'); she.getRange(i + 1, iS + 1).setValue(''); canvi.push({ id: String(r[iId]), estat: 'blanc', id_sancio: '' }); } });
+    const RE = registresSancio_(MODULS.control_entrada, []), RA = registresSancio_(MODULS.amonestacions, []);
+    const canvi = RE.ix.s >= 0 ? lligaRegistres_(RE, [], sid, 'blanc', false) : [], canviA = RA.ix.s >= 0 ? lligaRegistres_(RA, [], sid, 'blanc', false) : [];
     historial_(ctx.email, 'sancio_esborra', FULL.sanc, sid, JSON.stringify(vs[fila]));
     shs.deleteRow(fila + 1);
-    marcaVersio_('control_entrada', ctx.email);
-    return { ok: true, entrades: canvi, sancions: sancionsDe_(ctx) };
+    ['control_entrada', 'amonestacions', 'sancions'].forEach((m) => marcaVersio_(m, ctx.email));
+    return { ok: true, entrades: canvi, amonestacions: canviA, sancions: sancionsDe_(ctx, req.modul) };
   } finally { lock.releaseLock(); }
+}
+// PAS 76 · Entrada justificada (groc): no compta mai per a l'avís. Només l'administració del control d'entrada, i només si
+// l'entrada no és de cap sanció.
+function entradaEstat_(ctx, req) {
+  if (!pot_(ctx, 'control_entrada', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const id = String(req.id || ''), estat = req.estat === 'groc' ? 'groc' : 'blanc', lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const R = registresSancio_(MODULS.control_entrada, [id]); if (!R.triades.length) return { ok: false, error: 'no_trobat' };
+    const x = R.triades[0]; if (String(x.r[R.ix.s] || '')) return { ok: false, error: 'entrada_sancionada' };
+    if (!dinsAbast_(ctx.abast ? ctx.abast('control_entrada') : null, String(x.r[R.ix.g] || ''))) return { ok: false, error: 'fora_abast' };
+    R.sh.getRange(x.i + 1, R.ix.e + 1).setValue(estat);
+    historial_(ctx.email, 'entrada_estat', MODULS.control_entrada.full, id, estat);
+    marcaVersio_('control_entrada', ctx.email);
+    return { ok: true, entrada: { id: id, estat: estat } };
+  } finally { lock.releaseLock(); }
+}
+// PAS 76 · Mòdul SANCIONS: totes les sancions (de l'abast), amb un resum dels registres associats (data i hora de les
+// entrades; data i professor/a de les amonestacions, sense els fets) i l'alumnat per crear-ne de noves
+function sancionsDades_(ctx) {
+  if (!pot_(ctx, 'sancions', 'consulta')) return { ok: false, error: 'sense_permis' };
+  const ab = ctx.abast ? ctx.abast('sancions') : null, sanc = sancionsDe_(ctx, 'sancions');
+  const llegeixR = (M, camps) => { const sh = M.ss().getSheetByName(M.full); if (!sh || sh.getLastRow() < 2) return []; const v = sh.getDataRange().getDisplayValues(), c = v[0].map(norm_);
+    return v.slice(1).filter((r) => r.join('') !== '').map((r) => { const o = { id: r[c.indexOf(M.id)] }; camps.forEach((k) => { o[k] = c.indexOf(k) >= 0 ? r[c.indexOf(k)] : ''; }); return o; }).filter((o) => dinsAbast_(ab, o.grup)); };
+  const pot = potSancionar_(ctx) && obert_(ctx);
+  return { ok: true, nivell: ctx.nivell('sancions'), obert: obert_(ctx), pot_sancionar: pot, tipus: TIPUS_SANCIO_, estats: Object.keys(ESTATS_SANCIO_), sancions: sanc,
+    entrades: llegeixR(MODULS.control_entrada, ['data', 'hora', 'estat', 'id_sancio', 'id_alumne', 'alumne', 'grup']),
+    amonestacions: llegeixR(MODULS.amonestacions, ['data_fets', 'professor', 'estat', 'id_sancio', 'id_alumne', 'alumne', 'grup']),
+    alumnes: pot ? alumnesTots_().filter((a) => dinsAbast_(ab, a.grup)).map((a) => ({ id: a.id, nom: a.nom, nivell: a.nivell, grup: a.grup })) : [] };
 }
 // PAS 30 · Execució manual: esborra les entrades que es van importar (desat_per = importació) i torna a importar el full.
 // Les entrades fetes des del web («Nova entrada») no es toquen.
@@ -3924,7 +4018,10 @@ function sessionsHoraris_(cfg) {
 // del nivell) o altres. Cada subgrup té el nom i la clau de Clickedu i els grups-classe d'on surt l'alumnat.
 // config › horaris_subgrups = {classes: {"1r ESO A": {nom, clau}}, subgrups: [{id S1, nivell, nom, clau, tipus, grups: [lletra]}],
 //   blocs: [{id B1, nivell, nom, tipus, parts: ["ASG-00039#P2"], mateix_dia: "etiqueta"}]}
-const TIPUS_SUBGRUP = ['diversitat', 'hores_b', 'optativa', 'altres'];
+// PAS 76 · «itinerari»: part d'un grup-classe amb alumnat d'una modalitat (p. ex. 1r BAT B · Científic i · Humanístic). Les
+// classes d'un itinerari no ocupen els altres itineraris del grup: el motor les pot posar alhora, lliurement. Els altres subgrups
+// poden dir de quins itineraris surt l'alumnat («itineraris»: ids); sense, de tots.
+const TIPUS_SUBGRUP = ['diversitat', 'hores_b', 'optativa', 'altres', 'itinerari'];
 function subgrupsHoraris_(cfg) {
   let r = {}; try { r = JSON.parse(String((cfg || llegeixConfig_()).horaris_subgrups || '')) || {}; } catch (e) { r = {}; }
   return { classes: r.classes && typeof r.classes === 'object' ? r.classes : {}, subgrups: Array.isArray(r.subgrups) ? r.subgrups : [], blocs: Array.isArray(r.blocs) ? r.blocs : [],
@@ -3950,7 +4047,17 @@ function horarisSubgrupsDesa_(ctx, req) {
   const classes = {}; Object.keys(q.classes || {}).forEach((g) => { if (!totesClasses[g]) return; const x = q.classes[g] || {}; const o = { nom: String(x.nom || '').trim().slice(0, 40), clau: String(x.clau || '').trim().slice(0, 20) }; if (o.nom || o.clau) { classes[g] = o; clau(o.clau, g); } });
   const nouS = codiSeg_(q.subgrups || [], 'S'), noms = {};
   const subgrups = (q.subgrups || []).map((x) => { const niv = String(x.nivell || ''), L = (GN[niv] || []).map((g) => g.slice(niv.length).trim());
-    return { id: nouS(x), nivell: niv, nom: String(x.nom || '').trim().slice(0, 40), clau: String(x.clau || '').trim().slice(0, 20), tipus: TIPUS_SUBGRUP.indexOf(x.tipus) >= 0 ? x.tipus : 'altres', grups: (x.grups || []).map(String).filter((g, i, a) => L.indexOf(g) >= 0 && a.indexOf(g) === i) }; });
+    return { id: nouS(x), _id: String(x.id || ''), nivell: niv, nom: String(x.nom || '').trim().slice(0, 40), clau: String(x.clau || '').trim().slice(0, 20), tipus: TIPUS_SUBGRUP.indexOf(x.tipus) >= 0 ? x.tipus : 'altres', grups: (x.grups || []).map(String).filter((g, i, a) => L.indexOf(g) >= 0 && a.indexOf(g) === i),
+      itineraris: (Array.isArray(x.itineraris) ? x.itineraris : []).map(String).slice(0, 10) }; });
+  // PAS 76 · Itineraris: d'un sol grup-classe; als altres subgrups, «itineraris» = ids d'itineraris del mateix nivell
+  const nouId = {}; subgrups.forEach((x) => { if (x._id) nouId[x._id] = x.id; });
+  const itin = {}; subgrups.forEach((x) => { if (x.tipus === 'itinerari') itin[x.id] = x; });
+  subgrups.forEach((x) => { const nom = 'Subgrup ' + (x.nom || x.id);
+    if (x.tipus === 'itinerari') { if (x.grups.length !== 1) err.push(nom + ': un itinerari és d\'un sol grup-classe.'); x.itineraris = []; }
+    else x.itineraris = x.itineraris.map((i) => nouId[i] || i).filter((i, k, a) => itin[i] && itin[i].nivell === x.nivell && a.indexOf(i) === k);
+    delete x._id; });
+  Object.keys(itin).forEach((i) => { const x = itin[i], g = x.grups[0], germans = Object.keys(itin).filter((j) => itin[j].nivell === x.nivell && itin[j].grups[0] === g);
+    if (germans.length < 2) err.push('Itinerari ' + (x.nom || x.id) + ': el grup-classe ' + x.nivell + ' ' + g + ' necessita almenys dos itineraris (p. ex. Científic i Humanístic).'); });
   subgrups.forEach((x) => { const nom = 'Subgrup ' + (x.nom || x.id);
     if (nivells.indexOf(x.nivell) < 0) err.push(nom + ': nivell no vàlid.');
     if (!x.nom) err.push('Subgrup ' + x.id + ': cal un nom (el de Clickedu).');
@@ -4236,7 +4343,8 @@ function dadesHoraris_() {
   const desiderata = {}; llegeix_(FULL.des).forEach((r) => { try { desiderata[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
   return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, marc_horari: marcHorari_(cfg), aules: aulesHoraris_(cfg).aules, conjunts_aules: aulesHoraris_(cfg).conjunts,
     regles: reglesHoraris_(cfg), docents: docents, assignacions: assignacions, desiderata: desiderata,
-    classes_clickedu: SG.classes, subgrups: SG.subgrups.map((x) => ({ id: x.id, nom: x.nom, clau: x.clau, nivell: x.nivell, tipus: x.tipus, grups_classe: x.grups.map((l) => x.nivell + ' ' + l) })),
+    classes_clickedu: SG.classes, subgrups: SG.subgrups.map((x) => ({ id: x.id, nom: x.nom, clau: x.clau, nivell: x.nivell, tipus: x.tipus, grups_classe: x.grups.map((l) => x.nivell + ' ' + l),
+      itineraris: (x.itineraris || []).map((i) => (sgId[i] || {}).nom).filter(Boolean) })),   // PAS 76
     blocs_simultanis: SG.blocs.map((b) => ({ id: b.id, nivell: b.nivell, nom: b.nom, tipus: b.tipus, mateix_dia: b.mateix_dia, hores: b.hores || '', distribucio: b.distribucio || '', parts: b.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),
     dies_diferents: (SG.dies_diferents || []).map((r) => ({ id: r.id, nivell: r.nivell, nom: r.nom, parts: r.parts.map((k) => ({ id_assignacio: k.split('#')[0], part: k.split('#')[1] })) })),   // PAS 69
     guardies: Object.assign({ tipus: TIPUS_GUARDIA }, guardiesHoraris_(cfg)), reunions: reunionsHoraris_(cfg).reunions, trossos: trossosHoraris_(assignacions, mats), regles_motor: reglesMotor_(cfg) };
@@ -4278,7 +4386,9 @@ function reglesMotor_(cfg) {
     ['multinivell', 'L\'atenció individual (multinivell) no ocupa cap grup-classe: només el docent i, si en té, l\'aula.', 'assignacions[].multinivell'],
     ['aula_capacitat', 'Si no hi ha lloc a l\'aula preferent ni a les alternatives, l\'aula ha de tenir prou capacitat.', 'aules[].capacitat'],
     ['atencio_individual', 'Un dia qualsevol pot tenir tantes sessions d\'atenció individual com franges té el dia; per a la resta de matèries, mana la distribució.', 'assignacions[].multinivell'],   // PAS 73
-    ['mitja_jornada', 'El professorat amb mitja jornada té un dia lliure, dilluns o divendres (aquell dia no fa classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca).', 'docents[].jornada = 1/2']   // PAS 72
+    ['itineraris', 'Un grup-classe amb itineraris (subgrups de tipus «itinerari», p. ex. 1r BAT B Científic i Humanístic): les classes de cada itinerari només ocupen aquell itinerari i les dels altres itineraris poden anar a la mateixa hora; les del grup sencer ocupen tots els itineraris.', 'subgrups[].tipus = itinerari · subgrups[].itineraris'],   // PAS 76
+    ['mitja_jornada', 'El professorat amb mitja jornada té un dia lliure, dilluns o divendres (aquell dia no fa classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca).', 'docents[].jornada = 1/2'],   // PAS 72
+    ['docencia_cada_dia', 'Cada docent fa alguna classe amb alumnat cada dia (les reduccions, les reunions i les guàrdies no compten: cap dia amb només guàrdies). Mitja jornada o 2/3 de jornada: fins a dos dies del tot lliures; la resta, amb classe.', 'docents[].jornada, assignacions[].id_professor']   // PAS 76
   ].map((r) => ({ id: r[0], text: r[1], dades: r[2] }));
   const tv = [
     // PAS 70: les hores seguides i el repartiment en dies diferents els marca la distribució, i el docent de cada grup és
@@ -4737,13 +4847,22 @@ function llancaBuild_(cfg) {
 // i altres; el professorat (només el nom complet), les matèries per nivell amb el seu professorat i els nivells dels
 // criteris de qualificació surten sols. «Publica» (administració) desa una còpia i torna a construir el web.
 const FULL_DEPW_ = 'departaments_web', FULL_DEPP_ = 'departaments_publicat';
-const CAP_DEPW_ = ['id_departament', 'presentacio', 'imatge', 'miniatura', 'peu_imatge', 'projectes', 'feines_estiu', 'altres', 'data', 'desat_per'];
+const CAP_DEPW_ = ['id_departament', 'presentacio', 'imatge', 'miniatura', 'peu_imatge', 'projectes', 'feines_estiu', 'altres', 'data', 'desat_per', 'estat', 'data_tancat', 'tancat_per'];   // PAS 76: estat (tancada = editada i verificada)
 const CAP_DEPP_ = ['id_departament', 'slug', 'dades', 'publicat'];
 const LLISTES_DEPW_ = { projectes: ['titol', 'text', 'enllac', 'curs'], feines_estiu: ['nivell', 'titol', 'text', 'enllac'], altres: ['titol', 'text', 'enllac'] };
 function fullDep_(nom, cap) {
   const ss = SpreadsheetApp.getActive(); let sh = ss.getSheetByName(nom);
-  if (!sh) { sh = ss.insertSheet(nom); sh.getRange(1, 1, 1, cap.length).setValues([cap]).setFontWeight('bold'); sh.setFrozenRows(1); }
+  if (!sh) { sh = ss.insertSheet(nom); sh.getRange(1, 1, 1, cap.length).setValues([cap]).setFontWeight('bold'); sh.setFrozenRows(1); return sh; }
+  // PAS 76: columnes noves al final (fulls creats abans)
+  const ara = sh.getRange(1, 1, 1, Math.max(1, sh.getLastColumn())).getValues()[0].map(norm_), falten = cap.filter((k) => ara.indexOf(k) < 0);
+  if (falten.length) sh.getRange(1, ara.filter(String).length + 1, 1, falten.length).setValues([falten]).setFontWeight('bold');
   return sh;
+}
+// PAS 76 · Bloqueig de l'edició: l'administració el posa amb «Bloqueja» o passa sol l'endemà de la data límit
+function depwBloqueig_(cfg) {
+  const lim = String(cfg.departaments_limit || '').trim(), avui = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+  const perData = /^\d{4}-\d{2}-\d{2}$/.test(lim) && avui > lim;
+  return { limit: /^\d{4}-\d{2}-\d{2}$/.test(lim) ? lim : '', manual: String(cfg.departaments_bloqueig || '') === 'si', perData: perData, bloquejat: perData || String(cfg.departaments_bloqueig || '') === 'si' };
 }
 const slugDep_ = (t) => String(t || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'departament';
 // «Cognom1 Cognom2, Nom» → «Nom Cognom1 Cognom2»
@@ -4758,7 +4877,8 @@ function depwWeb_() {
   fullDep_(FULL_DEPW_, CAP_DEPW_);
   const o = {}, js = (x) => { try { const v = JSON.parse(x || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
   llegeix_(FULL_DEPW_).forEach((r) => { if (r.id_departament) o[r.id_departament] = { presentacio: String(r.presentacio || ''), te_imatge: !!r.imatge, imatge: String(r.imatge || ''), miniatura: String(r.miniatura || ''), peu_imatge: String(r.peu_imatge || ''),
-    projectes: js(r.projectes), feines_estiu: js(r.feines_estiu), altres: js(r.altres), data: String(r.data || ''), desat_per: String(r.desat_per || '') }; });
+    projectes: js(r.projectes), feines_estiu: js(r.feines_estiu), altres: js(r.altres), data: String(r.data || ''), desat_per: String(r.desat_per || ''),
+    estat: r.estat === 'tancada' ? 'tancada' : 'oberta', data_tancat: String(r.data_tancat || ''), tancat_per: String(r.tancat_per || '') }; });
   return o;
 }
 // Dades automàtiques: professorat de les especialitats (només el nom complet), matèries de les especialitats per nivell amb
@@ -4781,9 +4901,12 @@ function depwDades_(ctx) {
   const deps = departaments_(), web = depwWeb_(), profs = actiusPlanificacio_(), cur = llegeix_(FULL.cur), curg = llegeix_(FULL.curg);
   const noms = {}; profs.forEach((p) => { noms[p.id_professor] = [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '); });
   let pub = null; try { pub = JSON.parse(ctx.cfg.departaments_publicat || 'null'); } catch (e) { pub = null; }
-  return { ok: true, nivell: ctx.nivell('departaments'), obert: obert_(ctx), admin: pot_(ctx, 'departaments', 'admin'), publicat: pub,
-    departaments: deps.map((d) => { const w = web[d.id] || {}; delete w.imatge;
-      return { id: d.id, nom: d.nom, slug: slugDep_(d.nom), especialitats: d.especialitats, cap: d.cap, cap_nom: noms[d.cap] || '', edita: depwPot_(ctx, d.id) && obert_(ctx), web: w, auto: depwAuto_(d, profs, cur, curg) }; }) };
+  const admin = pot_(ctx, 'departaments', 'admin'), B = depwBloqueig_(ctx.cfg);
+  // PAS 76: «edita» = pot canviar el contingut ara (no bloquejat, o administració, i la pàgina oberta); «estat_pot» = pot tancar/obrir
+  return { ok: true, nivell: ctx.nivell('departaments'), obert: obert_(ctx), admin: admin, publicat: pub, bloqueig: B,
+    departaments: deps.map((d) => { const w = web[d.id] || { estat: 'oberta' }; delete w.imatge; const pot = depwPot_(ctx, d.id) && obert_(ctx);
+      return { id: d.id, nom: d.nom, slug: slugDep_(d.nom), especialitats: d.especialitats, cap: d.cap, cap_nom: noms[d.cap] || '', es_meu: pot,
+        edita: pot && (admin || !B.bloquejat) && w.estat !== 'tancada', estat_pot: pot && (admin || !B.bloquejat), web: w, auto: depwAuto_(d, profs, cur, curg) }; }) };
 }
 const textDep_ = (x, n) => String(x == null ? '' : x).replace(/\r/g, '').trim().slice(0, n);
 const enllacDep_ = (x) => { const u = textDep_(x, 500); return !u || /^https?:\/\/[^\s<>"]+$/i.test(u) ? u : null; };
@@ -4793,6 +4916,46 @@ function netejaLlistaDep_(clau, ll, errs) {
     if (o.enllac === null) { errs.push(clau + ' ' + (i + 1) + ': l\'enllaç ha de començar per https://'); o.enllac = ''; }
     return o;
   }).filter((o) => o.titol || o.text || o.enllac);
+}
+// PAS 76 · Es pot editar si l'edició no està bloquejada (l'administració sí que pot) i la pàgina no està tancada
+function depwEditable_(ctx, id) {
+  if (!pot_(ctx, 'departaments', 'admin') && depwBloqueig_(ctx.cfg).bloquejat) return { ok: false, error: 'edicio_bloquejada' };
+  if ((depwWeb_()[id] || {}).estat === 'tancada') return { ok: false, error: 'pagina_tancada' };
+  return null;
+}
+// PAS 76 · Tanca (editada i verificada) o torna a obrir una pàgina. El cap, si l'edició no està bloquejada; l'administració, sempre
+function depwEstat_(ctx, req) {
+  const id = String(req.id || ''), estat = req.estat === 'tancada' ? 'tancada' : 'oberta';
+  if (!departaments_().some((d) => d.id === id)) return { ok: false, error: 'no_existeix' };
+  if (!depwPot_(ctx, id)) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  if (!pot_(ctx, 'departaments', 'admin') && depwBloqueig_(ctx.cfg).bloquejat) return { ok: false, error: 'edicio_bloquejada' };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const F = filaDepw_(id), r = F.r.slice(), c = (k) => F.cap.indexOf(k);
+    r[c('estat')] = estat; r[c('data_tancat')] = estat === 'tancada' ? ara_() : ''; r[c('tancat_per')] = estat === 'tancada' ? ctx.email : '';
+    F.sh.getRange(F.fila, 1, 1, r.length).setValues([r]);
+    historial_(ctx.email, 'departament_estat', FULL_DEPW_, id, estat);
+    marcaVersio_('departaments', ctx.email);
+  } finally { lock.releaseLock(); }
+  const w = depwWeb_()[id]; delete w.imatge;
+  return { ok: true, web: w };
+}
+// PAS 76 · Administració: data límit d'edició, bloqueig manual i «tanca totes les obertes» (només amb l'edició bloquejada)
+function depwAdmin_(ctx, req) {
+  if (!pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (req.limit !== undefined) { const l = String(req.limit || '').trim(); if (l && !/^\d{4}-\d{2}-\d{2}$/.test(l)) return { ok: false, error: 'data_invalida' }; posaConfig_('departaments_limit', l); }
+  if (req.bloqueig !== undefined) posaConfig_('departaments_bloqueig', req.bloqueig ? 'si' : '');
+  let n = 0;
+  if (req.tanca_obertes) {
+    const B = depwBloqueig_(llegeixConfig_()); if (!B.bloquejat) return { ok: false, error: 'cal_bloquejar' };
+    const web = depwWeb_(), lock = LockService.getScriptLock(); lock.waitLock(20000);
+    try { departaments_().forEach((d) => { if ((web[d.id] || {}).estat === 'tancada') return; const F = filaDepw_(d.id), r = F.r.slice(), c = (k) => F.cap.indexOf(k);
+      r[c('estat')] = 'tancada'; r[c('data_tancat')] = ara_(); r[c('tancat_per')] = ctx.email; F.sh.getRange(F.fila, 1, 1, r.length).setValues([r]); n++; }); } finally { lock.releaseLock(); }
+  }
+  historial_(ctx.email, 'departaments_admin', 'config', 'departaments', JSON.stringify({ limit: req.limit, bloqueig: req.bloqueig, tancades: n }));
+  marcaVersio_('departaments', ctx.email);
+  return { ok: true, bloqueig: depwBloqueig_(llegeixConfig_()), tancades: n };
 }
 function filaDepw_(id) {
   const sh = fullDep_(FULL_DEPW_, CAP_DEPW_), v = sh.getDataRange().getValues(), cap = v[0].map(norm_), ci = cap.indexOf('id_departament');
@@ -4805,6 +4968,7 @@ function depwDesa_(ctx, req) {
   if (!departaments_().some((d) => d.id === id)) return { ok: false, error: 'no_existeix' };
   if (!depwPot_(ctx, id)) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const ko = depwEditable_(ctx, id); if (ko) return ko;   // PAS 76
   const errs = [], v = { presentacio: textDep_(req.presentacio, 20000), peu_imatge: textDep_(req.peu_imatge, 300) };
   Object.keys(LLISTES_DEPW_).forEach((k) => { v[k] = JSON.stringify(netejaLlistaDep_(k, req[k], errs)); });
   if (errs.length) return { ok: false, error: 'validacio', errors: errs };
@@ -4832,6 +4996,7 @@ function depwImatge_(ctx, req) {
   if (!dep) return { ok: false, error: 'no_existeix' };
   if (!depwPot_(ctx, id)) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const ko = depwEditable_(ctx, id); if (ko) return ko;   // PAS 76
   const b64 = String(req.b64 || ''), mini = String(req.miniatura || '');
   if (!/^[A-Za-z0-9+/=]+$/.test(b64) || b64.length > 3000000) return { ok: false, error: 'imatge_invalida' };
   if (!/^data:image\/jpeg;base64,[A-Za-z0-9+/=]+$/.test(mini) || mini.length > 45000) return { ok: false, error: 'imatge_invalida' };
@@ -4851,7 +5016,9 @@ function depwImatge_(ctx, req) {
 // Publica: una còpia de cada departament (sense dades personals: només noms del professorat) i torna a construir el web
 function depwPublica_(ctx) {
   if (!pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };
-  const deps = departaments_(), web = depwWeb_(), profs = actiusPlanificacio_(), cur = llegeix_(FULL.cur), curg = llegeix_(FULL.curg), ara = ara_();
+  const web = depwWeb_(), deps = departaments_().filter((d) => (web[d.id] || {}).estat === 'tancada'), profs = actiusPlanificacio_(), cur = llegeix_(FULL.cur), curg = llegeix_(FULL.curg), ara = ara_();
+  // PAS 76: només es publiquen les pàgines tancades (editades i verificades)
+  if (!deps.length) return { ok: false, error: 'cap_tancada' };
   const files = deps.map((d) => { const w = web[d.id] || {}, a = depwAuto_(d, profs, cur, curg);
     const dades = { id: d.id, nom: d.nom, slug: slugDep_(d.nom), especialitats: d.especialitats, presentacio: w.presentacio || '', peu_imatge: w.peu_imatge || '', imatge: w.imatge || '',
       projectes: w.projectes || [], feines_estiu: w.feines_estiu || [], altres: w.altres || [], professorat: a.professorat, materies: a.materies, nivells: a.nivells };
@@ -5283,7 +5450,7 @@ function horarisReunionsDesa_(ctx, req) {
 // =============================================================================================
 // PAS 69: «unitat» (les sessions que el motor col·loca juntes: un bloc simultani, una sessió de 2 h…; l'editor les mou
 // juntes), «ordre» (hora dins de la sessió) i les aules preferent i alternatives (assistent d'espais)
-const CAP_HRES = ['dia', 'franja', 'tipus', 'materia', 'nivell', 'grup', 'grups_classe', 'docents', 'aula', 'aula_on', 'durada', 'id_assignacio', 'unitat', 'ordre', 'aula_preferent', 'aules_alternatives'];
+const CAP_HRES = ['dia', 'franja', 'tipus', 'materia', 'nivell', 'grup', 'grups_classe', 'docents', 'aula', 'aula_on', 'durada', 'id_assignacio', 'unitat', 'ordre', 'aula_preferent', 'aules_alternatives', 'recursos'];   // PAS 76: recursos = itineraris que ocupa
 const TIPUS_HORARI = ['classe', 'reunio', 'reduccio_lectiva', 'reduccio_guardia', 'guardia', 'guardia_b', 'guardia_p'];
 function horariMeta_(cfg) { try { return JSON.parse(String((cfg || llegeixConfig_()).horari_meta || '')) || null; } catch (e) { return null; } }
 // PAS 72: jornada de cada docent (per avisar a l'editor de la regla «mitja jornada → dilluns o divendres lliure»)
@@ -5294,7 +5461,7 @@ function horariEditorDades_(ctx) {
   const sessions = meta && sh && sh.getLastRow() > 1 ? llegeix_(FULL.hres).map((r) => ({ dia: r.dia, franja: r.franja, tipus: r.tipus, materia: r.materia, nivell: r.nivell, grup: r.grup,
     grups_classe: String(r.grups_classe || '').split(' | ').filter(Boolean), docents: String(r.docents || '').split(' | ').filter(Boolean), aula: r.aula || '', aula_on: r.aula_on || '',
     durada: Number(r.durada) || 1, id_assignacio: r.id_assignacio || '', unitat: r.unitat || '', ordre: Number(r.ordre) || 0, aula_preferent: r.aula_preferent || '',
-    aules_alternatives: String(r.aules_alternatives || '').split(' | ').filter(Boolean) })) : [];
+    aules_alternatives: String(r.aules_alternatives || '').split(' | ').filter(Boolean), recursos: String(r.recursos || '').split(' | ').filter(Boolean) })) : [];
   // Noms del professorat: els d'ara (GESTIO) i, si algú ja no hi és, els del fitxer importat
   // PAS 69: també el nom curt (nom + 1r cognom) i les franges prohibides de cada docent (del fitxer del motor)
   const noms = {}, curt = {}, proh = {}, fixes = {}; ((meta && meta.docents) || []).forEach((d) => { noms[d.id] = d.nom; proh[d.id] = d.prohibides || []; fixes[d.id] = d.fixes || []; });
@@ -5306,7 +5473,8 @@ function horariEditorDades_(ctx) {
 function filaHres_(s, net) {
   return [s.dia, String(s.franja), s.tipus, net(s.materia), net(s.nivell, 30), net(s.grup, 60), (s.grups_classe || []).map((x) => net(x, 40)).join(' | '),
     (s.docents || []).map((x) => net(x, 20)).join(' | '), net(s.aula, 30), net(s.aula_on, 20), Number(s.durada) || 1, net(s.id_assignacio, 20),
-    net(s.unitat, 80), Number(s.ordre) || 0, net(s.aula_preferent, 30), (s.aules_alternatives || []).map((x) => net(x, 30)).join(' | ')];
+    net(s.unitat, 80), Number(s.ordre) || 0, net(s.aula_preferent, 30), (s.aules_alternatives || []).map((x) => net(x, 30)).join(' | '),
+    (s.recursos || []).map((x) => net(x, 80)).join(' | ')];
 }
 function escriuHres_(files) {
   const ss = SpreadsheetApp.getActive();
