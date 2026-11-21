@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "PAS 76 · 21 de novembre de 2026",
+  "versio": "21 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -11,7 +11,7 @@
         "text": [
           "A la portada, els mòduls surten agrupats: **Personal**, **Alumnat**, **Organització del curs** i **Administració**. A dalt hi ha pestanyes per veure'n només un grup (es recorda per a la propera vegada) o **Tots**.",
           "El grup de cada mòdul es pot canviar a la pestanya «moduls» del full de GESTIO (columna grup). Un mòdul nou sense grup surt a «Altres».",
-          "Des del PAS 69 hi ha la categoria **Secretaria** (Nou professor/a i Nou alumne/a) i cada mòdul té la seva icona. A **Organització del curs**, els dos mòduls d'horaris van junts: Currículum, Desiderata, Ocupació, Horaris · planificador, Horaris · editor i Calendari."
+          "Hi ha la categoria **Secretaria** (Nou professor/a i Nou alumne/a) i cada mòdul té la seva icona. A **Organització del curs**, els dos mòduls d'horaris van junts: Currículum, Desiderata, Ocupació, Horaris · planificador, Horaris · editor i Calendari."
         ]
       },
       {
@@ -213,7 +213,7 @@
             "El botó **Llistat** (des d'edició) genera un PDF amb el logo del centre per recollir les signatures d'una reunió: capçalera PROFESSORAT, la **data** i una **descripció** (p. ex. «Claustre ordinari»), i una taula amb el número, el nom (1r cognom 2n cognom, Nom) i una casella en blanc per signar.",
             "Hi surten les persones que es veuen a la graella en aquell moment (amb els filtres), sense les baixes i per ordre de cognoms. Per a una reunió de departament/àmbit, filtreu abans per especialitat.",
             "Només hi surt el professorat amb estat **actiu** (ni baixes, ni baixes laborals, ni permisos). El PDF ocupa **dues cares** d'un full A4: el professorat es reparteix entre les dues cares i l'alçada de les files i la lletra s'ajusten perquè l'espai quedi ben aprofitat.",
-            "PAS 56: les línies de la taula del PDF són més gruixudes i fosques, perquè es vegin bé en imprimir-lo."
+            "Les línies de la taula del PDF són gruixudes i fosques, perquè es vegin bé en imprimir-lo."
           ]
         },
         {
@@ -290,7 +290,7 @@
             "A dalt de la graella hi ha un botó per a cada nivell i un de **Tots**. En triar un nivell (p. ex. **1r ESO**), només es veuen els alumnes d'aquell nivell i s'amaguen les columnes que no s'omplen en aquell nivell.",
             "El nivell triat es recorda en aquest navegador. Els comptadors, els filtres i l'exportació (Excel i PDF) treballen amb el que es veu.",
             "Si afegiu un alumne amb un nivell triat, el nivell ja hi surt posat.",
-            "**Càrregues** (PAS 75): les dades es llegeixen un cop; tornar al mòdul o desar no les torna a demanar. Desar a l'alumnat ja no obliga a tornar a llegir els horaris, l'ocupació, el calendari ni els equips."
+            "**Càrregues**: les dades es llegeixen un cop; tornar al mòdul o desar no les torna a demanar. Desar a l'alumnat no obliga a tornar a llegir els horaris, l'ocupació, el calendari ni els equips."
           ]
         },
         {
@@ -397,7 +397,7 @@
             "A dalt de la graella hi ha un botó per a cada nivell i un de **Tots**. En triar un nivell (p. ex. **1r BAT**), només es veuen els alumnes d'aquell nivell i s'amaguen les columnes que no s'omplen en aquell nivell.",
             "El nivell triat es recorda en aquest navegador. Els comptadors, els filtres i l'exportació (Excel i PDF) treballen amb el que es veu.",
             "Si afegiu un alumne amb un nivell triat, el nivell ja hi surt posat.",
-            "**Càrregues** (PAS 75): les dades es llegeixen un cop; tornar al mòdul o desar no les torna a demanar. Desar a l'alumnat ja no obliga a tornar a llegir els horaris, l'ocupació, el calendari ni els equips."
+            "**Càrregues**: les dades es llegeixen un cop; tornar al mòdul o desar no les torna a demanar. Desar a l'alumnat no obliga a tornar a llegir els horaris, l'ocupació, el calendari ni els equips."
           ]
         },
         {
@@ -619,7 +619,7 @@
             "La llista té l'identificador, el nom, la data de naixement, el nivell, l'ensenyament, l'estat i la data de la matrícula, el correu, el telèfon i els responsables. Les matrícules de **baixa** surten en gris.",
             "Filtres: **cerca** (nom, identificador o correu), **nivell** i **estat** de la matrícula.",
             "Les baixes fetes a GESTIO no surten a la llista: marqueu **Mostra les baixes** per veure-les (en gris).",
-            "**Ordre i filtres per columna** (PAS 75): un clic al títol d'una columna endreça la llista (▲ ascendent, ▼ descendent; un tercer clic torna a l'ordre per nivell i nom). A la fila de sota dels títols, cada columna té el seu **filtre** (escriviu-hi una part del text; «(buit)» = sense valor)."
+            "**Ordre i filtres per columna**: un clic al títol d'una columna endreça la llista (▲ ascendent, ▼ descendent; un tercer clic torna a l'ordre per nivell i nom). A la fila de sota dels títols, cada columna té el seu **filtre** (escriviu-hi una part del text; «(buit)» = sense valor)."
           ]
         },
         {
@@ -667,7 +667,7 @@
             "Els noms i comptes que surten als documents (directora, IBAN de l'AFA i de les taquilles) es posen a GESTIO › config (`matricula_direccio`, `matricula_iban_afa`, `matricula_iban_taquilles`); no són al codi.",
             "Els textos del formulari són els dels models del centre (1r d'ESO, curs 2026-2027): fitxer `src/assets/dades/matricula-formulari.json`. Cal revisar-los cada curs (quotes, dates).",
             "Les dades del formulari es llegeixen un cop; desar no les torna a demanar (només s'actualitza el registre desat).",
-            "**Textos de cada curs**: els textos del formulari són dels models de 1r d'ESO 2026-2027 (src/assets/dades/matricula-formulari.json); cal revisar-los cada curs (quotes i dates). **Enllaç personal** al formulari en línia (pendent): a la proposta de disseny, «Canvis del PAS 72 › Matrícula: formulari i enllaç personal», hi ha què cal (codi d'un sol ús que caduca en 24 hores, pàgina pública per a les famílies, una comprovació addicional com la data de naixement i una funció de Netlify que el valida)."
+            "**Textos de cada curs**: els textos del formulari són dels models de 1r d'ESO 2026-2027 (src/assets/dades/matricula-formulari.json); cal revisar-los cada curs (quotes i dates). **Enllaç personal** al formulari en línia (pendent): a la proposta de disseny (apartat «Matrícula: formulari i enllaç personal») hi ha què cal (codi d'un sol ús que caduca en 24 hores, pàgina pública per a les famílies, una comprovació addicional com la data de naixement i una funció de Netlify que el valida)."
           ]
         }
       ]
@@ -688,7 +688,8 @@
             "Hi ha un equip docent per grup-classe (EQ-1ESOA, EQ-1ESOGR, EQ-1BATA…), creat a partir del document d'equips docents, amb permís de consulta.",
             "**Membres** d'un equip: a l'esquerra, les persones que no en són membres; a la dreta, les que sí, totes per ordre del 1r cognom. Seleccioneu-ne una o diverses (Ctrl o Maj + clic) i passeu-les amb **Afegeix →** o **← Treu** (o amb doble clic). Cada llista té la seva cerca. Al final, **Desa els membres**.",
             "En desar (equips, membres o permisos) ja no es tornen a carregar les dades: la graella queda com està i es continua treballant al mateix lloc.",
-            "Les dades es llegeixen un cop: tornar al mòdul o desar no les torna a demanar. **Actualitza** les torna a llegir si algú altre les ha canviat."
+            "Les dades es llegeixen un cop: tornar al mòdul o desar no les torna a demanar. **Actualitza** les torna a llegir si algú altre les ha canviat.",
+            "En desplaçar la taula cap a la dreta, la primera columna (la paperera i el **codi** de l'equip) queda fixa."
           ]
         },
         {
@@ -710,7 +711,8 @@
             "Pestanya **Permisos**: una fila per equip i una columna per mòdul (i «Tots els mòduls»). A cada casella: —, Consulta, Edició o Administració. Si una persona és a diversos equips, val el nivell més alt.",
             "Les columnes van en l'ordre de la portada: Professorat, PAS, Alumnat ESO, Alumnat Batxillerat…",
             "L'administració global de l'equip directiu no es pot treure des del web.",
-            "A la matriu de permisos, la capçalera amb els noms dels mòduls queda fixa en fer scroll."
+            "A la matriu de permisos, la capçalera amb els noms dels mòduls queda fixa en fer scroll.",
+            "En desplaçar la matriu cap a la dreta, la primera columna (**l'equip**) queda fixa, i la fila dels títols queda fixa en desplaçar-la avall."
           ]
         },
         {
@@ -749,7 +751,7 @@
             "Les entrades no es modifiquen a la cel·la.",
             "El codi intern de l'alumne no es mostra (GESTIO el fa servir per dins per relacionar les entrades amb l'alumne).",
             "La columna **Estat** sempre surt la primera, encara que tingueu desada una tria de columnes anterior (Visualització camps).",
-            "**Estat** (primera columna, PAS 76): un punt **blanc** = res; **groc** = justificat (p. ex. arriba tard amb una causa justificada: no compta mai per a l'avís); **vermell** = sanció en curs (en tràmit); **verd** = sancionat. Al costat de l'avís hi ha el filtre **Estat**.",
+            "**Estat** (primera columna): un punt **blanc** = res; **groc** = justificat (p. ex. arriba tard amb una causa justificada: no compta mai per a l'avís); **vermell** = sanció en curs (en tràmit); **verd** = sancionat. Per veure només un estat, feu servir el **filtre de la columna Estat** (a la capçalera, com a qualsevol altra columna).",
             "Amb el nivell admin, **un clic al punt** d'una entrada blanca la marca com a **justificada** (groc); un altre clic ho treu. Les entrades d'una sanció no es poden justificar."
           ]
         },
@@ -784,7 +786,7 @@
             "**Anàlisi** permet triar el nivell, el grup-classe i una data (en blanc = tot el període). Mostra, per ordre alfabètic, quantes vegades s'ha registrat cada alumne. Amb una data, només es compten les entrades d'aquella data en endavant.",
             "L'informe es pot descarregar en PDF.",
             "L'anàlisi també compta, per a cada alumne/a i en total, les entrades **blanques**, **taronges** i **verdes**.",
-            "PAS 76: l'anàlisi també dona els **retards** comptats (pes per hora) i les entrades de cada estat (blanques, grogues, vermelles i verdes)."
+            "L'anàlisi també dona els **retards** comptats (pes per hora) i les entrades de cada estat (blanques, grogues, vermelles i verdes)."
           ]
         },
         {
@@ -793,7 +795,7 @@
           "claus": "avís retards quantitat període setmana mes alerta pes hora 9:15 10:15 justificat groc compta",
           "text": [
             "**Avís: N retards o més en [període]** (a dalt): el botó ⚠ diu quants alumnes arriben al criteri i obre la llista. Qui administra el mòdul canvia el nombre i el període (val per a tothom).",
-            "**Cada entrada compta segons l'hora d'arribada** (PAS 76): entre 8:15 i 9:15, **1** retard (el de les 8:15); entre 9:15 i 10:15, **2** (el de les 8:15 i el de les 9:15); entre 10:15 i 11:45, **3**; entre 11:45 i 12:45, **4**; entre 12:45 i 13:45, **5**; a partir de 13:45, **6**. Exemple: si un alumne entra a les 9:25 compta 2 retards; a les 10:28, 3. El símbol (i) al costat de l'avís ho recorda.",
+            "**Cada entrada compta segons l'hora d'arribada**: entre 8:15 i 9:15, **1** retard (el de les 8:15); entre 9:15 i 10:15, **2** (el de les 8:15 i el de les 9:15); entre 10:15 i 11:45, **3**; entre 11:45 i 12:45, **4**; entre 12:45 i 13:45, **5**; a partir de 13:45, **6**. Exemple: si un alumne entra a les 9:25 compta 2 retards; a les 10:28, 3. El símbol (i) al costat de l'avís ho recorda.",
             "Les entrades **justificades** (grogues) **no compten mai**.",
             "**compta les verdes**: si no es marca, les entrades ja sancionades (verdes) no compten. Es recorda en aquest navegador.",
             "La llista diu, per a cada alumne/a, els retards comptats i quantes entrades són. A la graella, el nom porta ⚠ N (els retards del període)."
@@ -826,7 +828,7 @@
             "**Període** (a dalt a l'esquerra): **Curs actual** (per defecte), **Tots** o **Data a data** (del … al …). Es combina amb els filtres de les columnes.",
             "Les amonestacions no es modifiquen a la cel·la. Una feta per error s'esborra amb la **paperera** (edició): el PDF va a la paperera de Drive i queda una còpia a l'historial.",
             "**Excel** i **PDF** exporten les files que es veuen. L'Excel inclou els fets; el PDF, no (per mida).",
-            "**Estat** (primera columna, PAS 76): un punt **blanc** = res; **vermell** = sanció en curs; **verd** = sancionat. **Només l'administració** el canvia, amb una sanció (doble clic a l'alumne/a). Ni el professorat ni la coordinació de nivell el poden canviar."
+            "**Estat** (primera columna): un punt **blanc** = res; **vermell** = sanció en curs; **verd** = sancionat. **Només l'administració** el canvia, amb una sanció (doble clic a l'alumne/a). Ni el professorat ni la coordinació de nivell el poden canviar."
           ]
         },
         {
@@ -834,7 +836,7 @@
           "titol": "Finestra de l’alumne/a (doble clic)",
           "claus": "visor fets doble clic alumne sanció esquerra dreta",
           "text": [
-            "**Doble clic** a una amonestació obre la finestra de l'alumne/a, en dues parts (PAS 76).",
+            "**Doble clic** a una amonestació obre la finestra de l'alumne/a, en dues parts: a l'esquerra, les seves **sancions** i, per a l'administració, la **sanció nova** amb les amonestacions que s'hi inclouen (caselles); a la dreta, les seves **amonestacions**, per navegar-hi. Si no teniu permís per sancionar, a l'esquerra surt el motiu.",
             "**Dreta** (tothom): les amonestacions de l'alumne/a que veieu, amb la data, el professor/a i l'estat; cliqueu-ne una (o ‹ ›) per veure'n els fets i el PDF.",
             "**Esquerra** (només l'administració): les sancions de l'alumne/a i **Nova sanció**: tipus (**acumulació d'amonestacions lleus** o **amonestació greu**), descripció, data i estat (**en tràmit** = vermell, **sancionat** = verd, **anul·lada** = blanc), i les amonestacions que en formen part (marcades). **Edita** i **Esborra** a cada sanció. Mai no es posen soles.",
             "Totes les sancions són també al mòdul **Sancions**."
@@ -854,7 +856,7 @@
             "La data i l'hora de redacció i el curs es posen sols. **Desa** comprova les dades i desa l'amonestació a l'instant. El **PDF** (logo del centre, NOFC 5.3, Llei 12/2009, dades, fets i signatures) es fa **en segon pla**: mentre es fa, la columna PDF mostra un cercle que gira i, quan acaba, surt l'enllaç i un missatge. Podeu continuar treballant.",
             "Si el PDF no es pot fer (o tanqueu la pàgina abans que acabi), l'amonestació queda desada sense PDF: es fa des del visor (doble clic a la fila) o automàticament amb **fesPdfsPendents**.",
             "Si es prem Desa dues vegades seguides, no es duplica.",
-            "**Càrregues** (PAS 75): el formulari arriba amb les dades del mòdul; només es torna a demanar si s'ha canviat l'alumnat (alta o canvis a Alumnat ESO/Batxillerat)."
+            "**Càrregues**: el formulari arriba amb les dades del mòdul; només es torna a demanar si s'ha canviat l'alumnat (alta o canvis a Alumnat ESO/Batxillerat)."
           ]
         },
         {
@@ -1050,7 +1052,7 @@
             "- **Professorat** de l'especialitat amb el càrrec i les hores lectives.",
             "- **Balanç**: total de l'especialitat − cedides + assignades = hores a impartir; hores lectives del professorat − hores a impartir = balanç (positiu: sobren hores; negatiu: en falten).",
             "**PDF** fa el de l'especialitat triada; **PDF de totes**, un PDF amb una pàgina (o més) per especialitat.",
-            "PAS 76: el marc s'ajusta a totes les caixes i ocupa tota la finestra: les caixes es poden portar fins a la vora (i més enllà: apareix la barra de desplaçament) sense que quedin tallades."
+            "El marc s'ajusta a totes les caixes i ocupa tota la finestra: les caixes es poden portar fins a la vora (i més enllà: apareix la barra de desplaçament) sense que quedin tallades."
           ]
         },
         {
@@ -1061,7 +1063,7 @@
             "Botó **Balanç i transferències** (pestanya Assignacions): esquema amb una **caixa per especialitat** i el seu **balanç** d'hores (hores lectives del professorat − hores a impartir). L'ideal és 0: en verd si quadra, en vermell si en falten (negatiu) i en blau si en sobren (positiu).",
             "Cada **fletxa** va de l'especialitat de la matèria a l'especialitat que la imparteix, amb les hores transferides. Passant el ratolí per sobre d'una fletxa o d'una caixa es veu el detall (matèries i hores).",
             "Per defecte només surten les especialitats amb transferències (es pot desmarcar). **PDF**: l'esquema i, a la pàgina següent, les taules de transferències i de balanç.",
-            "**Balanç i transferències** (PAS 75): la finestra és més gran; les **caixes** de les especialitats es poden **arrossegar** amb el ratolí (les fletxes les segueixen i el PDF surt tal com es veu). Un **\\*** a les hores d'una fletxa vol dir que hi ha hores de **codocència**: passant el ratolí per sobre, ho indica (amb les hores i les matèries)."
+            "**Balanç i transferències**: les **caixes** de les especialitats es poden **arrossegar** amb el ratolí (les fletxes les segueixen i el PDF surt tal com es veu). Un **\\*** a les hores d'una fletxa vol dir que hi ha hores de **codocència**. Passant el ratolí per sobre de la fletxa surten les matèries amb les seves hores; les de codocència porten «(codocència)» al costat del nom."
           ]
         },
         {
@@ -1075,7 +1077,7 @@
             "A **4t d'ESO**, a Català, Castellà i Matemàtiques la lletra de la matèria — «Català (A)», «Català (B)» — és una **tipologia interna**, no el grup-classe: l'alumnat de 4t ESO C pot fer Matemàtiques (A), (B) o (div.). Al document, Català (A) i (B) van a la fila **Català**, amb una línia per grup i l'etiqueta **[A]** o **[B]**; la divisió té la seva fila (**Català (div.)**). Les matèries de franja surten en dues columnes, amb els grups-classe entre parèntesis quan només són d'una part dels grups.",
             "**Ressaltats** (a totes les cel·les, també les de diversitat i optatives que abracen més d'un grup-classe, i a les franges): en **taronja**, el tutor/a d'algun dels grups-classe (si un grup té cotutoria, tots dos); en **blau**, el docent que fa **dues o més matèries** a algun dels grups-classe, comptant-hi les diversitats, les optatives i les matèries de franja. Si una cel·la té més d'una línia, només es ressalta la línia del docent.",
             "**Hores de cada docent**: si un docent té diverses files al mateix grup (p. ex. Anglès de 4t: 2 h A + 1 h B), se sumen (3 h); l'altre docent hi surt amb la seva hora B (1 h).",
-            "**PAS 70**: el blau **no** s'aplica a les **optatives** (1r a 3r d'ESO) ni a les matèries de les **franges** de 4t d'ESO: no es ressalten i no compten per decidir si un docent fa més d'una matèria al grup-classe. Sí que hi compten les diversitats."
+            "El blau **no** s'aplica a les **optatives** (1r a 3r d'ESO) ni a les matèries de les **franges** de 4t d'ESO: no es ressalten i no compten per decidir si un docent fa més d'una matèria al grup-classe. Sí que hi compten les diversitats."
           ]
         }
       ]
@@ -1274,8 +1276,8 @@
             "Al desplegable **+ afegeix una sessió** d'un bloc, les sessions surten agrupades per nivell (primer el de la pestanya) i, dins de cada nivell, per ordre alfabètic de matèria.",
             "**Aula preferent**: el desplegable té les aules per ordre alfabètic.",
             "**3 · En dies diferents** (obligatòria per al motor): sessions que **no poden anar el mateix dia**, p. ex. l'hora A de Tecnologia de 1r ESO A i les seves hores B (G1 i G2). És el contrari de «Mateix dia que». Cada regla té dues o més sessions (matèria + grup-classe o subgrup, també d'un bloc). **Proposa les del nivell** crea, per a cada matèria amb part del grup-classe i parts de subgrups, una regla «grup-classe ≠ subgrup» per a cada subgrup. No hi poden anar dues sessions del mateix bloc ni de blocs amb la mateixa etiqueta «Mateix dia que».",
-            "**Codocència de suport (trossejada)** (PAS 73): si una matèria té *Docents a l'aula = 2*, una assignació amb totes les hores (la principal) i d'altres amb una part (p. ex. tres docents d'1 h), les de suport surten amb l'etiqueta **«Suport de …»**: el motor les posa a la mateixa hora i aula que una sessió de la principal (sense ocupar el grup-classe). Poseu-los distribució «1» i no les poseu en cap bloc. Vegeu els documents «Planificador · Cotutoria / Codocència» de la carpeta docs.",
-            "**Blocs simultanis** (PAS 75): si la matèria té **codocència de suport trossejada** (diversos docents de suport amb una part de les hores), l'etiqueta de la sessió principal diu quants suports té i la seva distribució, p. ex. «3 suports (1+1+1 h: …)»."
+            "**Codocència de suport (trossejada)**: si una matèria té *Docents a l'aula = 2*, una assignació amb totes les hores (la principal) i d'altres amb una part (p. ex. tres docents d'1 h), les de suport surten amb l'etiqueta **«Suport de …»**: el motor les posa a la mateixa hora i aula que una sessió de la principal (sense ocupar el grup-classe). Poseu-los distribució «1» i no les poseu en cap bloc. Vegeu els documents «Planificador · Cotutoria / Codocència» de la carpeta docs.",
+            "**Blocs simultanis**: si la matèria té **codocència de suport trossejada** (diversos docents de suport amb una part de les hores), l'etiqueta de la sessió principal diu quants suports té i la seva distribució, p. ex. «3 suports (1+1+1 h: …)»."
           ]
         },
         {
@@ -1321,11 +1323,11 @@
             "Les regles obligatòries sempre es compleixen: un docent, un grup, un subgrup o una aula no poden ser a dos llocs alhora; posicions fixes i prohibides; les sessions d'un bloc simultani a la mateixa hora amb docents i aules diferents; els blocs amb la mateixa etiqueta «mateix dia», el mateix dia.",
             "**Regles obligatòries** i **Penalitzacions de les regles toves**: el catàleg complet tal com va a l'exportació per al motor (`regles_motor`). Penalització total = suma de pes × unitats (p. ex. cada hora buida d'un docent, cada hora fora de l'aula preferent); el motor busca l'horari amb la penalització més baixa i compleix sempre les obligatòries.",
             "Entre les **obligatòries** hi ha la de les **matèries trossejades**: si una matèria d'un grup està repartida en trossos (docents diferents), totes les sessions de tots els trossos es fan en dies diferents. La validació avisa si una matèria trossejada té més sessions que dies.",
-            "**Regles noves (PAS 69)**: qui fa guàrdia de **pati o de biblioteca**, sense ocupació just abans ni just després de l'esbarjo; **màxim d'hores d'ocupació diària** per docent (per defecte 6) i **màxim de permanència setmanal** (ocupació + forats, per defecte 30). Totes tres són preferències amb pes; 0 vol dir sense límit.",
+            "**Guàrdies i jornada**: qui fa guàrdia de **pati o de biblioteca**, sense ocupació just abans ni just després de l'esbarjo; **màxim d'hores d'ocupació diària** per docent (per defecte 6) i **màxim de permanència setmanal** (ocupació + forats, per defecte 30). Totes tres són preferències amb pes; 0 vol dir sense límit.",
             "**En dies diferents** és una regla obligatòria nova: vegeu Sessions lectives › 3 · En dies diferents.",
-            "**PAS 70**: el màxim d'hores seguides, el repartiment en dies diferents i la desiderata ja **no** són preferències. Ara són **obligatòries**: la **distribució** mana («2 1» = dues hores seguides un dia i l'altra un altre dia; «1 1 1» = cada hora un dia diferent) i cada grup el fa el docent de Currículum › Assignacions (la desiderata ja aplicada).",
-            "Regla obligatòria (PAS 72): el professorat amb **mitja jornada** té un **dia lliure, dilluns o divendres** (cap classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca). El motor la compleix sempre; la jornada és la de Professorat.",
-            "Regla obligatòria (PAS 73): l'**atenció individual** pot tenir **tantes sessions un mateix dia com franges** té el dia; per a la resta de matèries, mana la distribució (cada sessió d'una part, un dia diferent)."
+            "El màxim d'hores seguides, el repartiment en dies diferents i la desiderata **no** són preferències: són **obligatòries**: la **distribució** mana («2 1» = dues hores seguides un dia i l'altra un altre dia; «1 1 1» = cada hora un dia diferent) i cada grup el fa el docent de Currículum › Assignacions (la desiderata ja aplicada).",
+            "Regla obligatòria: el professorat amb **mitja jornada** té un **dia lliure, dilluns o divendres** (cap classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca). El motor la compleix sempre; la jornada és la de Professorat.",
+            "Regla obligatòria: l'**atenció individual** pot tenir **tantes sessions un mateix dia com franges** té el dia; per a la resta de matèries, mana la distribució (cada sessió d'una part, un dia diferent)."
           ]
         },
         {
@@ -1368,7 +1370,7 @@
           "titol": "Regla «classe cada dia»",
           "claus": "regla obligatòria classe cada dia guàrdies mitja jornada dos terços dies lliures",
           "text": [
-            "Regla obligatòria del generador (PAS 76): cada docent fa alguna **classe amb alumnat cada dia** (les reduccions, les reunions i les guàrdies no compten: cap dia amb només guàrdies).",
+            "Regla obligatòria del generador: cada docent fa alguna **classe amb alumnat cada dia** (les reduccions, les reunions i les guàrdies no compten: cap dia amb només guàrdies).",
             "**Mitja jornada** o **⅔ de jornada**: fins a **dos dies del tot lliures** (sense res); la resta, amb classe.",
             "No s'aplica a qui té menys sessions de classe que dies (el validador ho avisa) ni, en un càlcul parcial sense horari base, a qui té classes d'altres nivells."
           ]
@@ -1414,7 +1416,7 @@
             "**Aules**: si una sessió no té aula preferent (o és ocupada), el motor hi posa una aula ordinària lliure, si pot ser la que el grup ja fa servir. Si la pestanya **Espai** no té cap aula, l'horari es va calcular abans d'aquest canvi o sense aules: calculeu-lo de nou.",
             "**Penalització**: l'enllaç «penalització N» de dalt obre l'índex de penalització del motor (per regla) i el que més penalitza (matèries amb dues sessions el mateix dia, docents amb forats, guàrdies sense cobrir).",
             "**Vista d'un docent**: al costat del nom, les hores d'**ocupació**, les **lectives** (alumnat + reduccions lectives), les **guàrdies** totals i, entre parèntesis, les ordinàries, de pati, de biblioteca i les reduccions de guàrdia, els **forats** i la **permanència**. Cada franja ocupada compta **1** d'ocupació, també una guàrdia de pati o de biblioteca. Un forat és una franja lectiva lliure entre dues d'ocupades del mateix dia; l'esbarjo lliure no compta; una franja lliure just abans o just després d'una guàrdia de pati o de biblioteca compta com a mig forat, excepte si la guàrdia és extrema: aleshores el forat compta sencer (1). Permanència = ocupació + forats.",
-            "**Ocupació** (PAS 75): cada franja ocupada compta 1, també una guàrdia de pati o de biblioteca."
+            "**Ocupació**: cada franja ocupada compta 1, també una guàrdia de pati o de biblioteca."
           ]
         },
         {
@@ -1429,11 +1431,11 @@
             "Les guàrdies de pati i de biblioteca només poden anar a l'esbarjo; les altres sessions, a franges lectives. Una sessió de 2 h necessita dues franges seguides sense esbarjo.",
             "**↶ Desfés** desfà l'últim canvi. Els canvis no es guarden fins que premeu **Desa els canvis (N)**. Si algú altre ha desat o importat l'horari mentre l'editàveu, cal tornar-lo a carregar.",
             "A dalt diu quan s'ha editat a mà i quants canvis s'hi han fet des de la importació. En importar un horari nou, es perden.",
-            "Un **bloc** (sessions que es fan alhora i comparteixen grup-classe: optatives, desdoblaments, hores B) es mou sempre **sencer**, també als horaris importats abans del PAS 69.",
+            "Un **bloc** (sessions que es fan alhora i comparteixen grup-classe: optatives, desdoblaments, hores B) es mou sempre **sencer**.",
             "L'assistent busca solucions amb moviments **derivats de qualsevol grup-classe o docent** (no només del grup de la primera sessió): primer prova les posicions que obliguen a moure menys sessions i descarta les impossibles.",
             "Si un moviment deixa un docent de **mitja jornada** sense el dilluns ni el divendres lliure, l'assistent ho avisa.",
             "Els **canvis d'aula** també són moviments de les solucions: si la sessió moguda no troba cap aula lliure, l'assistent proposa canviar l'aula de la sessió que l'ocupa (compten dins del màxim de moviments).",
-            "**Assistent** (PAS 75): fins a **10 moviments**; finestra més gran; cada moviment diu també el **professorat** que es mou. Les solucions **no incompleixen cap regla obligatòria** del motor: distribució (sessions en dies diferents), «mateix dia», «en dies diferents», matèries trossejades, posicions fixes i prohibides (de la sessió i del docent), mitja jornada, aules i **guàrdies** (cap franja es queda amb menys guàrdies de les que tenia; si cal, s'intercanvien guàrdies del mateix tipus). Perquè ho pugui comprovar tot, cal importar un horari calculat amb el generador del PAS 75 o posterior."
+            "**Assistent**: fins a **10 moviments**; cada moviment diu també el **professorat** que es mou. Les solucions **no incompleixen cap regla obligatòria** del motor: distribució (sessions en dies diferents), «mateix dia», «en dies diferents», matèries trossejades, posicions fixes i prohibides (de la sessió i del docent), mitja jornada, aules i **guàrdies** (cap franja es queda amb menys guàrdies de les que tenia; si cal, s'intercanvien guàrdies del mateix tipus). Perquè ho pugui comprovar tot, cal importar un horari calculat amb la versió actual del generador."
           ]
         },
         {
@@ -1444,7 +1446,7 @@
             "**Doble clic** a una sessió de classe (amb nivell d'edició) obre l'assistent d'espais: la llista d'aules amb el tipus, les places i l'estat a aquella hora (**lliure** o ocupada i per qui). Primer les lliures, la preferent i les alternatives i les del mateix tipus.",
             "Trieu l'aula i **Canvia l'aula**. Si és ocupada, les dues sessions **s'intercanvien** l'aula. Marqueu **A totes les hores d'aquesta matèria i grup** per canviar-la a totes les hores que eren a la mateixa aula.",
             "Si la sessió és d'un bloc (diverses matèries alhora), primer trieu quina.",
-            "Amb diverses sessions a la mateixa hora (hores B, optatives…), el doble clic obre la de la sessió clicada i el desplegable **Sessió** permet triar qualsevol de les altres; si l'aula triada és d'una altra sessió del mateix bloc, també s'**intercanvien** (PAS 75)."
+            "Amb diverses sessions a la mateixa hora (hores B, optatives…), el doble clic obre la de la sessió clicada i el desplegable **Sessió** permet triar qualsevol de les altres; si l'aula triada és d'una altra sessió del mateix bloc, també s'**intercanvien**."
           ]
         },
         {
@@ -1460,7 +1462,7 @@
         },
         {
           "id": "he-pas76",
-          "titol": "Regles noves (PAS 76)",
+          "titol": "Regles de l'editor",
           "claus": "classe cada dia itinerari assistent",
           "text": [
             "L'assistent i els moviments respecten també la regla **classe cada dia** (jornada reduïda: fins a dos dies lliures): no proposa cap moviment que deixi un docent un dia sense classe si abans en tenia.",
@@ -1479,7 +1481,7 @@
           "titol": "Vistes i filtres",
           "claus": "llista dia setmana mes trimestre vista avui anterior següent filtre categoria nivell cerca",
           "text": [
-            "**En entrar al mòdul** (PAS 76) sempre surt **avui**, amb la vista que teníeu: vista Dia → avui; Setmana → la setmana d'avui; Mes → el mes d'avui; Trimestre → el trimestre d'avui. **Actualitza** manté la data que miràveu.",
+            "**En entrar al mòdul** sempre surt **avui**, amb la vista que teníeu: vista Dia → avui; Setmana → la setmana d'avui; Mes → el mes d'avui; Trimestre → el trimestre d'avui. **Actualitza** manté la data que miràveu.",
             "Les pestanyes canvien la vista: **Llista** (tot el curs, per mesos, amb cerca), **Dia**, **Setmana**, **Mes**, **Trimestre** (els mesos en petit, amb punts, i la llista del trimestre) i **Dates clau**.",
             "Amb ◀ **Avui** ▶ i el calendari petit es canvia de dia, setmana, mes o trimestre. Un clic en el número d'un dia obre la vista del dia.",
             "Filtres: **Categoria** i **Nivells**. Al desplegable de nivells es marquen els que es volen veure (també **Professorat**); **Cap** i **Tots** els desmarquen o marquen tots, **Accepta** aplica la tria i **Cancel·la** la deixa com era. Valen per a totes les vistes i per als PDF. Els esdeveniments sense nivell (de tot el centre) surten sempre.",
@@ -1601,6 +1603,16 @@
             "Pestanya **Administració** (només l'administració): **Termini d'edició** amb la **data límit** (l'endemà l'edició es **bloqueja** sola) i **Bloqueja ara** / **Desbloqueja**. Amb l'edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines; l'administració sí, i pot **tancar totes les obertes**.",
             "**Estat de les pàgines**: cada departament/àmbit amb el cap, l'estat, el darrer desat i quan es va tancar; icones per **tancar/obrir**, **editar** i **vista prèvia**.",
             "**Publica les pàgines tancades**: només es publiquen les tancades i es torna a construir el web (build hook de Netlify). Les obertes no hi surten fins que es tanquin i es torni a publicar."
+          ]
+        },
+        {
+          "titol": "Provar-ho com un cap",
+          "claus": "provar cap departament profe.test vista del cap",
+          "text": [
+            "Per veure exactament el que veu i pot fer un cap, feu servir un compte de prova (p. ex. **profe.test**) que sigui a Professorat i tingui el correu de l'institut.",
+            "1 · **Desiderata › Departaments/àmbits**: trieu el compte de prova com a **cap** d'un departament/àmbit i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Departaments i a Desiderata.",
+            "2 · Obriu una **finestra d'incògnit** (o un altre navegador), entreu a GESTIO amb el compte de prova i obriu **Departaments**: només hi veureu la pestanya **Edició** i el vostre departament (Desa, Tanca/Obre, Vista prèvia). Si l'edició està **bloquejada** (data límit o botó Bloqueja), el cap ja no pot desar ni tornar a obrir la pàgina.",
+            "3 · Quan acabeu, a **Desiderata › Departaments/àmbits** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
           ]
         }
       ]

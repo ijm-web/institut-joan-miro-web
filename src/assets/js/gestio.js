@@ -508,8 +508,7 @@
       $('gsEines').innerHTML = htmlPeriode() + '<span class="gs-compte" id="gsCompte"></span><span class="gs-espai"></span>' +
         (S.d.retards ? '<span class="gs-retards" id="gsRetards"></span>' : '') +
         (ed ? '<button type="button" class="prog-btn" data-accio="entrada-nova">+ Nova entrada</button>' : '') +
-        (S.d.sancions ? '<label class="gs-check gs-retards__verd">Estat <select id="gsEntEstat"><option value="">tots</option><option value="blanc">blanc · res</option><option value="groc">groc · justificat</option><option value="vermell">vermell · sanció en curs</option><option value="verd">verd · sancionat</option></select></label>' +
-          '<button type="button" class="prog-btn prog-btn--ghost" data-accio="sancions-llista" title="Gestió de les sancions: llista, filtres, nova, edita, anul·la, esborra">Sancions (' + S.d.sancions.length + ')</button>' : '') +
+        (S.d.sancions ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="sancions-llista" title="Gestió de les sancions: llista, filtres, nova, edita, anul·la, esborra">Sancions (' + S.d.sancions.length + ')</button>' : '') +
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="entrada-analisi">Anàlisi</button>' +
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
         (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="camps">Gestió camps</button>' : '') +
@@ -518,7 +517,6 @@
         '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf">PDF</button></span>';
       pintaRetards(); lligaPeriode();
       // PAS 73: filtre per estat de les entrades (a més del filtre de la columna)
-      if ($('gsEntEstat')) { $('gsEntEstat').value = S.entEstat || ''; $('gsEntEstat').addEventListener('change', function () { S.entEstat = this.value; aplicaFiltreEstatEnt(); }); }
       return;
     }
     var nivells = esAlumnat() ? (S.d.nivells || etapa().nivells) : [], sel = nivellTriat();
@@ -594,6 +592,8 @@
       : function () { return valorsDiferents(c.clau); };
     // PAS 47: el filtre Nivell, en l'ordre de les etapes (ESO i després batxillerat), no alfabètic
     if (c.clau === 'nivell') { var base = opts; opts = function () { return base().slice().sort(function (a, b) { return ordreNivell(a.v) - ordreNivell(b.v); }); }; }
+    // L'estat dels registres (control d'entrada, amonestacions) es filtra amb el nom del color i el que vol dir
+    if (c.clau === 'estat' && esRegistre()) { var baseE = opts; opts = function () { return baseE().map(function (o) { return o === BUIT ? o : { v: o.v, t: o.v + (TEXT_ESTAT_ENT[o.v] ? ' · ' + TEXT_ESTAT_ENT[o.v].toLowerCase() : '') }; }); }; }
     var norm = function (v) { v = v == null ? '' : String(v).trim(); return c.tipus === 'si_no' ? (v === 'sí' ? 'sí' : '') : v; };
     return {
       headerFilter: function (cell, onRendered, success) { var el = filtreMultiple(c.nom, opts, success, cell.getValue()); if (compacte) el.classList.add('gs-filtre--compacte'); return el; },
@@ -910,7 +910,7 @@
     if (!S.taula) return;
     S.taula.setFilter(function (d) {
       // Les baixes s'amaguen si no es marca «Mostra també les baixes»… excepte si es filtra per la columna Estat
-      return (S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat()) && delNivell(d) && (!S.nomesIncompletes || incompleta(d) || !!S.canvis[d.id]) && delPeriodeAmon(d) && delCursConsell(d) && nivellCurr(d) && (S.modul.id !== 'control_entrada' || filtreEstatEnt(d));
+      return (S.baixes || !deBaixa(d) || !!S.canvis[d.id] || filtreEstat()) && delNivell(d) && (!S.nomesIncompletes || incompleta(d) || !!S.canvis[d.id]) && delPeriodeAmon(d) && delCursConsell(d) && nivellCurr(d);
     });
     columnesNivell();
     if (window.matchMedia('(max-width: 760px)').matches) pintaMobil();
@@ -1842,7 +1842,7 @@
     var fl = B.trans.filter(function (t) { return pos[t.de] && pos[t.a]; }).map(function (t) {
       var p = vora(pos[t.de], pos[t.a]), q = vora(pos[t.a], pos[t.de]), mx = (p.x + q.x) / 2, my = (p.y + q.y) / 2, dx = q.x - p.x, dy = q.y - p.y, l = Math.sqrt(dx * dx + dy * dy) || 1;
       var ox = -dy / l * 26, oy = dx / l * 26, kx = mx + ox, ky = my + oy, lx = (p.x + 2 * kx + q.x) / 4, ly = (p.y + 2 * ky + q.y) / 4;
-      var tip = t.de + ' → ' + t.a + ': ' + fmtH(t.hores) + ' h' + (t.codo ? ' (' + (t.codo === t.hores ? 'tot' : fmtH(t.codo) + ' h') + ' en codocència: dos docents a l’aula)' : '') + '\n' + Object.keys(t.det).map(function (d) { return '· ' + d + ': ' + fmtH(t.det[d]) + ' h'; }).join('\n');
+      var tip = t.de + ' → ' + t.a + ': ' + fmtH(t.hores) + ' h' + '\n' + Object.keys(t.det).map(function (d) { return '· ' + d + ': ' + fmtH(t.det[d]) + ' h'; }).join('\n');
       return '<g class="gs-bal__fl"><title>' + esc(tip) + '</title><path d="M' + p.x.toFixed(1) + ',' + p.y.toFixed(1) + ' Q' + kx.toFixed(1) + ',' + ky.toFixed(1) + ' ' + q.x.toFixed(1) + ',' + q.y.toFixed(1) + '" fill="none" stroke="#E8600C" stroke-width="' + Math.min(6, 1.5 + t.hores / 4).toFixed(1) + '" marker-end="url(#gsBalPunta)" opacity=".85"/>' +
         '<rect x="' + (lx - 22).toFixed(1) + '" y="' + (ly - 10).toFixed(1) + '" width="44" height="20" rx="10" fill="#fff" stroke="#E8600C"/><text x="' + lx.toFixed(1) + '" y="' + (ly + 4).toFixed(1) + '" text-anchor="middle" font-size="11" font-weight="700" fill="#B54700">' + esc(fmtH(t.hores)) + ' h' + (t.codo ? '*' : '') + '</text></g>';
     }).join('');
@@ -2491,7 +2491,11 @@
     var ed = sid ? sancs.filter(function (x) { return x.id_sancio === sid; })[0] : null, cur = Math.max(0, ams.map(function (f) { return f.id; }).indexOf(fila.id));
     var marcades = ed ? ed.amonestacions : ams.filter(function (f) { return (f.estat || 'blanc') === 'blanc' && !f.id_sancio; }).map(function (f) { return f.id; });
     var compte = ['blanc', 'vermell', 'verd'].map(function (e) { return '<span class="gs-punt gs-punt--' + e + '"></span> ' + ams.filter(function (f) { return (f.estat || 'blanc') === e; }).length; }).join(' · ');
-    var esq = !pot ? '' : '<div class="gs-amsan__esq"><h4 class="gs-amon__tit">Sancions</h4>' +
+    // Sense permís (o amb un Apps Script anterior), la part esquerra diu per què no es pot sancionar i mostra les sancions
+    var motiu = S.d.pot_sancionar === undefined ? 'L’Apps Script desplegat és anterior a les sancions: enganxeu el Code.gs nou, executeu «configura» i feu una implementació nova (Versió nova). Després, torneu a carregar la pàgina.'
+      : S.d.obert === false ? 'El curs està tancat: no es poden crear ni modificar sancions.' : 'Només l’administració del mòdul Amonestacions pot crear sancions (Equips i permisos).';
+    var esq = !pot ? '<div class="gs-amsan__esq"><h4 class="gs-amon__tit">Sancions</h4>' + (sancs.length ? '<ul class="gs-sanc__llista">' + sancs.map(function (x) { return '<li><span class="gs-punt gs-punt--' + COLOR_SANCIO[x.estat] + '"></span> <b>' + esc(dataVista(x.data)) + '</b> · ' + esc(TIPUS_SANCIO[x.tipus] || x.tipus) + ' · ' + esc(x.descripcio) + ' · ' + esc(x.estat) + '</li>'; }).join('') + '</ul>' : '<p class="gs-gris">Encara no té cap sanció.</p>') +
+      '<p class="prog-avis">' + esc(motiu) + '</p></div>' : '<div class="gs-amsan__esq"><h4 class="gs-amon__tit">Sancions</h4>' +
       (sancs.length ? '<ul class="gs-sanc__llista">' + sancs.map(function (x) { return '<li><span class="gs-punt gs-punt--' + COLOR_SANCIO[x.estat] + '"></span> <b>' + esc(dataVista(x.data)) + '</b> · ' + esc(TIPUS_SANCIO[x.tipus] || x.tipus) + ' · ' + esc(x.descripcio) + ' · ' + esc(x.estat) + ' · ' + x.amonestacions.length + ' amon. <small class="gs-gris">' + esc(x.id_sancio) + '</small> <button type="button" class="gs-enllac" data-amsan="edita" data-id="' + esc(x.id_sancio) + '">Edita</button> <button type="button" class="gs-enllac gs-perill" data-amsan="esborra" data-id="' + esc(x.id_sancio) + '">Esborra</button></li>'; }).join('') + '</ul>' : '<p class="gs-gris">Encara no té cap sanció.</p>') +
       '<h4 class="gs-amon__tit">' + (ed ? 'Edita la sanció ' + esc(ed.id_sancio) : 'Nova sanció') + '</h4>' +
       '<div class="gs-form-fila"><label>Tipus <select id="gsAsTipus">' + ['amonestacions', 'greu'].map(function (t) { return '<option value="' + t + '"' + ((ed ? ed.tipus : 'amonestacions') === t ? ' selected' : '') + '>' + esc(TIPUS_SANCIO[t]) + '</option>'; }).join('') + '</select></label>' +
@@ -2512,7 +2516,7 @@
       if (ed) cos.id_sancio = ed.id_sancio; dialegAlumneAmon.cos = cos; } }] : [];
     if (ed) botons.push({ t: 'Nova sanció', valor: 'nova', tipus: 'ghost' });
     botons.push({ t: pot ? 'Cancel·la' : 'Tanca', valor: 0, tipus: 'ghost' });
-    var obre = pregunta('Amonestacions i sancions · ' + fila.alumne + ' · ' + (fila.grup || fila.nivell || ''), '<div class="gs-amsan' + (pot ? '' : ' gs-amsan--sol') + '">' + esq + dreta + '</div>', botons, false);
+    var obre = pregunta('Amonestacions i sancions · ' + fila.alumne + ' · ' + (fila.grup || fila.nivell || ''), '<div class="gs-amsan">' + esq + dreta + '</div>', botons, false);
     $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample', 'gs-modal--gran');
     var mostra = function (i) { cur = Math.max(0, Math.min(ams.length - 1, i)); var d = ams[cur]; if (!d) { $('gsAsDet').innerHTML = '<p class="gs-gris">Cap amonestació visible.</p>'; return; }
       [].forEach.call(document.querySelectorAll('.gs-amsan__item'), function (b) { b.classList.toggle('is-actiu', Number(b.dataset.i) === cur); });
@@ -2819,8 +2823,6 @@
     });
   }
   // Aplica a la taula els estats nous de les entrades (sense tornar a llegir el full)
-  var filtreEstatEnt = function (d) { return !S.entEstat || (d.estat || 'blanc') === S.entEstat; };
-  function aplicaFiltreEstatEnt() { aplicaFiltre(); }
   function aplicaSancions(r) {
     S.d.sancions = r.sancions || S.d.sancions; S.san = null;   // PAS 76: el mòdul Sancions es torna a llegir
     var per = {}; (r.entrades || []).forEach(function (x) { per[x.id] = x; });
@@ -6100,10 +6102,10 @@
     S.taula = new Tabulator('#gsTaula', {
       data: dadesEquips(), index: 'id_equip', layout: 'fitDataStretch', height: alcada(),
       columns: [
-        { title: '', field: '_acc', width: 46, headerSort: false, hozAlign: 'center', cssClass: 'gs-accions',
+        { title: '', field: '_acc', width: 46, headerSort: false, hozAlign: 'center', cssClass: 'gs-accions', frozen: true,
           formatter: function (c) { return c.getRow().getData().id_equip === 'EQ-DIR' ? '' : '<span class="gs-acc"><button type="button" class="gs-perill gs-paperera" title="Esborra l’equip" aria-label="Esborra l’equip">' + PAPERERA + '</button></span>'; },
           cellClick: function (e, cell) { if (e.target.closest('button')) esborraEquip(cell.getRow()); } },
-        { title: 'Codi', field: 'id_equip', width: 130, editable: function (cell) { return cell.getRow().getData()._nou; }, editor: 'input', headerFilter: 'input', headerFilterFunc: function (f, v) { return conte(v, f); } },
+        { title: 'Codi', field: 'id_equip', width: 130, frozen: true, editable: function (cell) { return cell.getRow().getData()._nou; }, editor: 'input', headerFilter: 'input', headerFilterFunc: function (f, v) { return conte(v, f); } },
         { title: 'Nom', field: 'nom', editor: 'input', minWidth: 200, headerFilter: 'input', headerFilterFunc: function (f, v) { return conte(v, f); } },
         { title: 'Tipus', field: 'tipus', editor: 'list', editorParams: { values: { gestio: 'Gestió', docent: 'Docent' } }, formatter: function (c) { return c.getValue() === 'docent' ? 'Docent' : 'Gestió'; }, headerFilter: 'list', headerFilterParams: { values: { gestio: 'Gestió', docent: 'Docent' }, clearable: true } },
         { title: 'Descripció', field: 'descripcio', editor: 'input', minWidth: 200 },

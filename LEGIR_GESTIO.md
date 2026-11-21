@@ -532,6 +532,14 @@ self.addEventListener('activate', function (e) {
 - **Web**: icona «Àrea privada» (cadenat) a la capçalera i al menú mòbil, que porta a GESTIO (imprescindible a l'aplicació instal·lada).
 - **Generador** (bundle `generador-horaris-pas76.bundle`): regla «classe cada dia», penalització en viu, Pausa/Continua i Atura amb les sessions que costen més de col·locar, itineraris.
 
+## PAS 77
+- **Sense canvis a l'Apps Script** (no cal enganxar el Code.gs ni executar configura).
+- **Balanç i transferències**: el text emergent de les fletxes ja no diu «tot en codocència: dos docents a l'aula»; les matèries de codocència ho indiquen al costat del nom.
+- **Control d'entrada**: fora el filtre «Estat» de la barra superior; es filtra amb el filtre de la columna Estat (ara amb el significat de cada color).
+- **Amonestacions**: la finestra del doble clic té sempre la part esquerra; si no es pot sancionar, en diu el motiu (sense permís d'administració del mòdul, curs tancat o Apps Script anterior a les sancions).
+- **Equips i permisos**: la primera columna queda fixa en desplaçar la taula i la matriu de permisos en horitzontal.
+- **Ajuda i manuals**: fora les referències als passos de desenvolupament (PAS …); la versió és només la data. Tema nou a Departaments: «Provar-ho com un cap».
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
