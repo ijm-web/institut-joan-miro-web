@@ -504,6 +504,12 @@
     S.d = d; S.canvis = {}; S.altes = {}; marcaBrut(false);
     $('gsAvis').hidden = true; amagaAvisCanvis(); vigilaCanvis();
     if (!d.obert && nivellIdx(d.nivell) >= 1) { $('gsAvis').textContent = text('tancat'); $('gsAvis').hidden = false; }
+    // Les sancions (estat, finestra de l'alumne/a) necessiten l'Apps Script del PAS 76 o posterior: un de més antic no
+    // envia «pot_sancionar». Amb l'administració, es diu clarament què falta (si no, la finestra del doble clic surt sense la part esquerra)
+    if ((S.modul.id === 'amonestacions' || S.modul.id === 'control_entrada') && d.pot_sancionar === undefined && nivellIdx(d.nivell) >= 2) {
+      $('gsAvis').innerHTML = 'L’<strong>Apps Script desplegat és anterior a les sancions</strong>: per això no es poden crear sancions ni canviar l’estat. Obriu l’Apps Script, enganxeu-hi el <code>Code.gs</code> nou (ESQUEMA 76 o posterior), executeu <strong>configura</strong> i, a <strong>Implementa › Gestiona les implementacions</strong>, editeu la implementació que ja feu servir (el llapis) i trieu <strong>Versió nova</strong>. No en creeu una de nova: canviaria l’adreça. Després, torneu a carregar aquesta pàgina.';
+      $('gsAvis').hidden = false;
+    }
     pintaEines(); pintaTaula();
   }
   var potEditar = function () { return S.d && nivellIdx(S.d.nivell) >= 1 && S.d.obert; };
