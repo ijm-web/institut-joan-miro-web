@@ -1609,8 +1609,8 @@
           "titol": "Provar-ho com un cap",
           "claus": "provar cap departament profe.test vista del cap",
           "text": [
-            "Per veure exactament el que veu i pot fer un cap, feu servir un compte de prova (p. ex. **profe.test**) que sigui a Professorat i tingui el correu de l'institut.",
-            "1 · **Desiderata › Departaments/àmbits**: trieu el compte de prova com a **cap** d'un departament/àmbit i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Departaments i a Desiderata.",
+            "Per veure exactament el que veu i pot fer un cap, feu servir una **fitxa de prova** de Professorat (p. ex. «Test, Profe», amb *Prova* = sí, estat actiu i el correu de l'institut del compte de prova, p. ex. profe.test@…).",
+            "1 · **Desiderata › Departaments/àmbits**: trieu-la com a **cap** d'un departament/àmbit (a la llista surt al final, amb «(fitxa de prova)») i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Departaments i a Desiderata. Les fitxes de prova només surten en aquesta llista: no compten per a les hores, la desiderata ni els horaris.",
             "2 · Obriu una **finestra d'incògnit** (o un altre navegador), entreu a GESTIO amb el compte de prova i obriu **Departaments**: només hi veureu la pestanya **Edició** i el vostre departament (Desa, Tanca/Obre, Vista prèvia). Si l'edició està **bloquejada** (data límit o botó Bloqueja), el cap ja no pot desar ni tornar a obrir la pàgina.",
             "3 · Quan acabeu, a **Desiderata › Departaments/àmbits** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
           ]

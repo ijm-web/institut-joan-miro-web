@@ -3713,16 +3713,26 @@ function departaments_() {
 const DEPARTAMENTS_PROPOSTA = [['Llengua catalana i literatura', ['Català']], ['Llengua castellana i literatura', ['Castellà']], ['Llengües estrangeres', ['Anglès', 'Francès', 'Alemany', 'Italià']],
   ['Matemàtiques', ['Matemàtiques']], ['Ciències experimentals', ['Biologia', 'Física i Química']], ['Ciències socials', ['Història', 'Economia', 'Filosofia', 'Religió', 'Clàssiques']],
   ['Tecnologia', ['Tecnologia']], ['Educació física', ['Educació Física']], ['Expressió artística', ['Dibuix', 'Música']], ['Orientació', ['Orientació']]];
+// PAS 78 · Qui pot ser cap d'un departament/àmbit: el professorat de la planificació i, a més, les fitxes de prova
+// actives (p. ex. «Test, Profe»), perquè la direcció pugui provar què veu i què pot fer un cap. Les fitxes de prova no
+// surten enlloc més de la planificació (hores, desiderata, horaris).
+function capsPossibles_() {
+  const ll = professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat }));
+  llegeix_(FULL.prof).filter((p) => p.nom && esProva_(p) && !deBaixa_(p)).forEach((p) => {
+    ll.push({ id: p.id_professor, nom: [p.cognom1, p.cognom2].filter(Boolean).join(' ') + ', ' + p.nom + ' (fitxa de prova)', especialitat: p.especialitat || '', prova: true });
+  });
+  return ll;
+}
 function departamentsDades_(ctx) {
   if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
   const esps = {}; ESPECIALITATS.forEach((e) => { esps[e] = 1; }); llegeix_(FULL.curg).forEach((r) => { if (r.especialitat) esps[r.especialitat] = 1; });
   return { ok: true, departaments: departaments_(), especialitats: Object.keys(esps).sort((a, b) => a.localeCompare(b, 'ca')),
-    professorat: professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat })), proposta: DEPARTAMENTS_PROPOSTA.map((x) => ({ nom: x[0], especialitats: x[1], cap: '' })) };
+    professorat: capsPossibles_(), proposta: DEPARTAMENTS_PROPOSTA.map((x) => ({ nom: x[0], especialitats: x[1], cap: '' })) };
 }
 // Desa els departaments/àmbits i posa com a membres d'EQ-CAPS exactament els caps (així tenen accés a Desiderata)
 function departamentsDesa_(ctx, req) {
   if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
-  const ll = Array.isArray(req.departaments) ? req.departaments : [], profs = {}; professoratHores_().forEach((p) => { profs[p.id] = 1; });
+  const ll = Array.isArray(req.departaments) ? req.departaments : [], profs = {}; capsPossibles_().forEach((p) => { profs[p.id] = 1; });   // PAS 78: també les fitxes de prova
   const vistes = {}, errors = [];
   const nets = ll.map((d) => ({ nom: String(d.nom || '').trim(), especialitats: (Array.isArray(d.especialitats) ? d.especialitats : []).map(String).filter(Boolean), cap: String(d.cap || '') })).filter((d) => d.nom);
   nets.forEach((d) => { d.especialitats.forEach((e) => { if (vistes[e]) errors.push(e + ' (' + vistes[e] + ' i ' + d.nom + ')'); vistes[e] = d.nom; }); if (d.cap && !profs[d.cap]) d.cap = ''; });
@@ -4899,7 +4909,7 @@ function depwAuto_(dep, profs, cur, curg) {
 function depwDades_(ctx) {
   if (!pot_(ctx, 'departaments', 'consulta')) return { ok: false, error: 'sense_permis' };
   const deps = departaments_(), web = depwWeb_(), profs = actiusPlanificacio_(), cur = llegeix_(FULL.cur), curg = llegeix_(FULL.curg);
-  const noms = {}; profs.forEach((p) => { noms[p.id_professor] = [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '); });
+  const noms = {}; llegeix_(FULL.prof).forEach((p) => { noms[p.id_professor] = [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '); });   // PAS 78: també el de la fitxa de prova
   let pub = null; try { pub = JSON.parse(ctx.cfg.departaments_publicat || 'null'); } catch (e) { pub = null; }
   const admin = pot_(ctx, 'departaments', 'admin'), B = depwBloqueig_(ctx.cfg);
   // PAS 76: «edita» = pot canviar el contingut ara (no bloquejat, o administració, i la pàgina oberta); «estat_pot» = pot tancar/obrir

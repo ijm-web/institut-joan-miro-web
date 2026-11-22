@@ -540,6 +540,9 @@ self.addEventListener('activate', function (e) {
 - **Equips i permisos**: la primera columna queda fixa en desplaçar la taula i la matriu de permisos en horitzontal.
 - **Ajuda i manuals**: fora les referències als passos de desenvolupament (PAS …); la versió és només la data. Tema nou a Departaments: «Provar-ho com un cap».
 
+## PAS 78
+- **Code.gs** (sense configura; ESQUEMA 76): la llista de caps de Desiderata › Departaments/àmbits inclou també les fitxes de prova actives de Professorat («… (fitxa de prova)»), per poder provar què veu un cap (`capsPossibles_`). No surten enlloc més de la planificació.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
