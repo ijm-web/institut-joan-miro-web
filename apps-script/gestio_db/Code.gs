@@ -110,6 +110,7 @@ const CONFIG_PER_DEFECTE = [
   ['departaments_publicat', '', 'Departaments/àmbits › darrera publicació (data, qui i quants). La posa el botó «Publica» del web: no la canvieu a mà.'],
   ['departaments_limit', '', 'Departaments/àmbits › data límit d\'edició (AAAA-MM-DD). L\'endemà l\'edició queda bloquejada sola. Es canvia des del web (Administració).'],   // PAS 76
   ['departaments_bloqueig', '', 'Departaments/àmbits › «si» = edició bloquejada per l\'administració (botó «Bloqueja» del web).'],
+  ['db_notificacions', '', 'Notificacions: ID (o URL) del full notificacions_db (subscripcions i avisos enviats). «configura» hi crea les pestanyes.'],   // PAS 81
 ];
 const MODULS_PER_DEFECTE = [
   ['professorat', 'Professorat', 'Dades administratives de cada docent: graella amb filtres, alta, baixa i modificació.', 1, 'si', 'Personal'],
@@ -130,6 +131,7 @@ const MODULS_PER_DEFECTE = [
   ['horaris_editor', 'Horaris · editor', 'Generador d\'horaris, fase EDITOR: importa l\'horari calculat pel MOTOR i el mostra per docent i per grup-classe (PDF).', 13, 'si', 'Organització del curs'],
   ['departaments', 'Edició pàgina web departaments/àmbits', 'Pàgina web de cada departament/àmbit (El Nostre Centre › Departaments i àmbits): presentació amb imatge, projectes, feines d\'estiu i altres; el professorat, les matèries i els criteris surten sols. Cada cap edita el seu; l\'administració publica.', 14, 'si', 'Organització del curs'],
   ['calendari', 'Calendari', 'Calendari del curs: esdeveniments generals i interns (per nivells), dates clau i festius; vistes de dia, setmana, mes i trimestre amb PDF, i publicació al web (Secretaria › Calendari escolar).', 14, 'si', 'Organització del curs'],
+  ['notificacions', 'Notificacions', 'Avisos importants i excepcionals al mòbil o a l\'ordinador (notificacions del web) a qui s\'hi ha subscrit a la pàgina Avisos del web: a tot el centre, per etapa o per curs. Només els envia l\'administració del mòdul.', 98, 'si', 'Administració'],   // PAS 81
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si', 'Administració'],
 ];
 // Camps inicials (els admins del mòdul en poden afegir, canviar i arxivar des del web)
@@ -610,6 +612,8 @@ function doPost(e) {
     if (req.action === 'ping') return json_({ ok: true, missatge: 'Connexió correcta amb ijm_nucli_db' });
     // PAS 56: dades públiques (professorat en actiu i calendari publicat) per al web; només amb el secret, sense correu
     if (req.action === 'publics') return json_(publics_(req.quin));
+    // PAS 81: subscripcions a les notificacions (pàgina pública Avisos, via la funció de Netlify avisos): sense correu
+    if (/^notificacions_(subscriu|baixa|estat)$/.test(req.action)) return json_(notifPublica_(req));
     if (!email) return json_({ ok: false, error: 'peticio_invalida' });
     if (ACCIONS_CTX_.indexOf(req.action) >= 0) invalidaCtx_();
     const ctx = context_(email);
@@ -695,6 +699,9 @@ function doPost(e) {
       case 'departaments_estat': return json_(depwEstat_(ctx, req));        // PAS 76: tanca/obre una pàgina
       case 'departaments_admin': return json_(depwAdmin_(ctx, req));        // PAS 76: data límit i bloqueig
       case 'calendari_importa': return json_(calendariImporta_(ctx, req));
+      case 'notificacions_dades': return json_(notifDades_(ctx));            // PAS 81
+      case 'notificacions_prepara': return json_(notifPrepara_(ctx, req));    // (només la funció de Netlify avisos-envia)
+      case 'notificacions_resultat': return json_(notifResultat_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -1888,6 +1895,8 @@ function configura() {
   if (esquema < 57) LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).map((x) => x[0]).concat(['hores_lectives', 'total_lectives']).forEach((k) => actualitzaCamp_('professorat', k, { actiu: 'no' }));
   if (esquema < 69) canviaModulsPAS69_();
   columnesOcupacio_();
+  // PAS 81: pestanyes del full notificacions_db (si config › db_notificacions hi és)
+  try { if (idNotif_()) { [NOTIF_SUBS_, NOTIF_MSG_].forEach((n) => fullNotif_(n)); const sn = ssNotif_(); ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = sn.getSheetByName(n); if (f && f.getLastRow() === 0 && sn.getSheets().length > 1) sn.deleteSheet(f); }); } } catch (e) { Logger.log('notificacions_db: ' + e.message); }
   posaConfig_('esquema', String(ESQUEMA));
   ['Full 1', 'Full1', 'Sheet1', 'Hoja 1'].forEach((n) => { const f = ss.getSheetByName(n); if (f && f.getLastRow() === 0 && ss.getSheets().length > 1) ss.deleteSheet(f); });
   Logger.log('Fet. Pestanyes: ' + ss.getSheets().map((s) => s.getName()).join(', '));
@@ -5644,4 +5653,126 @@ function horariEditorImporta_(ctx, req) {
     marcaVersio_('horaris_editor', ctx.email);
   } finally { lock.releaseLock(); }
   return Object.assign({ importades: files.length }, horariEditorDades_(ctx));
+}
+
+// ------------------------------------------------------------------ PAS 81 · NOTIFICACIONS
+// Avisos importants i excepcionals (notificacions push del web) a qui s'hi subscriu a la pàgina pública Avisos. Les dades
+// són al full notificacions_db (config › db_notificacions): «subscripcions» (adreça tècnica del navegador, claus i cursos;
+// cap nom ni correu) i «avisos» (què s'ha enviat, a qui i el resultat). Qui s'hi subscriu tria cursos (cap = només els
+// avisos de tot el centre). Un avís va a tot el centre («tots») o a uns cursos. Només l'administració del mòdul envia,
+// sense aprovació; en qualsevol idioma (el que s'escrigui) i a qualsevol hora. L'enviament el fa la funció de Netlify
+// avisos-envia (clau privada VAPID, mai aquí): demana els destinataris (notificacions_prepara) i en desa el resultat.
+const NOTIF_SUBS_ = 'subscripcions', NOTIF_MSG_ = 'avisos';
+const CAP_NOTIF_ = {
+  subscripcions: ['id', 'endpoint', 'p256dh', 'auth', 'temes', 'idioma', 'creada', 'actualitzada'],
+  avisos: ['id', 'data', 'titol', 'text', 'url', 'temes', 'autor', 'destinataris', 'lliurats', 'fallits', 'caducades', 'estat'],
+};
+const CURSOS_NOTIF_ = [['1ESO', '1r ESO'], ['2ESO', '2n ESO'], ['3ESO', '3r ESO'], ['4ESO', '4t ESO'], ['1BAT', '1r Batxillerat'], ['2BAT', '2n Batxillerat']];
+const MAX_SUBS_NOTIF_ = 20000;
+const idNotif_ = () => (String((CTX_CFG_ || llegeixConfig_()).db_notificacions || '').match(/[-\w]{25,}/) || [''])[0];
+function ssNotif_() {
+  const id = idNotif_(); if (!id) throw new Error('notificacions_no_configurat');
+  return SS_OBERTS_[id] || (SS_OBERTS_[id] = SpreadsheetApp.openById(id));
+}
+function fullNotif_(nom) {
+  const ss = ssNotif_(), cap = CAP_NOTIF_[nom];
+  let sh = ss.getSheetByName(nom);
+  if (!sh) { sh = ss.insertSheet(nom); sh.getRange(1, 1, sh.getMaxRows(), sh.getMaxColumns()).setNumberFormat('@'); sh.getRange(1, 1, 1, cap.length).setValues([cap]).setFontWeight('bold'); sh.setFrozenRows(1); return sh; }
+  const actual = sh.getLastColumn() > 0 ? sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_) : [];
+  const falten = cap.filter((k) => actual.indexOf(k) < 0);
+  if (falten.length) { sh.getRange(1, 1, sh.getMaxRows(), sh.getMaxColumns()).setNumberFormat('@'); sh.getRange(1, actual.length + 1, 1, falten.length).setValues([falten]).setFontWeight('bold'); }
+  return sh;
+}
+// Files d'una pestanya amb el número de fila (per actualitzar o esborrar)
+function filesNotif_(nom) {
+  const sh = fullNotif_(nom), v = sh.getDataRange().getDisplayValues(), cap = v[0].map(norm_);
+  return { sh: sh, cap: cap, files: v.slice(1).map((r, i) => { const o = { _fila: i + 2 }; cap.forEach((k, j) => { if (k) o[k] = String(r[j] == null ? '' : r[j]); }); return o; }).filter((o) => o.id) };
+}
+const temesNotif_ = (t) => String(t || '').split('|').filter((x) => CURSOS_NOTIF_.some((c) => c[0] === x));
+// Un avís arriba a una subscripció si és per a tot el centre o per a algun dels seus cursos
+const repNotif_ = (temesSub, temesMsg) => temesMsg.indexOf('tots') >= 0 || temesMsg.some((t) => temesSub.indexOf(t) >= 0);
+const endpointOk_ = (e) => typeof e === 'string' && e.length <= 1000 && /^https:\/\/[a-z0-9.-]+(:\d+)?\//i.test(e);
+// Accions públiques (des de la funció de Netlify «avisos», amb el secret): subscriu, baixa i estat d'una subscripció
+function notifPublica_(req) {
+  if (!idNotif_()) return { ok: false, error: 'notificacions_no_configurat' };
+  const ep = req.endpoint;
+  if (!endpointOk_(ep)) return { ok: false, error: 'subscripcio_invalida' };
+  if (req.action === 'notificacions_estat') {
+    const x = filesNotif_(NOTIF_SUBS_).files.filter((o) => o.endpoint === ep)[0];
+    return { ok: true, subscrit: !!x, temes: x ? temesNotif_(x.temes) : [] };
+  }
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const F = filesNotif_(NOTIF_SUBS_), x = F.files.filter((o) => o.endpoint === ep)[0];
+    if (req.action === 'notificacions_baixa') { if (x) F.sh.deleteRow(x._fila); return { ok: true, subscrit: false }; }
+    const p256dh = String(req.p256dh || ''), auth = String(req.auth || '');
+    if (!/^[A-Za-z0-9_-]{40,200}=*$/.test(p256dh) || !/^[A-Za-z0-9_-]{8,64}=*$/.test(auth)) return { ok: false, error: 'subscripcio_invalida' };
+    const temes = (Array.isArray(req.temes) ? req.temes : []).filter((t) => CURSOS_NOTIF_.some((c) => c[0] === t)).filter((t, i, a) => a.indexOf(t) === i);
+    const idioma = ['ca', 'es', 'en'].indexOf(req.idioma) >= 0 ? req.idioma : 'ca';
+    const fila = (o) => F.cap.map((k) => (k in o ? String(o[k]) : ''));
+    if (x) {
+      F.sh.getRange(x._fila, 1, 1, F.cap.length).setValues([fila(Object.assign({}, x, { p256dh: p256dh, auth: auth, temes: temes.join('|'), idioma: idioma, actualitzada: ara_() }))]);
+    } else {
+      if (F.files.length >= MAX_SUBS_NOTIF_) return { ok: false, error: 'massa_subscripcions' };
+      F.sh.appendRow(fila({ id: 'SUB-' + Utilities.getUuid().slice(0, 13), endpoint: ep, p256dh: p256dh, auth: auth, temes: temes.join('|'), idioma: idioma, creada: ara_(), actualitzada: ara_() }));
+    }
+    return { ok: true, subscrit: true, temes: temes };
+  } finally { lock.releaseLock(); }
+}
+// Mòdul NOTIFICACIONS: subscripcions (només recomptes) i avisos enviats
+function notifDades_(ctx) {
+  if (!pot_(ctx, 'notificacions', 'consulta')) return { ok: false, error: 'sense_permis' };
+  const base = { ok: true, nivell: ctx.nivell('notificacions'), obert: obert_(ctx), pot_enviar: pot_(ctx, 'notificacions', 'admin') && obert_(ctx),
+    cursos: CURSOS_NOTIF_.map((c) => ({ id: c[0], nom: c[1] })), configurat: !!idNotif_() };
+  if (!base.configurat) return Object.assign(base, { recompte: { total: 0, nomes_centre: 0, per_curs: {} }, avisos: [] });
+  const subs = filesNotif_(NOTIF_SUBS_).files, per = {}; CURSOS_NOTIF_.forEach((c) => { per[c[0]] = 0; });
+  let nomes = 0; subs.forEach((o) => { const t = temesNotif_(o.temes); if (!t.length) nomes++; t.forEach((k) => { per[k]++; }); });
+  const avisos = filesNotif_(NOTIF_MSG_).files.map((o) => { const r = {}; CAP_NOTIF_.avisos.forEach((k) => { r[k] = o[k] || ''; }); ['destinataris', 'lliurats', 'fallits', 'caducades'].forEach((k) => { r[k] = Number(r[k]) || 0; }); return r; })
+    .sort((a, b) => String(b.data).localeCompare(String(a.data)) || String(b.id).localeCompare(String(a.id))).slice(0, 300);
+  return Object.assign(base, { recompte: { total: subs.length, nomes_centre: nomes, per_curs: per, temes: subs.map((o) => temesNotif_(o.temes).join('|')) }, avisos: avisos });
+}
+// Valida l'avís, el registra («enviant») i torna els destinataris (adreces i claus dels navegadors) a la funció de Netlify
+function notifPrepara_(ctx, req) {
+  if (!pot_(ctx, 'notificacions', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  if (!idNotif_()) return { ok: false, error: 'notificacions_no_configurat' };
+  const titol = String(req.titol || '').replace(/\s+/g, ' ').trim(), text = String(req.text || '').replace(/[ \t]+/g, ' ').trim(), url = String(req.url || '').trim();
+  const err = [];
+  if (!titol || titol.length > 50) err.push('El títol ha de tenir entre 1 i 50 caràcters.');
+  if (!text || text.length > 150) err.push('El text ha de tenir entre 1 i 150 caràcters.');
+  if (url && (!/^\/[^\s<>"]*$/.test(url) || /^\/\//.test(url) || url.length > 200)) err.push('L\'enllaç ha de ser una pàgina del web (comença per /, p. ex. /calendari-escolar.html).');
+  const tm = Array.isArray(req.temes) ? req.temes : [];
+  const temes = tm.indexOf('tots') >= 0 ? ['tots'] : tm.filter((t) => CURSOS_NOTIF_.some((c) => c[0] === t)).filter((t, i, a) => a.indexOf(t) === i);
+  if (!temes.length) err.push('Trieu els destinataris: tot el centre o algun curs.');
+  if (err.length) return { ok: false, error: 'avis_invalid', errors: err };
+  const subs = filesNotif_(NOTIF_SUBS_).files.filter((o) => repNotif_(temesNotif_(o.temes), temes));
+  if (!subs.length) return { ok: false, error: 'cap_destinatari' };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const F = filesNotif_(NOTIF_MSG_);
+    const n = F.files.reduce((m, o) => Math.max(m, Number(String(o.id).replace(/\D/g, '')) || 0), 0) + 1;
+    const id = 'AV-' + ('0000' + n).slice(-4);
+    const o = { id: id, data: ara_(), titol: titol, text: text, url: url, temes: temes.join('|'), autor: ctx.email, destinataris: subs.length, lliurats: 0, fallits: 0, caducades: 0, estat: 'enviant' };
+    F.sh.appendRow(F.cap.map((k) => (k in o ? String(o[k]) : '')));
+    historial_(ctx.email, 'notificacio_envia', 'notificacions', id, titol + ' · ' + temes.join('|') + ' · ' + subs.length);
+    return { ok: true, id: id, avis: { titol: titol, text: text, url: url || '/' }, subs: subs.map((x) => ({ endpoint: x.endpoint, p256dh: x.p256dh, auth: x.auth })) };
+  } finally { lock.releaseLock(); }
+}
+// Resultat de l'enviament: lliurats, fallits i les subscripcions que ja no existeixen (s'esborren)
+function notifResultat_(ctx, req) {
+  if (!pot_(ctx, 'notificacions', 'admin')) return { ok: false, error: 'sense_permis' };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const F = filesNotif_(NOTIF_MSG_), x = F.files.filter((o) => o.id === String(req.id || ''))[0];
+    if (!x) return { ok: false, error: 'no_trobat' };
+    const cad = (Array.isArray(req.caducades) ? req.caducades : []).filter(endpointOk_);
+    const o = Object.assign({}, x, { lliurats: Number(req.lliurats) || 0, fallits: Number(req.fallits) || 0, caducades: cad.length, estat: req.error ? 'error' : 'enviat' });
+    F.sh.getRange(x._fila, 1, 1, F.cap.length).setValues([F.cap.map((k) => (k in o ? String(o[k]) : ''))]);
+    if (cad.length) {
+      const S2 = filesNotif_(NOTIF_SUBS_), fora = {}; cad.forEach((e) => { fora[e] = 1; });
+      S2.files.filter((s) => fora[s.endpoint]).map((s) => s._fila).sort((a, b) => b - a).forEach((r) => S2.sh.deleteRow(r));
+    }
+    marcaVersio_('notificacions', ctx.email);
+  } finally { lock.releaseLock(); }
+  return notifDades_(ctx);
 }

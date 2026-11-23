@@ -60,7 +60,9 @@
       "instagramLabel": "Instagram de l'Institut Joan Miró",
       "youtubeLabel": "Youtube de l'Institut Joan Miró",
       "areaPrivada": "Àrea privada",
-      "areaPrivadaSub": "GESTIO · personal del centre"
+      "areaPrivadaSub": "GESTIO · personal del centre",
+      "avisos": "Avisos",
+      "avisosSub": "Notificacions al mòbil"
     },
     "search": {
       "placeholder": "Cerca al site...",
@@ -177,7 +179,9 @@
       "instagramLabel": "Instagram del Institut Joan Miró",
       "youtubeLabel": "Youtube del Institut Joan Miró",
       "areaPrivada": "Área privada",
-      "areaPrivadaSub": "GESTIO · personal del centro"
+      "areaPrivadaSub": "GESTIO · personal del centro",
+      "avisos": "Avisos",
+      "avisosSub": "Notificaciones en el móvil"
     },
     "search": {
       "placeholder": "Buscar en el sitio...",
@@ -294,7 +298,9 @@
       "instagramLabel": "Instagram of Institut Joan Miró",
       "youtubeLabel": "Youtube of Institut Joan Miró",
       "areaPrivada": "Private area",
-      "areaPrivadaSub": "GESTIO · school staff"
+      "areaPrivadaSub": "GESTIO · school staff",
+      "avisos": "Alerts",
+      "avisosSub": "Notifications on your phone"
     },
     "search": {
       "placeholder": "Search the site...",

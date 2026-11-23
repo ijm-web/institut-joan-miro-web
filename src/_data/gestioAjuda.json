@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "21 de novembre de 2026",
+  "versio": "23 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -1653,6 +1653,52 @@
             "**+ Nova sanció**: trieu l'alumne/a (escriviu-ne el nom o el grup), el tipus, la descripció, la data i l'estat. Segons el tipus, marqueu les **entrades** (retards; les justificades no es poden triar) o les **amonestacions**. Les d'una altra sanció no es poden triar.",
             "**Edita** · **Anul·la** (els registres tornen a blanc) · **Recupera** (torna a en tràmit) · **Esborra** (definitivament; còpia a l'historial).",
             "Ho poden fer els administradors dels mòduls Sancions, Control d'entrada o Amonestacions."
+          ]
+        }
+      ]
+    },
+    "notificacions": {
+      "titol": "Notificacions",
+      "graella": false,
+      "intro": "Avisos **importants i excepcionals** (aproximadament un al mes) al mòbil o a l'ordinador de qui s'hi ha subscrit a la pàgina pública **Avisos** del web. Només els envia l'administració del mòdul.",
+      "temes": [
+        {
+          "id": "no-que",
+          "titol": "Com funciona",
+          "claus": "avisos notificacions subscripció campana pàgina avisos mòbil",
+          "text": [
+            "Les famílies, l'alumnat o qualsevol persona s'hi subscriuen a la pàgina **Avisos** del web (icona de la **campana** a la capçalera, o menú › Avisos): trien els cursos que els interessen i premen **Activa els avisos**. No cal cap compte ni cap dada personal.",
+            "Tothom rep els avisos per a **tot el centre**; qui ha marcat cursos, també els d'aquests cursos.",
+            "A l'**iPhone i l'iPad** cal afegir primer el web a la pantalla d'inici (Safari › Compartir › Afegeix a la pantalla d'inici); la pàgina Avisos ho explica."
+          ]
+        },
+        {
+          "id": "no-envia",
+          "titol": "Enviar un avís (administració)",
+          "claus": "nou avís envia títol text enllaç destinataris cursos ESO batxillerat vista prèvia",
+          "text": [
+            "**Títol** (fins a 50 caràcters) i **text** (fins a 150), en l'idioma en què s'escriguin. **Enllaç** opcional a una pàgina del web (comença per /, p. ex. /calendari-escolar.html): en tocar l'avís, s'obre.",
+            "**Destinataris**: **Tot el centre** o **Uns cursos** (botons **Tota l'ESO** i **Tot el batxillerat**). Al costat es veu quants dispositius el rebran i la **vista prèvia**.",
+            "**Envia l'avís…** demana confirmació i avisa si el darrer es va enviar fa menys de 30 dies. Es pot enviar a qualsevol hora; no cal que ningú l'aprovi. Un cop enviat, no es pot desfer.",
+            "Els avisos es veuen a la pantalla de bloqueig: **cap dada personal ni d'alumnat**. La informació, a la pàgina del web de l'enllaç."
+          ]
+        },
+        {
+          "id": "no-llistes",
+          "titol": "Subscripcions i avisos enviats",
+          "claus": "subscripcions recompte dispositius historial lliurats fallits esborrades",
+          "text": [
+            "**Subscripcions**: quants dispositius hi ha per curs i quants només reben els de tot el centre (un dispositiu pot tenir més d'un curs). No es desa cap nom ni correu.",
+            "**Avisos enviats**: data, avís, destinataris, qui l'ha enviat, **lliurats** (dels dispositius previstos) i **fallits**. Les subscripcions que ja no existeixen (navegador desinstal·lat, permís retirat) s'esborren soles."
+          ]
+        },
+        {
+          "id": "no-config",
+          "titol": "Configuració (un sol cop)",
+          "claus": "configuració vapid claus netlify full notificacions_db configura",
+          "text": [
+            "Claus **VAPID** a les variables d'entorn de Netlify: VAPID_PUBLIC, VAPID_PRIVATE i VAPID_SUBJECT (mai al repositori).",
+            "Full **notificacions_db**: l'adreça a config › db_notificacions i, després, executar **configura** (crea les pestanyes subscripcions i avisos)."
           ]
         }
       ]

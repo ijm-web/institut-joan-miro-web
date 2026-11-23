@@ -1,0 +1,50 @@
+{#- PAS 81 · Pàgina pública Avisos: subscripció a les notificacions del web (textos a src/_data/avisos.json; lògica a
+    src/assets/js/avisos.js). No cal cap compte ni cap dada personal. -#}
+{%- set A = avisos[lang] or avisos.ca %}
+<script type="application/json" id="avText">{{ A | dump | safe }}</script>
+<div class="av-wrap" id="avisos" data-lang="{{ lang }}">
+  <section class="av-intro">
+    <span class="av-kicker">{{ A.kicker }}</span>
+    <h1 class="av-titol">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+      {{ A.titol }}
+    </h1>
+    <p class="av-lead">{{ A.lead | safe }}</p>
+  </section>
+
+  <section class="av-caixa" aria-labelledby="avCursosTitol">
+    <p class="av-estat" id="avEstat" role="status" aria-live="polite">{{ A.estat.carregant }}</p>
+    <h2 id="avCursosTitol">{{ A.cursosTitol }}</h2>
+    <p class="av-ajuda">{{ A.cursosAjuda }}</p>
+    <div class="av-cursos">
+      <fieldset><legend>{{ A.eso }}</legend>
+        {%- for c in ['1ESO', '2ESO', '3ESO', '4ESO'] %}
+        <label class="av-curs"><input type="checkbox" name="curs" value="{{ c }}"> <span>{{ A.cursos[c] }}</span></label>
+        {%- endfor %}
+      </fieldset>
+      <fieldset><legend>{{ A.bat }}</legend>
+        {%- for c in ['1BAT', '2BAT'] %}
+        <label class="av-curs"><input type="checkbox" name="curs" value="{{ c }}"> <span>{{ A.cursos[c] }}</span></label>
+        {%- endfor %}
+      </fieldset>
+    </div>
+    <div class="av-botons">
+      <button type="button" class="av-boto" id="avActiva" hidden>{{ A.activa }}</button>
+      <button type="button" class="av-boto" id="avDesa" hidden>{{ A.desa }}</button>
+      <button type="button" class="av-boto av-boto--ghost" id="avProva" hidden>{{ A.prova }}</button>
+      <button type="button" class="av-boto av-boto--ghost" id="avDesactiva" hidden>{{ A.desactiva }}</button>
+    </div>
+  </section>
+
+  <section class="av-info">
+    <div>
+      <h2>{{ A.iosTitol }}</h2>
+      <p>{{ A.iosText | safe }}</p>
+    </div>
+    <div>
+      <h2>{{ A.privTitol }}</h2>
+      <p>{{ A.privText | safe }}</p>
+    </div>
+  </section>
+</div>
+<script src="/assets/js/avisos.js" defer></script>

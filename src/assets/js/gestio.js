@@ -34,6 +34,7 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
+    notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.',
     conflicte_versio: 'Algú altre ha desat o importat l’horari mentre l’editàveu. Torneu-lo a carregar (els vostres canvis sense desar es perdran).',
     sense_horari: 'Encara no s’ha importat cap horari.',
     fora_abast: 'Només podeu modificar l’alumnat dels vostres grups.',
@@ -224,7 +225,7 @@
   }
   // PAS 72 · Frescor de les dades: quan es llegeixen les dades d'un mòdul i quan un mòdul desa. Les dades d'un mòdul són
   // fresques si cap ALTRE mòdul ha desat res després de llegir-les (els canvis propis ja s'apliquen a la memòria local).
-  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', calendari_dades: 'calendari', equips: 'equips', matricula_dades: 'matricula', nou_professor: 'nou_professor', nou_alumne: 'nou_alumne', departaments_web_dades: 'departaments', sancions_dades: 'sancions' };
+  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', calendari_dades: 'calendari', equips: 'equips', matricula_dades: 'matricula', nou_professor: 'nou_professor', nou_alumne: 'nou_alumne', departaments_web_dades: 'departaments', sancions_dades: 'sancions', notificacions_dades: 'notificacions' };
   var NOMES_LECTURA = /(^dades$|_dades$|_informe|_analisi|_pdf$|_cerca|_llista$|_historial|^versio|_exporta|_convoca$|^matricula_formulari$|^sessio|^jo$)/;
   function fresc(m) { return S.llegit[m] && S.llegit[m].t >= S.escrit; }
   function api(accio, cos, progres) {
@@ -322,6 +323,7 @@
     batxillerat: ic('<path d="M6 15 22 8l16 7-16 7z"/><path d="M12 18v7c0 2 4 4 10 4s10-2 10-4v-7"/>' + '<rect x="28" y="30" width="16" height="10" rx="5"/>' + A_('M33 30v10M39 30v10')),
     control_entrada: ic('<circle cx="24" cy="26" r="15"/><path d="M24 17v9l6 4"/>' + A_('M19 5h10M24 5v6M37 13l3-3')),
     amonestacions: ic('<path d="M10 6h20l8 8v28H10z"/><path d="M30 6v8h8"/>' + A_('M24 19v10M24 34v.5')),
+    notificacions: ic('<path d="M14 20a10 10 0 0 1 20 0c0 11 5 14 5 14H9s5-3 5-14"/><path d="M21 39a3.4 3.4 0 0 0 6 0"/>' + A_('M38 8a12 12 0 0 1 4 9M10 8a12 12 0 0 0-4 9')),   // PAS 81: campana
     sancions: ic('<path d="M8 42h24M12 38h16"/><path d="M17 33 30 20M27 12l9 9-6 6-9-9z"/>' + A_('M34 10l4-4M40 16l4-4')),   // PAS 76: mall del jutge
     consell_orientador: ic('<circle cx="24" cy="24" r="17"/>' + A_('M31 17l-4 10-10 4 4-10z') + '<path d="M24 5v4M24 39v4M5 24h4M39 24h4"/>'),
     // Secretaria: altes noves (fitxa amb el signe +)
@@ -431,6 +433,7 @@
     if (m.id === 'matricula') return carregaMatricula();   // PAS 70
     if (m.id === 'departaments') return carregaDepartaments();   // PAS 75
     if (m.id === 'sancions') return carregaSancions();   // PAS 76
+    if (m.id === 'notificacions') return carregaNotificacions();   // PAS 81
     if (m.id === 'desiderata') return carregaDesiderata();
     // PAS 72: el planificador, l'ocupació i l'editor reutilitzen les dades ja llegides si cap altre mòdul n'ha desat
     // res des d'aleshores («Actualitza» les torna a llegir)
@@ -4521,6 +4524,114 @@
     $('gsTaula').addEventListener('input', function (e) { if (!actiu() || !e.target.dataset.sanFc) return; var k = e.target.dataset.sanFc, pos = e.target.selectionStart; S.sanV.fc[k] = e.target.value; pintaSancions();
       var i = $('gsTaula').querySelector('[data-san-fc="' + k + '"]'); if (i) { i.focus(); try { i.setSelectionRange(pos, pos); } catch (x) { /* res */ } } });
   }
+  // ------------------------------------------------------------------ PAS 81 · NOTIFICACIONS
+  // Avisos importants i excepcionals (notificacions del web) a qui s'hi ha subscrit a la pàgina pública Avisos: a tot el
+  // centre o a uns cursos. Només l'administració del mòdul els envia (sense aprovació); en l'idioma en què s'escriuen i a
+  // qualsevol hora. L'enviament el fa la funció de Netlify avisos-envia. Subscripcions: només recomptes (cap dada personal).
+  var PAGINES_AVIS = ['/calendari-escolar.html', '/noticies.html', '/secretaria-preinscripcio-matricula.html', '/secretaria-beques-ajuts.html', '/avisos.html', '/index.html'];
+  function carregaNotificacions(forca) {
+    return (!forca && S.not && fresc('notificacions') ? Promise.resolve(S.not) : api('notificacions_dades', {}, 'Carregant les notificacions…')).then(function (r) {
+      if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
+      S.not = r; S.notF = S.notF || { titol: '', text: '', url: '', tots: true, cursos: [] };
+      S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert };
+      lligaNotificacions(); pintaNotificacions();
+    });
+  }
+  var nomCursNot = function (id) { var c = (S.not.cursos || []).filter(function (x) { return x.id === id; })[0]; return c ? c.nom : id; };
+  var textTemesNot = function (t) { var l = String(t || '').split('|').filter(Boolean); return l.indexOf('tots') >= 0 || !l.length ? 'Tot el centre' : l.map(nomCursNot).join(', '); };
+  // Dispositius que rebrien l'avís: tots, o els que han triat algun dels cursos
+  function destinatarisNot() {
+    var F = S.notF, R = S.not.recompte || {}, t = R.temes || [];
+    if (F.tots) return t.length;
+    return t.filter(function (x) { var l = x ? x.split('|') : []; return l.some(function (c) { return F.cursos.indexOf(c) >= 0; }); }).length;
+  }
+  function darrerNot() { var l = (S.not.avisos || []).filter(function (a) { return a.estat !== 'error'; }); return l[0] || null; }
+  function pintaPreviNot() {
+    var F = S.notF, el = $('gsNotPrevi'); if (!el) return;
+    el.innerHTML = '<div class="gs-not__notif"><img src="/assets/icones/icona-192.png" alt=""><div><b>' + esc(F.titol || 'Títol de l’avís') + '</b><span>' + esc(F.text || 'Text de l’avís.') + '</span><small>institutjoanmiro.cat' + (F.url ? ' · obre ' + esc(urlNot(F.url)) : '') + '</small></div></div>';
+    var n = destinatarisNot(); $('gsNotN').textContent = n + (n === 1 ? ' dispositiu' : ' dispositius');
+    $('gsNotCt').textContent = F.titol.length + '/50'; $('gsNotCx').textContent = F.text.length + '/150';
+  }
+  function pintaNotificacions() {
+    var R = S.not, F = S.notF, Rc = R.recompte || {}, d = darrerNot(), pot = R.pot_enviar && R.configurat;
+    $('gsEines').innerHTML = '<span class="gs-gris"><b>' + (Rc.total || 0) + '</b> dispositius subscrits' + (d ? ' · darrer avís: ' + esc(dataVista(d.data)) : '') + '</span><span class="gs-espai"></span>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="mod-actualitza" title="Torna a llegir les dades">Actualitza</button>' +
+      '<p class="gs-ajuda gs-cal__ajuda">Avisos <b>importants i excepcionals</b> (aproximadament un al mes) al mòbil o a l’ordinador de qui s’hi ha subscrit a la pàgina pública <a href="/avisos.html" target="_blank" rel="noopener">Avisos</a> del web (icona de la campana). Cada avís va a <b>tot el centre</b> o a uns <b>cursos</b>. ' +
+      'Es veuen a la pantalla de bloqueig: <b>cap dada personal ni d’alumnat</b>; l’enllaç porta a la pàgina del web amb la informació.' + (pot ? '' : ' Només els envia l’administració del mòdul.') + '</p>';
+    var t = $('gsTaula'); t.className = 'gs-ocu gs-not';
+    if (!R.configurat) { t.innerHTML = '<p class="prog-avis">' + esc(text('notificacions_no_configurat')) + '</p>'; return ajustaAlcada(); }
+    var form = !pot ? '' : '<section class="gs-not__sec"><h3>Nou avís</h3><div class="gs-not__form"><div>' +
+      '<label class="gs-not__camp">Títol <small id="gsNotCt"></small><input type="text" id="gsNotTitol" maxlength="50" value="' + esc(F.titol) + '" placeholder="P. ex. Jornada de portes obertes"></label>' +
+      '<label class="gs-not__camp">Text <small id="gsNotCx"></small><textarea id="gsNotText" maxlength="150" rows="3" placeholder="Una o dues frases. Sense dades personals.">' + esc(F.text) + '</textarea></label>' +
+      '<label class="gs-not__camp">Enllaç (opcional: una pàgina del web) <input type="text" id="gsNotUrl" list="gsNotPags" value="' + esc(F.url) + '" placeholder="/calendari-escolar.html"><datalist id="gsNotPags">' + PAGINES_AVIS.map(function (p) { return '<option value="' + p + '">'; }).join('') + '</datalist></label>' +
+      '<fieldset class="gs-not__dest"><legend>Destinataris</legend><label class="gs-check"><input type="radio" name="gsNotDest" value="tots"' + (F.tots ? ' checked' : '') + '> Tot el centre</label><label class="gs-check"><input type="radio" name="gsNotDest" value="cursos"' + (F.tots ? '' : ' checked') + '> Uns cursos:</label>' +
+      '<div class="gs-not__cursos">' + R.cursos.map(function (c) { return '<label class="gs-check"><input type="checkbox" class="gsNotCurs" value="' + esc(c.id) + '"' + (F.cursos.indexOf(c.id) >= 0 ? ' checked' : '') + (F.tots ? ' disabled' : '') + '> ' + esc(c.nom) + '</label>'; }).join('') +
+      '<span><button type="button" class="gs-enllac" data-not="eso">Tota l’ESO</button> · <button type="button" class="gs-enllac" data-not="bat">Tot el batxillerat</button></span></div></fieldset>' +
+      '<p class="prog-avis" id="gsNotErr" hidden></p><div class="gs-not__env"><button type="button" class="prog-btn" data-not="envia">Envia l’avís…</button><span class="gs-gris">Arribarà a <b id="gsNotN"></b> (aprox.)</span></div></div>' +
+      '<div><p class="gs-gris gs-not__previtit">Vista prèvia</p><div id="gsNotPrevi"></div><p class="gs-ajuda">L’aspecte exacte depèn del mòbil o de l’ordinador. Títol: fins a 50 caràcters; text: fins a 150.</p></div></div></section>';
+    var per = Rc.per_curs || {};
+    var subs = '<section class="gs-not__sec"><h3>Subscripcions</h3><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-not__subs"><thead><tr><th>Curs</th><th>Dispositius</th></tr></thead><tbody>' +
+      R.cursos.map(function (c) { return '<tr><td>' + esc(c.nom) + '</td><td class="gs-cen">' + (per[c.id] || 0) + '</td></tr>'; }).join('') +
+      '<tr><td>Només els avisos de tot el centre</td><td class="gs-cen">' + (Rc.nomes_centre || 0) + '</td></tr><tr><th>Total de dispositius</th><th class="gs-cen">' + (Rc.total || 0) + '</th></tr></tbody></table>' +
+      '<p class="gs-ajuda">Un dispositiu pot haver triat més d’un curs. Tots reben els avisos de tot el centre. No es desa cap nom ni correu.</p></section>';
+    var av = R.avisos || [];
+    var hist = '<section class="gs-not__sec"><h3>Avisos enviats</h3>' + (av.length ? '<div class="gs-not__wrap"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Data</th><th>Avís</th><th>Destinataris</th><th>Enviat per</th><th>Lliurats</th><th>Fallits</th><th>Codi</th></tr></thead><tbody>' +
+      av.map(function (a) { return '<tr' + (a.estat === 'error' ? ' class="gs-gris"' : '') + '><td>' + esc(dataVista(a.data)) + ' ' + esc(String(a.data).slice(11, 16)) + '</td><td><b>' + esc(a.titol) + '</b><br><span class="gs-gris">' + esc(a.text) + '</span>' + (a.url ? '<br><small>' + esc(a.url) + '</small>' : '') + '</td><td>' + esc(textTemesNot(a.temes)) + '</td><td>' + esc(a.autor) + '</td><td class="gs-cen">' + a.lliurats + ' / ' + a.destinataris + '</td><td class="gs-cen">' + a.fallits + (a.caducades ? ' <small class="gs-gris" title="Subscripcions que ja no existeixen: s’han esborrat">(' + a.caducades + ' esborrades)</small>' : '') + (a.estat === 'enviant' ? ' <small>enviant…</small>' : '') + '</td><td class="gs-gris">' + esc(a.id) + '</td></tr>'; }).join('') +
+      '</tbody></table></div>' : '<p class="gs-gris">Encara no s’ha enviat cap avís.</p>') + '</section>';
+    t.innerHTML = '<div class="gs-not__graella">' + form + subs + '</div>' + hist;
+    pintaPreviNot(); ajustaAlcada();
+  }
+  function urlNot(u) { u = String(u || '').trim(); var m = /^https?:\/\/(www\.)?institutjoanmiro(\.cat|\.netlify\.app)(\/.*)?$/i.exec(u); if (m) u = m[3] || '/'; return u; }
+  function enviaNot() {
+    var F = S.notF, e = [], d = darrerNot(); F.url = urlNot(F.url);
+    if (!F.titol.trim()) e.push('Cal el títol.'); if (!F.text.trim()) e.push('Cal el text.');
+    if (F.url && (!/^\/[^\s<>"]*$/.test(F.url) || /^\/\//.test(F.url))) e.push('L’enllaç ha de ser una pàgina del web (comença per /).');
+    if (!F.tots && !F.cursos.length) e.push('Trieu algun curs o «Tot el centre».');
+    var n = destinatarisNot(); if (!e.length && !n) e.push(text('cap_destinatari'));
+    if (e.length) { $('gsNotErr').textContent = e.join(' '); $('gsNotErr').hidden = false; return; }
+    $('gsNotErr').hidden = true;
+    var dies = d ? Math.floor((Date.now() - new Date(String(d.data).replace(' ', 'T')).getTime()) / 864e5) : 99;
+    pregunta('Envia l’avís', '<div class="gs-not__notif"><img src="/assets/icones/icona-192.png" alt=""><div><b>' + esc(F.titol) + '</b><span>' + esc(F.text) + '</span><small>institutjoanmiro.cat' + (F.url ? ' · obre ' + esc(F.url) : '') + '</small></div></div>' +
+      '<p>Destinataris: <b>' + esc(F.tots ? 'tot el centre' : F.cursos.map(nomCursNot).join(', ')) + '</b> · <b>' + n + '</b> dispositius (aprox.).</p>' +
+      (dies < 30 ? '<p class="prog-avis">El darrer avís es va enviar fa ' + dies + (dies === 1 ? ' dia' : ' dies') + ' (' + esc(dataVista(d.data)) + '). Els avisos han de ser importants i excepcionals: aproximadament un al mes.</p>' : '') +
+      '<p class="gs-gris">Un cop enviat, no es pot desfer. Comproveu que no hi ha cap dada personal.</p>', [{ t: 'Envia', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }], false).then(function (v) {
+      if (!v) return;
+      var crida = fetch(API + 'avisos-envia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', cache: 'no-store',
+        body: JSON.stringify({ titol: F.titol, text: F.text, url: F.url, temes: F.tots ? ['tots'] : F.cursos }) })
+        .then(function (r) { if (r.status === 401) avisSessio(); return r.json().catch(function () { return { ok: false, error: 'error_servidor' }; }); })
+        .catch(function () { return { ok: false, error: 'error_servidor' }; });
+      (window.Progres ? Progres.amb(crida, 'Enviant l’avís…') : crida).then(function (r) {
+        if (!r.ok) return toast(r.errors ? r.errors.join(' ') : text(r.error) + (r.detall ? ' (' + r.detall + ')' : ''), true);
+        var E = r.enviat || {}; delete r.enviat; S.not = r; S.llegit.notificacions = { t: Date.now() };
+        S.notF = { titol: '', text: '', url: '', tots: true, cursos: [] }; pintaNotificacions();
+        toast('Avís enviat (' + E.id + '): lliurat a ' + E.lliurats + ' de ' + E.destinataris + ' dispositius' + (E.fallits ? ' · ' + E.fallits + ' fallits' + (E.caducades ? ' (' + E.caducades + ' subscripcions caducades, esborrades)' : '') : '') + '.');
+      });
+    });
+  }
+  function lligaNotificacions() {
+    if (lligaNotificacions.fet) return; lligaNotificacions.fet = true;
+    var actiu = function () { return S.modul && S.modul.id === 'notificacions' && S.not; };
+    $('gsTaula').addEventListener('input', function (e) {
+      if (!actiu()) return; var F = S.notF, id = e.target.id;
+      if (id === 'gsNotTitol') F.titol = e.target.value; else if (id === 'gsNotText') F.text = e.target.value; else if (id === 'gsNotUrl') F.url = e.target.value; else return;
+      pintaPreviNot();
+    });
+    $('gsTaula').addEventListener('change', function (e) {
+      if (!actiu()) return; var F = S.notF;
+      if (e.target.name === 'gsNotDest') { F.tots = e.target.value === 'tots'; [].forEach.call(document.querySelectorAll('.gsNotCurs'), function (c) { c.disabled = F.tots; }); pintaPreviNot(); }
+      else if (e.target.classList.contains('gsNotCurs')) { F.cursos = [].filter.call(document.querySelectorAll('.gsNotCurs'), function (c) { return c.checked; }).map(function (c) { return c.value; }); pintaPreviNot(); }
+    });
+    $('gsTaula').addEventListener('click', function (e) {
+      if (!actiu()) return; var b = e.target.closest('[data-not]'); if (!b) return; var a = b.dataset.not, F = S.notF;
+      if (a === 'envia') return enviaNot();
+      if (a === 'eso' || a === 'bat') {
+        F.tots = false; var re = a === 'eso' ? /ESO$/ : /BAT$/;
+        S.not.cursos.forEach(function (c) { if (re.test(c.id) && F.cursos.indexOf(c.id) < 0) F.cursos.push(c.id); });
+        var r = document.querySelector('input[name="gsNotDest"][value="cursos"]'); if (r) r.checked = true;
+        [].forEach.call(document.querySelectorAll('.gsNotCurs'), function (c) { c.disabled = false; c.checked = F.cursos.indexOf(c.value) >= 0; }); pintaPreviNot();
+      }
+    });
+  }
   // ------------------------------------------------------------------ PAS 57 · OCUPACIÓ
   // Hores fixes de cada docent: lectives d'alumnat (Currículum), reduccions lectives (manuals o automàtiques), guàrdies i
   // reduccions de guàrdia, amb el semàfor 18 + 4 = 22 (en proporció a la jornada). També s'hi assignen els càrrecs.
@@ -6415,7 +6526,7 @@
       case 'mod-actualitza':   // PAS 72: ocupació i editor
         (S.brut ? pregunta('Actualitza', '<p>Hi ha canvis sense desar. Si actualitzeu, es perdran.</p>', [{ t: 'Actualitza igualment', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]) : Promise.resolve(1)).then(function (v) {
           if (v !== 1) return; S.brut = false; if (S.modul.id === 'ocupacio') carregaOcupacio(); else if (S.modul.id === 'horaris_editor') carregaEditorHoraris();
-          else if (S.modul.id === 'calendari') { carregaCalendari.forca = true; carregaCalendari(); } else if (S.modul.id === 'equips') { carregaEquips.forca = true; carregaEquips(); } else if (S.modul.id === 'departaments') carregaDepartaments(true); else if (S.modul.id === 'sancions') carregaSancions(true); });
+          else if (S.modul.id === 'calendari') { carregaCalendari.forca = true; carregaCalendari(); } else if (S.modul.id === 'equips') { carregaEquips.forca = true; carregaEquips(); } else if (S.modul.id === 'departaments') carregaDepartaments(true); else if (S.modul.id === 'sancions') carregaSancions(true); else if (S.modul.id === 'notificacions') carregaNotificacions(true); });
         break;
       case 'hor-actualitza':   // PAS 68
         if (Object.keys(S.horBrut || {}).some(function (k) { return S.horBrut[k]; })) { pregunta('Actualitza', '<p>Hi ha canvis sense desar al planificador. Si actualitzeu, es perdran.</p>', [{ t: 'Actualitza igualment', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v === 1) { S.horBrut = {}; S.brut = false; carregaHoraris(); } }); }

@@ -1,0 +1,33 @@
+/* PAS 81 · Pàgina pública Avisos (notificacions del web) */
+.av-wrap{ max-width: 980px; margin: 0 auto; box-sizing: border-box; padding: 0 clamp(16px, 4vw, 48px) clamp(48px, 7vw, 96px); }
+.av-intro{ padding: clamp(40px, 6vw, 76px) 0 clamp(24px, 3vw, 36px); }
+.av-kicker{ display: block; margin: 0 0 14px; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--color-orange, #E8600C); }
+.av-titol{ display: flex; align-items: center; gap: 14px; margin: 0 0 18px; font-size: clamp(32px, 4.4vw, 48px); font-weight: 300; line-height: 1.1; color: var(--color-blue, #1C0CBC); }
+.av-titol svg{ width: 1em; height: 1em; flex: none; color: var(--color-orange, #E8600C); }
+.av-lead{ max-width: 820px; margin: 0; font-size: clamp(18px, 1.9vw, 22px); line-height: 1.55; font-weight: 300; color: var(--color-text, #1E1E2A); }
+.av-lead strong{ color: var(--color-blue, #1C0CBC); font-weight: 700; }
+
+.av-caixa{ border: 1px solid var(--color-border, #E1E5EE); border-radius: 20px; padding: clamp(20px, 3vw, 36px); background: #FAFBFF; }
+.av-caixa h2, .av-info h2{ margin: 0 0 8px; font-size: clamp(20px, 2.2vw, 24px); font-weight: 400; color: var(--color-blue, #1C0CBC); }
+.av-ajuda{ margin: 0 0 18px; color: var(--color-text-muted, #5A6078); line-height: 1.6; }
+.av-estat{ margin: 0 0 22px; padding: 12px 16px; border-left: 4px solid var(--color-gray-icon, #9096A0); background: #fff; border-radius: 0 12px 12px 0; line-height: 1.55; }
+.av-estat strong{ color: var(--color-blue, #1C0CBC); }
+.av-estat--ok{ border-left-color: #1A9A5B; background: #EFFAF4; }
+.av-estat--avis{ border-left-color: var(--color-orange, #E8600C); background: #FFF4EC; }
+.av-cursos{ display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; margin: 0 0 24px; }
+.av-cursos fieldset{ margin: 0; padding: 14px 16px 10px; border: 1px solid var(--color-border, #E1E5EE); border-radius: 14px; background: #fff; }
+.av-cursos legend{ padding: 0 6px; font-size: 13px; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: var(--color-blue, #1C0CBC); }
+.av-curs{ display: flex; align-items: center; gap: 10px; padding: 7px 4px; font-size: 16px; cursor: pointer; }
+.av-curs input{ width: 20px; height: 20px; accent-color: var(--color-blue, #1C0CBC); }
+.av-cursos[aria-disabled="true"]{ opacity: .55; }
+.av-botons{ display: flex; flex-wrap: wrap; gap: 10px; }
+.av-boto{ display: inline-flex; align-items: center; justify-content: center; min-height: 46px; padding: 0 22px; border-radius: 999px; border: 2px solid var(--color-blue, #1C0CBC); background: var(--color-blue, #1C0CBC); color: #fff; font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; transition: background-color .18s, border-color .18s, color .18s; }
+.av-boto:hover, .av-boto:focus-visible{ background: var(--color-orange, #E8600C); border-color: var(--color-orange, #E8600C); color: #fff; }
+.av-boto--ghost{ background: #fff; color: var(--color-blue, #1C0CBC); }
+.av-boto[disabled]{ opacity: .6; cursor: wait; }
+.av-boto[hidden]{ display: none; }
+
+.av-info{ display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: clamp(20px, 4vw, 48px); padding-top: clamp(32px, 4vw, 48px); }
+.av-info p{ margin: 0; line-height: 1.7; color: var(--color-text, #1E1E2A); }
+.av-info a{ color: var(--color-blue, #1C0CBC); }
+@media (max-width: 560px){ .av-boto{ width: 100%; } }

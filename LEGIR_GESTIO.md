@@ -558,6 +558,17 @@ self.addEventListener('activate', function (e) {
 - **Servidor local (`netlify dev`)**: no arrencava («Timed out waiting for port '8080'») perquè, abans de construir, Eleventy es quedava esperant la resposta de l'Apps Script (calendari i departaments publicats). Ara el temps màxim també cobreix la lectura de la resposta (15 s el calendari, 30 s els departaments) i, a més, `eleventy.config.js` no espera mai més de 20 s / 40 s: si GESTIO no respon, el web es construeix amb el que hi hagi a `.cache` (o amb `calendari.js`). Al build de Netlify passa el mateix: ja no es pot quedar penjat.
 - `netlify.toml` té un bloc `[dev]` amb l'ordre i el port d'Eleventy explícits (`npx @11ty/eleventy --serve --port 8080`, web local a http://localhost:8888).
 
+## PAS 81
+
+- **Edició pàgina web departaments/àmbits**: la imatge de la Presentació ja no es retalla mai. Es veu sencera, amb la seva proporció, a la dreta del text (com a màxim el 40 % de la columna, 340 × 260 px; al mòbil, a sobre del text i com a màxim 220 px d'alt).
+- **Mòdul NOTIFICACIONS** (categoria Administració): avisos importants i excepcionals (aproximadament un al mes) al mòbil o a l'ordinador de qui s'hi subscriu a la pàgina pública **Avisos** (`/avisos.html`, també es/en; icona de la campana a la capçalera i al menú del mòbil).
+  - Subscripció sense compte ni dades personals: l'adreça tècnica del navegador, les claus, els cursos triats (cap = només els avisos de tot el centre) i l'idioma. Full `notificacions_db` (config › `db_notificacions`), pestanyes `subscripcions` i `avisos` (les crea **configura**).
+  - Enviament: només l'administració del mòdul, sense aprovació; a tot el centre o a uns cursos; títol ≤ 50 i text ≤ 150 caràcters, enllaç opcional a una pàgina del web; a qualsevol hora; avís si el darrer és de fa menys de 30 dies. Historial (lliurats / fallits) i recomptes de subscripcions per curs.
+  - Funcions de Netlify: `avisos` (`/api/avisos`, pública: clau pública, subscriu, estat i baixa; només adreces dels serveis de push de Google, Mozilla, Apple i Microsoft; límit de peticions per IP) i `gestio-avisos-envia` (`/api/gestio/avisos-envia`, amb sessió: l'Apps Script valida i dona els destinataris, s'envia amb `web-push` en lots de 50 i les subscripcions que responen 404/410 s'esborren).
+  - Variables d'entorn de Netlify (mai al repositori): `VAPID_PUBLIC`, `VAPID_PRIVATE`, `VAPID_SUBJECT` (`mailto:…`). Dependència nova: `web-push` (package.json).
+  - El service worker (`sw.js`) ja mostrava els avisos i obria l'enllaç: no canvia.
+  - Política de privacitat (ca/es/en): apartat «Avisos» i els proveïdors (Google Workspace per al full; serveis de notificacions dels navegadors).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
