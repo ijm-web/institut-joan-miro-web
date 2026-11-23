@@ -553,6 +553,11 @@ self.addEventListener('activate', function (e) {
 - **Currículum › Assignacions**: botó «Caps de departament/àmbit» (abans a Departaments/àmbits › Administració).
 - **Web** (`departament-pagina.js`, `departaments.css`): el cap surt destacat al principi del Professorat; la imatge de la presentació, petita i a la dreta del text (màx. 40 % / 340 × 260 px; al mòbil, a sobre i 220 px).
 
+## PAS 80b
+
+- **Servidor local (`netlify dev`)**: no arrencava («Timed out waiting for port '8080'») perquè, abans de construir, Eleventy es quedava esperant la resposta de l'Apps Script (calendari i departaments publicats). Ara el temps màxim també cobreix la lectura de la resposta (15 s el calendari, 30 s els departaments) i, a més, `eleventy.config.js` no espera mai més de 20 s / 40 s: si GESTIO no respon, el web es construeix amb el que hi hagi a `.cache` (o amb `calendari.js`). Al build de Netlify passa el mateix: ja no es pot quedar penjat.
+- `netlify.toml` té un bloc `[dev]` amb l'ordre i el port d'Eleventy explícits (`npx @11ty/eleventy --serve --port 8080`, web local a http://localhost:8888).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

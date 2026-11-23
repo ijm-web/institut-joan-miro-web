@@ -6,6 +6,14 @@
   publish = "_site"
   functions = "netlify/functions"
 
+# PAS 80b · Servidor local (netlify dev): ordre i port d'Eleventy explícits, i més marge per arrencar
+# (abans de construir es descarreguen el calendari i els departaments publicats des de GESTIO)
+[dev]
+  framework = "#custom"
+  command = "npx @11ty/eleventy --serve --port 8080"
+  targetPort = 8080
+  port = 8888
+
 # La pàgina "Història" s'ha renombrat a "Qui som" (2026-09-19).
 # Redirects perquè els enllaços/marcadors antics no es trenquin.
 [[redirects]]

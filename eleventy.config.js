@@ -1,8 +1,15 @@
 module.exports = async function (eleventyConfig) {
+  // PAS 80b: les descàrregues de GESTIO tenen un temps màxim total. Si l'Apps Script no respon, el web es construeix
+  // igualment (amb el que hi hagi a .cache) i el servidor local (netlify dev) arrenca sense quedar-se esperant.
+  const ambLimit = (nom, fn, ms) => {
+    let t;
+    const limit = new Promise((ok) => { t = setTimeout(() => { console.log("[" + nom + "] GESTIO no ha respost en " + ms / 1000 + " s · es continua sense esperar"); ok(); }, ms); });
+    return Promise.race([Promise.resolve().then(fn), limit]).finally(() => clearTimeout(t));
+  };
   // PAS 56: calendari publicat des de GESTIO (si n'hi ha), abans de llegir src/_data/calendari.js
-  await require("./lib/calendari-publicat.js").descarrega();
+  await ambLimit("calendari", () => require("./lib/calendari-publicat.js").descarrega(), 20000);
   // PAS 75: departaments/àmbits publicats des de GESTIO (i les seves imatges)
-  await require("./lib/departaments-publicat.js").descarrega();
+  await ambLimit("departaments", () => require("./lib/departaments-publicat.js").descarrega(), 40000);
 
   eleventyConfig.addPassthroughCopy("src/assets");
   eleventyConfig.addPassthroughCopy({ ".cache/departaments-img": "assets/img/departaments" });   // PAS 75
