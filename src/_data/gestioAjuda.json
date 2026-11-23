@@ -1030,7 +1030,8 @@
             "El desplegable del professor/a només té el **professorat en actiu** (sense baixes, baixes laborals, permisos ni persones substituïdes).",
             "**Franja** (només 4t d'ESO): 1, 2 o 3 per a cada grup de les matèries de franja (p. ex. Biologia G1 → 1, Biologia G2 → 2). Serveix per al document dels equips docents.",
             "**Matèria trossejada** (p. ex. Matemàtiques div. de 3 h repartida 1 h + 2 h entre dos docents amb les tisores): el generador d'horaris posa **totes les sessions de tots els trossos en dies diferents**, encara que siguin de docents diferents. Per tant, una matèria trossejada no pot tenir més sessions que dies lectius.",
-            "Si canvieu les hores d'una matèria a Matèries, les pestanyes del Currículum es tornen a llegir en obrir-les i l'avís ⚠ d'hores es recalcula amb les hores noves."
+            "Si canvieu les hores d'una matèria a Matèries, les pestanyes del Currículum es tornen a llegir en obrir-les i l'avís ⚠ d'hores es recalcula amb les hores noves.",
+            "**Caps de departament/àmbit** (administració): nom de cada departament/àmbit, les **especialitats** que hi pertanyen i el **cap**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit», amb edició a Edició pàgina web departaments/àmbits i a Desiderata."
           ]
         },
         {
@@ -1093,7 +1094,7 @@
           "titol": "Departaments/àmbits i caps (direcció)",
           "claus": "departament àmbit cap especialitats definir equip",
           "text": [
-            "La direcció defineix els **departaments/àmbits** (nom, **especialitats** que hi pertanyen i **cap**) a **Departaments/àmbits › Administració › Caps de departament/àmbit**.",
+            "La direcció defineix els **departaments/àmbits** (nom, **especialitats** que hi pertanyen i **cap**) a **Currículum › Assignacions › Caps de departament/àmbit**.",
             "La primera vegada surt una proposta de partida per revisar. Una especialitat només pot ser d'un departament/àmbit; a sota s'indiquen les especialitats que encara no en tenen.",
             "En desar, els caps passen a ser l'equip **Caps de departament/àmbit** (el manté sol: no cal tocar Equips i permisos) i cada cap gestiona **totes les especialitats** del seu departament/àmbit.",
             "Canviar d'especialitat només demana les assignacions d'aquella especialitat; la llista del professorat ja carregada es reutilitza."
@@ -1551,9 +1552,9 @@
       ]
     },
     "departaments": {
-      "titol": "Departaments/àmbits",
+      "titol": "Edició pàgina web departaments/àmbits",
       "graella": false,
-      "intro": "Pàgina de cada departament/àmbit al web, **El Nostre Centre › Departaments i àmbits**, amb el mateix format per a tots. Els departaments/àmbits, les seves especialitats i el cap es defineixen a **Administració › Caps de departament/àmbit** d'aquest mateix mòdul.",
+      "intro": "Pàgina de cada departament/àmbit al web, **El Nostre Centre › Departaments i àmbits**, amb el mateix format per a tots. Els departaments/àmbits, les seves especialitats i el cap es defineixen a **Currículum › Assignacions › Caps de departament/àmbit**.",
       "temes": [
         {
           "id": "dw-editar",
@@ -1593,7 +1594,8 @@
             "**Matèries i professorat**: les matèries de les especialitats del departament/àmbit (Currículum) per nivell, amb el professorat i els grups de Currículum › Assignacions.",
             "**Criteris de qualificació**: al web, un botó per nivell genera el PDF amb els criteris publicats de les matèries del departament/àmbit (mòdul Criteris de qualificació de Programacions).",
             "**Programacions**: quan el mòdul Programacions estigui en marxa, hi sortiran les del departament/àmbit (de moment, «Properament»).",
-            "L'apartat «Avaluació» no hi és: va dins de les programacions."
+            "L'apartat «Avaluació» no hi és: va dins de les programacions.",
+            "Al web, a **Professorat**, el **cap del departament/àmbit** surt destacat al principi; la resta del professorat, a sota. La **imatge** de la presentació surt petita, a la dreta del text (al mòbil, a sobre)."
           ]
         },
         {
@@ -1603,7 +1605,6 @@
           "text": [
             "Pestanya **Administració** (només l'administració): **Termini d'edició** amb la **data límit** (l'endemà l'edició es **bloqueja** sola) i **Bloqueja-les totes** / **Desbloqueja-les totes**. Amb l'edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines; l'administració sí, i pot **tancar totes les obertes**.",
             "**Bloqueig d'un sol departament/àmbit**: a la taula **Estat de les pàgines**, columna **Bloqueig**, el **cadenat** de cada fila. Bloquejat (cadenat vermell), el cap el pot **consultar**, però no el pot editar, tancar ni obrir: només l'administració en té el control. Un altre clic el desbloqueja.",
-            "**Caps de departament/àmbit** (abans a Desiderata): botó de la pestanya Administració. Nom de cada departament/àmbit, les **especialitats** que hi pertanyen i el **cap**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit», amb edició a Departaments/àmbits i a Desiderata.",
             "**Estat de les pàgines**: cada departament/àmbit amb el cap, l'estat, el darrer desat i quan es va tancar; icones per **tancar/obrir**, **editar** i **vista prèvia**.",
             "**Publica les pàgines tancades**: només es publiquen les tancades i es torna a construir el web (build hook de Netlify). Les obertes no hi surten fins que es tanquin i es torni a publicar."
           ]
@@ -1613,9 +1614,9 @@
           "claus": "provar cap departament profe.test vista del cap",
           "text": [
             "Per veure exactament el que veu i pot fer un cap, feu servir una **fitxa de prova** de Professorat (p. ex. «Test, Profe», amb *Prova* = sí, estat actiu i el correu de l'institut del compte de prova, p. ex. profe.test@…).",
-            "1 · **Departaments/àmbits › Administració › Caps de departament/àmbit**: trieu-la com a **cap** d'un departament/àmbit (a la llista surt al final, amb «(fitxa de prova)») i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Departaments i a Desiderata. Les fitxes de prova només surten en aquesta llista: no compten per a les hores, la desiderata ni els horaris.",
-            "2 · Obriu una **finestra d'incògnit** (o un altre navegador), entreu a GESTIO amb el compte de prova i obriu **Departaments**: només hi veureu la pestanya **Edició** i el vostre departament (Desa, Tanca/Obre, Vista prèvia). Si l'edició està **bloquejada** (data límit, «Bloqueja-les totes» o el cadenat del seu departament/àmbit), el cap ja no pot desar ni tornar a obrir la pàgina.",
-            "3 · Quan acabeu, a **Administració › Caps de departament/àmbit** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
+            "1 · **Currículum › Assignacions › Caps de departament/àmbit**: trieu-la com a **cap** d'un departament/àmbit (a la llista surt al final, amb «(fitxa de prova)») i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Edició pàgina web departaments/àmbits i a Desiderata. Les fitxes de prova només surten en aquesta llista: no compten per a les hores, la desiderata ni els horaris.",
+            "2 · Obriu una **finestra d'incògnit** (o un altre navegador), entreu a GESTIO amb el compte de prova i obriu **Edició pàgina web departaments/àmbits**: només hi veureu la pestanya **Edició** i el vostre departament (Desa, Tanca/Obre, Vista prèvia). Si l'edició està **bloquejada** (data límit, «Bloqueja-les totes» o el cadenat del seu departament/àmbit), el cap ja no pot desar ni tornar a obrir la pàgina.",
+            "3 · Quan acabeu, a **Currículum › Assignacions › Caps de departament/àmbit** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
           ]
         }
       ]

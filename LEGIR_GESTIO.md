@@ -548,6 +548,11 @@ self.addEventListener('activate', function (e) {
 - **Departaments/àmbits**: columna `bloquejada` a departaments_web (bloqueig per departament/àmbit, `departaments_admin` amb `bloqueja_dep`); el cap només rep el seu departament/àmbit; `departaments` i `departaments_desa` també amb administració de Departaments/àmbits (el botó passa de Desiderata a Departaments/àmbits › Administració › Caps de departament/àmbit).
 - **Generador** (bundle `generador-horaris-pas79.bundle`): etapes del càlcul al registre (primera solució i millores).
 
+## PAS 80
+- **Code.gs** (executeu **configura**: canvia el nom del mòdul a la pestanya moduls): el mòdul `departaments` es diu «Edició pàgina web departaments/àmbits»; `departaments` i `departaments_desa` també amb administració de Currículum; la publicació porta `cap` (nom públic del cap, sense fitxes de prova).
+- **Currículum › Assignacions**: botó «Caps de departament/àmbit» (abans a Departaments/àmbits › Administració).
+- **Web** (`departament-pagina.js`, `departaments.css`): el cap surt destacat al principi del Professorat; la imatge de la presentació, petita i a la dreta del text (màx. 40 % / 340 × 260 px; al mòbil, a sobre i 220 px).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

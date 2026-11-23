@@ -2144,6 +2144,7 @@
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-resum" title="Hores de professorat per especialitat i nivell">Hores per especialitat</button>' +
       (grups && ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-aplica-des" title="Posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits">Aplica la desiderata</button>' : '') +
       (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-comprova-des" title="Compara les assignacions (també els canvis fets a mà) amb la desiderata de cada docent">Comprova la desiderata</button>' : '') +
+      (grups && nivellIdx(S.d.nivell) >= 2 ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-departaments" title="Departaments/àmbits: especialitats de cadascun i el seu cap">Caps de departament/àmbit</button>' : '') +   // PAS 80: abans a Departaments/àmbits › Administració
       (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-balanc" title="Esquema: balanç d’hores de cada especialitat i transferències entre especialitats">Balanç i transferències</button>' : '') +
       (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-especialitat" title="Per al cap de departament/àmbit: hores de l’especialitat, cedides, assignades, professorat i balanç (PDF)">Document per especialitat</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-document" title="Taula per nivell: matèries × grups amb el professorat o l’especialitat (PDF)">Document equips docents</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
@@ -3185,8 +3186,8 @@
         if (!v) return;
         api('departaments_desa', { departaments: departamentsDesiderata.ll }, 'Desant els departaments/àmbits…').then(function (r2) {
           if (!r2.ok) return toast(r2.error === 'especialitat_repetida' ? 'Especialitats repetides: ' + (r2.detall || []).join('; ') : text(r2.error), true);
-          toast('Departaments/àmbits desats (' + r2.departaments.length + '). Els caps ja tenen accés a Departaments/àmbits i a Desiderata.');
-          if (despres) despres(); else if (S.des) carregaDesiderata(S.des.especialitat);
+          toast('Departaments/àmbits desats (' + r2.departaments.length + '). Els caps ja tenen accés a Edició pàgina web departaments/àmbits i a Desiderata.');
+          if (despres) despres(); else if (S.modul && S.modul.id === 'desiderata' && S.des) carregaDesiderata(S.des.especialitat); else if (S.dw) S.dw = null;   // PAS 80: des de Currículum, la pàgina dels departaments es tornarà a llegir
         });
       });
       $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample', 'gs-modal--hl');
@@ -4269,7 +4270,7 @@
       'Quan la pàgina està llesta, el cap la <b>tanca</b> (editada i verificada). L’administració fixa la data límit, bloqueja l’edició i <b>publica</b> les pàgines tancades. ' + textBloqueigDw(R.bloqueig) + ' ' + (pub ? 'Darrera publicació: ' + esc(dataHoraHE(pub.data)) + ' (' + pub.n + ').' : 'Encara no s’ha publicat.') + '</p>';
     var t = $('gsTaula'); t.className = 'gs-ocu gs-dw';
     if (adm) return pintaAdminDw();
-    if (!d) { t.innerHTML = '<p class="gs-ajuda" style="padding:12px">No hi ha cap departament/àmbit. Es defineixen a <b>Departaments/àmbits › Administració › Caps de departament/àmbit</b>.</p>'; return ajustaAlcada(); }
+    if (!d) { t.innerHTML = '<p class="gs-ajuda" style="padding:12px">No hi ha cap departament/àmbit. Es defineixen a <b>Currículum › Assignacions › Caps de departament/àmbit</b>.</p>'; return ajustaAlcada(); }
     var E = edDw(), w = d.web || {}, A = d.auto || {}, ed = d.edita, tancada = w.estat === 'tancada', B = R.bloqueig || {};
     var llista = function (L) { var k = L[0], camps = L[2], ll = E[k];
       return '<section class="gs-dw__sec"><h3>' + esc(L[1]) + '</h3>' + (ll.length ? '<div class="gs-dw__ll">' + ll.map(function (x, i) { return '<div class="gs-dw__item" data-ll="' + k + '" data-i="' + i + '">' + camps.map(function (c) {
@@ -4310,8 +4311,6 @@
         (B.manual ? '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm gs-dw__ic" data-dw="desbloqueja">' + IC_DW.obre + ' Desbloqueja-les totes</button>' : '<button type="button" class="prog-btn prog-btn--sm gs-dw__ic gs-dw__perill" data-dw="bloqueja">' + IC_DW.bloc + ' Bloqueja-les totes</button>') +
         (B.bloquejat && nT < ll.length ? '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm gs-dw__ic" data-dw="tanca-totes">' + IC_DW.tanca + ' Tanca les obertes (' + (ll.length - nT) + ')</button>' : '') + '</div>' +
         '<p class="gs-gris">Amb l’edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines (sí que les poden consultar); l’administració, sí. L’endemà de la data límit es bloqueja sola. Per bloquejar-ne <b>només una</b>, feu servir el cadenat de la columna <b>Bloqueig</b>.</p></section>' +
-      '<section class="gs-dw__sec gs-dw__panell"><h3>' + IC_DW.edita + ' Caps de departament/àmbit</h3><p>Departaments/àmbits, especialitats de cadascun i el seu <b>cap</b> (en desar, els caps formen l’equip «Caps de departament/àmbit», amb edició a Departaments/àmbits i a Desiderata).</p>' +
-        '<button type="button" class="prog-btn prog-btn--ghost gs-dw__ic" data-dw="caps">' + IC_DW.edita + ' Caps de departament/àmbit</button></section>' +
       '<section class="gs-dw__sec"><h3>Estat de les pàgines <small class="gs-gris">· ' + nT + ' de ' + ll.length + ' tancades</small></h3>' +
         '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-dw__estats"><thead><tr><th>Departament/àmbit</th><th>Cap</th><th>Estat</th><th>Darrer desat</th><th>Tancada</th><th class="gs-cen">Bloqueig</th><th class="gs-cen">Accions</th></tr></thead><tbody>' +
         ll.map(function (d) { var w = d.web || {}, tc = w.estat === 'tancada';
@@ -4349,7 +4348,7 @@
   function previDw(d, E) {
     if (!window.DepartamentPagina) return toast('No s’ha pogut carregar la vista prèvia. Torneu a carregar la pàgina.', true);
     var w = d.web || {}, A = d.auto || {}, dades = { slug: d.slug, nom: d.nom, especialitats: d.especialitats, presentacio: E.presentacio, imatge: w.miniatura || '', peu_imatge: E.peu_imatge,
-      professorat: A.professorat || [], materies: A.materies || [], nivells: A.nivells || [], projectes: E.projectes, feines_estiu: E.feines_estiu, altres: E.altres };
+      professorat: A.professorat || [], cap: d.cap_nom || '', materies: A.materies || [], nivells: A.nivells || [], projectes: E.projectes, feines_estiu: E.feines_estiu, altres: E.altres };
     var H = DepartamentPagina.pagina(dades, 'ca', '');
     var css = ':root{--color-bg:#fff;--color-blue:#1C0CBC;--color-orange:#E8600C;--color-text:#1E1E2A;--color-text-muted:#5A6078;--color-border:#E9EAEE;}' +
       '@font-face{font-family:Montserrat;font-weight:100 900;font-display:swap;src:url(/assets/fonts/montserrat-latin-wght-normal.woff2) format("woff2")}' +
@@ -4406,7 +4405,6 @@
       else if (a === 'limit') adminDw({ limit: $('gsDwLimit').value }, $('gsDwLimit').value ? 'Data límit desada.' : 'Data límit treta.');
       else if (a === 'bloqueja') pregunta('Bloqueja l’edició', '<p>Els caps no podran canviar ni tancar ni obrir les seves pàgines fins que la desbloquegeu. L’administració sí que podrà.</p>', [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Bloqueja', valor: 1, tipus: 'danger' }]).then(function (v) { if (v) adminDw({ bloqueig: true }, 'Edició bloquejada.'); });
       else if (a === 'bloc-dep') { var dB = S.dw.departaments.filter(function (x) { return x.id === idF; })[0], bl = !(dB.web || {}).bloquejada; adminDw({ bloqueja_dep: { id: idF, bloquejada: bl } }, dB.nom + (bl ? ': bloquejat (el cap el pot consultar, però no editar).' : ': desbloquejat.')); }
-      else if (a === 'caps') departamentsDesiderata(function () { carregaDepartaments(true); });
       else if (a === 'desbloqueja') adminDw({ bloqueig: false }, 'Edició desbloquejada' + ((S.dw.bloqueig || {}).perData ? ' (però la data límit ja ha passat: canvieu-la).' : '.'));
       else if (a === 'tanca-totes') pregunta('Tanca les pàgines obertes', '<p>Es tancaran totes les pàgines que encara són obertes, tal com estan desades.</p>', [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Tanca-les', valor: 1 }]).then(function (v) { if (v) adminDw({ tanca_obertes: true }, 'Pàgines tancades'); });
       else if (a === 'publica') pregunta('Publica els departaments/àmbits', '<p>Es publicaran només les pàgines <b>tancades</b> (tal com estan desades) i es tornarà a construir el web. Del professorat només hi surt el nom complet; cap dada d’alumnat.</p>', [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Publica', valor: 1 }]).then(function (v) {

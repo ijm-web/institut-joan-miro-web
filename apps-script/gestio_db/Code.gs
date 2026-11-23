@@ -128,7 +128,7 @@ const MODULS_PER_DEFECTE = [
   ['horaris', 'Horaris · planificador', 'Generador d\'horaris, fase PLANIFICADOR: marc horari, aules, regles i blocs paral·lels, i exportació de les dades per al MOTOR.', 12, 'si', 'Organització del curs'],
   ['ocupacio', 'Ocupació', 'Hores fixes de cada docent: lectives d\'ESO i batxillerat, atenció individual, tutories, reduccions, guàrdies i càrrecs, amb el semàfor 18 + 4 = 22 (en proporció a la jornada).', 11, 'si', 'Organització del curs'],
   ['horaris_editor', 'Horaris · editor', 'Generador d\'horaris, fase EDITOR: importa l\'horari calculat pel MOTOR i el mostra per docent i per grup-classe (PDF).', 13, 'si', 'Organització del curs'],
-  ['departaments', 'Departaments/àmbits', 'Pàgina web de cada departament/àmbit (El Nostre Centre › Departaments i àmbits): presentació amb imatge, projectes, feines d\'estiu i altres; el professorat, les matèries i els criteris surten sols. Cada cap edita el seu; l\'administració publica.', 14, 'si', 'Organització del curs'],
+  ['departaments', 'Edició pàgina web departaments/àmbits', 'Pàgina web de cada departament/àmbit (El Nostre Centre › Departaments i àmbits): presentació amb imatge, projectes, feines d\'estiu i altres; el professorat, les matèries i els criteris surten sols. Cada cap edita el seu; l\'administració publica.', 14, 'si', 'Organització del curs'],
   ['calendari', 'Calendari', 'Calendari del curs: esdeveniments generals i interns (per nivells), dates clau i festius; vistes de dia, setmana, mes i trimestre amb PDF, i publicació al web (Secretaria › Calendari escolar).', 14, 'si', 'Organització del curs'],
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si', 'Administració'],
 ];
@@ -1850,10 +1850,13 @@ function configura() {
   assegura_(FULL.dep);
   // PAS 48: nomenclatura «departament/àmbit»
   const shEq = SpreadsheetApp.getActive().getSheetByName(FULL.eq), veq = shEq.getDataRange().getValues();
-  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && veq[i][1] === 'Caps de departament') shEq.getRange(i + 1, 2, 1, 3).setValues([['Caps de departament/àmbit', veq[i][2], 'Caps de departament/àmbit: mòdul Desiderata (els membres es posen sols des de Desiderata › Departaments/àmbits)']]);
+  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && veq[i][1] === 'Caps de departament') shEq.getRange(i + 1, 2, 1, 3).setValues([['Caps de departament/àmbit', veq[i][2], 'Caps de departament/àmbit: Desiderata i Edició pàgina web departaments/àmbits (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)']]);
   const shMod = SpreadsheetApp.getActive().getSheetByName(FULL.mod), vmod = shMod.getDataRange().getValues();
+  // PAS 80: el mòdul Departaments/àmbits es diu «Edició pàgina web departaments/àmbits» (només si encara té el nom antic)
+  for (let i = 1; i < vmod.length; i++) if (vmod[i][0] === 'departaments' && String(vmod[i][1]) === 'Departaments/àmbits') shMod.getRange(i + 1, 2).setValues([['Edició pàgina web departaments/àmbits']]);
+  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && /Desiderata › Departaments/.test(String(veq[i][3] || ''))) shEq.getRange(i + 1, 4).setValues([['Caps de departament/àmbit: Desiderata i Edició pàgina web departaments/àmbits (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)']]);
   for (let i = 1; i < vmod.length; i++) if (vmod[i][0] === 'desiderata' || vmod[i][0] === 'horaris') shMod.getRange(i + 1, 3).setValues([[MODULS_PER_DEFECTE.filter((m) => m[0] === vmod[i][0])[0][2]]]);
-  if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-CAPS')) SpreadsheetApp.getActive().getSheetByName(FULL.eq).appendRow(['EQ-CAPS', 'Caps de departament/àmbit', 'gestio', 'Caps de departament/àmbit: mòdul Desiderata (els membres es posen sols des de Desiderata › Departaments/àmbits)', 'si', '']);
+  if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-CAPS')) SpreadsheetApp.getActive().getSheetByName(FULL.eq).appendRow(['EQ-CAPS', 'Caps de departament/àmbit', 'gestio', 'Caps de departament/àmbit: Desiderata i Edició pàgina web departaments/àmbits (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)', 'si', '']);
   if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'desiderata')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'desiderata', 'edicio']);
   // PAS 75: els caps de departament/àmbit editen la pàgina web del seu departament (mòdul Departaments/àmbits)
   if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'departaments')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'departaments', 'edicio']);
@@ -3725,14 +3728,14 @@ function capsPossibles_() {
   return ll;
 }
 function departamentsDades_(ctx) {
-  if (!pot_(ctx, 'desiderata', 'admin') && !pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };   // PAS 79: també des de Departaments/àmbits
+  if (!pot_(ctx, 'desiderata', 'admin') && !pot_(ctx, 'departaments', 'admin') && !pot_(ctx, 'curriculum', 'admin')) return { ok: false, error: 'sense_permis' };   // PAS 80: es gestionen des de Currículum › Assignacions
   const esps = {}; ESPECIALITATS.forEach((e) => { esps[e] = 1; }); llegeix_(FULL.curg).forEach((r) => { if (r.especialitat) esps[r.especialitat] = 1; });
   return { ok: true, departaments: departaments_(), especialitats: Object.keys(esps).sort((a, b) => a.localeCompare(b, 'ca')),
     professorat: capsPossibles_(), proposta: DEPARTAMENTS_PROPOSTA.map((x) => ({ nom: x[0], especialitats: x[1], cap: '' })) };
 }
 // Desa els departaments/àmbits i posa com a membres d'EQ-CAPS exactament els caps (així tenen accés a Desiderata)
 function departamentsDesa_(ctx, req) {
-  if (!pot_(ctx, 'desiderata', 'admin') && !pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!pot_(ctx, 'desiderata', 'admin') && !pot_(ctx, 'departaments', 'admin') && !pot_(ctx, 'curriculum', 'admin')) return { ok: false, error: 'sense_permis' };
   const ll = Array.isArray(req.departaments) ? req.departaments : [], profs = {}; capsPossibles_().forEach((p) => { profs[p.id] = 1; });   // PAS 78: també les fitxes de prova
   const vistes = {}, errors = [];
   const nets = ll.map((d) => ({ nom: String(d.nom || '').trim(), especialitats: (Array.isArray(d.especialitats) ? d.especialitats : []).map(String).filter(Boolean), cap: String(d.cap || '') })).filter((d) => d.nom);
@@ -5111,11 +5114,12 @@ function depwImatge_(ctx, req) {
 function depwPublica_(ctx) {
   if (!pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };
   const web = depwWeb_(), deps = departaments_().filter((d) => (web[d.id] || {}).estat === 'tancada'), profs = actiusPlanificacio_(), cur = llegeix_(FULL.cur), curg = llegeix_(FULL.curg), ara = ara_();
+  const nomCap = {}; llegeix_(FULL.prof).forEach((p) => { if (!esProva_(p)) nomCap[p.id_professor] = [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '); });   // PAS 80: el cap surt destacat (les fitxes de prova no es publiquen)
   // PAS 76: només es publiquen les pàgines tancades (editades i verificades)
   if (!deps.length) return { ok: false, error: 'cap_tancada' };
   const files = deps.map((d) => { const w = web[d.id] || {}, a = depwAuto_(d, profs, cur, curg);
     const dades = { id: d.id, nom: d.nom, slug: slugDep_(d.nom), especialitats: d.especialitats, presentacio: w.presentacio || '', peu_imatge: w.peu_imatge || '', imatge: w.imatge || '',
-      projectes: w.projectes || [], feines_estiu: w.feines_estiu || [], altres: w.altres || [], professorat: a.professorat, materies: a.materies, nivells: a.nivells };
+      projectes: w.projectes || [], feines_estiu: w.feines_estiu || [], altres: w.altres || [], professorat: a.professorat, cap: nomCap[d.cap] || '', materies: a.materies, nivells: a.nivells };
     return [d.id, dades.slug, JSON.stringify(dades).slice(0, 49000), ara]; });
   const sh = fullDep_(FULL_DEPP_, CAP_DEPP_);
   if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, CAP_DEPP_.length).clearContent();
