@@ -1675,11 +1675,13 @@
         {
           "id": "no-envia",
           "titol": "Enviar un avís (administració)",
-          "claus": "nou avís envia títol text enllaç destinataris cursos ESO batxillerat vista prèvia",
+          "claus": "nou avís envia títol text enllaç destinataris cursos ESO batxillerat vista prèvia trossos progrés continua atura interromput",
           "text": [
             "**Títol** (fins a 50 caràcters) i **text** (fins a 150), en l'idioma en què s'escriguin. **Enllaç** opcional a una pàgina del web (comença per /, p. ex. /calendari-escolar.html): en tocar l'avís, s'obre.",
             "**Destinataris**: **Tot el centre** o **Uns cursos** (botons **Tota l'ESO** i **Tot el batxillerat**). Al costat es veu quants dispositius el rebran i la **vista prèvia**.",
             "**Envia l'avís…** demana confirmació i avisa si el darrer es va enviar fa menys de 30 dies. Es pot enviar a qualsevol hora; no cal que ningú l'aprovi. Un cop enviat, no es pot desfer.",
+            "L'enviament es fa **en trossos de 400 dispositius** amb una barra de progrés («Enviant l'avís… 800 de 2.000»). No tanqueu la pestanya fins que acabi.",
+            "Si s'interromp (connexió, pestanya tancada…), l'avís queda **enviant… X de Y** a la llista d'avisos enviats: **Continua** l'acaba sense repetir ningú i **Atura** el deixa com a «aturat» (els pendents ja no el reben). Mentre un avís no s'ha acabat, no se'n pot enviar cap altre.",
             "Els avisos es veuen a la pantalla de bloqueig: **cap dada personal ni d'alumnat**. La informació, a la pàgina del web de l'enllaç."
           ]
         },

@@ -34,7 +34,7 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
-    notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', vapid_no_coincideixen: 'Les claus VAPID_PUBLIC i VAPID_PRIVATE de Netlify no fan parella (són de dues generacions diferents o una està mal copiada). Genereu-ne un parell nou, poseu-les totes dues, torneu a publicar i torneu a activar els avisos als dispositius.', vapid_invalid: 'Una de les claus VAPID de Netlify no és vàlida (mal copiada?). Genereu-ne un parell nou amb «npx web-push generate-vapid-keys».', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.',
+    notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', vapid_no_coincideixen: 'Les claus VAPID_PUBLIC i VAPID_PRIVATE de Netlify no fan parella (són de dues generacions diferents o una està mal copiada). Genereu-ne un parell nou, poseu-les totes dues, torneu a publicar i torneu a activar els avisos als dispositius.', vapid_invalid: 'Una de les claus VAPID de Netlify no és vàlida (mal copiada?). Genereu-ne un parell nou amb «npx web-push generate-vapid-keys».', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.', avis_en_curs: 'Hi ha un avís que no s’ha acabat d’enviar: continueu-lo o atureu-lo abans d’enviar-ne un altre.', no_en_curs: 'Aquest avís ja no s’està enviant.',
     conflicte_versio: 'Algú altre ha desat o importat l’horari mentre l’editàveu. Torneu-lo a carregar (els vostres canvis sense desar es perdran).',
     sense_horari: 'Encara no s’ha importat cap horari.',
     fora_abast: 'Només podeu modificar l’alumnat dels vostres grups.',
@@ -4546,6 +4546,7 @@
     if (F.tots) return t.length;
     return t.filter(function (x) { var l = x ? x.split('|') : []; return l.some(function (c) { return F.cursos.indexOf(c) >= 0; }); }).length;
   }
+  function enCursNot() { return (S.not.avisos || []).filter(function (a) { return a.estat === 'enviant'; })[0] || null; }
   function darrerNot() { var l = (S.not.avisos || []).filter(function (a) { return a.estat !== 'error'; }); return l[0] || null; }
   function pintaPreviNot() {
     var F = S.notF, el = $('gsNotPrevi'); if (!el) return;
@@ -4569,7 +4570,7 @@
       '<fieldset class="gs-not__dest"><legend>Destinataris</legend><label class="gs-check"><input type="radio" name="gsNotDest" value="tots"' + (F.tots ? ' checked' : '') + '> Tot el centre</label><label class="gs-check"><input type="radio" name="gsNotDest" value="cursos"' + (F.tots ? '' : ' checked') + '> Uns cursos:</label>' +
       '<div class="gs-not__cursos">' + R.cursos.map(function (c) { return '<label class="gs-check"><input type="checkbox" class="gsNotCurs" value="' + esc(c.id) + '"' + (F.cursos.indexOf(c.id) >= 0 ? ' checked' : '') + (F.tots ? ' disabled' : '') + '> ' + esc(c.nom) + '</label>'; }).join('') +
       '<span><button type="button" class="gs-enllac" data-not="eso">Tota l’ESO</button> · <button type="button" class="gs-enllac" data-not="bat">Tot el batxillerat</button></span></div></fieldset>' +
-      '<p class="prog-avis" id="gsNotErr" hidden></p><div class="gs-not__env"><button type="button" class="prog-btn" data-not="envia">Envia l’avís…</button><span class="gs-gris">Arribarà a <b id="gsNotN"></b> (aprox.)</span></div></div>' +
+      (enCursNot() ? '<p class="prog-avis">L’avís ' + esc(enCursNot().id) + ' no s’ha acabat d’enviar (' + enCursNot().enviats + ' de ' + enCursNot().destinataris + '). Continueu-lo o atureu-lo a la llista d’avisos enviats abans d’enviar-ne un altre.</p>' : '') + '<p class="prog-avis" id="gsNotErr" hidden></p><div class="gs-not__env"><button type="button" class="prog-btn" data-not="envia"' + (enCursNot() ? ' disabled' : '') + '>Envia l’avís…</button><span class="gs-gris">Arribarà a <b id="gsNotN"></b> (aprox.)</span></div></div>' +
       '<div><p class="gs-gris gs-not__previtit">Vista prèvia</p><div id="gsNotPrevi"></div><p class="gs-ajuda">L’aspecte exacte depèn del mòbil o de l’ordinador. Títol: fins a 50 caràcters; text: fins a 150.</p></div></div></section>';
     var per = Rc.per_curs || {};
     var subs = '<section class="gs-not__sec"><h3>Subscripcions</h3><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-not__subs"><thead><tr><th>Curs</th><th>Dispositius</th></tr></thead><tbody>' +
@@ -4578,7 +4579,7 @@
       '<p class="gs-ajuda">Un dispositiu pot haver triat més d’un curs. Tots reben els avisos de tot el centre. No es desa cap nom ni correu.</p></section>';
     var av = R.avisos || [];
     var hist = '<section class="gs-not__sec"><h3>Avisos enviats</h3>' + (av.length ? '<div class="gs-not__wrap"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Data</th><th>Avís</th><th>Destinataris</th><th>Enviat per</th><th>Lliurats</th><th>Fallits</th><th>Codi</th></tr></thead><tbody>' +
-      av.map(function (a) { return '<tr' + (a.estat === 'error' ? ' class="gs-gris"' : '') + '><td>' + esc(dataVista(a.data)) + ' ' + esc(String(a.data).slice(11, 16)) + '</td><td><b>' + esc(a.titol) + '</b><br><span class="gs-gris">' + esc(a.text) + '</span>' + (a.url ? '<br><small>' + esc(a.url) + '</small>' : '') + '</td><td>' + esc(textTemesNot(a.temes)) + '</td><td>' + esc(a.autor) + '</td><td class="gs-cen">' + a.lliurats + ' / ' + a.destinataris + '</td><td class="gs-cen">' + a.fallits + (a.caducades ? ' <small class="gs-gris" title="Subscripcions que ja no existeixen: s’han esborrat">(' + a.caducades + ' esborrades)</small>' : '') + (a.estat === 'enviant' ? ' <small>enviant…</small>' : '') + (a.detall ? '<br><small class="gs-not__det">' + esc(a.detall) + '</small>' : '') + '</td><td class="gs-gris">' + esc(a.id) + '</td></tr>'; }).join('') +
+      av.map(function (a) { return '<tr' + (a.estat === 'error' ? ' class="gs-gris"' : '') + '><td>' + esc(dataVista(a.data)) + ' ' + esc(String(a.data).slice(11, 16)) + '</td><td><b>' + esc(a.titol) + '</b><br><span class="gs-gris">' + esc(a.text) + '</span>' + (a.url ? '<br><small>' + esc(a.url) + '</small>' : '') + '</td><td>' + esc(textTemesNot(a.temes)) + '</td><td>' + esc(a.autor) + '</td><td class="gs-cen">' + a.lliurats + ' / ' + a.destinataris + '</td><td class="gs-cen">' + a.fallits + (a.caducades ? ' <small class="gs-gris" title="Subscripcions que ja no existeixen: s’han esborrat">(' + a.caducades + ' esborrades)</small>' : '') + (a.estat === 'enviant' ? '<br><small class="gs-not__curs">enviant… ' + a.enviats + ' de ' + a.destinataris + '</small>' + (S.not.pot_enviar ? '<br><button type="button" class="gs-enllac" data-not="continua" data-id="' + esc(a.id) + '">Continua</button> · <button type="button" class="gs-enllac gs-perill" data-not="atura" data-id="' + esc(a.id) + '">Atura</button>' : '') : a.estat === 'aturat' ? '<br><small class="gs-gris">aturat (' + a.enviats + ' de ' + a.destinataris + ')</small>' : '') + (a.detall ? '<br><small class="gs-not__det">' + esc(a.detall) + '</small>' : '') + '</td><td class="gs-gris">' + esc(a.id) + '</td></tr>'; }).join('') +
       '</tbody></table></div>' : '<p class="gs-gris">Encara no s’ha enviat cap avís.</p>') + '</section>';
     t.innerHTML = '<div class="gs-not__graella">' + form + subs + '</div>' + hist;
     pintaPreviNot(); ajustaAlcada();
@@ -4606,16 +4607,39 @@
       (dies < 30 ? '<p class="prog-avis">El darrer avís es va enviar fa ' + dies + (dies === 1 ? ' dia' : ' dies') + ' (' + esc(dataVista(d.data)) + '). Els avisos han de ser importants i excepcionals: aproximadament un al mes.</p>' : '') +
       '<p class="gs-gris">Un cop enviat, no es pot desfer. Comproveu que no hi ha cap dada personal.</p>', [{ t: 'Envia', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }], false).then(function (v) {
       if (!v) return;
-      var crida = fetch(API + 'avisos-envia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', cache: 'no-store',
-        body: JSON.stringify({ titol: F.titol, text: F.text, url: F.url, temes: F.tots ? ['tots'] : F.cursos }) })
-        .then(function (r) { if (r.status === 401) avisSessio(); return r.json().catch(function () { return { ok: false, error: 'error_servidor' }; }); })
-        .catch(function () { return { ok: false, error: 'error_servidor' }; });
-      (window.Progres ? Progres.amb(crida, 'Enviant l’avís…') : crida).then(function (r) {
-        if (!r.ok) return toast(r.errors ? r.errors.join(' ') : text(r.error) + (r.detall ? ' (' + r.detall + ')' : ''), true);
-        var E = r.enviat || {}; delete r.enviat; S.not = r; S.llegit.notificacions = { t: Date.now() };
-        S.notF = { titol: '', text: '', url: '', tots: true, cursos: [] }; pintaNotificacions();
-        toast('Avís enviat (' + E.id + '): lliurat a ' + E.lliurats + ' de ' + E.destinataris + ' dispositius' + (E.fallits ? ' · ' + E.fallits + ' fallits' + (E.caducades ? ' (' + E.caducades + ' subscripcions caducades, esborrades)' : '') + (E.detall ? ': ' + E.detall : '') : '') + '.', E.fallits && !E.lliurats);
+      postNot({ accio: 'inicia', titol: F.titol, text: F.text, url: F.url, temes: F.tots ? ['tots'] : F.cursos }, 'Preparant l’avís…').then(function (r) {
+        if (!r.ok) { if (r.error === 'avis_en_curs') carregaNotificacions(true); return toast(r.errors ? r.errors.join(' ') : text(r.error) + (r.detall ? ' (' + r.detall + ')' : ''), true); }
+        S.notF = { titol: '', text: '', url: '', tots: true, cursos: [] };
+        enviaTrossosNot(r.id, r.destinataris);
       });
+    });
+  }
+  // PAS 83 · Crida a la funció d'enviament (inicia, tros o atura)
+  function postNot(cos, progres) {
+    var crida = fetch(API + 'avisos-envia', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', cache: 'no-store', body: JSON.stringify(cos) })
+      .then(function (r) { if (r.status === 401) avisSessio(); return r.json().catch(function () { return { ok: false, error: 'error_servidor', detall: 'HTTP ' + r.status }; }); })
+      .catch(function () { return { ok: false, error: 'error_servidor' }; });
+    return progres && window.Progres ? Progres.amb(crida, progres) : crida;
+  }
+  // PAS 83 · L'enviament es fa en trossos de 400 dispositius (cada tros, una crida curta a la funció de Netlify), amb la
+  // barra «Enviant… 800 de 2.000». Si s'interromp, l'avís queda «enviant» i es pot continuar (sense repetir ningú).
+  function enviaTrossosNot(id, total) {
+    var P = window.Progres, voltes = 0, brut = S.brut; S.brut = true;   // avís si es tanca la pestanya a mig enviament
+    if (P) P.inici('Enviant l’avís… 0 de ' + total);
+    var acaba = function (r, error) { S.brut = brut; if (P) P.fi(error); return r; };
+    var pas = function () {
+      return postNot({ accio: 'tros', id: id }).then(function (r) {
+        if (!r.ok) return acaba(r, true);
+        if (P) P.posa(r.total ? r.enviats / r.total : 1, 'Enviant l’avís… ' + r.enviats + ' de ' + r.total);
+        if (r.acabat || ++voltes > 200) return acaba(r);
+        return pas();
+      });
+    };
+    return pas().then(function (r) {
+      if (!r.ok) { toast('L’enviament s’ha interromput (' + text(r.error) + (r.detall ? ': ' + r.detall : '') + '). L’avís ha quedat «enviant»: podeu continuar-lo des de la llista d’avisos enviats.', true); return carregaNotificacions(true); }
+      if (!r.acabat) return carregaNotificacions(true);
+      S.not = r; S.llegit.notificacions = { t: Date.now() }; pintaNotificacions();
+      toast('Avís enviat (' + r.id + '): lliurat a ' + r.lliurats + ' de ' + r.enviats + ' dispositius' + (r.fallits ? ' · ' + r.fallits + ' fallits' + (r.caducades ? ' (' + r.caducades + ' subscripcions caducades, esborrades)' : '') + (r.detall ? ': ' + r.detall : '') : '') + '.', r.fallits && !r.lliurats);
     });
   }
   function lligaNotificacions() {
@@ -4634,6 +4658,9 @@
     $('gsTaula').addEventListener('click', function (e) {
       if (!actiu()) return; var b = e.target.closest('[data-not]'); if (!b) return; var a = b.dataset.not, F = S.notF;
       if (a === 'envia') return enviaNot();
+      if (a === 'continua') return enviaTrossosNot(b.dataset.id, (enCursNot() || {}).destinataris || 0);
+      if (a === 'atura') return pregunta('Atura l’enviament', '<p>L’avís ' + esc(b.dataset.id) + ' ja no arribarà als dispositius que encara no l’han rebut. Es conserva a la llista com a «aturat».</p>', [{ t: 'Atura', valor: 1, tipus: 'danger' }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) {
+        if (v) postNot({ accio: 'atura', id: b.dataset.id }, 'Aturant…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.not = r; pintaNotificacions(); toast('Enviament aturat.'); }); });
       if (a === 'eso' || a === 'bat') {
         F.tots = false; var re = a === 'eso' ? /ESO$/ : /BAT$/;
         S.not.cursos.forEach(function (c) { if (re.test(c.id) && F.cursos.indexOf(c.id) < 0) F.cursos.push(c.id); });

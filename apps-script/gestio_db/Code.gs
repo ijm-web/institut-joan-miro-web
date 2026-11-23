@@ -702,6 +702,8 @@ function doPost(e) {
       case 'notificacions_dades': return json_(notifDades_(ctx));            // PAS 81
       case 'notificacions_prepara': return json_(notifPrepara_(ctx, req));    // (només la funció de Netlify avisos-envia)
       case 'notificacions_resultat': return json_(notifResultat_(ctx, req));
+      case 'notificacions_tros': return json_(notifTros_(ctx, req));          // PAS 83: enviament per trossos
+      case 'notificacions_atura': return json_(notifAtura_(ctx, req));
       default:             return json_({ ok: false, error: 'accio_desconeguda' });
     }
   } catch (err) {
@@ -5665,7 +5667,7 @@ function horariEditorImporta_(ctx, req) {
 const NOTIF_SUBS_ = 'subscripcions', NOTIF_MSG_ = 'avisos';
 const CAP_NOTIF_ = {
   subscripcions: ['id', 'endpoint', 'p256dh', 'auth', 'temes', 'idioma', 'creada', 'actualitzada'],
-  avisos: ['id', 'data', 'titol', 'text', 'url', 'temes', 'autor', 'destinataris', 'lliurats', 'fallits', 'caducades', 'estat', 'detall'],   // PAS 82: detall = per què han fallat
+  avisos: ['id', 'data', 'titol', 'text', 'url', 'temes', 'autor', 'destinataris', 'lliurats', 'fallits', 'caducades', 'estat', 'detall', 'enviats', 'cursor'],   // PAS 82: detall = per què han fallat · PAS 83: enviats i cursor (enviament per trossos)
 };
 const CURSOS_NOTIF_ = [['1ESO', '1r ESO'], ['2ESO', '2n ESO'], ['3ESO', '3r ESO'], ['4ESO', '4t ESO'], ['1BAT', '1r Batxillerat'], ['2BAT', '2n Batxillerat']];
 const MAX_SUBS_NOTIF_ = 20000;
@@ -5727,11 +5729,23 @@ function notifDades_(ctx) {
   if (!base.configurat) return Object.assign(base, { recompte: { total: 0, nomes_centre: 0, per_curs: {} }, avisos: [] });
   const subs = filesNotif_(NOTIF_SUBS_).files, per = {}; CURSOS_NOTIF_.forEach((c) => { per[c[0]] = 0; });
   let nomes = 0; subs.forEach((o) => { const t = temesNotif_(o.temes); if (!t.length) nomes++; t.forEach((k) => { per[k]++; }); });
-  const avisos = filesNotif_(NOTIF_MSG_).files.map((o) => { const r = {}; CAP_NOTIF_.avisos.forEach((k) => { r[k] = o[k] || ''; }); ['destinataris', 'lliurats', 'fallits', 'caducades'].forEach((k) => { r[k] = Number(r[k]) || 0; }); return r; })
+  const avisos = filesNotif_(NOTIF_MSG_).files.map((o) => { const r = {}; CAP_NOTIF_.avisos.forEach((k) => { r[k] = o[k] || ''; }); ['destinataris', 'lliurats', 'fallits', 'caducades', 'enviats'].forEach((k) => { r[k] = Number(r[k]) || 0; }); delete r.cursor; return r; })
     .sort((a, b) => String(b.data).localeCompare(String(a.data)) || String(b.id).localeCompare(String(a.id))).slice(0, 300);
   return Object.assign(base, { recompte: { total: subs.length, nomes_centre: nomes, per_curs: per, temes: subs.map((o) => temesNotif_(o.temes).join('|')) }, avisos: avisos });
 }
-// Valida l'avís, el registra («enviant») i torna els destinataris (adreces i claus dels navegadors) a la funció de Netlify
+// PAS 83 · ENVIAMENT PER TROSSOS. Una funció de Netlify té 10 s com a màxim: amb molts dispositius (p. ex. 2.000) no
+// hi cap tot l'enviament. GESTIO el fa en trossos de 400: notificacions_prepara registra l'avís («enviant»), cada
+// notificacions_tros dona els 400 dispositius següents (per ordre de codi, a partir del «cursor») i notificacions_resultat
+// en desa el resultat i avança el cursor. Si l'enviament s'interromp, es pot continuar sense repetir ningú, o aturar.
+// Mentre un avís és «enviant», no se'n pot enviar cap altre. Destinataris: els subscrits quan es va crear l'avís.
+const TROS_NOTIF_ = 400;
+function subsAvis_(x, subs) {
+  const temes = String(x.temes || '').split('|').filter(Boolean);
+  return subs.filter((o) => String(o.creada || '') <= String(x.data) && repNotif_(temesNotif_(o.temes), temes)).sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+}
+const avisNotif_ = (F, id) => F.files.filter((o) => o.id === String(id || ''))[0];
+const desaAvisNotif_ = (F, x, canvis) => { const o = Object.assign({}, x, canvis); F.sh.getRange(x._fila, 1, 1, F.cap.length).setValues([F.cap.map((k) => (k in o ? String(o[k]) : ''))]); return o; };
+// Valida l'avís i el registra («enviant»); l'enviament el fa la funció de Netlify tros a tros
 function notifPrepara_(ctx, req) {
   if (!pot_(ctx, 'notificacions', 'admin')) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
@@ -5745,34 +5759,73 @@ function notifPrepara_(ctx, req) {
   const temes = tm.indexOf('tots') >= 0 ? ['tots'] : tm.filter((t) => CURSOS_NOTIF_.some((c) => c[0] === t)).filter((t, i, a) => a.indexOf(t) === i);
   if (!temes.length) err.push('Trieu els destinataris: tot el centre o algun curs.');
   if (err.length) return { ok: false, error: 'avis_invalid', errors: err };
-  const subs = filesNotif_(NOTIF_SUBS_).files.filter((o) => repNotif_(temesNotif_(o.temes), temes));
-  if (!subs.length) return { ok: false, error: 'cap_destinatari' };
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
-    const F = filesNotif_(NOTIF_MSG_);
-    const n = F.files.reduce((m, o) => Math.max(m, Number(String(o.id).replace(/\D/g, '')) || 0), 0) + 1;
-    const id = 'AV-' + ('0000' + n).slice(-4);
-    const o = { id: id, data: ara_(), titol: titol, text: text, url: url, temes: temes.join('|'), autor: ctx.email, destinataris: subs.length, lliurats: 0, fallits: 0, caducades: 0, estat: 'enviant' };
+    const F = filesNotif_(NOTIF_MSG_), enCurs = F.files.filter((o) => o.estat === 'enviant')[0];
+    if (enCurs) return { ok: false, error: 'avis_en_curs', id: enCurs.id };
+    const o = { id: '', data: ara_(), titol: titol, text: text, url: url, temes: temes.join('|'), autor: ctx.email, destinataris: 0, lliurats: 0, fallits: 0, caducades: 0, estat: 'enviant', detall: '', enviats: 0, cursor: '' };
+    const n = subsAvis_(o, filesNotif_(NOTIF_SUBS_).files).length;
+    if (!n) return { ok: false, error: 'cap_destinatari' };
+    o.id = 'AV-' + ('0000' + (F.files.reduce((m, x) => Math.max(m, Number(String(x.id).replace(/\D/g, '')) || 0), 0) + 1)).slice(-4);
+    o.destinataris = n;
     F.sh.appendRow(F.cap.map((k) => (k in o ? String(o[k]) : '')));
-    historial_(ctx.email, 'notificacio_envia', 'notificacions', id, titol + ' · ' + temes.join('|') + ' · ' + subs.length);
-    return { ok: true, id: id, avis: { titol: titol, text: text, url: url || '/' }, subs: subs.map((x) => ({ endpoint: x.endpoint, p256dh: x.p256dh, auth: x.auth })) };
+    historial_(ctx.email, 'notificacio_envia', 'notificacions', o.id, titol + ' · ' + temes.join('|') + ' · ' + n);
+    return { ok: true, id: o.id, destinataris: n };
   } finally { lock.releaseLock(); }
 }
-// Resultat de l'enviament: lliurats, fallits i les subscripcions que ja no existeixen (s'esborren)
+// Els dispositius següents d'un avís «enviant» (no avança: ho fa notificacions_resultat)
+function notifTros_(ctx, req) {
+  if (!pot_(ctx, 'notificacions', 'admin')) return { ok: false, error: 'sense_permis' };
+  const F = filesNotif_(NOTIF_MSG_), x = avisNotif_(F, req.id);
+  if (!x) return { ok: false, error: 'no_trobat' };
+  if (x.estat !== 'enviant') return { ok: false, error: 'no_en_curs' };
+  const mida = Math.min(Math.max(Number(req.mida) || TROS_NOTIF_, 1), 500);
+  const l = subsAvis_(x, filesNotif_(NOTIF_SUBS_).files).filter((o) => !x.cursor || o.id > x.cursor).slice(0, mida);
+  return { ok: true, id: x.id, avis: { titol: x.titol, text: x.text, url: x.url || '/' }, total: Number(x.destinataris) || 0, enviats: Number(x.enviats) || 0,
+    subs: l.map((o) => ({ id: o.id, endpoint: o.endpoint, p256dh: o.p256dh, auth: o.auth })) };
+}
+// Esborra d'una sola vegada les subscripcions que ja no existeixen (abans, fila a fila)
+function esborraSubsNotif_(endpoints) {
+  if (!endpoints.length) return;
+  const sh = fullNotif_(NOTIF_SUBS_), v = sh.getDataRange().getValues(), cap = v[0].map(norm_), je = cap.indexOf('endpoint'), fora = {};
+  endpoints.forEach((e) => { fora[e] = 1; });
+  const queden = v.slice(1).filter((r) => !fora[String(r[je])]);
+  if (queden.length === v.length - 1) return;
+  sh.getRange(2, 1, v.length - 1, v[0].length).clearContent();
+  if (queden.length) sh.getRange(2, 1, queden.length, v[0].length).setValues(queden);
+}
+// Resultat d'un tros: suma lliurats i fallits, avança el cursor, esborra les caducades i, si no en queden, «enviat»
 function notifResultat_(ctx, req) {
   if (!pot_(ctx, 'notificacions', 'admin')) return { ok: false, error: 'sense_permis' };
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  let o;
   try {
-    const F = filesNotif_(NOTIF_MSG_), x = F.files.filter((o) => o.id === String(req.id || ''))[0];
+    const F = filesNotif_(NOTIF_MSG_), x = avisNotif_(F, req.id);
     if (!x) return { ok: false, error: 'no_trobat' };
+    if (x.estat !== 'enviant') return { ok: false, error: 'no_en_curs' };
     const cad = (Array.isArray(req.caducades) ? req.caducades : []).filter(endpointOk_);
-    const o = Object.assign({}, x, { lliurats: Number(req.lliurats) || 0, fallits: Number(req.fallits) || 0, caducades: cad.length, estat: req.error ? 'error' : 'enviat', detall: String(req.detall || '').slice(0, 400) });
-    F.sh.getRange(x._fila, 1, 1, F.cap.length).setValues([F.cap.map((k) => (k in o ? String(o[k]) : ''))]);
-    if (cad.length) {
-      const S2 = filesNotif_(NOTIF_SUBS_), fora = {}; cad.forEach((e) => { fora[e] = 1; });
-      S2.files.filter((s) => fora[s.endpoint]).map((s) => s._fila).sort((a, b) => b - a).forEach((r) => S2.sh.deleteRow(r));
-    }
-    marcaVersio_('notificacions', ctx.email);
+    const cursor = String(req.cursor || '') > String(x.cursor || '') ? String(req.cursor) : String(x.cursor || '');
+    // els motius dels fallits de cada tros se sumen: «3× Apple 410 …» + «2× Apple 410 …» → «5× Apple 410 …»
+    const comptes = {};
+    String(x.detall || '').split(' · ').concat(String(req.detall || '').split(' · ')).filter(Boolean).forEach((t) => { const m = /^(\d+)× (.*)$/.exec(t); const k = m ? m[2] : t; comptes[k] = (comptes[k] || 0) + (m ? Number(m[1]) : 1); });
+    const det = Object.keys(comptes).map((k) => (comptes[k] > 1 ? comptes[k] + '× ' : '') + k).join(' · ').slice(0, 400);
+    esborraSubsNotif_(cad);
+    const queden = subsAvis_(x, filesNotif_(NOTIF_SUBS_).files).filter((s) => s.id > cursor).length;
+    o = desaAvisNotif_(F, x, { lliurats: (Number(x.lliurats) || 0) + (Number(req.lliurats) || 0), fallits: (Number(x.fallits) || 0) + (Number(req.fallits) || 0),
+      caducades: (Number(x.caducades) || 0) + cad.length, enviats: (Number(x.enviats) || 0) + (Number(req.n) || 0), cursor: cursor, detall: det, estat: queden ? 'enviant' : 'enviat' });
+    if (!queden) marcaVersio_('notificacions', ctx.email);
+  } finally { lock.releaseLock(); }
+  const r = { ok: true, id: o.id, acabat: o.estat === 'enviat', enviats: Number(o.enviats), total: Number(o.destinataris), lliurats: Number(o.lliurats), fallits: Number(o.fallits), caducades: Number(o.caducades), detall: o.detall };
+  return r.acabat ? Object.assign(notifDades_(ctx), r) : r;
+}
+// Atura un avís que s'ha quedat «enviant» (els dispositius pendents ja no el rebran)
+function notifAtura_(ctx, req) {
+  if (!pot_(ctx, 'notificacions', 'admin')) return { ok: false, error: 'sense_permis' };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const F = filesNotif_(NOTIF_MSG_), x = avisNotif_(F, req.id);
+    if (!x) return { ok: false, error: 'no_trobat' };
+    if (x.estat === 'enviant') { desaAvisNotif_(F, x, { estat: 'aturat' }); historial_(ctx.email, 'notificacio_atura', 'notificacions', x.id, (x.enviats || 0) + ' de ' + x.destinataris); }
   } finally { lock.releaseLock(); }
   return notifDades_(ctx);
 }

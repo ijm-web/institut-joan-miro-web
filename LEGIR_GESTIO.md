@@ -579,6 +579,15 @@ self.addEventListener('activate', function (e) {
   - A dalt del mòdul Notificacions: «✔ Claus de les notificacions correctes · remitent …» o el problema (GET `/api/gestio/avisos-envia`).
 - **Capçalera al mòbil i a l'aplicació instal·lada**: el botó del menú quedava fora de la pantalla (les icones de la guia, els avisos i l'àrea privada no hi cabien; la pàgina feia 423 px d'ample en un mòbil de 375). Per sota de 560 px aquestes tres icones van dins del menú (Guia per a famílies, Avisos i Àrea privada, al final).
 
+## PAS 83
+
+- **Notificacions per trossos** (perquè una funció de Netlify té 10 s com a màxim i 2.000 dispositius no hi caben d'un sol cop; les «background functions» depenen del pla):
+  - `POST /api/gestio/avisos-envia` amb `accio`: `inicia` (l'Apps Script valida i registra l'avís «enviant»: `notificacions_prepara`), `tros` (els 400 dispositius següents, per ordre de codi a partir del `cursor`: `notificacions_tros`; s'envien 100 alhora i `notificacions_resultat` suma lliurats/fallits, avança el cursor i, quan no en queden, posa «enviat») i `atura` (`notificacions_atura`: «aturat»).
+  - GESTIO fa els trossos l'un darrere l'altre amb la barra «Enviant l'avís… 800 de 2.000». Si s'interromp, l'avís queda «enviant… X de Y» i es pot **Continuar** (sense repetir ningú) o **Aturar**. Mentre n'hi ha un «enviant», no se'n pot enviar cap altre (`avis_en_curs`).
+  - Destinataris: els subscrits quan es crea l'avís. Les subscripcions caducades (404/410) s'esborren d'una sola vegada (abans, fila a fila). Els motius dels fallits se sumen entre trossos.
+  - Pestanya `avisos`: columnes noves `enviats` i `cursor` (es creen soles).
+  - Proves: 1.030 dispositius en 3 trossos (400 + 400 + 230), cap repetit; un tros amb un servei lent (0,3 s per enviament) triga uns 1,2 s.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
