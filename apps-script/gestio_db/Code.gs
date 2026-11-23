@@ -5665,7 +5665,7 @@ function horariEditorImporta_(ctx, req) {
 const NOTIF_SUBS_ = 'subscripcions', NOTIF_MSG_ = 'avisos';
 const CAP_NOTIF_ = {
   subscripcions: ['id', 'endpoint', 'p256dh', 'auth', 'temes', 'idioma', 'creada', 'actualitzada'],
-  avisos: ['id', 'data', 'titol', 'text', 'url', 'temes', 'autor', 'destinataris', 'lliurats', 'fallits', 'caducades', 'estat'],
+  avisos: ['id', 'data', 'titol', 'text', 'url', 'temes', 'autor', 'destinataris', 'lliurats', 'fallits', 'caducades', 'estat', 'detall'],   // PAS 82: detall = per què han fallat
 };
 const CURSOS_NOTIF_ = [['1ESO', '1r ESO'], ['2ESO', '2n ESO'], ['3ESO', '3r ESO'], ['4ESO', '4t ESO'], ['1BAT', '1r Batxillerat'], ['2BAT', '2n Batxillerat']];
 const MAX_SUBS_NOTIF_ = 20000;
@@ -5766,7 +5766,7 @@ function notifResultat_(ctx, req) {
     const F = filesNotif_(NOTIF_MSG_), x = F.files.filter((o) => o.id === String(req.id || ''))[0];
     if (!x) return { ok: false, error: 'no_trobat' };
     const cad = (Array.isArray(req.caducades) ? req.caducades : []).filter(endpointOk_);
-    const o = Object.assign({}, x, { lliurats: Number(req.lliurats) || 0, fallits: Number(req.fallits) || 0, caducades: cad.length, estat: req.error ? 'error' : 'enviat' });
+    const o = Object.assign({}, x, { lliurats: Number(req.lliurats) || 0, fallits: Number(req.fallits) || 0, caducades: cad.length, estat: req.error ? 'error' : 'enviat', detall: String(req.detall || '').slice(0, 400) });
     F.sh.getRange(x._fila, 1, 1, F.cap.length).setValues([F.cap.map((k) => (k in o ? String(o[k]) : ''))]);
     if (cad.length) {
       const S2 = filesNotif_(NOTIF_SUBS_), fora = {}; cad.forEach((e) => { fora[e] = 1; });

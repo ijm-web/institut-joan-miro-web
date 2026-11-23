@@ -3,7 +3,7 @@
 // POST /api/avisos  { accio: 'subscriu' | 'baixa' | 'estat', subscripcio: { endpoint, keys: { p256dh, auth } }, temes, idioma }
 // Es desa al full notificacions_db (via l'Apps Script de GESTIO): l'adreça tècnica del navegador, les claus i els cursos.
 import { cridaGestio, json } from '../lib/gestio.mjs';
-import { clauPublica, endpointValid } from '../lib/avisos.mjs';
+import { clauPublica, endpointValid, comprovaVapid } from '../lib/avisos.mjs';
 
 const CURSOS = ['1ESO', '2ESO', '3ESO', '4ESO', '1BAT', '2BAT'];
 // Límit de peticions per adreça IP (a la memòria de la funció; prou per evitar abusos senzills)
@@ -17,12 +17,13 @@ function massa(ip) {
 
 export default async (req, context) => {
   if (req.method === 'GET') {
-    const clau = clauPublica();
-    return json(clau ? { ok: true, clau } : { ok: false, error: 'no_configurat' });
+    // PAS 82: si les claus no fan parella, no es deixa subscriure ningú (els avisos no arribarien)
+    const v = comprovaVapid();
+    return json(v.ok ? { ok: true, clau: clauPublica() } : { ok: false, error: 'no_configurat' });
   }
   if (req.method !== 'POST') return json({ ok: false, error: 'metode_no_permes' }, 405);
   if (massa((context && context.ip) || req.headers.get('x-nf-client-connection-ip') || '')) return json({ ok: false, error: 'massa_peticions' }, 429);
-  if (!clauPublica()) return json({ ok: false, error: 'no_configurat' }, 503);
+  if (!comprovaVapid().ok) return json({ ok: false, error: 'no_configurat' }, 503);
   let cos;
   try { const t = await req.text(); if (t.length > 4000) throw new Error('massa gran'); cos = JSON.parse(t); } catch { return json({ ok: false, error: 'peticio_invalida' }, 400); }
   const accio = String(cos.accio || ''), s = cos.subscripcio || {}, keys = s.keys || {};

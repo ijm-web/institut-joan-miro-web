@@ -797,3 +797,5 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-not__subs{ width: 100%; }
 .gs-not__wrap{ overflow-x: auto; }
 @media (max-width: 1100px){ .gs-not__graella, .gs-not__form{ grid-template-columns: minmax(0, 1fr); } }
+.gs-not__vapid{ flex-basis: 100%; margin: 2px 0 0; font-size: 13px; }
+.gs-not__det{ display: inline-block; max-width: 340px; color: #b91c1c; overflow-wrap: anywhere; }

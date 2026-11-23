@@ -1689,16 +1689,19 @@
           "claus": "subscripcions recompte dispositius historial lliurats fallits esborrades",
           "text": [
             "**Subscripcions**: quants dispositius hi ha per curs i quants només reben els de tot el centre (un dispositiu pot tenir més d'un curs). No es desa cap nom ni correu.",
-            "**Avisos enviats**: data, avís, destinataris, qui l'ha enviat, **lliurats** (dels dispositius previstos) i **fallits**. Les subscripcions que ja no existeixen (navegador desinstal·lat, permís retirat) s'esborren soles."
+            "**Avisos enviats**: data, avís, destinataris, qui l'ha enviat, **lliurats** (dels dispositius previstos) i **fallits**. Les subscripcions que ja no existeixen (navegador desinstal·lat, permís retirat) s'esborren soles.",
+            "Si algun avís falla, a la columna **Fallits** surt per què (p. ex. «Apple 403 BadJwtToken»: el servei d'Apple no accepta les claus o el remitent)."
           ]
         },
         {
           "id": "no-config",
           "titol": "Configuració (un sol cop)",
-          "claus": "configuració vapid claus netlify full notificacions_db configura",
+          "claus": "configuració vapid claus netlify full notificacions_db configura comprovació fallits apple iphone",
           "text": [
+            "A dalt del mòdul es comprova la configuració: **✔ Claus de les notificacions correctes · remitent …**, o un ✖ amb què cal arreglar (claus que no fan parella, clau mal copiada o remitent no vàlid).",
             "Claus **VAPID** a les variables d'entorn de Netlify: VAPID_PUBLIC, VAPID_PRIVATE i VAPID_SUBJECT (mai al repositori).",
-            "Full **notificacions_db**: l'adreça a config › db_notificacions i, després, executar **configura** (crea les pestanyes subscripcions i avisos)."
+            "Full **notificacions_db**: l'adreça a config › db_notificacions i, després, executar **configura** (crea les pestanyes subscripcions i avisos).",
+            "Si es canvien les claus, els dispositius ja subscrits deixen de rebre avisos: cal tornar a activar-los a la pàgina Avisos."
           ]
         }
       ]

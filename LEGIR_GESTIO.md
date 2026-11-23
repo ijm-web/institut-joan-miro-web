@@ -569,6 +569,16 @@ self.addEventListener('activate', function (e) {
   - El service worker (`sw.js`) ja mostrava els avisos i obria l'enllaç: no canvia.
   - Política de privacitat (ca/es/en): apartat «Avisos» i els proveïdors (Google Workspace per al full; serveis de notificacions dels navegadors).
 
+## PAS 82
+
+- **Pàgina Avisos**: fora el text «N'hi haurà pocs: aproximadament un al mes» (ca/es/en).
+- **Notificacions que no arriben (iPhone)**: l'avís de prova de 1r d'ESO va sortir amb 0 lliurats i 1 fallit (servei d'Apple), però no se'n sabia el motiu. Ara:
+  - `gestio-avisos-envia` desa per què falla cada enviament (servei, codi i resposta, p. ex. `Apple 403 {"reason":"BadJwtToken"}`) a la columna `detall` de la pestanya `avisos` (la crea sola) i al registre de la funció a Netlify (Logs › Functions). GESTIO ho mostra a **Fallits** i al missatge final.
+  - Comprovació de les claus VAPID: han de fer parella (la pública es calcula de la privada). Si no, no es deixa subscriure ningú (`/api/avisos` respon `no_configurat`) ni enviar (`vapid_no_coincideixen` / `vapid_invalid`). Les claus es netegen d'espais, cometes i «=» finals.
+  - `VAPID_SUBJECT` ha de ser `mailto:adreça@domini` (o `https://…`) sense espais; si no ho és, s'envia amb `https://institutjoanmiro.cat`. Apple rebutja els remitents no vàlids.
+  - A dalt del mòdul Notificacions: «✔ Claus de les notificacions correctes · remitent …» o el problema (GET `/api/gestio/avisos-envia`).
+- **Capçalera al mòbil i a l'aplicació instal·lada**: el botó del menú quedava fora de la pantalla (les icones de la guia, els avisos i l'àrea privada no hi cabien; la pàgina feia 423 px d'ample en un mòbil de 375). Per sota de 560 px aquestes tres icones van dins del menú (Guia per a famílies, Avisos i Àrea privada, al final).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

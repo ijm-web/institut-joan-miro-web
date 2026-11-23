@@ -34,7 +34,7 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
-    notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.',
+    notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', vapid_no_coincideixen: 'Les claus VAPID_PUBLIC i VAPID_PRIVATE de Netlify no fan parella (són de dues generacions diferents o una està mal copiada). Genereu-ne un parell nou, poseu-les totes dues, torneu a publicar i torneu a activar els avisos als dispositius.', vapid_invalid: 'Una de les claus VAPID de Netlify no és vàlida (mal copiada?). Genereu-ne un parell nou amb «npx web-push generate-vapid-keys».', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.',
     conflicte_versio: 'Algú altre ha desat o importat l’horari mentre l’editàveu. Torneu-lo a carregar (els vostres canvis sense desar es perdran).',
     sense_horari: 'Encara no s’ha importat cap horari.',
     fora_abast: 'Només podeu modificar l’alumnat dels vostres grups.',
@@ -4530,6 +4530,7 @@
   // qualsevol hora. L'enviament el fa la funció de Netlify avisos-envia. Subscripcions: només recomptes (cap dada personal).
   var PAGINES_AVIS = ['/calendari-escolar.html', '/noticies.html', '/secretaria-preinscripcio-matricula.html', '/secretaria-beques-ajuts.html', '/avisos.html', '/index.html'];
   function carregaNotificacions(forca) {
+    if (forca) S.notVapid = null;
     return (!forca && S.not && fresc('notificacions') ? Promise.resolve(S.not) : api('notificacions_dades', {}, 'Carregant les notificacions…')).then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
       S.not = r; S.notF = S.notF || { titol: '', text: '', url: '', tots: true, cursos: [] };
@@ -4558,6 +4559,7 @@
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="mod-actualitza" title="Torna a llegir les dades">Actualitza</button>' +
       '<p class="gs-ajuda gs-cal__ajuda">Avisos <b>importants i excepcionals</b> (aproximadament un al mes) al mòbil o a l’ordinador de qui s’hi ha subscrit a la pàgina pública <a href="/avisos.html" target="_blank" rel="noopener">Avisos</a> del web (icona de la campana). Cada avís va a <b>tot el centre</b> o a uns <b>cursos</b>. ' +
       'Es veuen a la pantalla de bloqueig: <b>cap dada personal ni d’alumnat</b>; l’enllaç porta a la pàgina del web amb la informació.' + (pot ? '' : ' Només els envia l’administració del mòdul.') + '</p>';
+    estatVapidNot();
     var t = $('gsTaula'); t.className = 'gs-ocu gs-not';
     if (!R.configurat) { t.innerHTML = '<p class="prog-avis">' + esc(text('notificacions_no_configurat')) + '</p>'; return ajustaAlcada(); }
     var form = !pot ? '' : '<section class="gs-not__sec"><h3>Nou avís</h3><div class="gs-not__form"><div>' +
@@ -4576,10 +4578,18 @@
       '<p class="gs-ajuda">Un dispositiu pot haver triat més d’un curs. Tots reben els avisos de tot el centre. No es desa cap nom ni correu.</p></section>';
     var av = R.avisos || [];
     var hist = '<section class="gs-not__sec"><h3>Avisos enviats</h3>' + (av.length ? '<div class="gs-not__wrap"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Data</th><th>Avís</th><th>Destinataris</th><th>Enviat per</th><th>Lliurats</th><th>Fallits</th><th>Codi</th></tr></thead><tbody>' +
-      av.map(function (a) { return '<tr' + (a.estat === 'error' ? ' class="gs-gris"' : '') + '><td>' + esc(dataVista(a.data)) + ' ' + esc(String(a.data).slice(11, 16)) + '</td><td><b>' + esc(a.titol) + '</b><br><span class="gs-gris">' + esc(a.text) + '</span>' + (a.url ? '<br><small>' + esc(a.url) + '</small>' : '') + '</td><td>' + esc(textTemesNot(a.temes)) + '</td><td>' + esc(a.autor) + '</td><td class="gs-cen">' + a.lliurats + ' / ' + a.destinataris + '</td><td class="gs-cen">' + a.fallits + (a.caducades ? ' <small class="gs-gris" title="Subscripcions que ja no existeixen: s’han esborrat">(' + a.caducades + ' esborrades)</small>' : '') + (a.estat === 'enviant' ? ' <small>enviant…</small>' : '') + '</td><td class="gs-gris">' + esc(a.id) + '</td></tr>'; }).join('') +
+      av.map(function (a) { return '<tr' + (a.estat === 'error' ? ' class="gs-gris"' : '') + '><td>' + esc(dataVista(a.data)) + ' ' + esc(String(a.data).slice(11, 16)) + '</td><td><b>' + esc(a.titol) + '</b><br><span class="gs-gris">' + esc(a.text) + '</span>' + (a.url ? '<br><small>' + esc(a.url) + '</small>' : '') + '</td><td>' + esc(textTemesNot(a.temes)) + '</td><td>' + esc(a.autor) + '</td><td class="gs-cen">' + a.lliurats + ' / ' + a.destinataris + '</td><td class="gs-cen">' + a.fallits + (a.caducades ? ' <small class="gs-gris" title="Subscripcions que ja no existeixen: s’han esborrat">(' + a.caducades + ' esborrades)</small>' : '') + (a.estat === 'enviant' ? ' <small>enviant…</small>' : '') + (a.detall ? '<br><small class="gs-not__det">' + esc(a.detall) + '</small>' : '') + '</td><td class="gs-gris">' + esc(a.id) + '</td></tr>'; }).join('') +
       '</tbody></table></div>' : '<p class="gs-gris">Encara no s’ha enviat cap avís.</p>') + '</section>';
     t.innerHTML = '<div class="gs-not__graella">' + form + subs + '</div>' + hist;
     pintaPreviNot(); ajustaAlcada();
+  }
+  // PAS 82 · Configuració de l'enviament (claus VAPID de Netlify): es comprova en obrir el mòdul i es mostra a dalt
+  function estatVapidNot() {
+    var pinta = function (v) { var el = $('gsNotVapid'); if (!el || !v) return;
+      el.innerHTML = v.vapid === 'correcte' ? '✔ Claus de les notificacions correctes · remitent ' + esc(v.subjecte) + (v.subjecte_propi ? '' : ' <span class="gs-perill">(VAPID_SUBJECT no és vàlid: cal «mailto:adreça@domini» sense espais)</span>') : '<span class="gs-perill">✖ ' + esc(text(v.vapid)) + '</span>'; };
+    var el = document.createElement('p'); el.id = 'gsNotVapid'; el.className = 'gs-gris gs-not__vapid'; $('gsEines').appendChild(el);
+    if (S.notVapid) return pinta(S.notVapid);
+    fetch(API + 'avisos-envia', { credentials: 'same-origin', cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (v) { if (v && v.ok) { S.notVapid = v; pinta(v); } }).catch(function () { /* sense funció (proves locals) */ });
   }
   function urlNot(u) { u = String(u || '').trim(); var m = /^https?:\/\/(www\.)?institutjoanmiro(\.cat|\.netlify\.app)(\/.*)?$/i.exec(u); if (m) u = m[3] || '/'; return u; }
   function enviaNot() {
@@ -4604,7 +4614,7 @@
         if (!r.ok) return toast(r.errors ? r.errors.join(' ') : text(r.error) + (r.detall ? ' (' + r.detall + ')' : ''), true);
         var E = r.enviat || {}; delete r.enviat; S.not = r; S.llegit.notificacions = { t: Date.now() };
         S.notF = { titol: '', text: '', url: '', tots: true, cursos: [] }; pintaNotificacions();
-        toast('Avís enviat (' + E.id + '): lliurat a ' + E.lliurats + ' de ' + E.destinataris + ' dispositius' + (E.fallits ? ' · ' + E.fallits + ' fallits' + (E.caducades ? ' (' + E.caducades + ' subscripcions caducades, esborrades)' : '') : '') + '.');
+        toast('Avís enviat (' + E.id + '): lliurat a ' + E.lliurats + ' de ' + E.destinataris + ' dispositius' + (E.fallits ? ' · ' + E.fallits + ' fallits' + (E.caducades ? ' (' + E.caducades + ' subscripcions caducades, esborrades)' : '') + (E.detall ? ': ' + E.detall : '') : '') + '.', E.fallits && !E.lliurats);
       });
     });
   }

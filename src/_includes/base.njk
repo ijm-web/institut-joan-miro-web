@@ -279,6 +279,10 @@
     .guide-link{ margin: 0 6px 0 2px; width: 28px; height: 28px; }
     .guide-link::after{ right: -7px; }
     .guide-link__tip{ display: none; }
+    /* PAS 82 · Al mòbil (i a l'aplicació instal·lada) les icones de la guia, els avisos i l'àrea privada no caben a la
+       capçalera i empenyien el botó del menú fora de la pantalla: van dins del menú (al final de la llista) */
+    .header-actions .guide-link{ display: none; }
+    .mainheader{ gap: 10px; }
   }
   /* ============ MENÚ HORITZONTAL (placeholder visual — sempre visible) ============ */
   .mainheader{
@@ -1190,6 +1194,7 @@
           </ul>
         </li>
         <li><a href="/{{ langPrefix }}contacte.html">{{ t.menu.contacte }}</a></li>
+        <li><a href="/assets/docs/families/guia-families-clickedu.pdf" target="_blank" rel="noopener" class="mobile-privada">📘 {{ t.topbar.clickeduGuia }} <small>({{ t.topbar.clickeduGuiaSub }})</small></a></li>
         <li><a href="/{{ langPrefix }}avisos.html" class="mobile-privada">🔔 {{ t.topbar.avisos }} <small>({{ t.topbar.avisosSub }})</small></a></li>
         <li><a href="/gestio/" class="mobile-privada">🔒 {{ t.topbar.areaPrivada }} <small>({{ t.topbar.areaPrivadaSub }})</small></a></li>
       </ul>
