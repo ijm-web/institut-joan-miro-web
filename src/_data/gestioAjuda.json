@@ -259,9 +259,10 @@
             "- les **hores lectives** i les **reduccions** (només les que el substitut té buides);",
             "- el **càrrec** (si el substitut no en té);",
             "- al planificador d'horaris, les **guàrdies** i les **posicions fixes i prohibides** (si el substitut encara no en té cap);",
-            "- els **grups del Currículum**: on hi diu la persona substituïda, el planificador, l'exportació per al motor i la comprovació de la desiderata compten el substitut.",
+            "- les **matèries**: a **Currículum › Assignacions** (també les de codocència i de suport) i a l'**horari calculat**, on hi deia la persona substituïda hi passa a dir el substitut. Si la persona substituïda era **cap de departament/àmbit**, el substitut en fa de cap mentre dura la substitució;",
+            "- **només** si la persona substituïda **no és en actiu** (baixa laboral, permís…). Una baixa o un permís **sense substitut** no transfereix res.",
             "- els **equips docents** (equips de nivell, departament…). Els equips de gestió no: els permisos els dona la direcció.",
-            "La persona substituïda (baixa laboral, permís…) surt de les llistes de planificació i de la pàgina pública del professorat; quan torna, n'hi ha prou de treure-li el substitut.",
+            "La persona substituïda (baixa laboral, permís…) surt de les llistes de planificació i de la pàgina pública del professorat. **Quan torna**: poseu la persona titular a «actiu» i el substitut a «baixa»; en desar, les matèries i el càrrec de cap que s'havien transferit **tornen** a la persona titular (només aquestes: les pròpies del substitut no es toquen). També es fa en executar configura.",
             "En desar surt un avís amb quantes dades s'han heretat.",
             "**Estat «substitut»**: compta com «actiu» (la persona treballa al centre). Per saber que és un substitut, n'hi ha prou amb **Situació laboral = Substitut**; l'estat pot ser «actiu»."
           ]
@@ -1092,7 +1093,7 @@
           "titol": "Departaments/àmbits i caps (direcció)",
           "claus": "departament àmbit cap especialitats definir equip",
           "text": [
-            "La direcció (nivell admin) defineix els **departaments/àmbits** amb el botó **Departaments/àmbits**: nom, **especialitats** que hi pertanyen i **cap** (un docent del claustre).",
+            "La direcció defineix els **departaments/àmbits** (nom, **especialitats** que hi pertanyen i **cap**) a **Departaments/àmbits › Administració › Caps de departament/àmbit**.",
             "La primera vegada surt una proposta de partida per revisar. Una especialitat només pot ser d'un departament/àmbit; a sota s'indiquen les especialitats que encara no en tenen.",
             "En desar, els caps passen a ser l'equip **Caps de departament/àmbit** (el manté sol: no cal tocar Equips i permisos) i cada cap gestiona **totes les especialitats** del seu departament/àmbit.",
             "Canviar d'especialitat només demana les assignacions d'aquella especialitat; la llista del professorat ja carregada es reutilitza."
@@ -1552,14 +1553,14 @@
     "departaments": {
       "titol": "Departaments/àmbits",
       "graella": false,
-      "intro": "Pàgina de cada departament/àmbit al web, **El Nostre Centre › Departaments i àmbits**, amb el mateix format per a tots. Els departaments/àmbits, les seves especialitats i el cap es defineixen a **Desiderata › Departaments/àmbits**.",
+      "intro": "Pàgina de cada departament/àmbit al web, **El Nostre Centre › Departaments i àmbits**, amb el mateix format per a tots. Els departaments/àmbits, les seves especialitats i el cap es defineixen a **Administració › Caps de departament/àmbit** d'aquest mateix mòdul.",
       "temes": [
         {
           "id": "dw-editar",
           "titol": "Edició: què escriu el cap",
           "claus": "presentació imatge peu projectes feines estiu altres desa cap departament àmbit format negreta cursiva llista enllaç",
           "text": [
-            "Trieu el departament/àmbit al desplegable (amb un llapis = és vostre; amb un cadenat = tancat). **Cada cap edita només el seu**; l'administració els pot editar tots.",
+            "Trieu el departament/àmbit al desplegable (amb un llapis = és vostre; amb un cadenat = tancat). **Cada cap només veu i edita el seu**; l'administració els veu i els pot editar tots.",
             "A dalt, la **barra del cap**: l'estat (**Oberta** o **Tancada**), **Desa** i **Tanca** / **Obre**.",
             "**Presentació** (el primer paràgraf surt destacat a dalt de la pàgina), una **imatge** opcional (es redueix sola; al web s'ajusta a la columna) i el seu peu, **Projectes**, **Feines d'estiu** i **Altres** (+ Afegeix / ×). Els enllaços han de començar per https://.",
             "**Format del text** (requadre de dalt): `**negreta**`, `*cursiva*`, línia en blanc = paràgraf nou, `- element` = llista de pics, `1. element` = llista numerada, `[text](https://…)` = enllaç. Hi ha un enllaç a una guia completa (Markdown Guide)."
@@ -1600,7 +1601,9 @@
           "titol": "Administració: estats, data límit i publicació",
           "claus": "administració data límit bloqueja publica estats tanca obertes",
           "text": [
-            "Pestanya **Administració** (només l'administració): **Termini d'edició** amb la **data límit** (l'endemà l'edició es **bloqueja** sola) i **Bloqueja ara** / **Desbloqueja**. Amb l'edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines; l'administració sí, i pot **tancar totes les obertes**.",
+            "Pestanya **Administració** (només l'administració): **Termini d'edició** amb la **data límit** (l'endemà l'edició es **bloqueja** sola) i **Bloqueja-les totes** / **Desbloqueja-les totes**. Amb l'edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines; l'administració sí, i pot **tancar totes les obertes**.",
+            "**Bloqueig d'un sol departament/àmbit**: a la taula **Estat de les pàgines**, columna **Bloqueig**, el **cadenat** de cada fila. Bloquejat (cadenat vermell), el cap el pot **consultar**, però no el pot editar, tancar ni obrir: només l'administració en té el control. Un altre clic el desbloqueja.",
+            "**Caps de departament/àmbit** (abans a Desiderata): botó de la pestanya Administració. Nom de cada departament/àmbit, les **especialitats** que hi pertanyen i el **cap**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit», amb edició a Departaments/àmbits i a Desiderata.",
             "**Estat de les pàgines**: cada departament/àmbit amb el cap, l'estat, el darrer desat i quan es va tancar; icones per **tancar/obrir**, **editar** i **vista prèvia**.",
             "**Publica les pàgines tancades**: només es publiquen les tancades i es torna a construir el web (build hook de Netlify). Les obertes no hi surten fins que es tanquin i es torni a publicar."
           ]
@@ -1610,9 +1613,9 @@
           "claus": "provar cap departament profe.test vista del cap",
           "text": [
             "Per veure exactament el que veu i pot fer un cap, feu servir una **fitxa de prova** de Professorat (p. ex. «Test, Profe», amb *Prova* = sí, estat actiu i el correu de l'institut del compte de prova, p. ex. profe.test@…).",
-            "1 · **Desiderata › Departaments/àmbits**: trieu-la com a **cap** d'un departament/àmbit (a la llista surt al final, amb «(fitxa de prova)») i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Departaments i a Desiderata. Les fitxes de prova només surten en aquesta llista: no compten per a les hores, la desiderata ni els horaris.",
-            "2 · Obriu una **finestra d'incògnit** (o un altre navegador), entreu a GESTIO amb el compte de prova i obriu **Departaments**: només hi veureu la pestanya **Edició** i el vostre departament (Desa, Tanca/Obre, Vista prèvia). Si l'edició està **bloquejada** (data límit o botó Bloqueja), el cap ja no pot desar ni tornar a obrir la pàgina.",
-            "3 · Quan acabeu, a **Desiderata › Departaments/àmbits** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
+            "1 · **Departaments/àmbits › Administració › Caps de departament/àmbit**: trieu-la com a **cap** d'un departament/àmbit (a la llista surt al final, amb «(fitxa de prova)») i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Departaments i a Desiderata. Les fitxes de prova només surten en aquesta llista: no compten per a les hores, la desiderata ni els horaris.",
+            "2 · Obriu una **finestra d'incògnit** (o un altre navegador), entreu a GESTIO amb el compte de prova i obriu **Departaments**: només hi veureu la pestanya **Edició** i el vostre departament (Desa, Tanca/Obre, Vista prèvia). Si l'edició està **bloquejada** (data límit, «Bloqueja-les totes» o el cadenat del seu departament/àmbit), el cap ja no pot desar ni tornar a obrir la pàgina.",
+            "3 · Quan acabeu, a **Administració › Caps de departament/àmbit** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
           ]
         }
       ]

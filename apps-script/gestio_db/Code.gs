@@ -1832,6 +1832,7 @@ function configura() {
     if (llegeix_(FULL.camps).some((c) => c.modul === 'amonestacions')) sincronitzaCamps_('amonestacions', CAMPS_AMONESTACIONS);   // PAS 76: estat i sanció
     fullModul_(MODULS.amonestacions, campsDe_('amonestacions', true));
     estatsPAS76_();
+    try { const t = transfereixSubstitucions_('configura'); if (t) Logger.log('Substitucions: ' + t + ' assignacions/sessions transferides al substitut.'); } catch (e) { Logger.log('Substitucions: ' + e); }   // PAS 79
     fullModul_(MODULS.amonestacions, campsDe_('amonestacions', true));
     fullModul_(MODULS.consell_orientador, campsDe_('consell_orientador', true));
     fullMatricula_();   // PAS 70
@@ -3724,14 +3725,14 @@ function capsPossibles_() {
   return ll;
 }
 function departamentsDades_(ctx) {
-  if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!pot_(ctx, 'desiderata', 'admin') && !pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };   // PAS 79: també des de Departaments/àmbits
   const esps = {}; ESPECIALITATS.forEach((e) => { esps[e] = 1; }); llegeix_(FULL.curg).forEach((r) => { if (r.especialitat) esps[r.especialitat] = 1; });
   return { ok: true, departaments: departaments_(), especialitats: Object.keys(esps).sort((a, b) => a.localeCompare(b, 'ca')),
     professorat: capsPossibles_(), proposta: DEPARTAMENTS_PROPOSTA.map((x) => ({ nom: x[0], especialitats: x[1], cap: '' })) };
 }
 // Desa els departaments/àmbits i posa com a membres d'EQ-CAPS exactament els caps (així tenen accés a Desiderata)
 function departamentsDesa_(ctx, req) {
-  if (!pot_(ctx, 'desiderata', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!pot_(ctx, 'desiderata', 'admin') && !pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };
   const ll = Array.isArray(req.departaments) ? req.departaments : [], profs = {}; capsPossibles_().forEach((p) => { profs[p.id] = 1; });   // PAS 78: també les fitxes de prova
   const vistes = {}, errors = [];
   const nets = ll.map((d) => ({ nom: String(d.nom || '').trim(), especialitats: (Array.isArray(d.especialitats) ? d.especialitats : []).map(String).filter(Boolean), cap: String(d.cap || '') })).filter((d) => d.nom);
@@ -4640,8 +4641,77 @@ function heretaSubstitucions_(email) {
   }
   return n;
 }
+// PAS 79 · Les MATÈRIES de la persona substituïda passen al substitut: a Currículum › Assignacions (columna professor,
+// també les de codocència i de suport, que són files pròpies) i a l'horari calculat (docents de cada sessió). Només si la
+// persona substituïda NO és en actiu (baixa laboral, permís…) i el substitut sí. Quan la substitució s'acaba (el substitut
+// passa a «baixa» i la persona substituïda torna a «actiu»), les matèries tornen a la persona titular.
+// Una baixa o un permís SENSE substitut no transfereix res.
+function transfereixSubstitucions_(email) {
+  const tots = llegeix_(FULL.prof), actiu = (p) => { const e = norm_(p.estat || 'actiu'); return e === 'actiu' || e === 'substitut'; };
+  // Què s'ha transferit a cada substitut (per tornar-ho exactament, i només això, quan s'acabi la substitució)
+  let reg = {}; try { reg = JSON.parse(llegeixConfig_().substitucions_transferides || '{}') || {}; } catch (e) { reg = {}; }
+  const moviments = [];
+  tots.filter((p) => p.nom && !esProva_(p) && String(p.substitueix || '').trim()).forEach((p) => {
+    const t = personaPerNom_(tots.filter((x) => x !== p), p.substitueix); if (!t || t === p) return;
+    if (actiu(p) && !actiu(t)) moviments.push({ de: t, a: p, tipus: 'substitucio' });
+    else if (norm_(p.estat) === 'baixa' && actiu(t) && reg[p.id_professor]) moviments.push({ de: p, a: t, tipus: 'retorn', nomes: reg[p.id_professor].assignacions || [] });
+  });
+  if (!moviments.length) return 0;
+  let n = 0;
+  const shC = SpreadsheetApp.getActive().getSheetByName(FULL.curg), shH = SpreadsheetApp.getActive().getSheetByName(FULL.hres);
+  const vC = shC && shC.getLastRow() > 1 ? shC.getDataRange().getValues() : null, capC = vC ? vC[0].map(norm_) : [];
+  const vH = shH && shH.getLastRow() > 1 ? shH.getDataRange().getValues() : null, capH = vH ? vH[0].map(norm_) : [];
+  const ip = capC.indexOf('professor'), ia = capC.indexOf('id_assignacio'), id = capH.indexOf('docents'), ha = capH.indexOf('id_assignacio');
+  moviments.forEach((m) => {
+    const k = clauNom_(nomCognoms_(m.de)), moguts = [];
+    // Currículum › Assignacions (també les de codocència i de suport: són files pròpies)
+    if (vC && ip >= 0) for (let i = 1; i < vC.length; i++) {
+      if (!String(vC[i][ip] || '').trim() || clauNom_(vC[i][ip]) !== k) continue;
+      if (m.tipus === 'retorn' && m.nomes.indexOf(String(vC[i][ia])) < 0) continue;   // les seves pròpies no
+      shC.getRange(i + 1, ip + 1).setValue(nomCognoms_(m.a)); vC[i][ip] = nomCognoms_(m.a); moguts.push(String(vC[i][ia] || ''));
+    }
+    // Horari calculat: els docents de cada sessió (codis PRO-…)
+    let c = 0;
+    if (vH && id >= 0) for (let i = 1; i < vH.length; i++) {
+      const ll = String(vH[i][id] || '').split(' | ').filter(Boolean);
+      if (ll.indexOf(m.de.id_professor) < 0 || ll.indexOf(m.a.id_professor) >= 0) continue;
+      if (m.tipus === 'retorn' && ha >= 0 && m.nomes.indexOf(String(vH[i][ha])) < 0) continue;
+      const nou = ll.map((x) => (x === m.de.id_professor ? m.a.id_professor : x)).join(' | ');
+      shH.getRange(i + 1, id + 1).setNumberFormat('@').setValue(nou); vH[i][id] = nou; c++;
+    }
+    // Cap de departament/àmbit: el substitut fa de cap mentre dura la substitució
+    const deps = [], shD = SpreadsheetApp.getActive().getSheetByName(FULL.dep);
+    if (shD && shD.getLastRow() > 1) {
+      const vD = shD.getDataRange().getValues(), capD = vD[0].map(norm_), ic = capD.indexOf('cap'), idd = capD.indexOf('id_departament');
+      const torna = m.tipus === 'retorn' ? (reg[m.de.id_professor].caps || []) : null;
+      if (ic >= 0) for (let i = 1; i < vD.length; i++) if (String(vD[i][ic]) === m.de.id_professor && (!torna || torna.indexOf(String(vD[i][idd])) >= 0)) { shD.getRange(i + 1, ic + 1).setValue(m.a.id_professor); deps.push(String(vD[i][idd])); }
+      if (deps.length) sincronitzaCaps_();
+    }
+    if (m.tipus === 'substitucio') { const r0 = reg[m.a.id_professor] || { titular: m.de.id_professor, assignacions: [], caps: [] }; r0.caps = r0.caps || [];
+      moguts.forEach((x) => { if (x && r0.assignacions.indexOf(x) < 0) r0.assignacions.push(x); }); deps.forEach((x) => { if (r0.caps.indexOf(x) < 0) r0.caps.push(x); }); reg[m.a.id_professor] = r0; }
+    else delete reg[m.de.id_professor];
+    n += deps.length;
+    if (moguts.length || c) historial_(email || 'substitucio', m.tipus === 'retorn' ? 'retorn_substitucio' : 'transfereix_substitucio', FULL.curg, '', moguts.length + ' assignacions i ' + c + ' sessions: ' + nomCognoms_(m.de) + ' → ' + nomCognoms_(m.a));
+    n += moguts.length + c;
+  });
+  posaConfig_('substitucions_transferides', JSON.stringify(reg));
+  return n;
+}
+// Membres d'EQ-CAPS = exactament els caps dels departaments/àmbits (com en desar els departaments)
+function sincronitzaCaps_() {
+  const caps = {}; departaments_().forEach((d) => { if (d.cap) caps[d.cap] = 1; });
+  const shM = SpreadsheetApp.getActive().getSheetByName(FULL.memb); if (!shM) return;
+  const vm = shM.getDataRange().getValues(), cm = vm[0].map(norm_), ie = cm.indexOf('id_equip'), im = cm.indexOf('id_membre'), ic = cm.indexOf('carrec');
+  for (let i = vm.length - 1; i >= 1; i--) if (vm[i][ie] === 'EQ-CAPS' && !caps[vm[i][im]]) shM.deleteRow(i + 1);
+  const ja = {}; shM.getDataRange().getValues().slice(1).forEach((r) => { if (r[ie] === 'EQ-CAPS') ja[r[im]] = 1; });
+  Object.keys(caps).filter((c) => !ja[c]).forEach((c) => { const r = cm.map(() => ''); r[ie] = 'EQ-CAPS'; r[im] = c; if (ic >= 0) r[ic] = 'Cap de departament/àmbit'; shM.appendRow(r); });
+  invalidaCtx_();
+}
 function ambHerencia_(r, cal, ctx) {
-  if (cal && r && r.ok) { try { const n = heretaSubstitucions_(ctx.email); if (n) r.herencia = n; } catch (e) { r.herencia_error = String(e && e.message || e); } }
+  if (cal && r && r.ok) {
+    try { const n = heretaSubstitucions_(ctx.email); if (n) r.herencia = n; } catch (e) { r.herencia_error = String(e && e.message || e); }
+    try { const t = transfereixSubstitucions_(ctx.email); if (t) r.transferides = t; } catch (e) { r.herencia_error = String(e && e.message || e); }   // PAS 79
+  }
   return r;
 }
 function professoratHores_() {
@@ -4857,7 +4927,7 @@ function llancaBuild_(cfg) {
 // i altres; el professorat (només el nom complet), les matèries per nivell amb el seu professorat i els nivells dels
 // criteris de qualificació surten sols. «Publica» (administració) desa una còpia i torna a construir el web.
 const FULL_DEPW_ = 'departaments_web', FULL_DEPP_ = 'departaments_publicat';
-const CAP_DEPW_ = ['id_departament', 'presentacio', 'imatge', 'miniatura', 'peu_imatge', 'projectes', 'feines_estiu', 'altres', 'data', 'desat_per', 'estat', 'data_tancat', 'tancat_per'];   // PAS 76: estat (tancada = editada i verificada)
+const CAP_DEPW_ = ['id_departament', 'presentacio', 'imatge', 'miniatura', 'peu_imatge', 'projectes', 'feines_estiu', 'altres', 'data', 'desat_per', 'estat', 'data_tancat', 'tancat_per', 'bloquejada'];   // PAS 79: bloquejada = només l'administració   // PAS 76: estat (tancada = editada i verificada)
 const CAP_DEPP_ = ['id_departament', 'slug', 'dades', 'publicat'];
 const LLISTES_DEPW_ = { projectes: ['titol', 'text', 'enllac', 'curs'], feines_estiu: ['nivell', 'titol', 'text', 'enllac'], altres: ['titol', 'text', 'enllac'] };
 function fullDep_(nom, cap) {
@@ -4888,7 +4958,7 @@ function depwWeb_() {
   const o = {}, js = (x) => { try { const v = JSON.parse(x || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
   llegeix_(FULL_DEPW_).forEach((r) => { if (r.id_departament) o[r.id_departament] = { presentacio: String(r.presentacio || ''), te_imatge: !!r.imatge, imatge: String(r.imatge || ''), miniatura: String(r.miniatura || ''), peu_imatge: String(r.peu_imatge || ''),
     projectes: js(r.projectes), feines_estiu: js(r.feines_estiu), altres: js(r.altres), data: String(r.data || ''), desat_per: String(r.desat_per || ''),
-    estat: r.estat === 'tancada' ? 'tancada' : 'oberta', data_tancat: String(r.data_tancat || ''), tancat_per: String(r.tancat_per || '') }; });
+    estat: r.estat === 'tancada' ? 'tancada' : 'oberta', data_tancat: String(r.data_tancat || ''), tancat_per: String(r.tancat_per || ''), bloquejada: String(r.bloquejada || '') === 'si' }; });
   return o;
 }
 // Dades automàtiques: professorat de les especialitats (només el nom complet), matèries de les especialitats per nivell amb
@@ -4913,10 +4983,12 @@ function depwDades_(ctx) {
   let pub = null; try { pub = JSON.parse(ctx.cfg.departaments_publicat || 'null'); } catch (e) { pub = null; }
   const admin = pot_(ctx, 'departaments', 'admin'), B = depwBloqueig_(ctx.cfg);
   // PAS 76: «edita» = pot canviar el contingut ara (no bloquejat, o administració, i la pàgina oberta); «estat_pot» = pot tancar/obrir
-  return { ok: true, nivell: ctx.nivell('departaments'), obert: obert_(ctx), admin: admin, publicat: pub, bloqueig: B,
-    departaments: deps.map((d) => { const w = web[d.id] || { estat: 'oberta' }; delete w.imatge; const pot = depwPot_(ctx, d.id) && obert_(ctx);
-      return { id: d.id, nom: d.nom, slug: slugDep_(d.nom), especialitats: d.especialitats, cap: d.cap, cap_nom: noms[d.cap] || '', es_meu: pot,
-        edita: pot && (admin || !B.bloquejat) && w.estat !== 'tancada', estat_pot: pot && (admin || !B.bloquejat), web: w, auto: depwAuto_(d, profs, cur, curg) }; }) };
+  // PAS 79: bloqueig de tot (data límit o botó) o d'un sol departament/àmbit; el cap d'un departament/àmbit només veu el seu
+  let ll = deps.map((d) => { const w = web[d.id] || { estat: 'oberta' }; delete w.imatge; const pot = depwPot_(ctx, d.id) && obert_(ctx), bloc = B.bloquejat || !!w.bloquejada;
+    return { id: d.id, nom: d.nom, slug: slugDep_(d.nom), especialitats: d.especialitats, cap: d.cap, cap_nom: noms[d.cap] || '', es_meu: pot, bloquejat: bloc,
+      edita: pot && (admin || !bloc) && w.estat !== 'tancada', estat_pot: pot && (admin || !bloc), web: w, auto: depwAuto_(d, profs, cur, curg) }; });
+  if (!admin && ll.some((d) => d.es_meu)) ll = ll.filter((d) => d.es_meu);
+  return { ok: true, nivell: ctx.nivell('departaments'), obert: obert_(ctx), admin: admin, publicat: pub, bloqueig: B, departaments: ll };
 }
 const textDep_ = (x, n) => String(x == null ? '' : x).replace(/\r/g, '').trim().slice(0, n);
 const enllacDep_ = (x) => { const u = textDep_(x, 500); return !u || /^https?:\/\/[^\s<>"]+$/i.test(u) ? u : null; };
@@ -4929,8 +5001,9 @@ function netejaLlistaDep_(clau, ll, errs) {
 }
 // PAS 76 · Es pot editar si l'edició no està bloquejada (l'administració sí que pot) i la pàgina no està tancada
 function depwEditable_(ctx, id) {
-  if (!pot_(ctx, 'departaments', 'admin') && depwBloqueig_(ctx.cfg).bloquejat) return { ok: false, error: 'edicio_bloquejada' };
-  if ((depwWeb_()[id] || {}).estat === 'tancada') return { ok: false, error: 'pagina_tancada' };
+  const w = depwWeb_()[id] || {};
+  if (!pot_(ctx, 'departaments', 'admin') && (depwBloqueig_(ctx.cfg).bloquejat || w.bloquejada)) return { ok: false, error: 'edicio_bloquejada' };
+  if (w.estat === 'tancada') return { ok: false, error: 'pagina_tancada' };
   return null;
 }
 // PAS 76 · Tanca (editada i verificada) o torna a obrir una pàgina. El cap, si l'edició no està bloquejada; l'administració, sempre
@@ -4939,7 +5012,7 @@ function depwEstat_(ctx, req) {
   if (!departaments_().some((d) => d.id === id)) return { ok: false, error: 'no_existeix' };
   if (!depwPot_(ctx, id)) return { ok: false, error: 'sense_permis' };
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
-  if (!pot_(ctx, 'departaments', 'admin') && depwBloqueig_(ctx.cfg).bloquejat) return { ok: false, error: 'edicio_bloquejada' };
+  if (!pot_(ctx, 'departaments', 'admin') && (depwBloqueig_(ctx.cfg).bloquejat || (depwWeb_()[id] || {}).bloquejada)) return { ok: false, error: 'edicio_bloquejada' };
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     const F = filaDepw_(id), r = F.r.slice(), c = (k) => F.cap.indexOf(k);
@@ -4956,6 +5029,17 @@ function depwAdmin_(ctx, req) {
   if (!pot_(ctx, 'departaments', 'admin')) return { ok: false, error: 'sense_permis' };
   if (req.limit !== undefined) { const l = String(req.limit || '').trim(); if (l && !/^\d{4}-\d{2}-\d{2}$/.test(l)) return { ok: false, error: 'data_invalida' }; posaConfig_('departaments_limit', l); }
   if (req.bloqueig !== undefined) posaConfig_('departaments_bloqueig', req.bloqueig ? 'si' : '');
+  // PAS 79: bloqueig d'un sol departament/àmbit (el cap la pot consultar, però no editar, tancar ni obrir)
+  if (req.bloqueja_dep) {
+    const id = String(req.bloqueja_dep.id || '');
+    if (!departaments_().some((d) => d.id === id)) return { ok: false, error: 'no_existeix' };
+    const lock = LockService.getScriptLock(); lock.waitLock(20000);
+    try { const F = filaDepw_(id), r = F.r.slice(), c = F.cap.indexOf('bloquejada'); r[c] = req.bloqueja_dep.bloquejada ? 'si' : ''; F.sh.getRange(F.fila, 1, 1, r.length).setValues([r]); } finally { lock.releaseLock(); }
+    historial_(ctx.email, 'departament_bloqueig', FULL_DEPW_, id, req.bloqueja_dep.bloquejada ? 'bloquejada' : 'desbloquejada');
+    marcaVersio_('departaments', ctx.email);
+    const w = depwWeb_()[id]; delete w.imatge;
+    return { ok: true, bloqueig: depwBloqueig_(llegeixConfig_()), web: w };
+  }
   let n = 0;
   if (req.tanca_obertes) {
     const B = depwBloqueig_(llegeixConfig_()); if (!B.bloquejat) return { ok: false, error: 'cal_bloquejar' };

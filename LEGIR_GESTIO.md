@@ -543,6 +543,11 @@ self.addEventListener('activate', function (e) {
 ## PAS 78
 - **Code.gs** (sense configura; ESQUEMA 76): la llista de caps de Desiderata › Departaments/àmbits inclou també les fitxes de prova actives de Professorat («… (fitxa de prova)»), per poder provar què veu un cap (`capsPossibles_`). No surten enlloc més de la planificació.
 
+## PAS 79
+- **Code.gs** (sense canvi d'ESQUEMA; executeu **configura** un cop per transferir les substitucions que ja hi ha): `transfereixSubstitucions_` passa les matèries (curriculum_grups.professor i horari_resultat.docents) i el càrrec de cap (departaments.cap, EQ-CAPS amb `sincronitzaCaps_`) de la persona titular inactiva al substitut actiu, i les torna quan el substitut passa a «baixa» i la titular a «actiu» (config `substitucions_transferides`). Es crida en desar Professorat, Nou professor/a i Ocupació (`ambHerencia_`) i a configura.
+- **Departaments/àmbits**: columna `bloquejada` a departaments_web (bloqueig per departament/àmbit, `departaments_admin` amb `bloqueja_dep`); el cap només rep el seu departament/àmbit; `departaments` i `departaments_desa` també amb administració de Departaments/àmbits (el botó passa de Desiderata a Departaments/àmbits › Administració › Caps de departament/àmbit).
+- **Generador** (bundle `generador-horaris-pas79.bundle`): etapes del càlcul al registre (primera solució i millores).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

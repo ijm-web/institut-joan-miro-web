@@ -1293,7 +1293,9 @@
         S.taula.getRows().forEach(function (rw) { rw.reformat(); });
         aplicaFiltre();
         // PAS 56: el substitut ha heretat dades de la persona substituïda (es tornen a llegir per veure-les a la graella)
-        if (r.herencia) { toast('Desat. El substitut ha heretat ' + r.herencia + ' dades d’ocupació (lectives, càrrec, guàrdies…) de la persona substituïda.'); delete S.cache[S.modul.id]; carregaDades(); return; }
+        // PAS 79: les matèries (Currículum › Assignacions i horari calculat) passen al substitut, o tornen a la persona titular
+        if (r.transferides) { ['curriculum', 'curriculum_grups', 'horaris_editor', 'ocupacio'].forEach(function (k) { delete S.cache[k]; }); if (S.he) S.he.r = null; }
+        if (r.herencia || r.transferides) { toast('Desat.' + (r.herencia ? ' El substitut ha heretat ' + r.herencia + ' dades d’ocupació (lectives, càrrec, guàrdies…) de la persona substituïda.' : '') + (r.transferides ? ' Matèries transferides: ' + r.transferides + ' (assignacions del Currículum i sessions de l’horari).' : '')); delete S.cache[S.modul.id]; carregaDades(); return; }
         toast('Desat correctament.');
         return;
       }
@@ -3029,7 +3031,7 @@
       (R.especialitats.length > 1 ? '<label class="gs-des__esp">Especialitat <select id="gsDesEsp">' + R.especialitats.map(function (e) { return '<option' + (e === R.especialitat ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select></label>' : '<p class="gs-des__titol">' + esc(R.especialitat) + '</p>') +
       '<span class="gs-espai"></span><a class="prog-btn prog-btn--ghost" href="/assets/docs/gestio/guia-desiderata.pdf" target="_blank" rel="noopener" title="Guia per als caps de departament/àmbit (PDF)">Guia</a>' +
       (R.admin ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-tancament" title="Data de tancament i bloqueig de la desiderata">' + (B.bloquejada ? '🔒 Bloquejada' : 'Tancament') + '</button>' : '') +
-      (R.admin ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-departaments" title="Departaments/àmbits: especialitats i cap de cadascun">Departaments/àmbits</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="des-analisi" title="Balanç de totes les especialitats">Anàlisi</button>' : '') +
+      (R.admin ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-analisi" title="Balanç de totes les especialitats">Anàlisi</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-xlsx">Excel</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="des-pdf">PDF</button>' +
       (ed ? '<button type="button" class="prog-btn" data-accio="des-desa">Desa</button>' : '') +
       estatDes + '<p class="gs-ajuda" style="flex:1 1 100%;margin:4px 0 0">Per a cada assignació de l’especialitat, indiqueu <strong>quins docents</strong> la faran i <strong>quants grups</strong> fa cadascun (no cal dir quins: els grups-classe concrets els assigna després la direcció). ' + (R.data ? 'Desat el ' + esc(dataVista(R.data.slice(0, 10))) + ' per ' + esc(R.desat_per) + '.' : 'Encara no s’ha desat.') + '</p>';
@@ -3162,7 +3164,7 @@
   }
   // PAS 48 · Departaments/àmbits (administració): nom, especialitats i cap. Els caps passen a ser l'equip «Caps de
   // departament/àmbit» i a Desiderata gestionen totes les especialitats del seu departament/àmbit.
-  function departamentsDesiderata() {
+  function departamentsDesiderata(despres) {
     api('departaments', {}, 'Carregant els departaments/àmbits…').then(function (r) {
       if (!r.ok) return toast(text(r.error), true);
       var deps = r.departaments.length ? r.departaments : r.proposta;
@@ -3183,8 +3185,8 @@
         if (!v) return;
         api('departaments_desa', { departaments: departamentsDesiderata.ll }, 'Desant els departaments/àmbits…').then(function (r2) {
           if (!r2.ok) return toast(r2.error === 'especialitat_repetida' ? 'Especialitats repetides: ' + (r2.detall || []).join('; ') : text(r2.error), true);
-          toast('Departaments/àmbits desats (' + r2.departaments.length + '). Els caps ja tenen accés a Desiderata.');
-          carregaDesiderata(S.des.especialitat);
+          toast('Departaments/àmbits desats (' + r2.departaments.length + '). Els caps ja tenen accés a Departaments/àmbits i a Desiderata.');
+          if (despres) despres(); else if (S.des) carregaDesiderata(S.des.especialitat);
         });
       });
       $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample', 'gs-modal--hl');
@@ -4267,7 +4269,7 @@
       'Quan la pàgina està llesta, el cap la <b>tanca</b> (editada i verificada). L’administració fixa la data límit, bloqueja l’edició i <b>publica</b> les pàgines tancades. ' + textBloqueigDw(R.bloqueig) + ' ' + (pub ? 'Darrera publicació: ' + esc(dataHoraHE(pub.data)) + ' (' + pub.n + ').' : 'Encara no s’ha publicat.') + '</p>';
     var t = $('gsTaula'); t.className = 'gs-ocu gs-dw';
     if (adm) return pintaAdminDw();
-    if (!d) { t.innerHTML = '<p class="gs-ajuda" style="padding:12px">No hi ha cap departament/àmbit. Es defineixen a <b>Desiderata › Departaments/àmbits</b>.</p>'; return ajustaAlcada(); }
+    if (!d) { t.innerHTML = '<p class="gs-ajuda" style="padding:12px">No hi ha cap departament/àmbit. Es defineixen a <b>Departaments/àmbits › Administració › Caps de departament/àmbit</b>.</p>'; return ajustaAlcada(); }
     var E = edDw(), w = d.web || {}, A = d.auto || {}, ed = d.edita, tancada = w.estat === 'tancada', B = R.bloqueig || {};
     var llista = function (L) { var k = L[0], camps = L[2], ll = E[k];
       return '<section class="gs-dw__sec"><h3>' + esc(L[1]) + '</h3>' + (ll.length ? '<div class="gs-dw__ll">' + ll.map(function (x, i) { return '<div class="gs-dw__item" data-ll="' + k + '" data-i="' + i + '">' + camps.map(function (c) {
@@ -4279,7 +4281,7 @@
     var barra = d.es_meu ? '<div class="gs-dw__barra">' + estatDw(w) +
         (ed ? '<button type="button" class="prog-btn gs-dw__ic" data-dw="desa">' + IC_DW.desa + ' Desa</button>' : '') +
         (d.estat_pot ? (tancada ? '<button type="button" class="prog-btn prog-btn--ghost gs-dw__ic" data-dw="obre" title="Torna a obrir la pàgina per canviar-la">' + IC_DW.obre + ' Obre</button>' : '<button type="button" class="prog-btn prog-btn--ghost gs-dw__ic" data-dw="tanca" title="Informa que la pàgina està editada i verificada (es publicarà)">' + IC_DW.tanca + ' Tanca</button>') : '') +
-        '<span class="gs-gris" id="gsDwEstat">' + (tancada ? 'Tancada' + (w.data_tancat ? ' el ' + esc(dataHoraHE(w.data_tancat)) : '') + '. ' + (d.estat_pot ? 'Per canviar-la, obriu-la.' : '') : '') + (B.bloquejat && !R.admin ? ' L’edició està bloquejada.' : '') + '</span></div>' : '';
+        '<span class="gs-gris" id="gsDwEstat">' + (tancada ? 'Tancada' + (w.data_tancat ? ' el ' + esc(dataHoraHE(w.data_tancat)) : '') + '. ' + (d.estat_pot ? 'Per canviar-la, obriu-la.' : '') : '') + (d.bloquejat && !R.admin ? ' L’edició està bloquejada: la podeu consultar, però no editar, tancar ni obrir.' : '') + '</span></div>' : '';
     var ajudaFmt = '<details class="gs-dw__fmt" open><summary>Com es dona format al text</summary><p>Edició bàsica, com al Markdown: <code>**negreta**</code> → <b>negreta</b> · <code>*cursiva*</code> → <i>cursiva</i> · una línia en blanc = paràgraf nou · ' +
       '<code>- element</code> (una línia per element) = llista de pics · <code>1. element</code> = llista numerada · <code>[text de l’enllaç](https://…)</code> = enllaç (s’obre en una pestanya nova). El primer paràgraf de la presentació surt destacat a dalt de la pàgina. ' +
       'Guia completa: <a href="https://www.markdownguide.org/basic-syntax/" target="_blank" rel="noopener">Markdown Guide · Basic Syntax ↗</a> (en anglès; només funcionen els formats d’aquí).</p></details>';
@@ -4305,13 +4307,16 @@
     t.innerHTML = '<div class="gs-dw__admin">' +
       '<section class="gs-dw__sec gs-dw__panell"><h3>' + IC_DW.rellotge + ' Termini d’edició</h3><p>' + textBloqueigDw(B) + '</p>' +
         '<div class="gs-form-fila"><label>Data límit <input type="date" id="gsDwLimit" value="' + esc(B.limit || '') + '"></label><button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-dw="limit">Desa la data</button>' +
-        (B.manual ? '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm gs-dw__ic" data-dw="desbloqueja">' + IC_DW.obre + ' Desbloqueja</button>' : '<button type="button" class="prog-btn prog-btn--sm gs-dw__ic gs-dw__perill" data-dw="bloqueja">' + IC_DW.bloc + ' Bloqueja ara</button>') +
+        (B.manual ? '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm gs-dw__ic" data-dw="desbloqueja">' + IC_DW.obre + ' Desbloqueja-les totes</button>' : '<button type="button" class="prog-btn prog-btn--sm gs-dw__ic gs-dw__perill" data-dw="bloqueja">' + IC_DW.bloc + ' Bloqueja-les totes</button>') +
         (B.bloquejat && nT < ll.length ? '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm gs-dw__ic" data-dw="tanca-totes">' + IC_DW.tanca + ' Tanca les obertes (' + (ll.length - nT) + ')</button>' : '') + '</div>' +
-        '<p class="gs-gris">Amb l’edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines; l’administració, sí. L’endemà de la data límit es bloqueja sola.</p></section>' +
+        '<p class="gs-gris">Amb l’edició bloquejada, els caps no poden canviar ni tancar ni obrir les seves pàgines (sí que les poden consultar); l’administració, sí. L’endemà de la data límit es bloqueja sola. Per bloquejar-ne <b>només una</b>, feu servir el cadenat de la columna <b>Bloqueig</b>.</p></section>' +
+      '<section class="gs-dw__sec gs-dw__panell"><h3>' + IC_DW.edita + ' Caps de departament/àmbit</h3><p>Departaments/àmbits, especialitats de cadascun i el seu <b>cap</b> (en desar, els caps formen l’equip «Caps de departament/àmbit», amb edició a Departaments/àmbits i a Desiderata).</p>' +
+        '<button type="button" class="prog-btn prog-btn--ghost gs-dw__ic" data-dw="caps">' + IC_DW.edita + ' Caps de departament/àmbit</button></section>' +
       '<section class="gs-dw__sec"><h3>Estat de les pàgines <small class="gs-gris">· ' + nT + ' de ' + ll.length + ' tancades</small></h3>' +
-        '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-dw__estats"><thead><tr><th>Departament/àmbit</th><th>Cap</th><th>Estat</th><th>Darrer desat</th><th>Tancada</th><th class="gs-cen">Accions</th></tr></thead><tbody>' +
+        '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-dw__estats"><thead><tr><th>Departament/àmbit</th><th>Cap</th><th>Estat</th><th>Darrer desat</th><th>Tancada</th><th class="gs-cen">Bloqueig</th><th class="gs-cen">Accions</th></tr></thead><tbody>' +
         ll.map(function (d) { var w = d.web || {}, tc = w.estat === 'tancada';
           return '<tr data-dwid="' + esc(d.id) + '"><td><b>' + esc(d.nom) + '</b></td><td>' + esc(d.cap_nom || '—') + '</td><td>' + estatDw(w) + '</td><td>' + (w.data ? esc(dataHoraHE(w.data)) : '<span class="gs-gris">mai</span>') + '</td><td>' + (tc && w.data_tancat ? esc(dataHoraHE(w.data_tancat)) + (w.tancat_per ? ' <small class="gs-gris">' + esc(w.tancat_per.split('@')[0]) + '</small>' : '') : '—') + '</td>' +
+            '<td class="gs-cen"><button type="button" class="gs-dw__ib' + (w.bloquejada ? ' gs-dw__ib--bloc' : '') + '" data-dw="bloc-dep" title="' + (w.bloquejada ? 'Bloquejat: el cap el pot consultar, però no editar, tancar ni obrir. Clic: desbloqueja' : 'Bloqueja aquest departament/àmbit (el cap el podrà consultar, però no editar, tancar ni obrir)') + '" aria-label="' + (w.bloquejada ? 'Desbloqueja ' : 'Bloqueja ') + esc(d.nom) + '" aria-pressed="' + !!w.bloquejada + '">' + (w.bloquejada ? IC_DW.tanca : IC_DW.obre) + '</button></td>' +
             '<td class="gs-cen gs-dw__accions"><button type="button" class="gs-dw__ib" data-dw="' + (tc ? 'obre' : 'tanca') + '" title="' + (tc ? 'Torna a obrir la pàgina' : 'Tanca la pàgina (editada i verificada)') + '" aria-label="' + (tc ? 'Obre ' : 'Tanca ') + esc(d.nom) + '">' + (tc ? IC_DW.obre : IC_DW.tanca) + '</button>' +
             '<button type="button" class="gs-dw__ib" data-dw="ves" title="Edita la pàgina" aria-label="Edita ' + esc(d.nom) + '">' + IC_DW.edita + '</button><button type="button" class="gs-dw__ib" data-dw="previ" title="Vista prèvia (pestanya nova)" aria-label="Vista prèvia de ' + esc(d.nom) + '">' + IC_DW.ull + '</button></td></tr>'; }).join('') + '</tbody></table></section>' +
       '<section class="gs-dw__sec gs-dw__panell"><h3>' + IC_DW.publica + ' Publicació al web</h3><p>Només es publiquen les pàgines <b>tancades</b> (' + nT + '). Les obertes no surten al web fins que es tanquin i es torni a publicar.' + (R.publicat ? ' Darrera publicació: ' + esc(dataHoraHE(R.publicat.data)) + ' (' + R.publicat.n + ').' : '') + '</p>' +
@@ -4378,7 +4383,8 @@
   function adminDw(dades, msg) {
     return api('departaments_admin', dades, 'Desant…').then(function (r) { if (!r.ok) return toast(text(r.error), true);
       S.dw.bloqueig = r.bloqueig; if (r.tancades) return carregaDepartaments(true).then(function () { toast(msg + ' (' + r.tancades + ')'); });
-      S.dw.departaments.forEach(function (d) { d.edita = d.es_meu && (S.dw.admin || !r.bloqueig.bloquejat) && (d.web || {}).estat !== 'tancada'; d.estat_pot = d.es_meu && (S.dw.admin || !r.bloqueig.bloquejat); });
+      if (r.web && dades.bloqueja_dep) S.dw.departaments.forEach(function (d) { if (d.id === dades.bloqueja_dep.id) d.web = r.web; });
+      S.dw.departaments.forEach(function (d) { d.bloquejat = r.bloqueig.bloquejat || !!(d.web || {}).bloquejada; d.edita = d.es_meu && (S.dw.admin || !d.bloquejat) && (d.web || {}).estat !== 'tancada'; d.estat_pot = d.es_meu && (S.dw.admin || !d.bloquejat); });
       pintaDepartaments(); toast(msg); });
   }
   function lligaDepartaments() {
@@ -4399,6 +4405,8 @@
         previDw(dd, E); }
       else if (a === 'limit') adminDw({ limit: $('gsDwLimit').value }, $('gsDwLimit').value ? 'Data límit desada.' : 'Data límit treta.');
       else if (a === 'bloqueja') pregunta('Bloqueja l’edició', '<p>Els caps no podran canviar ni tancar ni obrir les seves pàgines fins que la desbloquegeu. L’administració sí que podrà.</p>', [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Bloqueja', valor: 1, tipus: 'danger' }]).then(function (v) { if (v) adminDw({ bloqueig: true }, 'Edició bloquejada.'); });
+      else if (a === 'bloc-dep') { var dB = S.dw.departaments.filter(function (x) { return x.id === idF; })[0], bl = !(dB.web || {}).bloquejada; adminDw({ bloqueja_dep: { id: idF, bloquejada: bl } }, dB.nom + (bl ? ': bloquejat (el cap el pot consultar, però no editar).' : ': desbloquejat.')); }
+      else if (a === 'caps') departamentsDesiderata(function () { carregaDepartaments(true); });
       else if (a === 'desbloqueja') adminDw({ bloqueig: false }, 'Edició desbloquejada' + ((S.dw.bloqueig || {}).perData ? ' (però la data límit ja ha passat: canvieu-la).' : '.'));
       else if (a === 'tanca-totes') pregunta('Tanca les pàgines obertes', '<p>Es tancaran totes les pàgines que encara són obertes, tal com estan desades.</p>', [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Tanca-les', valor: 1 }]).then(function (v) { if (v) adminDw({ tanca_obertes: true }, 'Pàgines tancades'); });
       else if (a === 'publica') pregunta('Publica els departaments/àmbits', '<p>Es publicaran només les pàgines <b>tancades</b> (tal com estan desades) i es tornarà a construir el web. Del professorat només hi surt el nom complet; cap dada d’alumnat.</p>', [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Publica', valor: 1 }]).then(function (v) {
@@ -4630,7 +4638,7 @@
     return api('ocupacio_desa', { canvis: canvis }, 'Desant l’ocupació…').then(function (r) {
       if (!r.ok) return toast(text(r.error) + (r.camp ? ' (' + r.camp + ')' : ''), true);
       S.ocu.r.docents = r.docents; S.ocu.brut = {}; S.brut = false;
-      toast('Desat: ' + r.desats + ' docents.' + (r.herencia ? ' Els substituts han heretat ' + r.herencia + ' dades.' : '')); pintaOcupacio();
+      toast('Desat: ' + r.desats + ' docents.' + (r.herencia ? ' Els substituts han heretat ' + r.herencia + ' dades.' : '') + (r.transferides ? ' Matèries transferides al substitut: ' + r.transferides + '.' : '')); pintaOcupacio();
     });
   }
   function dialegCarrecOcu(d) {

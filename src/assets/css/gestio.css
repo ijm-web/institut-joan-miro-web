@@ -769,3 +769,6 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-amsan__item{ display: flex; align-items: center; gap: 8px; width: 100%; border: 0; background: #fff; text-align: left; padding: 7px 10px; font: inherit; cursor: pointer; border-bottom: 1px solid #F0F1F6; }
 .gs-amsan__item:hover{ background: #F6F7FC; } .gs-amsan__item.is-actiu{ background: #ECEAFD; font-weight: 700; color: #1C0CBC; }
 .gs-amsan__det{ border: 1px solid #E1E5EE; border-radius: 12px; padding: 10px 14px; background: #FAFBFE; }
+/* PAS 79 · Departament/àmbit bloquejat (només l'administració el pot canviar) */
+.gs-dw__ib--bloc{ background: #FDE8E8; border-color: #E9A5A5; color: #B42318; }
+.gs-dw__ib--bloc:hover, .gs-dw__ib--bloc:focus-visible{ background: #FBD5D5; }
