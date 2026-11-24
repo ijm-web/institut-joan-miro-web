@@ -621,7 +621,7 @@ self.addEventListener('activate', function (e) {
 - **Pàgina pública** `/llibres.html` (ca/es/en), dins del web: curs publicat, per nivells, amb observacions i descàrrega en PDF (amb logo). Les pàgines d'etapa hi enllacen (`?etapa=`), ja no al lloc antic. Dades per `/api/gestio-publics?quin=llibres`.
 - **Posada en marxa** (un cop):
   1. Al full **joanmiro_db**, comparteix-lo amb **permís d'edició** amb el compte que executa l'Apps Script de GESTIO (si no és el mateix propietari).
-  2. A `gestio_db › config`, posa a **db_llibres** l'adreça (o l'ID) de joanmiro_db.
+  2. Al full **ijm_nucli_db**, pestanya `config`, posa a **db_llibres** l'adreça (o l'ID) de joanmiro_db.
   3. Executa **configura** (crea el mòdul i el permís d'EQ-CAPS i, en tenir db_llibres, executa `vinculaLlibres`: omple l'especialitat de les matèries a partir del Currículum; el registre diu quantes en queden sense).
   4. A GESTIO › Llibres de text › Administració › **Especialitats de les matèries**, assigna les que faltin.
   5. Comprova Configuració (curs publicat i curs en gestió).
