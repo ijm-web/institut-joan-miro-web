@@ -354,11 +354,11 @@
     try { sel = localStorage.getItem('gestio_grup') || ''; } catch (e) { /* sense memòria */ }
     if (grups.indexOf(sel) < 0) sel = '';
     var targeta = function (m) {
-      return '<a class="prog-apartat" href="#' + esc(m.id) + '">' + (ICONES[m.id] || ICONES.generic) +
-        '<span class="gs-tag gs-tag--' + esc(m.nivell) + '">' + esc(NOM_NIVELL[m.nivell] || m.nivell) + '</span>' +
+      // PAS 84 · Targeta petita: icona i nivell a la dreta, el nom a sota; la descripció surt en passar-hi el ratolí
+      return '<a class="prog-apartat gs-mod" href="#' + esc(m.id) + '"><span class="gs-mod__cap">' + (ICONES[m.id] || ICONES.generic) +
+        '<span class="gs-tag gs-tag--' + esc(m.nivell) + '">' + esc(NOM_NIVELL[m.nivell] || m.nivell) + '</span></span>' +
         '<span class="prog-apartat__nom">' + esc(m.nom) + '</span>' +
-        '<span class="prog-apartat__txt">' + esc(m.descripcio || '') + '</span>' +
-        '<span class="prog-apartat__cta">Obre <span aria-hidden="true">→</span></span></a>';
+        (m.descripcio ? '<span class="gs-mod__tip" role="tooltip">' + esc(m.descripcio) + '</span>' : '') + '</a>';
     };
     var html = amb ? '<div class="gs-pestanyes gs-portada__tabs" role="tablist" aria-label="Grups de mòduls">' + [''].concat(grups).map(function (g) {
       var n = g ? ms.filter(function (m) { return (m.grup || 'Altres') === g; }).length : ms.length;

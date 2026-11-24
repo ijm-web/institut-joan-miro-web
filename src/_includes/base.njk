@@ -1416,7 +1416,10 @@
       ticking = false;
       var h = hero.offsetHeight;
       var y = Math.max(0, window.scrollY);
-      var p = Math.min(1, y / (h * 0.7));
+      // PAS 84: en una pàgina curta (p. ex. GESTIO) no es pot baixar fins al 70 % de la foto: s'esvaeix del tot quan
+      // s'arriba al final de la pàgina (abans s'hi quedava a mitges)
+      var max = document.documentElement.scrollHeight - window.innerHeight;
+      var p = Math.min(1, y / Math.max(1, Math.min(h * 0.7, max)));
       img.style.transform = 'translate3d(0,' + (y * 0.35).toFixed(1) + 'px,0)';
       img.style.opacity = (1 - p).toFixed(3);
       box.style.transform = 'translate3d(0,' + (-y * 0.15).toFixed(1) + 'px,0)';
@@ -1429,6 +1432,8 @@
     }
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll);
+    // PAS 84: quan el contingut canvia d'alçada (GESTIO pinta els mòduls després de carregar), es torna a calcular
+    if (window.ResizeObserver) new ResizeObserver(onScroll).observe(document.body);
     update();
   })();
 {{ pageScript | safe }}

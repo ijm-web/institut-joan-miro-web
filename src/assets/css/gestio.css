@@ -432,7 +432,22 @@
 .gs-portada__tabs [aria-selected="true"] .gs-portada__n{ background:rgba(255,255,255,.25); }
 .gs-portada__grup{ margin:0 0 28px; }
 .gs-portada__titol{ margin:0 0 12px; font-size:13px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:#E8600C; border-bottom:1px solid #E1E5EE; padding-bottom:6px; }
-.gs-portada__targetes{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:20px; }
+.gs-portada__targetes{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:14px; }
+/* PAS 84 · Targetes petites: icona + nivell a dalt, nom a sota; la descripció, en passar-hi el ratolí (o amb el focus) */
+.gs-mod.prog-apartat{ gap:10px; padding:16px 18px; border-top-width:3px; }
+.gs-mod:hover, .gs-mod:focus-visible{ z-index:5; }
+.gs-mod__cap{ display:flex; align-items:center; gap:12px; }
+.gs-mod .prog-apartat__icon{ width:40px; height:40px; margin:0; flex:none; }
+.gs-mod .gs-tag{ font-size:10px; padding:2px 8px; }
+.gs-mod .prog-apartat__nom{ font-size:16.5px; line-height:1.25; }
+.gs-mod__tip{ position:absolute; left:10px; right:10px; top:calc(100% + 8px); z-index:20; padding:10px 12px; background:#fff; border:1px solid #E1E5EE; border-radius:10px; box-shadow:0 14px 30px rgba(28,12,188,.14); font-size:13px; font-weight:400; line-height:1.5; color:var(--color-text); opacity:0; visibility:hidden; transform:translateY(-4px); transition:opacity .15s ease, transform .15s ease, visibility .15s; pointer-events:none; }
+.gs-mod__tip::before{ content:""; position:absolute; top:-6px; left:26px; width:10px; height:10px; background:#fff; border-left:1px solid #E1E5EE; border-top:1px solid #E1E5EE; transform:rotate(45deg); }
+.gs-mod:hover .gs-mod__tip, .gs-mod:focus-visible .gs-mod__tip{ opacity:1; visibility:visible; transform:none; }
+@media (hover: none){ .gs-mod__tip{ display:none; } }
+/* PAS 84 · El text de presentació, al costat del títol (GESTIÓ · INSTITUT JOAN MIRÓ) */
+.gs-portada__head{ display:flex; align-items:center; gap:16px 40px; flex-wrap:wrap; }
+.gs-portada__head .prog-lead{ flex:1 1 360px; max-width:640px; margin:0; padding-left:24px; border-left:3px solid #E8600C; }
+@media (max-width: 760px){ .gs-portada__head .prog-lead{ padding-left:14px; } }
 .gs-hor__bloc .gs-paperera{ align-self:flex-end; height:34px; }
 /* PAS 50 · sessions lectives i professorat */
 .gs-hor__ses td, .gs-hor__prof td{ vertical-align:middle; }

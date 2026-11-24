@@ -588,6 +588,12 @@ self.addEventListener('activate', function (e) {
   - Pestanya `avisos`: columnes noves `enviats` i `cursor` (es creen soles).
   - Proves: 1.030 dispositius en 3 trossos (400 + 400 + 230), cap repetit; un tros amb un servei lent (0,3 s per enviament) triga uns 1,2 s.
 
+## PAS 84
+
+- **Amonestacions**: a partir del 25/11/2026 tot el professorat les redacta al mòdul. Abans, cal tornar a executar **importaAmonestacions** (Apps Script) per portar les del formulari posteriors al 5/11: és incremental (salta les que ja hi són: mateix alumne/a, data, professor/a i inici dels fets). Després, tanqueu el formulari antic perquè no hi entri res més.
+- **Portada de GESTIO**: targetes petites (icona i nivell a dalt, nom a sota); la descripció surt en passar-hi el ratolí (o amb el focus del teclat); fora «Obre →». El text de presentació va al costat del títol GESTIÓ · INSTITUT JOAN MIRÓ.
+- **Foto de capçalera (també al web)**: en una pàgina curta no es podia baixar prou per esvair-la del tot i s'hi quedava a mitges. Ara s'esvaeix del tot en arribar al final de la pàgina i es torna a calcular quan el contingut canvia d'alçada (base.njk).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

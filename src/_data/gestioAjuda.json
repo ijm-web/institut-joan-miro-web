@@ -1,15 +1,16 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "23 de novembre de 2026",
+  "versio": "24 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
       {
         "id": "comu-portada",
         "titol": "Portada: mòduls agrupats",
-        "claus": "portada grups pestanyes mòduls personal alumnat organització administració secretaria icones ordre",
+        "claus": "portada grups pestanyes mòduls personal alumnat organització administració secretaria icones ordre targeta nivell descripció ratolí",
         "text": [
           "A la portada, els mòduls surten agrupats: **Personal**, **Alumnat**, **Organització del curs** i **Administració**. A dalt hi ha pestanyes per veure'n només un grup (es recorda per a la propera vegada) o **Tots**.",
+          "Cada mòdul és una **targeta** amb la icona, el vostre **nivell** (consulta, edició o administració) i el nom. Passeu-hi el ratolí per veure què fa el mòdul; cliqueu-la per obrir-lo.",
           "El grup de cada mòdul es pot canviar a la pestanya «moduls» del full de GESTIO (columna grup). Un mòdul nou sense grup surt a «Altres».",
           "Hi ha la categoria **Secretaria** (Nou professor/a i Nou alumne/a) i cada mòdul té la seva icona. A **Organització del curs**, els dos mòduls d'horaris van junts: Currículum, Desiderata, Ocupació, Horaris · planificador, Horaris · editor i Calendari."
         ]
