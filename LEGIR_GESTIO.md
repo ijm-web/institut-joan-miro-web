@@ -606,6 +606,13 @@ self.addEventListener('activate', function (e) {
 - **Etiqueta de l'avís**: retards totals des de l'inici de curs (dates clau del calendari, «inici» de classes: 8/9/2026; `retards.inici_curs`) i, al costat, els sancionats (verds) o en tràmit (vermells): «⚠ 12 · 6 sanc.». El text emergent explica el càlcul i per què surt l'avís (criteri N retards o més en el període). El període «tot el curs» comença també a l'inici de classes (abans, l'1 de setembre).
 - La llista de l'avís (PDF) té les columnes Total curs i Sancionats, i la columna Darrer torna a sortir plena (una línia de codi havia quedat dins d'un comentari).
 
+## PAS 87
+
+- **Control d'entrada · pes de cada retard** (substitueix el del PAS 86): 8:15–9:15 → 0; 9:15–10:15 → 1; 10:15–11:45 → 2; 11:45–12:45 → 3; 12:45–13:45 → 4; 13:45–14:45 (i després) → 5. Justificades → 0.
+- **Períodes de l'avís**: 1, 2 i 3 setmanes, 1, 2 i 3 mesos i tot el curs (per defecte; des de l'inici de classes). Quantitat: de 3 a 50. El valor ja desat a config › retards_periode es manté: cal triar «tot el curs» al desplegable un cop (administració del mòdul).
+- **Etiqueta «⚠ X · Z sanc.»**: només als alumnes que compleixen el criteri; X = retards del període triat (sense les justificades), Z = d'aquests, sancionats (verds) o en tràmit (vermells). La llista de l'avís (PDF): Retards, Entrades i Sancionats del període.
+- **Destacats**: l'estrella no es podia clicar (en passar el ratolí per la targeta, la targeta quedava per sobre de l'estrella i el clic obria el mòdul). Ara l'estrella és sempre a sobre.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

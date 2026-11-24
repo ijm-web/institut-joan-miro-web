@@ -71,8 +71,8 @@ const CONFIG_PER_DEFECTE = [
   ['curs_batxillerat', '', 'Curs actual del mòdul Alumnat Batxillerat (aaaa-aaaa; en blanc = el mateix que «curs»). El fa avançar el tancament de curs del batxillerat.'],
   ['font_dades_professorat', '', 'Per a importaDadesProfessorat: URL del llistat del professorat de Clickedu (CSV pujat a Drive o full de càlcul) amb DNI, data de naixement, nacionalitat, adreça i telèfon.'],
   ['font_pas', '', 'Per a importaPAS: URL del llistat del PAS de Clickedu (CSV pujat a Drive o full de càlcul).'],
-  ['retards_quantitat', '5', 'Control d\'entrada: nombre de retards (de 3 a 20) que activa l\'avís, dins del període de retards_periode.'],
-  ['retards_periode', '1 mes', 'Control d\'entrada: període de l\'avís de retards (1 setmana, 2 setmanes, 3 setmanes o 1 mes).'],
+  ['retards_quantitat', '5', 'Control d\'entrada: nombre de retards (de 3 a 50) que activa l\'avís, dins del període de retards_periode.'],
+  ['retards_periode', 'tot el curs', 'Control d\'entrada: període de l\'avís de retards (1 setmana, 2 setmanes, 3 setmanes, 1 mes, 2 mesos, 3 mesos o tot el curs).'],
   ['carpeta_consell', '', 'Consell orientador: carpeta de Drive dels PDF per grup (en blanc = es crea «GESTIO · Consell orientador»).'],
   ['consell_poblacio', 'Cornellà', 'Consell orientador: població que surt al peu dels PDF («Cornellà, 18 de juny de 2026»).'],
   ['font_consell_final', 'https://docs.google.com/spreadsheets/d/1RsFMoB7uaPRA1Lb14ZRfLQnFRL42boQQ7E4w97Ht388/edit', 'Per a importaConsellFinal: URL del full amb el consell orientador final del curs anterior.'],
@@ -230,7 +230,8 @@ const COMPLETESA = {
   professorat: ['nom', 'cognom1', 'estat', 'nif', 'especialitat', 'data_naixement', 'nacionalitat', 'email', 'telefon', 'adreca', 'poblacio', 'codi_postal', 'provincia', 'jornada', 'situacio'],
   pas: ['nom', 'cognom1', 'estat', 'nif', 'data_naixement', 'nacionalitat', 'email', 'telefon', 'adreca', 'poblacio', 'codi_postal', 'provincia', 'jornada', 'situacio']
 };
-const PERIODES_RETARDS = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30 };
+// PAS 87: també 2 i 3 mesos i tot el curs (des de l'inici de classes, dates clau del calendari); per defecte, tot el curs
+const PERIODES_RETARDS = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30, '2 mesos': 61, '3 mesos': 92, 'tot el curs': 366 };
 const esProva_ = (r) => norm_(r.prova) === 'sí' || norm_(r.prova) === 'si';
 const PAS_ARXIVATS = ['categoria', 'horari', 'carrec'];
 // PAS 30: equips docents de cada grup-classe (document «Equips docents 26-27»): [nom, 1r cognom, 2n cognom] o el nom tal com era
@@ -1394,8 +1395,8 @@ function importaAmonestacions() {
 
 // PAS 33 · Avís de retards (control d'entrada): quantitat (3–20) i període
 function retardsCfg_(cfg) {
-  const q = Math.max(3, Math.min(20, Number(cfg.retards_quantitat) || 5));
-  const p = PERIODES_RETARDS[String(cfg.retards_periode || '').trim()] ? String(cfg.retards_periode).trim() : '1 mes';
+  const q = Math.max(3, Math.min(50, Number(cfg.retards_quantitat) || 5));
+  const p = PERIODES_RETARDS[String(cfg.retards_periode || '').trim()] ? String(cfg.retards_periode).trim() : 'tot el curs';
   // PAS 86: inici de curs (dates clau del calendari, «inici» de classes) per al comptatge total de retards de cada alumne/a
   let ic = ''; try { ic = (datesCalendari_(cfg).dates.filter((d) => d.tipus === 'inici')[0] || {}).des || ''; } catch (e) { ic = ''; }
   return { quantitat: q, periode: p, dies: PERIODES_RETARDS[p], periodes: Object.keys(PERIODES_RETARDS), pot_canviar: false, inici_curs: ic };
@@ -1403,7 +1404,7 @@ function retardsCfg_(cfg) {
 function retardsDesa_(ctx, req) {
   if (!pot_(ctx, 'control_entrada', 'admin')) return { ok: false, error: 'sense_permis' };
   const q = Number(req.quantitat), p = String(req.periode || '');
-  if (!(q >= 3 && q <= 20 && Math.round(q) === q) || !PERIODES_RETARDS[p]) return { ok: false, error: 'peticio_invalida' };
+  if (!(q >= 3 && q <= 50 && Math.round(q) === q) || !PERIODES_RETARDS[p]) return { ok: false, error: 'peticio_invalida' };
   const sh = SpreadsheetApp.getActive().getSheetByName(FULL.conf), vals = sh.getDataRange().getValues();
   [['retards_quantitat', String(q)], ['retards_periode', p]].forEach((kv) => {
     const i = vals.findIndex((r) => r[0] === kv[0]);

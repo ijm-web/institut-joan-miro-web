@@ -798,12 +798,13 @@
           "claus": "avís retards quantitat període setmana mes alerta pes hora 9:15 10:15 justificat groc compta retards entrades compta pes hora",
           "text": [
             "**Avís: N retards o més en [període]** (a dalt): el botó ⚠ diu quants alumnes arriben al criteri i obre la llista. Qui administra el mòdul canvia el nombre i el període (val per a tothom).",
-            "**Cada entrada compta segons l'hora d'arribada**: fins a les 10:15, **1** retard; entre 10:15 i 11:45, **2**; entre 11:45 i 12:45, **3**; entre 12:45 i 13:45, **4**; a partir de 13:45, **6**. Les entrades **justificades** (grogues) no compten mai.",
+            "**Cada entrada compta segons l'hora d'arribada**: entre 8:15 i 9:15, **0**; entre 9:15 i 10:15, **1**; entre 10:15 i 11:45, **2**; entre 11:45 i 12:45, **3**; entre 12:45 i 13:45, **4**; entre 13:45 i 14:45, **5**. Les entrades **justificades** (grogues) no compten mai.",
             "Les entrades **justificades** (grogues) **no compten mai**.",
             "**compta les verdes**: si no es marca, les entrades ja sancionades (verdes) no compten. Es recorda en aquest navegador.",
             "La llista diu, per a cada alumne/a, els retards comptats i quantes entrades són. A la graella, el nom porta ⚠ N (els retards del període).",
-            "**L'etiqueta de l'avís** (al costat del nom dels alumnes que tenen l'avís) diu els **retards totals des de l'inici de curs** (8/9/2026, segons les dates clau del calendari) i, al costat, quants d'aquests ja són **sancionats** (verds) o **en tràmit** (vermells): p. ex. **⚠ 12 · 6 sanc.** Passant-hi el ratolí s'explica el càlcul: entrades, retards encara sense sanció i per què surt l'avís (el criteri de dalt: N retards o més en el període triat).",
-            "La llista de l'avís (botó ⚠ N alumnes, PDF) també té les columnes **Total curs** i **Sancionats**."
+            "**L'etiqueta de l'avís** surt només al costat del nom dels alumnes que compleixen el criteri (**X retards o més en Y**). Diu **⚠ X · Z sanc.**: X = retards del període triat (sense les justificades) i Z = quants d'aquests ja són **sancionats** (verds) o **en tràmit** (vermells). Passant-hi el ratolí s'explica el càlcul.",
+            "La llista de l'avís (botó ⚠ N alumnes, PDF) té les columnes **Retards** (del període), **Entrades** i **Sancionats**.",
+            "**Períodes**: 1 setmana, 2 setmanes, 3 setmanes, 1 mes, 2 mesos, 3 mesos i **tot el curs** (per defecte; des de l'inici de classes, segons les dates clau del calendari). Quantitat: de 3 a 50 retards."
           ]
         }
       ]

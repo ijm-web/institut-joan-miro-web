@@ -435,7 +435,6 @@
 .gs-portada__targetes{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:14px; }
 /* PAS 84 · Targetes petites: icona + nivell a dalt, nom a sota; la descripció, en passar-hi el ratolí (o amb el focus) */
 .gs-mod.prog-apartat{ gap:10px; padding:16px 18px; border-top-width:3px; }
-.gs-mod:hover, .gs-mod:focus-visible{ z-index:5; }
 .gs-mod__cap{ display:flex; align-items:center; gap:12px; }
 .gs-mod .prog-apartat__icon{ width:40px; height:40px; margin:0; flex:none; }
 .gs-mod .gs-tag{ font-size:10px; padding:2px 8px; }
@@ -819,7 +818,9 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-mod-w{ position:relative; display:flex; }
 .gs-mod-w > .gs-mod{ flex:1; min-width:0; }
 .gs-mod-w:hover, .gs-mod-w:focus-within{ z-index:5; }
-.gs-mod__estrella{ position:absolute; top:10px; right:10px; z-index:2; width:30px; height:30px; border:0; border-radius:50%; background:transparent; color:#B8BED0; font-size:19px; line-height:1; cursor:pointer; opacity:.55; transition:opacity .15s, color .15s, background-color .15s; }
+.gs-mod-w > .gs-mod{ z-index:1; }
+/* PAS 87: per damunt de la targeta també quan s'hi passa el ratolí (abans la targeta la tapava i el clic obria el mòdul) */
+.gs-mod__estrella{ position:absolute; top:10px; right:10px; z-index:30; width:30px; height:30px; border:0; border-radius:50%; background:transparent; color:#B8BED0; font-size:19px; line-height:1; cursor:pointer; opacity:.55; transition:opacity .15s, color .15s, background-color .15s; }
 .gs-mod-w:hover .gs-mod__estrella, .gs-mod__estrella:focus-visible{ opacity:1; }
 .gs-mod__estrella:hover{ background:rgba(232,96,12,.1); color:#E8600C; }
 .gs-mod__estrella.is-on{ color:#E8600C; opacity:1; }
