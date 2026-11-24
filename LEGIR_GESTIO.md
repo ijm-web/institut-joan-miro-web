@@ -630,6 +630,8 @@ self.addEventListener('activate', function (e) {
 
 - **PAS 88c**: en assignar especialitats només s'escriu la columna `especialitat` de materies (abans es reescrivia tota la pestanya i podia topar amb fórmules, validacions o proteccions). Si GESTIO no pot escriure a joanmiro_db, el missatge ho diu i mostra l'error de Google (cal permís d'edició per al compte que executa l'Apps Script; si hi ha pestanyes protegides, afegir-lo com a editor).
 
+- **PAS 88d**: les accions d'administració de Llibres (especialitats, observacions, configuració, prepara el curs) no arribaven a l'Apps Script: el nom de l'operació («accio») trepitjava el de l'acció de l'API i Netlify responia «acció desconeguda» (es veia «Hi ha hagut un error»). Ara l'operació va a «operacio». Desar especialitats torna només el recompte. Els errors mostren el detall entre parèntesis.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

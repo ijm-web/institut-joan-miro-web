@@ -233,7 +233,7 @@
   function api(accio, cos, progres) {
     var crida = fetch(API + 'api', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'same-origin', cache: 'no-store',
       body: JSON.stringify(Object.assign({ accio: accio }, cos || {})) })
-      .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'error_servidor' }; }).then(function (d) { d.status = r.status; if (r.status === 401) avisSessio(); marcaFrescor(accio, d); return d; }); })
+      .then(function (r) { return r.json().catch(function () { return { ok: false, error: 'error_servidor', detall: 'HTTP ' + r.status + (r.status === 502 || r.status === 504 ? ': la resposta ha tardat massa' : '') }; }).then(function (d) { d.status = r.status; if (r.status === 401) avisSessio(); marcaFrescor(accio, d); return d; }); })
       .catch(function () { return { ok: false, error: 'error_servidor' }; });
     return progres && window.Progres ? Progres.amb(crida, progres) : crida;
   }
@@ -4897,7 +4897,7 @@
   }
   var clauDataLl = function (t) { var m = String(t || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s*(\d{1,2})?:?(\d{2})?/); return m ? [m[3], ('0' + m[2]).slice(-2), ('0' + m[1]).slice(-2), ('0' + (m[4] || '0')).slice(-2), m[5] || '00'].join('') : ''; };
   // PAS 88c: missatge d'error amb el detall de Google (p. ex. permisos de joanmiro_db)
-  var llErr = function (r, extra) { var t = (extra && extra[r.error]) || text(r.error); return r.detall && (r.error === 'error_script' || r.error === 'llibres_sense_escriptura') ? t + ' (' + r.detall + ')' : t; };
+  var llErr = function (r, extra) { var t = (extra && extra[r.error]) || text(r.error); return r.detall ? t + ' (' + r.detall + ')' : t; };
   function adminLl(cos, msg) { return api('llibres_admin', Object.assign({ curs: S.ll.r.curs }, cos), 'Desant…').then(function (r) { if (!r.ok) return toast(llErr(r, { desti_amb_dades: 'El curs ja té dades.', origen_buit: 'El curs d’origen no té dades.', massa_observacions: 'Massa observacions en un nivell.' }), true); S.ll.r = r; S.ll.obs = null; pintaLlibres(); toast(msg); }); }
   function lligaLlibres() {
     if (lligaLlibres.fet) return; lligaLlibres.fet = true;
@@ -4923,11 +4923,18 @@
       if (a === 'obs-niv') { S.ll.obsNiv = b.dataset.n; S.ll.obert = 'obs'; return pintaLlibres(); }
       if (a === 'obs-afegeix') { S.ll.obs[S.ll.obsNiv].push(''); S.ll.obert = 'obs'; return pintaLlibres(); }
       if (a === 'obs-treu') { S.ll.obs[S.ll.obsNiv].splice(Number(b.dataset.i), 1); S.ll.obert = 'obs'; return pintaLlibres(); }
-      if (a === 'obs-desa') { var obs = []; Object.keys(S.ll.obs).forEach(function (n) { S.ll.obs[n].forEach(function (t) { if (t.trim()) obs.push({ nivell: n, text: t.trim() }); }); }); S.ll.obert = 'obs'; return adminLl({ accio: 'observacions', observacions: obs }, 'Observacions desades.'); }
+      if (a === 'obs-desa') { var obs = []; Object.keys(S.ll.obs).forEach(function (n) { S.ll.obs[n].forEach(function (t) { if (t.trim()) obs.push({ nivell: n, text: t.trim() }); }); }); S.ll.obert = 'obs'; return adminLl({ operacio: 'observacions', observacions: obs }, 'Observacions desades.'); }
       if (a === 'esp-desa') { var as = [].map.call(document.querySelectorAll('[data-ll-esp]'), function (s) { var p = s.dataset.llEsp.split('|'); return { nivell: p[0], materia: p.slice(1).join('|'), especialitat: s.value }; }).filter(function (x) { return x.especialitat; });
-        S.ll.obert = 'esp'; return adminLl({ accio: 'especialitats', assignacions: as, curs_vista: R.curs }, 'Especialitats desades (' + as.length + ').'); }
-      if (a === 'cfg-desa') { S.ll.obert = 'cfg'; return adminLl({ accio: 'config', estat: $('gsLlEstat').value, termini: $('gsLlTermini').value.trim(), curs_publicat: $('gsLlPub').value, curs_gestio: $('gsLlGes').value, curs_vista: R.curs }, 'Configuració desada.'); }
-      if (a === 'copia') { var org = $('gsLlOrigen').value; return pregunta('Prepara el curs', '<p>Es copiaran les matèries i els llibres del curs <b>' + esc(org) + '</b> al curs <b>' + esc(R.curs) + '</b>. Els llibres copiats quedaran com a no nous (opció A).</p>', [{ t: 'Prepara', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v) adminLl({ accio: 'copia_curs', origen: org }, 'Curs ' + R.curs + ' preparat.'); }); }
+        S.ll.obert = 'esp';
+        // PAS 88d: el servidor només torna el recompte; s'actualitzen aquí les matèries (especialitat i departament/àmbit)
+        return api('llibres_admin', { operacio: 'especialitats', curs: R.curs, assignacions: as }, 'Desant les especialitats…').then(function (r) {
+          if (!r.ok) return toast(llErr(r), true);
+          var nou = {}; as.forEach(function (x) { nou[x.nivell + '|' + x.materia] = x.especialitat; });
+          R.materies.forEach(function (m) { var e = nou[m.nivell + '|' + m.materia]; if (!e) return; m.especialitat = e; var d = R.departaments.filter(function (x) { return x.especialitats.indexOf(e) >= 0; })[0]; m.dep = d ? d.id : ''; });
+          pintaLlibres(); toast('Especialitats desades (' + r.assignades + (r.assignades === 1 ? ' canvi).' : ' canvis).'));
+        }); }
+      if (a === 'cfg-desa') { S.ll.obert = 'cfg'; return adminLl({ operacio: 'config', estat: $('gsLlEstat').value, termini: $('gsLlTermini').value.trim(), curs_publicat: $('gsLlPub').value, curs_gestio: $('gsLlGes').value, curs_vista: R.curs }, 'Configuració desada.'); }
+      if (a === 'copia') { var org = $('gsLlOrigen').value; return pregunta('Prepara el curs', '<p>Es copiaran les matèries i els llibres del curs <b>' + esc(org) + '</b> al curs <b>' + esc(R.curs) + '</b>. Els llibres copiats quedaran com a no nous (opció A).</p>', [{ t: 'Prepara', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v) adminLl({ operacio: 'copia_curs', origen: org }, 'Curs ' + R.curs + ' preparat.'); }); }
     };
     $('gsEines').addEventListener('click', clic); $('gsTaula').addEventListener('click', clic);
     $('gsTaula').addEventListener('toggle', function (e) { if (actiu() && e.target.dataset && e.target.dataset.llPanell && e.target.open) S.ll.obert = e.target.dataset.llPanell; }, true);

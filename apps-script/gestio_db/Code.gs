@@ -6067,7 +6067,8 @@ function llibresAcabat_(ctx, req) {
 function llibresAdmin_(ctx, req) {
   if (!pot_(ctx, 'llibres', 'admin')) return { ok: false, error: 'sense_permis' };
   if (!idLlibres_()) return { ok: false, error: 'llibres_no_configurat' };
-  const cfg = llCfg_(), a = String(req.accio || ''), curs = String(req.curs || '');
+  const cfg = llCfg_(), a = String(req.operacio || req.accio || ''), curs = String(req.curs || '');   // PAS 88d: «operacio» (el client fa servir «accio» per a l'acció de l'API)
+  let nEsp = 0;
   const lock = LockService.getScriptLock(); lock.waitLock(20000);
   try {
     if (a === 'observacions') {
@@ -6091,6 +6092,7 @@ function llibresAdmin_(ctx, req) {
       const iN = cap.indexOf('nivell'), iM = cap.indexOf('materia'), iE = cap.indexOf('especialitat'), v = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), cap.length).getValues(), nou = {};
       (Array.isArray(req.assignacions) ? req.assignacions : []).forEach((x) => { nou[llText_(x.nivell, 20) + '|' + llText_(x.materia, 200)] = llText_(x.especialitat, 60); });
       let n = 0; for (let i = 1; i < v.length; i++) { const k = String(v[i][iN]).trim() + '|' + String(v[i][iM]).trim(); if (k in nou && String(v[i][iE] || '') !== nou[k]) { v[i][iE] = nou[k]; n++; } }
+      nEsp = n;
       if (n) sh.getRange(2, iE + 1, v.length - 1, 1).setValues(v.slice(1).map((r) => [r[iE]]));   // PAS 88c: només la columna especialitat (no toca fórmules ni validacions de la resta)
     } else if (a === 'config') {
       const sh = ssLlibres_().getSheetByName(LL_.conf), v = sh.getDataRange().getValues();
@@ -6118,6 +6120,9 @@ function llibresAdmin_(ctx, req) {
     historial_(ctx.email, 'llibres_' + a, 'llibres', curs, '');
     marcaVersio_('llibres', ctx.email);
   } finally { lock.releaseLock(); }
+  // PAS 88d: les especialitats tornen només el recompte (el navegador actualitza les seves dades); tornar a llegir-ho tot
+  // podia passar del temps màxim de la funció de Netlify i sortia «Hi ha hagut un error» encara que s'hagués desat
+  if (a === 'especialitats') return { ok: true, assignades: nEsp };
   return llibresDades_(ctx, { curs: a === 'copia_curs' || a === 'observacions' ? curs : req.curs_vista || curs });
 }
 // Pàgina pública (web › /llibres.html): matèries del curs publicat amb els seus llibres i les observacions de cada nivell
