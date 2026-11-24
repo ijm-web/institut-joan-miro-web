@@ -632,6 +632,8 @@ self.addEventListener('activate', function (e) {
 
 - **PAS 88d**: les accions d'administració de Llibres (especialitats, observacions, configuració, prepara el curs) no arribaven a l'Apps Script: el nom de l'operació («accio») trepitjava el de l'acció de l'API i Netlify responia «acció desconeguda» (es veia «Hi ha hagut un error»). Ara l'operació va a «operacio». Desar especialitats torna només el recompte. Els errors mostren el detall entre parèntesis.
 
+- **PAS 88e**: la **primera línia** del `Code.gs` diu sempre l'últim pas que l'ha modificat (p. ex. `// PAS 88e · 24/11/2026 …`): així, a l'editor d'Apps Script, es veu d'un cop d'ull quina versió hi ha enganxada.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
