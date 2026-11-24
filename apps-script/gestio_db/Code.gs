@@ -37,7 +37,7 @@
  */
 
 const FULL = { conf: 'config', prof: 'professorat', pas: 'pas', eq: 'equips', memb: 'membres', mod: 'moduls', perm: 'permisos',
-  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments', hses: 'horaris_sessions', hprof: 'horaris_professorat', mat: 'matricula', cal: 'calendari', hres: 'horari_resultat', sanc: 'sancions' };
+  camps: 'camps', hist: 'historial', alu: 'alumnes', bat: 'alumnes_bat', ent: 'entrades', amo: 'amonestacions', co: 'consell_orientador', cur: 'curriculum', curg: 'curriculum_grups', des: 'desiderata', dep: 'departaments', hses: 'horaris_sessions', hprof: 'horaris_professorat', mat: 'matricula', cal: 'calendari', hres: 'horari_resultat', sanc: 'sancions', pref: 'preferencies' };
 const CAP = {
   // PAS 47: una fila per especialitat; «dades» = JSON {clau assignació: [{prof, grups}]}
   desiderata: ['especialitat', 'dades', 'observacions', 'data', 'desat_per'],
@@ -54,6 +54,7 @@ const CAP = {
   permisos: ['id_equip', 'id_modul', 'nivell'],
   camps: ['modul', 'clau', 'nom', 'tipus', 'valors', 'obligatori', 'unic', 'visible_des_de', 'origen', 'ordre', 'actiu'],
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
+  preferencies: ['email', 'destacats', 'data'],   // PAS 85: mòduls destacats de cada persona
 };
 const ESQUEMA = 76;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
@@ -699,6 +700,7 @@ function doPost(e) {
       case 'departaments_estat': return json_(depwEstat_(ctx, req));        // PAS 76: tanca/obre una pàgina
       case 'departaments_admin': return json_(depwAdmin_(ctx, req));        // PAS 76: data límit i bloqueig
       case 'calendari_importa': return json_(calendariImporta_(ctx, req));
+      case 'destacats_desa': return json_(destacatsDesa_(ctx, req));           // PAS 85
       case 'notificacions_dades': return json_(notifDades_(ctx));            // PAS 81
       case 'notificacions_prepara': return json_(notifPrepara_(ctx, req));    // (només la funció de Netlify avisos-envia)
       case 'notificacions_resultat': return json_(notifResultat_(ctx, req));
@@ -796,7 +798,26 @@ function inici_(ctx) {
   if (!moduls.length) return { ok: false, error: 'sense_acces' };
   const p = ctx.persona;
   return { ok: true, email: ctx.email, nom: p ? [p.nom, p.cognom1].filter(Boolean).join(' ') : '', id_persona: p ? p.id : '',
-    admin_global: ctx.global, moduls: moduls, estat: norm_(ctx.cfg.estat || 'obert') };
+    admin_global: ctx.global, moduls: moduls, estat: norm_(ctx.cfg.estat || 'obert'), destacats: destacatsDe_(ctx.email, moduls) };
+}
+// PAS 85 · DESTACATS: mòduls que cada persona tria per veure'ls a dalt de la portada (pestanya «preferencies» del nucli,
+// una fila per correu). Només es tornen els mòduls als quals encara té accés.
+function destacatsDe_(email, moduls) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.pref); if (!sh || sh.getLastRow() < 2) return [];
+  const r = llegeixFull_(sh).filter((x) => String(x.email || '').toLowerCase() === email)[0];
+  const ok = {}; (moduls || []).forEach((m) => { ok[m.id] = 1; });
+  return String((r && r.destacats) || '').split('|').filter((id) => ok[id]);
+}
+function destacatsDesa_(ctx, req) {
+  if (!ctx.email) return { ok: false, error: 'sense_acces' };
+  const ids = (Array.isArray(req.destacats) ? req.destacats : []).map(String).filter((id) => /^[a-z0-9_]{1,40}$/.test(id)).filter((id, i, a) => a.indexOf(id) === i && ctx.nivell(id)).slice(0, 30);
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const sh = assegura_(FULL.pref), v = sh.getDataRange().getValues(), cap = v[0].map(norm_), je = cap.indexOf('email');
+    const fila = [ctx.email, ids.join('|'), ara_()], i = v.findIndex((r, k) => k > 0 && String(r[je]).toLowerCase() === ctx.email);
+    if (i > 0) sh.getRange(i + 1, 1, 1, 3).setValues([fila]); else sh.appendRow(fila);
+  } finally { lock.releaseLock(); }
+  return { ok: true, destacats: ids };
 }
 
 // ------------------------------------------------------------------ dades d'un mòdul (graella)

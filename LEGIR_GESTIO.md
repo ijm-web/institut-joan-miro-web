@@ -594,6 +594,12 @@ self.addEventListener('activate', function (e) {
 - **Portada de GESTIO**: targetes petites (icona i nivell a dalt, nom a sota); la descripció surt en passar-hi el ratolí (o amb el focus del teclat); fora «Obre →». El text de presentació va al costat del títol GESTIÓ · INSTITUT JOAN MIRÓ.
 - **Foto de capçalera (també al web)**: en una pàgina curta no es podia baixar prou per esvair-la del tot i s'hi quedava a mitges. Ara s'esvaeix del tot en arribar al final de la pàgina i es torna a calcular quan el contingut canvia d'alçada (base.njk).
 
+## PAS 85
+
+- **Destacats (portada de GESTIO)**: l'estrella ☆ de cada targeta afegeix el mòdul a la secció «★ Destacats», a dalt de tot (també amb una pestanya de grup triada). Sense cap destacat, no surt. Es desa per persona al nucli, pestanya nova `preferencies` (email, destacats separats per |, data; la crea sola) amb l'acció `destacats_desa`; `inici` torna `destacats` (només els mòduls als quals encara té accés). Desar-los no invalida les dades llegides dels mòduls.
+- **Horaris · editor › Tutories i reunions (PDF)**: mapa de tutories (sessions de la matèria «Tutoria»: grup-classe i tutor/a, amb el nom curt) i reunions (sessions de tipus `reunio`) per franja i dia, en un full A4 apaïsat amb el logo; les caselles amb reunió, en taronja.
+- **Control d'entrada · avís de retards**: no era un error. L'avís compta retards ponderats per l'hora (PAS 76: 9:15–10:15 → 2…), no entrades, i només dins del període (1 mes: des del 24/10). P. ex. 3 entrades a les 9:2x = 6 retards; una entrada del 23/10 surt a la llista però ja no compta. Ara l'etiqueta diu les dues coses («⚠ 6 ret. · 3 entr.») i el text emergent explica el càlcul.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
