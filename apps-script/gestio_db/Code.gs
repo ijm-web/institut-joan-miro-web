@@ -56,7 +56,7 @@ const CAP = {
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
   preferencies: ['email', 'destacats', 'data'],   // PAS 85: mòduls destacats de cada persona
 };
-const ESQUEMA = 76;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 77;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -111,6 +111,7 @@ const CONFIG_PER_DEFECTE = [
   ['departaments_publicat', '', 'Departaments/àmbits › darrera publicació (data, qui i quants). La posa el botó «Publica» del web: no la canvieu a mà.'],
   ['departaments_limit', '', 'Departaments/àmbits › data límit d\'edició (AAAA-MM-DD). L\'endemà l\'edició queda bloquejada sola. Es canvia des del web (Administració).'],   // PAS 76
   ['departaments_bloqueig', '', 'Departaments/àmbits › «si» = edició bloquejada per l\'administració (botó «Bloqueja» del web).'],
+  ['db_llibres', '', 'Llibres de text: ID (o URL) del full joanmiro_db (llibres, matèries, seguiment…). El compte que executa GESTIO hi ha de tenir permís d\'edició.'],   // PAS 88
   ['db_notificacions', '', 'Notificacions: ID (o URL) del full notificacions_db (subscripcions i avisos enviats). «configura» hi crea les pestanyes.'],   // PAS 81
 ];
 const MODULS_PER_DEFECTE = [
@@ -131,6 +132,7 @@ const MODULS_PER_DEFECTE = [
   ['ocupacio', 'Ocupació', 'Hores fixes de cada docent: lectives d\'ESO i batxillerat, atenció individual, tutories, reduccions, guàrdies i càrrecs, amb el semàfor 18 + 4 = 22 (en proporció a la jornada).', 11, 'si', 'Organització del curs'],
   ['horaris_editor', 'Horaris · editor', 'Generador d\'horaris, fase EDITOR: importa l\'horari calculat pel MOTOR i el mostra per docent i per grup-classe (PDF).', 13, 'si', 'Organització del curs'],
   ['departaments', 'Edició pàgina web departaments/àmbits', 'Pàgina web de cada departament/àmbit (El Nostre Centre › Departaments i àmbits): presentació amb imatge, projectes, feines d\'estiu i altres; el professorat, les matèries i els criteris surten sols. Cada cap edita el seu; l\'administració publica.', 14, 'si', 'Organització del curs'],
+  ['llibres', 'Llibres de text', 'Llibres de text, lectures i materials de cada matèria i curs (pàgina pública Estudis › Llibres): el cap de cada departament/àmbit edita els de les seves especialitats; l\'administració en fa el seguiment, les observacions, prepara el curs següent i en tria el publicat.', 15, 'si', 'Organització del curs'],   // PAS 88
   ['calendari', 'Calendari', 'Calendari del curs: esdeveniments generals i interns (per nivells), dates clau i festius; vistes de dia, setmana, mes i trimestre amb PDF, i publicació al web (Secretaria › Calendari escolar).', 14, 'si', 'Organització del curs'],
   ['notificacions', 'Notificacions', 'Avisos importants i excepcionals al mòbil o a l\'ordinador (notificacions del web) a qui s\'hi ha subscrit a la pàgina Avisos del web: a tot el centre, per etapa o per curs. Només els envia l\'administració del mòdul.', 98, 'si', 'Administració'],   // PAS 81
   ['equips', 'Equips i permisos', 'Equips de gestió i docents, i quins mòduls hi té accés cada equip. Només direcció.', 99, 'si', 'Administració'],
@@ -702,6 +704,10 @@ function doPost(e) {
       case 'departaments_admin': return json_(depwAdmin_(ctx, req));        // PAS 76: data límit i bloqueig
       case 'calendari_importa': return json_(calendariImporta_(ctx, req));
       case 'destacats_desa': return json_(destacatsDesa_(ctx, req));           // PAS 85
+      case 'llibres_dades': return json_(llibresDades_(ctx, req));            // PAS 88
+      case 'llibres_desa': return json_(llibresDesa_(ctx, req));
+      case 'llibres_acabat': return json_(llibresAcabat_(ctx, req));
+      case 'llibres_admin': return json_(llibresAdmin_(ctx, req));
       case 'notificacions_dades': return json_(notifDades_(ctx));            // PAS 81
       case 'notificacions_prepara': return json_(notifPrepara_(ctx, req));    // (només la funció de Netlify avisos-envia)
       case 'notificacions_resultat': return json_(notifResultat_(ctx, req));
@@ -711,7 +717,7 @@ function doPost(e) {
     }
   } catch (err) {
     const m = String(err && err.message || err);
-    if (m === 'db_alumnat_no_configurat') return json_({ ok: false, error: m });
+    if (m === 'db_alumnat_no_configurat' || m === 'llibres_no_configurat') return json_({ ok: false, error: m });
     return json_({ ok: false, error: 'error_script', detall: m });
   }
 }
@@ -1883,16 +1889,19 @@ function configura() {
   assegura_(FULL.dep);
   // PAS 48: nomenclatura «departament/àmbit»
   const shEq = SpreadsheetApp.getActive().getSheetByName(FULL.eq), veq = shEq.getDataRange().getValues();
-  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && veq[i][1] === 'Caps de departament') shEq.getRange(i + 1, 2, 1, 3).setValues([['Caps de departament/àmbit', veq[i][2], 'Caps de departament/àmbit: Desiderata i Edició pàgina web departaments/àmbits (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)']]);
+  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && veq[i][1] === 'Caps de departament') shEq.getRange(i + 1, 2, 1, 3).setValues([['Caps de departament/àmbit', veq[i][2], 'Caps de departament/àmbit: Desiderata, Edició pàgina web departaments/àmbits i Llibres de text (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)']]);
   const shMod = SpreadsheetApp.getActive().getSheetByName(FULL.mod), vmod = shMod.getDataRange().getValues();
   // PAS 80: el mòdul Departaments/àmbits es diu «Edició pàgina web departaments/àmbits» (només si encara té el nom antic)
   for (let i = 1; i < vmod.length; i++) if (vmod[i][0] === 'departaments' && String(vmod[i][1]) === 'Departaments/àmbits') shMod.getRange(i + 1, 2).setValues([['Edició pàgina web departaments/àmbits']]);
-  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && /Desiderata › Departaments/.test(String(veq[i][3] || ''))) shEq.getRange(i + 1, 4).setValues([['Caps de departament/àmbit: Desiderata i Edició pàgina web departaments/àmbits (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)']]);
+  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && /Desiderata › Departaments/.test(String(veq[i][3] || ''))) shEq.getRange(i + 1, 4).setValues([['Caps de departament/àmbit: Desiderata, Edició pàgina web departaments/àmbits i Llibres de text (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)']]);
   for (let i = 1; i < vmod.length; i++) if (vmod[i][0] === 'desiderata' || vmod[i][0] === 'horaris') shMod.getRange(i + 1, 3).setValues([[MODULS_PER_DEFECTE.filter((m) => m[0] === vmod[i][0])[0][2]]]);
-  if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-CAPS')) SpreadsheetApp.getActive().getSheetByName(FULL.eq).appendRow(['EQ-CAPS', 'Caps de departament/àmbit', 'gestio', 'Caps de departament/àmbit: Desiderata i Edició pàgina web departaments/àmbits (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)', 'si', '']);
+  if (!llegeix_(FULL.eq).some((q) => q.id_equip === 'EQ-CAPS')) SpreadsheetApp.getActive().getSheetByName(FULL.eq).appendRow(['EQ-CAPS', 'Caps de departament/àmbit', 'gestio', 'Caps de departament/àmbit: Desiderata, Edició pàgina web departaments/àmbits i Llibres de text (els membres es posen sols des de Currículum › Assignacions › Caps de departament/àmbit)', 'si', '']);
   if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'desiderata')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'desiderata', 'edicio']);
   // PAS 75: els caps de departament/àmbit editen la pàgina web del seu departament (mòdul Departaments/àmbits)
   if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'departaments')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'departaments', 'edicio']);
+  for (let i = 1; i < veq.length; i++) if (veq[i][0] === 'EQ-CAPS' && /^Caps de departament\/àmbit: Desiderata i Edició pàgina web departaments\/àmbits \(/.test(String(veq[i][3] || ''))) shEq.getRange(i + 1, 4).setValues([[String(veq[i][3]).replace('Desiderata i Edició pàgina web departaments/àmbits', 'Desiderata, Edició pàgina web departaments/àmbits i Llibres de text')]]);   // PAS 88
+  if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'llibres')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'llibres', 'edicio']);   // PAS 88
+  try { if (idLlibres_()) vinculaLlibres(); } catch (e) { Logger.log('joanmiro_db: ' + e.message); }
   fullDep_(FULL_DEPW_, CAP_DEPW_); fullDep_(FULL_DEPP_, CAP_DEPP_);
   actualitzaCamp_('curriculum', 'grups', { actiu: 'no' });
   sincronitzaCamps_('curriculum_grups', CAMPS_CURR_GRUPS);
@@ -4939,6 +4948,7 @@ function publics_(quin) {
     return c ? Object.assign({ ok: true }, c) : { ok: false, error: 'no_publicat' };
   }
   if (quin === 'departaments') return depwPublics_();   // PAS 75
+  if (quin === 'llibres') return llibresPublics_();       // PAS 88
   return { ok: false, error: 'peticio_invalida' };
 }
 // Professorat en actiu (els substituts en lloc de les persones substituïdes), per ordre del primer cognom
@@ -5852,4 +5862,279 @@ function notifAtura_(ctx, req) {
     if (x.estat === 'enviant') { desaAvisNotif_(F, x, { estat: 'aturat' }); historial_(ctx.email, 'notificacio_atura', 'notificacions', x.id, (x.enviats || 0) + ' de ' + x.destinataris); }
   } finally { lock.releaseLock(); }
   return notifDades_(ctx);
+}
+
+// ------------------------------------------------------------------ PAS 88 · LLIBRES DE TEXT (abans, el lloc separat «Llibres»)
+// Les dades continuen al full joanmiro_db (config › db_llibres), amb les mateixes pestanyes: departaments, materies, llibres,
+// observacions_generals, seguiment, historial i config (estat, termini, curs publicat, curs_gestio, opcio_A, opcio_B).
+// Novetat: cada matèria té una ESPECIALITAT (columna nova «especialitat» de materies) i, per tant, un DEPARTAMENT/ÀMBIT de
+// GESTIO (Currículum › Assignacions › Caps de departament/àmbit). Només el CAP del departament/àmbit edita (nivell edició
+// del mòdul, equip EQ-CAPS); l'administració del mòdul ho edita tot, fa el seguiment, les observacions, prepara cursos i
+// configura. Sense codis d'accés: només el compte de l'institut. La pàgina pública és /llibres.html del web (publics › llibres).
+// La pestanya «departaments» de joanmiro_db no es toca (la fa servir Programacions).
+const LL_ = { dep: 'departaments', mat: 'materies', llib: 'llibres', conf: 'config', obs: 'observacions_generals', seg: 'seguiment', hist: 'historial' };
+const LL_CAP_SEG_ = ['departament', 'curs', 'darrer_desat', 'desat_per', 'elements', 'acabat', 'data_acabat', 'acabat_per'];
+const LL_NIVELLS_ = ['ESO 1r', 'ESO 2n', 'ESO 3r', 'ESO 4t', 'BAT 1r', 'BAT 2n'];
+const LL_NIVELL_GESTIO_ = { 'ESO 1r': '1r ESO', 'ESO 2n': '2n ESO', 'ESO 3r': '3r ESO', 'ESO 4t': '4t ESO', 'BAT 1r': '1r BAT', 'BAT 2n': '2n BAT' };
+const LL_MAX_LLIBRES_ = 2, LL_MAX_OBS_ = 10, LL_TIPUS_ = ['llibre', 'lectura', 'material'], LL_FORMATS_ = ['paper', 'digital', 'paper+digital'];
+const LL_CFG_DEF_ = { estat: 'obert', termini: '', curs: '2026-2027', curs_gestio: '2026-2027',
+  opcio_A: 'Comprar-los a ABACUS, fer reciclatge al centre o comprar-los al distribuïdor de llibres de text que es consideri.',
+  opcio_B: 'Comprar-los a ABACUS o comprar-los al distribuïdor de llibres de text que es consideri.' };
+const idLlibres_ = () => (String((CTX_CFG_ || llegeixConfig_()).db_llibres || '').match(/[-\w]{25,}/) || [''])[0];
+function ssLlibres_() {
+  const id = idLlibres_(); if (!id) throw new Error('llibres_no_configurat');
+  return SS_OBERTS_[id] || (SS_OBERTS_[id] = SpreadsheetApp.openById(id));
+}
+const llNorm_ = (s) => String(s || '').toLowerCase().replace(/\(.*?\)/g, '').normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+const llText_ = (v, max) => String(v == null ? '' : v).replace(/\s+/g, ' ').trim().slice(0, max);
+const llCursValid_ = (c) => /^\d{4}-\d{4}$/.test(String(c || '').trim());
+const llCursAnterior_ = (c) => { const a = Number(String(c).slice(0, 4)); return a ? (a - 1) + '-' + a : ''; };
+const llIsbn_ = (v) => String(v == null ? '' : v).replace(/[^0-9Xx]/g, '').toUpperCase();
+const llOpcio_ = (nou) => { const n = String(nou == null ? '' : nou).toLowerCase(); return n === 'si' ? 'B' : n === 'no' ? 'A' : ''; };
+const llSiNo_ = (v, tipus) => { if (tipus === 'material') return ''; const s = String(v == null ? '' : v).toLowerCase(); return s === 'si' || s === 'no' ? s : (tipus === 'material' ? '' : 'no'); };
+function llFormat_(v, tipus) {
+  if (tipus === 'material') return '';   // als materials, Nou, Format i On comprar-lo queden en blanc
+  const s = String(v == null ? '' : v).toLowerCase().replace(/\s+/g, '').replace('í', 'i');
+  if (LL_FORMATS_.indexOf(s) >= 0) return s; if (s === 'digital+paper') return 'paper+digital';
+  if (s === 'si') return 'digital'; if (s === 'no') return 'paper';
+  return tipus === 'material' ? '' : 'paper';
+}
+function llFull_(nom, cap) {
+  const ss = ssLlibres_(); let sh = ss.getSheetByName(nom);
+  if (!sh && cap) { sh = ss.insertSheet(nom); sh.getRange(1, 1, 1, cap.length).setValues([cap]).setFontWeight('bold'); }
+  return sh;
+}
+const llCap_ = (sh) => (sh && sh.getLastColumn() ? sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(llNorm_) : []);
+function llTaula_(nom) {
+  const sh = ssLlibres_().getSheetByName(nom); if (!sh || sh.getLastRow() < 1) return { sh: sh, cap: [], files: [], idx: () => -1 };
+  const v = sh.getDataRange().getDisplayValues(), cap = v[0].map(llNorm_);
+  return { sh: sh, cap: cap, files: v.slice(1).filter((r) => r.join('') !== ''), idx: (k) => cap.indexOf(k) };
+}
+function llCfg_() {
+  const cfg = Object.assign({}, LL_CFG_DEF_), sh = ssLlibres_().getSheetByName(LL_.conf);
+  if (sh) sh.getDataRange().getValues().slice(1).forEach((r) => { const k = String(r[0] || '').trim(); if (k) cfg[k] = r[1] instanceof Date ? Utilities.formatDate(r[1], 'Europe/Madrid', 'dd/MM/yyyy') : String(r[1]).trim(); });
+  return cfg;
+}
+function llObert_(cfg) {
+  if (String(cfg.estat).toLowerCase() !== 'obert') return { obert: false, motiu: 'tancat' };
+  const m = String(cfg.termini || '').trim().match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m && new Date() > new Date(Number(m[3]), Number(m[2]) - 1, Number(m[1]), 23, 59, 59)) return { obert: false, motiu: 'termini' };
+  return { obert: true, motiu: '' };
+}
+function llMateries_(cfg) {
+  const T = llTaula_(LL_.mat), v = (r, k) => (T.idx(k) >= 0 ? String(r[T.idx(k)] || '').trim() : '');
+  return T.files.map((r) => ({ nivell: v(r, 'nivell'), materia: v(r, 'materia'), tipus: v(r, 'tipus'), departament: v(r, 'departament'), especialitat: v(r, 'especialitat'), curs: v(r, 'curs') || cfg.curs }))
+    .filter((m) => m.nivell && m.materia).map((m) => Object.assign(m, { id_materia: m.nivell + ' - ' + m.materia }));
+}
+function llColsLlibres_(cap) {
+  const b = function () { for (let i = 0; i < arguments.length; i++) { const j = cap.indexOf(arguments[i]); if (j >= 0) return j; } return -1; };
+  return { departament: b('departament'), id_materia: b('id_materia', 'materia'), curs: b('curs'), tipus: b('tipus'), ordre: b('ordre'), titol: b('titol'), editorial: b('editorial'), isbn: b('isbn'),
+    nou: b('nou'), format: b('format', 'digital'), on_comprar: b('on comprar-lo', 'on comprar', 'on_comprar'), observacions: b('observacions', 'obsevacions'), data: b('data'), desat_per: b('desat_per', 'desat per') };
+}
+function llLlibres_(cfg) {
+  const sh = ssLlibres_().getSheetByName(LL_.llib); if (!sh || sh.getLastRow() < 2) return [];
+  const cap = llCap_(sh), col = llColsLlibres_(cap), vals = sh.getRange(2, 1, sh.getLastRow() - 1, cap.length).getDisplayValues();
+  const v = (r, k) => (col[k] >= 0 ? String(r[col[k]] || '').trim() : '');
+  return vals.filter((r) => r.join('') !== '').map((r) => ({ departament: v(r, 'departament'), id_materia: v(r, 'id_materia'), curs: v(r, 'curs') || cfg.curs, tipus: v(r, 'tipus') || 'llibre',
+    ordre: Number(v(r, 'ordre')) || 1, titol: v(r, 'titol'), editorial: v(r, 'editorial'), isbn: v(r, 'isbn'), nou: v(r, 'nou'), format: llFormat_(v(r, 'format'), v(r, 'tipus') || 'llibre'),
+    observacions: v(r, 'observacions'), data: v(r, 'data'), desat_per: v(r, 'desat_per') }));
+}
+function llSeguiment_() {
+  const T = llTaula_(LL_.seg), v = (r, k) => (T.idx(k) >= 0 ? String(r[T.idx(k)] || '').trim() : '');
+  return T.files.map((r) => ({ departament: v(r, 'departament'), curs: v(r, 'curs'), darrer_desat: v(r, 'darrer_desat'), desat_per: v(r, 'desat_per'), elements: v(r, 'elements'),
+    acabat: v(r, 'acabat') === 'si', data_acabat: v(r, 'data_acabat'), acabat_per: v(r, 'acabat_per') })).filter((x) => x.departament && x.curs);
+}
+function llObs_(curs, cfg) {
+  const T = llTaula_(LL_.obs), res = {};
+  T.files.map((r) => ({ n: String(r[T.idx('nivell')] || '').trim(), o: Number(r[T.idx('ordre')]) || 0, t: String(r[T.idx('text')] || '').trim(), c: (T.idx('curs') >= 0 && String(r[T.idx('curs')] || '').trim()) || cfg.curs }))
+    .filter((x) => x.n && x.t && x.c === curs).sort((a, b) => a.o - b.o).forEach((x) => { (res[x.n] = res[x.n] || []).push(x.t); });
+  return res;
+}
+// Especialitat → departament/àmbit de GESTIO
+function llMapaDeps_() { const m = {}; departaments_().forEach((d) => d.especialitats.forEach((e) => { if (!m[e]) m[e] = d.id; })); return m; }
+// Proposta d'especialitat d'una matèria a partir del Currículum (mateix nivell i nom; si no, el mateix nom a qualsevol nivell)
+function llProposta_(cur) {
+  const per = {}, nom = {}, net = (s) => llNorm_(s).replace(/[-–·].*$/, '').replace(/\b(optativa|opcio|modalitat)\b.*$/, '').trim();
+  cur.forEach((c) => { if (!c.especialitat || !c.materia) return; per[c.nivell + '|' + net(c.materia)] = c.especialitat; const k = net(c.materia); if (nom[k] === undefined) nom[k] = c.especialitat; else if (nom[k] !== c.especialitat) nom[k] = ''; });
+  return (m) => per[(LL_NIVELL_GESTIO_[m.nivell] || m.nivell) + '|' + net(m.materia)] || nom[net(m.materia)] || '';
+}
+// Qui pot editar un departament/àmbit: l'administració del mòdul, o el seu cap (amb nivell d'edició)
+function llPot_(ctx, idDep) {
+  if (pot_(ctx, 'llibres', 'admin')) return true;
+  if (!pot_(ctx, 'llibres', 'edicio')) return false;
+  const p = ctx.persona && String(ctx.persona.id || '');
+  return !!p && departaments_().some((d) => d.id === idDep && d.cap === p);
+}
+function llibresDades_(ctx, req) {
+  if (!pot_(ctx, 'llibres', 'consulta')) return { ok: false, error: 'sense_permis' };
+  if (!idLlibres_()) return { ok: false, error: 'llibres_no_configurat' };
+  const cfg = llCfg_(), admin = pot_(ctx, 'llibres', 'admin'), c = llCursValid_(req.curs) ? req.curs : (cfg.curs_gestio || cfg.curs);
+  const noms = {}; llegeix_(FULL.prof).forEach((p) => { noms[p.id_professor] = [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '); });
+  const mapa = llMapaDeps_(), totesMat = llMateries_(cfg), totsLl = llLlibres_(cfg);
+  let deps = departaments_().map((d) => ({ id: d.id, nom: d.nom, especialitats: d.especialitats, cap: noms[d.cap] || '', edita: llPot_(ctx, d.id) }));
+  const meus = deps.filter((d) => d.edita);
+  if (!admin && meus.length) deps = meus;   // el cap només veu els seus (com a la pàgina web dels departaments)
+  const vis = {}; deps.forEach((d) => { vis[d.id] = 1; });
+  const materies = totesMat.filter((m) => m.curs === c).map((m) => Object.assign({}, m, { dep: mapa[m.especialitat] || '' }))
+    .filter((m) => admin || vis[m.dep]);
+  const ids = {}; materies.forEach((m) => { ids[m.id_materia] = 1; });
+  const ant = llCursAnterior_(c), anteriors = {};
+  totsLl.filter((l) => l.curs === ant && l.tipus !== 'material' && ids[l.id_materia]).forEach((l) => { const i = llIsbn_(l.isbn); if (i) (anteriors[l.id_materia] = anteriors[l.id_materia] || []).push(i); });
+  const cursos = {}; [cfg.curs, cfg.curs_gestio].concat(totesMat.map((m) => m.curs), totsLl.map((l) => l.curs)).forEach((x) => { if (llCursValid_(x)) cursos[x] = 1; });
+  const ll = Object.keys(cursos).sort(); if (ll.length) { const a = Number(ll[ll.length - 1].slice(0, 4)) + 1; cursos[a + '-' + (a + 1)] = 1; }
+  const o = llObert_(cfg), editable = admin || c === (cfg.curs_gestio || cfg.curs);
+  const esps = {}; ESPECIALITATS.forEach((e) => { esps[e] = 1; }); departaments_().forEach((d) => d.especialitats.forEach((e) => { esps[e] = 1; }));
+  const prop = admin ? llProposta_(llegeix_(FULL.cur)) : null;
+  return { ok: true, nivell: ctx.nivell('llibres'), obert: obert_(ctx), admin: admin, curs: c, cursos: Object.keys(cursos).sort().reverse(), editable: editable && obert_(ctx),
+    config: { obert: o.obert, motiu: o.motiu, estat: cfg.estat, termini: cfg.termini, curs: cfg.curs, curs_gestio: cfg.curs_gestio || cfg.curs, opcio_A: cfg.opcio_A, opcio_B: cfg.opcio_B, max_llibres: LL_MAX_LLIBRES_ },
+    departaments: deps, materies: materies.map((m) => admin ? Object.assign(m, { proposta: m.especialitat ? '' : prop(m) }) : m), llibres: totsLl.filter((l) => l.curs === c && ids[l.id_materia]),
+    anteriors: anteriors, te_anterior: totsLl.some((l) => l.curs === ant), curs_anterior: ant, hi_ha_materies: totesMat.some((m) => m.curs === c),
+    seguiment: llSeguiment_().filter((x) => x.curs === c && vis[x.departament]), observacions: llObs_(c, cfg), nivells: LL_NIVELLS_, max_obs: LL_MAX_OBS_,
+    especialitats: Object.keys(esps).sort((a, b) => a.localeCompare(b, 'ca')) };
+}
+// Desa els llibres de les matèries d'un departament/àmbit en un curs: substitueix les files d'aquestes matèries (i en guarda
+// una còpia a historial)
+function llibresDesa_(ctx, req) {
+  if (!idLlibres_()) return { ok: false, error: 'llibres_no_configurat' };
+  const dep = String(req.departament || ''); if (!llPot_(ctx, dep)) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const cfg = llCfg_(), admin = pot_(ctx, 'llibres', 'admin'), curs = String(req.curs || ''), o = llObert_(cfg);
+  if (!o.obert && !admin) return { ok: false, error: 'llibres_tancat', motiu: o.motiu };
+  if (!llCursValid_(curs)) return { ok: false, error: 'curs_no_valid' };
+  if (!admin && curs !== (cfg.curs_gestio || cfg.curs)) return { ok: false, error: 'curs_nomes_lectura' };
+  const mapa = llMapaDeps_(), matDep = llMateries_(cfg).filter((m) => m.curs === curs && mapa[m.especialitat] === dep), perId = {};
+  matDep.forEach((m) => { perId[m.id_materia] = m; });
+  if (!matDep.length) return { ok: false, error: 'departament_sense_materies' };
+  const netes = [], compta = {}, ordres = {};
+  for (const f of (Array.isArray(req.files) ? req.files : [])) {
+    const id = String(f.id_materia || ''); if (!perId[id]) return { ok: false, error: 'materia_no_valida', detall: id };
+    const tipus = LL_TIPUS_.indexOf(f.tipus) >= 0 ? f.tipus : 'llibre', titol = llText_(f.titol, 200); if (!titol) continue;
+    if (tipus === 'llibre' && (compta[id] = (compta[id] || 0) + 1) > LL_MAX_LLIBRES_) return { ok: false, error: 'massa_llibres', detall: id };
+    const ko = id + '|' + tipus; ordres[ko] = (ordres[ko] || 0) + 1;
+    const nou = llSiNo_(f.nou, tipus);
+    netes.push({ departament: perId[id].departament, id_materia: id, curs: curs, tipus: tipus, ordre: ordres[ko], titol: titol, editorial: llText_(f.editorial, 120), isbn: llIsbn_(llText_(f.isbn, 30)),
+      nou: nou, format: llFormat_(f.format, tipus), on_comprar: llOpcio_(nou), observacions: llText_(f.observacions, 500) });
+  }
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const sh = ssLlibres_().getSheetByName(LL_.llib), cap = llCap_(sh), col = llColsLlibres_(cap), ult = sh.getLastRow();
+    const abans = ult > 1 ? sh.getRange(2, 1, ult - 1, cap.length).getValues().filter((r) => r.join('') !== '') : [];
+    const esMeva = (r) => ((col.curs >= 0 && String(r[col.curs] || '').trim()) || cfg.curs) === curs && !!perId[String(r[col.id_materia] || '').trim()];
+    const ara = new Date(), qui = ctx.email;
+    llHistorial_(cap, abans.filter(esMeva), ara, qui);
+    const noves = netes.map((n) => { const r = cap.map(() => ''); Object.keys(col).forEach((k) => { if (col[k] >= 0 && k in n) r[col[k]] = n[k]; }); if (col.data >= 0) r[col.data] = ara; if (col.desat_per >= 0) r[col.desat_per] = qui; return r; });
+    const totes = abans.filter((r) => !esMeva(r)).concat(noves);
+    if (col.isbn >= 0) totes.forEach((r) => { r[col.isbn] = llIsbn_(r[col.isbn]); });
+    if (ult > 1) sh.getRange(2, 1, ult - 1, cap.length).clearContent();
+    if (totes.length) { if (col.isbn >= 0) sh.getRange(2, col.isbn + 1, totes.length, 1).setNumberFormat('@'); sh.getRange(2, 1, totes.length, cap.length).setValues(totes); if (col.data >= 0) sh.getRange(2, col.data + 1, totes.length, 1).setNumberFormat('dd/mm/yyyy hh:mm'); }
+    llSeguimentDesa_(dep, curs, { darrer_desat: ara, desat_per: qui, elements: netes.length });
+    marcaVersio_('llibres', ctx.email);
+  } finally { lock.releaseLock(); }
+  return Object.assign(llibresDades_(ctx, { curs: curs }), { desades: netes.length });
+}
+function llHistorial_(capLl, files, ara, qui) {
+  if (!files.length) return;
+  const sh = llFull_(LL_.hist, ['data_canvi', 'canvi_per'].concat(capLl)), capH = llCap_(sh);
+  ['data_canvi', 'canvi_per'].concat(capLl).forEach((c) => { if (capH.indexOf(llNorm_(c)) < 0) { sh.getRange(1, capH.length + 1).setValue(c); capH.push(llNorm_(c)); } });
+  const capN = capLl.map(llNorm_), noves = files.map((r) => capH.map((c) => (c === 'data_canvi' ? ara : c === 'canvi_per' ? qui : (capN.indexOf(c) >= 0 ? r[capN.indexOf(c)] : ''))));
+  const fila = Math.max(sh.getLastRow(), 1) + 1, ii = capH.indexOf('isbn');
+  if (ii >= 0) sh.getRange(fila, ii + 1, noves.length, 1).setNumberFormat('@');
+  sh.getRange(fila, 1, noves.length, capH.length).setValues(noves);
+}
+function llSeguimentDesa_(dep, curs, camps) {
+  const sh = llFull_(LL_.seg, LL_CAP_SEG_), cap = llCap_(sh), iD = cap.indexOf('departament'), iC = cap.indexOf('curs'), ult = sh.getLastRow();
+  const vals = ult > 1 ? sh.getRange(2, 1, ult - 1, cap.length).getValues() : [];
+  const i = vals.findIndex((r) => String(r[iD]).trim() === dep && String(r[iC]).trim() === curs);
+  const f = i >= 0 ? vals[i] : cap.map(() => ''); f[iD] = dep; f[iC] = curs;
+  Object.keys(camps).forEach((k) => { const j = cap.indexOf(k); if (j >= 0) f[j] = camps[k]; });
+  const n = i >= 0 ? i + 2 : Math.max(ult, 1) + 1;
+  sh.getRange(n, 1, 1, cap.length).setValues([f]);
+  ['darrer_desat', 'data_acabat'].forEach((k) => { const j = cap.indexOf(k); if (j >= 0) sh.getRange(n, j + 1).setNumberFormat('dd/mm/yyyy hh:mm'); });
+}
+// «He acabat» o «Reobre» d'un departament/àmbit (el cap o l'administració)
+function llibresAcabat_(ctx, req) {
+  const dep = String(req.departament || ''); if (!llPot_(ctx, dep)) return { ok: false, error: 'sense_permis' };
+  const cfg = llCfg_(), curs = String(req.curs || '');
+  if (!llCursValid_(curs)) return { ok: false, error: 'curs_no_valid' };
+  if (!pot_(ctx, 'llibres', 'admin') && curs !== (cfg.curs_gestio || cfg.curs)) return { ok: false, error: 'curs_nomes_lectura' };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try { llSeguimentDesa_(dep, curs, req.acabat ? { acabat: 'si', data_acabat: new Date(), acabat_per: ctx.email } : { acabat: 'no', data_acabat: '', acabat_per: '' }); } finally { lock.releaseLock(); }
+  return { ok: true, seguiment: llSeguiment_().filter((x) => x.curs === curs && x.departament === dep)[0] || null };
+}
+// Administració: observacions generals, especialitat de les matèries, configuració i preparar un curs nou
+function llibresAdmin_(ctx, req) {
+  if (!pot_(ctx, 'llibres', 'admin')) return { ok: false, error: 'sense_permis' };
+  if (!idLlibres_()) return { ok: false, error: 'llibres_no_configurat' };
+  const cfg = llCfg_(), a = String(req.accio || ''), curs = String(req.curs || '');
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    if (a === 'observacions') {
+      if (!llCursValid_(curs)) return { ok: false, error: 'curs_no_valid' };
+      const per = {};
+      for (const o of (Array.isArray(req.observacions) ? req.observacions : [])) {
+        const n = llText_(o && o.nivell, 20), t = llText_(o && o.text, 500); if (!t) continue;
+        if (LL_NIVELLS_.indexOf(n) < 0) return { ok: false, error: 'peticio_invalida' };
+        per[n] = per[n] || []; if (per[n].length >= LL_MAX_OBS_) return { ok: false, error: 'massa_observacions' }; per[n].push(t);
+      }
+      const sh = llFull_(LL_.obs, ['nivell', 'ordre', 'text', 'data', 'desat_per', 'curs']), cap = llCap_(sh), c = (k) => cap.indexOf(k), ult = sh.getLastRow(), ara = new Date();
+      const resta = ult > 1 ? sh.getRange(2, 1, ult - 1, cap.length).getValues().filter((r) => r.join('') !== '' && ((c('curs') >= 0 && String(r[c('curs')] || '').trim()) || cfg.curs) !== curs) : [];
+      const noves = []; LL_NIVELLS_.forEach((n) => (per[n] || []).forEach((t, i) => { const r = cap.map(() => ''); r[c('nivell')] = n; r[c('ordre')] = i + 1; r[c('text')] = t; if (c('data') >= 0) r[c('data')] = ara; if (c('desat_per') >= 0) r[c('desat_per')] = ctx.email; if (c('curs') >= 0) r[c('curs')] = curs; noves.push(r); }));
+      const totes = resta.concat(noves);
+      if (ult > 1) sh.getRange(2, 1, ult - 1, cap.length).clearContent();
+      if (totes.length) sh.getRange(2, 1, totes.length, cap.length).setValues(totes);
+    } else if (a === 'especialitats') {
+      // [{nivell, materia, especialitat}]: s'aplica a totes les files (de tots els cursos) amb aquest nivell i matèria
+      const sh = ssLlibres_().getSheetByName(LL_.mat); let cap = llCap_(sh);
+      if (cap.indexOf('especialitat') < 0) { sh.getRange(1, cap.length + 1).setValue('especialitat').setFontWeight('bold'); cap = llCap_(sh); }
+      const iN = cap.indexOf('nivell'), iM = cap.indexOf('materia'), iE = cap.indexOf('especialitat'), v = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), cap.length).getValues(), nou = {};
+      (Array.isArray(req.assignacions) ? req.assignacions : []).forEach((x) => { nou[llText_(x.nivell, 20) + '|' + llText_(x.materia, 200)] = llText_(x.especialitat, 60); });
+      let n = 0; for (let i = 1; i < v.length; i++) { const k = String(v[i][iN]).trim() + '|' + String(v[i][iM]).trim(); if (k in nou && String(v[i][iE] || '') !== nou[k]) { v[i][iE] = nou[k]; n++; } }
+      if (n) sh.getRange(1, 1, v.length, cap.length).setValues(v);
+    } else if (a === 'config') {
+      const sh = ssLlibres_().getSheetByName(LL_.conf), v = sh.getDataRange().getValues();
+      const nou = { estat: req.estat === 'tancat' ? 'tancat' : 'obert', termini: /^(\d{1,2}\/\d{1,2}\/\d{4})?$/.test(String(req.termini || '')) ? String(req.termini || '') : null,
+        curs: llCursValid_(req.curs_publicat) ? req.curs_publicat : null, curs_gestio: llCursValid_(req.curs_gestio) ? req.curs_gestio : null };
+      if (nou.termini === null || !nou.curs || !nou.curs_gestio) return { ok: false, error: 'peticio_invalida' };
+      Object.keys(nou).forEach((k) => { const i = v.findIndex((r, j) => j > 0 && String(r[0]).trim() === k); if (i > 0) sh.getRange(i + 1, 2).setNumberFormat('@').setValue(nou[k]); else sh.appendRow([k, nou[k], '']); });
+    } else if (a === 'copia_curs') {
+      const origen = String(req.origen || ''), desti = curs, mats = llMateries_(cfg);
+      if (!llCursValid_(origen) || !llCursValid_(desti) || origen === desti) return { ok: false, error: 'curs_no_valid' };
+      if (mats.some((m) => m.curs === desti)) return { ok: false, error: 'desti_amb_dades' };
+      if (!mats.some((m) => m.curs === origen)) return { ok: false, error: 'origen_buit' };
+      const ara = new Date(), qui = 'còpia de ' + origen + ' (' + ctx.email + ')';
+      [LL_.mat, LL_.llib].forEach((nom) => {   // la pestanya «departaments» és de Programacions: no es toca
+        const sh = ssLlibres_().getSheetByName(nom); if (!sh) return; let cap = llCap_(sh), iC = cap.indexOf('curs');
+        if (iC < 0) { sh.getRange(1, cap.length + 1).setValue('curs'); cap = llCap_(sh); iC = cap.length - 1; }
+        const ult = sh.getLastRow(); if (ult < 2) return;
+        const tot = sh.getRange(2, 1, ult - 1, cap.length).getValues(), cursDe = (r) => String(r[iC] || '').trim() || cfg.curs;
+        let noves = tot.filter((r) => r.join('') !== '' && cursDe(r) === origen).map((r) => { const n = r.slice(); n[iC] = desti; return n; });
+        if (nom === LL_.llib) { const col = llColsLlibres_(cap); noves.forEach((r) => { const t = String(r[col.tipus] || 'llibre'); if (col.nou >= 0 && t !== 'material') r[col.nou] = 'no'; if (col.on_comprar >= 0) r[col.on_comprar] = llOpcio_(r[col.nou]); if (col.data >= 0) r[col.data] = ara; if (col.desat_per >= 0) r[col.desat_per] = qui; if (col.isbn >= 0) r[col.isbn] = llIsbn_(r[col.isbn]); });
+          if (col.isbn >= 0 && noves.length) sh.getRange(ult + 1, col.isbn + 1, noves.length, 1).setNumberFormat('@'); }
+        if (noves.length) sh.getRange(ult + 1, 1, noves.length, cap.length).setValues(noves);
+      });
+    } else return { ok: false, error: 'peticio_invalida' };
+    historial_(ctx.email, 'llibres_' + a, 'llibres', curs, '');
+    marcaVersio_('llibres', ctx.email);
+  } finally { lock.releaseLock(); }
+  return llibresDades_(ctx, { curs: a === 'copia_curs' || a === 'observacions' ? curs : req.curs_vista || curs });
+}
+// Pàgina pública (web › /llibres.html): matèries del curs publicat amb els seus llibres i les observacions de cada nivell
+function llibresPublics_() {
+  if (!idLlibres_()) return { ok: false, error: 'no_publicat' };
+  const cfg = llCfg_(), curs = cfg.curs, ll = llLlibres_(cfg).filter((l) => l.curs === curs);
+  return { ok: true, curs: curs, opcio_A: cfg.opcio_A || '', opcio_B: cfg.opcio_B || '', observacions: llObs_(curs, cfg),
+    materies: llMateries_(cfg).filter((m) => m.curs === curs).map((m) => ({ id_materia: m.id_materia, nivell: m.nivell, materia: m.materia, tipus: m.tipus,
+      items: ll.filter((l) => l.id_materia === m.id_materia).map((l) => ({ tipus: l.tipus, ordre: l.ordre, titol: l.titol, editorial: l.editorial, isbn: llIsbn_(l.isbn), nou: l.nou, format: l.format, on_comprar: llOpcio_(l.nou), observacions: l.observacions })) })) };
+}
+// Execució manual (o des de configura): posa l'especialitat a les matèries de joanmiro_db que encara no en tenen, a partir del
+// Currículum (mateix nivell i nom). Les que no es troben, les assigna l'administració des del mòdul.
+function vinculaLlibres() {
+  if (!idLlibres_()) { Logger.log('Cal posar l\'URL de joanmiro_db a config › db_llibres.'); return; }
+  const sh = ssLlibres_().getSheetByName(LL_.mat); let cap = llCap_(sh);
+  if (cap.indexOf('especialitat') < 0) { sh.getRange(1, cap.length + 1).setValue('especialitat').setFontWeight('bold'); cap = llCap_(sh); }
+  const prop = llProposta_(llegeix_(FULL.cur)), iN = cap.indexOf('nivell'), iM = cap.indexOf('materia'), iE = cap.indexOf('especialitat');
+  const v = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), cap.length).getValues(); let n = 0, sense = 0;
+  for (let i = 1; i < v.length; i++) { if (!String(v[i][iN]).trim() || String(v[i][iE] || '').trim()) continue; const e = prop({ nivell: String(v[i][iN]).trim(), materia: String(v[i][iM]).trim() }); if (e) { v[i][iE] = e; n++; } else sense++; }
+  if (n) sh.getRange(1, 1, v.length, cap.length).setValues(v);
+  Logger.log('Llibres: ' + n + ' matèries amb l\'especialitat posada a partir del Currículum; ' + sense + ' sense trobar (assigneu-les a Llibres de text › Administració › Especialitats).');
 }

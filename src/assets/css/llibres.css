@@ -1,0 +1,43 @@
+/* PAS 88 · Llibres de text (pàgina pública; abans, al lloc separat de llibres) */
+.ll-wrap{ max-width: 1220px; margin: 0 auto; box-sizing: border-box; padding: clamp(36px, 5vw, 64px) clamp(16px, 4vw, 48px) clamp(48px, 7vw, 96px); }
+.ll-cap{ display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px 32px; margin-bottom: 8px; }
+.ll-kicker{ display: block; margin: 0 0 12px; font-size: 13px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--color-orange, #E8600C); }
+.ll-titol{ margin: 0 0 10px; font-size: clamp(28px, 3.6vw, 42px); font-weight: 300; line-height: 1.15; color: var(--color-blue, #1C0CBC); }
+.ll-lead{ margin: 0; font-size: 17px; line-height: 1.6; color: var(--color-text, #1E1E2A); }
+.ll-boto{ display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 20px; border-radius: 999px; border: 2px solid var(--color-blue, #1C0CBC); background: #fff; color: var(--color-blue, #1C0CBC); font: inherit; font-weight: 700; font-size: 14px; cursor: pointer; }
+.ll-boto:hover:not([disabled]){ background: var(--color-blue, #1C0CBC); color: #fff; }
+.ll-boto[disabled]{ opacity: .5; cursor: default; }
+.ll-tabs{ display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin: 28px 0 30px; }
+.ll-tab{ text-decoration: none; color: var(--color-blue, #1C0CBC); border: 1px solid var(--color-blue, #1C0CBC); border-radius: 999px; padding: 10px 18px; font-size: 14px; font-weight: 600; }
+.ll-tab.is-active, .ll-tab:hover{ background: var(--color-blue, #1C0CBC); color: #fff; }
+.ll-llegenda{ background: #fff; border: 1px solid #E6EBF2; border-left: 3px solid var(--color-orange, #E8600C); border-radius: 14px; padding: 14px 20px; margin: 0 0 28px; font-size: 14px; }
+.ll-llegenda__t{ margin: 0 0 8px; font-size: 13px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--color-orange, #E8600C); }
+.ll-llegenda__l{ margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; }
+.ll-llegenda__l > dt{ font-weight: 600; color: var(--color-blue, #1C0CBC); }
+.ll-llegenda__l > dd{ margin: 0; }
+.ll-llegenda__op{ margin: 6px 0 0; display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; }
+.ll-llegenda__op dt{ font-weight: 600; } .ll-llegenda__op dd{ margin: 0; color: var(--color-text-muted, #6b7280); }
+.ll-msg{ color: var(--color-text-muted, #6b7280); }
+.ll-nivell{ display: none; } .ll-nivell.is-active{ display: block; }
+.ll-nivell > h2{ margin: 0 0 16px; font-size: 26px; font-weight: 300; color: var(--color-blue, #1C0CBC); }
+.ll-obs{ background: #FFF8F2; border: 1px solid #F6D9C3; border-left: 3px solid var(--color-orange, #E8600C); border-radius: 14px; padding: 12px 18px; margin: 0 0 18px; font-size: 14.5px; }
+.ll-obs__t{ margin: 0 0 6px; font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-orange, #E8600C); }
+.ll-obs ul{ margin: 0; padding-left: 20px; }
+.ll-nota{ display: flex; align-items: center; gap: 12px; margin: 0 0 20px; padding: 12px 16px; background: #ECF0FF; border: 1px solid rgba(28,12,188,.35); border-left: 4px solid var(--color-blue, #1C0CBC); border-radius: 14px; font-size: 16px; color: var(--color-blue, #1C0CBC); }
+.ll-nota__i{ flex: 0 0 26px; width: 26px; height: 26px; border-radius: 50%; background: var(--color-blue, #1C0CBC); color: #fff; font-weight: 700; font-size: 15px; font-family: Georgia, serif; display: inline-flex; align-items: center; justify-content: center; }
+.ll-grup{ margin: 26px 0 12px; padding-bottom: 6px; border-bottom: 2px solid var(--color-orange, #E8600C); font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--color-orange, #E8600C); }
+.ll-mat{ background: #fff; border: 1px solid #E6EBF2; border-radius: 14px; padding: 18px 20px; margin-bottom: 14px; }
+.ll-mat h4{ margin: 0 0 10px; font-size: 17px; font-weight: 600; color: var(--color-blue, #1C0CBC); }
+.ll-taula{ width: 100%; border-collapse: collapse; font-size: 14px; }
+.ll-taula th{ text-align: left; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--color-text-muted, #6b7280); border-bottom: 1px solid #E6EBF2; padding: 6px 8px; }
+.ll-taula td{ border-bottom: 1px solid #F0F1F5; padding: 8px; vertical-align: top; overflow-wrap: anywhere; }
+.ll-taula tr:last-child td{ border-bottom: 0; }
+.ll-titolm{ font-weight: 600; min-width: 180px; } .ll-titolm small{ display: block; font-weight: 400; font-size: 12.5px; color: var(--color-text-muted, #6b7280); margin-top: 2px; }
+.ll-tipus{ color: var(--color-orange, #E8600C); font-weight: 600; font-size: 13px; white-space: nowrap; }
+.ll-isbn{ white-space: nowrap; font-variant-numeric: tabular-nums; }
+@media (max-width: 760px){
+  .ll-taula thead{ display: none; } .ll-taula, .ll-taula tbody, .ll-taula tr, .ll-taula td{ display: block; width: 100%; }
+  .ll-taula tr{ padding: 8px 0; border-bottom: 1px solid #E6EBF2; } .ll-taula td{ border: 0; padding: 2px 0; }
+  .ll-taula td[data-label]:not(.ll-titolm):not(.ll-tipus)::before{ content: attr(data-label) ": "; font-weight: 600; color: var(--color-text-muted, #6b7280); }
+  .ll-llegenda__l{ grid-template-columns: 1fr; }
+}

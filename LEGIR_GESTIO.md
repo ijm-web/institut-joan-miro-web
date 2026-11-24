@@ -613,6 +613,21 @@ self.addEventListener('activate', function (e) {
 - **Etiqueta «⚠ X · Z sanc.»**: només als alumnes que compleixen el criteri; X = retards del període triat (sense les justificades), Z = d'aquests, sancionats (verds) o en tràmit (vermells). La llista de l'avís (PDF): Retards, Entrades i Sancionats del període.
 - **Destacats**: l'estrella no es podia clicar (en passar el ratolí per la targeta, la targeta quedava per sobre de l'estrella i el clic obria el mòdul). Ara l'estrella és sempre a sobre.
 
+## PAS 88
+
+**Llibres de text integrats a GESTIO** (abans, el lloc separat institutjoanmiro-llibres; ja no es fa servir).
+- **Dades**: continuen al full **joanmiro_db** (pestanyes materies, llibres, observacions_generals, seguiment, historial i config). La pestanya **departaments** de joanmiro_db no es toca: la fa servir Programacions (que continua amb el seu Apps Script).
+- **Mòdul «Llibres de text»** (grup Organització del curs): cada matèria té una **especialitat** (columna nova `especialitat` de materies) i, per tant, un **departament/àmbit** de **Currículum › Assignacions › Caps de departament/àmbit**. **Només el cap** edita les matèries del seu departament/àmbit (permís d'edició per a EQ-CAPS, que es posa sol). Els responsables d'especialitat que no són caps **no** editen. L'administració del mòdul ho edita tot i té: seguiment, observacions generals per nivell, especialitats de les matèries, configuració (període obert/tancat, termini, curs publicat, curs en gestió) i «Prepara el curs» (copia matèries i llibres d'un curs a un altre). Informe PDF (amb logo) del departament/àmbit i complet.
+- **Pàgina pública** `/llibres.html` (ca/es/en), dins del web: curs publicat, per nivells, amb observacions i descàrrega en PDF (amb logo). Les pàgines d'etapa hi enllacen (`?etapa=`), ja no al lloc antic. Dades per `/api/gestio-publics?quin=llibres`.
+- **Posada en marxa** (un cop):
+  1. Al full **joanmiro_db**, comparteix-lo amb **permís d'edició** amb el compte que executa l'Apps Script de GESTIO (si no és el mateix propietari).
+  2. A `gestio_db › config`, posa a **db_llibres** l'adreça (o l'ID) de joanmiro_db.
+  3. Executa **configura** (crea el mòdul i el permís d'EQ-CAPS i, en tenir db_llibres, executa `vinculaLlibres`: omple l'especialitat de les matèries a partir del Currículum; el registre diu quantes en queden sense).
+  4. A GESTIO › Llibres de text › Administració › **Especialitats de les matèries**, assigna les que faltin.
+  5. Comprova Configuració (curs publicat i curs en gestió).
+  6. Quan tot funcioni, es pot esborrar el lloc de Netlify **institutjoanmiro-llibres**. El seu Apps Script dins de joanmiro_db es pot deixar (Programacions fa servir el seu propi accés).
+- Fitxers: `Code.gs` (secció PAS 88), `gestio.js`/`gestio.css` (mòdul), `gestio-api.mjs` (accions llibres_*), `gestio-publics.mjs` (quin=llibres), `src/llibres.njk` + `es/` + `en/`, `_includes/llibres.njk`, `assets/js/llibres.js`, `assets/css/llibres.css`, `_includes/etapa.njk` (enllaç), ajuda i manuals (`manual-llibres.pdf`, `guia-llibres.pdf`).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

@@ -827,3 +827,63 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 @media (hover: none){ .gs-mod__estrella{ opacity:1; } }
 .gs-portada__dest .gs-portada__titol{ color:#E8600C; }
 .gs-portada__dest .gs-mod{ border-top-color:#E8600C; }
+/* PAS 88 · Llibres de text (abans un lloc a part) */
+.gs-ll{ padding: 4px 2px 24px; }
+.gs-ll__estat{ margin: 0 0 12px; padding: 8px 12px; border-radius: 10px; font-size: 14px; font-weight: 600; }
+.gs-ll__estat.is-obert{ background: #ECFDF3; color: #166534; }
+.gs-ll__estat.is-tancat{ background: #FEF3F2; color: #991B1B; }
+.gs-ll__dep{ display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin: 0 0 12px; padding: 12px 14px; border: 1px solid #E2E6F0; border-left: 4px solid #1C0CBC; border-radius: 12px; background: #fff; }
+.gs-ll__dep h3{ margin: 0 0 2px; font-size: 18px; color: #1C0CBC; }
+.gs-ll__dep p{ margin: 0; font-size: 13px; }
+.gs-ll__acabat{ display: flex; align-items: center; gap: 10px; font-size: 13px; }
+.gs-ll__acabat .is-fet{ color: #166534; font-weight: 700; }
+.gs-ll__lleg{ margin: 0 0 14px; font-size: 13px; }
+.gs-ll__lleg summary{ cursor: pointer; font-weight: 600; color: #3C348C; }
+.gs-ll__lleg ul{ margin: 6px 0 0 18px; padding: 0; display: grid; gap: 3px; }
+.gs-ll__buit{ padding: 18px; text-align: center; border: 1px dashed #CBD2E1; border-radius: 12px; }
+.gs-ll__niv{ margin: 0 0 18px; }
+.gs-ll__niv > h3{ margin: 0 0 8px; padding: 4px 0; font-size: 15px; text-transform: uppercase; letter-spacing: .06em; color: #E8600C; border-bottom: 2px solid #F6D5C0; }
+.gs-ll__mat{ margin: 0 0 10px; padding: 10px 12px; border: 1px solid #E2E6F0; border-radius: 12px; background: #fff; }
+.gs-ll__mat.is-massa{ border-color: #DC2626; box-shadow: 0 0 0 2px rgba(220, 38, 38, .15); }
+.gs-ll__mat > header{ display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; margin: 0 0 6px; }
+.gs-ll__mat h4{ margin: 0; font-size: 15px; }
+.gs-ll__chip{ font-size: 11px; padding: 1px 8px; border-radius: 99px; background: #EEF0FB; color: #3C348C; }
+.gs-ll__esp{ font-size: 12px; margin-left: auto; }
+.gs-ll__res{ margin: 2px 0 6px; font-size: 13px; }
+.gs-ll__items{ display: grid; gap: 8px; }
+.gs-ll__it{ padding: 8px; border-radius: 10px; background: #F7F8FC; border-left: 3px solid #1C0CBC; }
+.gs-ll__it[data-tipus="lectura"]{ border-left-color: #0E9F6E; }
+.gs-ll__it[data-tipus="material"]{ border-left-color: #9CA3AF; }
+.gs-ll__f1, .gs-ll__f2{ display: grid; gap: 6px 10px; align-items: end; }
+.gs-ll__f1{ grid-template-columns: 150px minmax(180px, 2fr) minmax(120px, 1fr) 150px; }
+.gs-ll__f2{ grid-template-columns: 90px 140px 110px minmax(160px, 1fr) 30px; margin-top: 6px; }
+.gs-ll__it label{ display: flex; flex-direction: column; gap: 2px; font-size: 11.5px; color: #5A6078; min-width: 0; }
+.gs-ll__it input, .gs-ll__it select{ width: 100%; min-height: 32px; padding: 4px 8px; border: 1px solid #CBD2E1; border-radius: 8px; font: inherit; font-size: 13.5px; color: #0f172a; background: #fff; }
+.gs-ll__it input:disabled, .gs-ll__it select:disabled{ background: #F1F3F8; color: #334155; }
+.gs-ll__it input.is-error{ border-color: #DC2626; background: #FEF2F2; }
+.gs-ll__it output{ min-height: 32px; display: flex; align-items: center; font-size: 13.5px; font-weight: 600; color: #0f172a; }
+.gs-ll__it[data-tipus="material"] [data-k="nou"], .gs-ll__it[data-tipus="material"] [data-k="format"]{ opacity: .45; }
+.gs-ll__auto{ display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 6px; background: #FFF1E6; color: #C2410C; font-style: normal; font-size: 10px; font-weight: 700; }
+.gs-ll__treu{ align-self: end; width: 30px; height: 32px; border: 0; border-radius: 8px; background: transparent; color: #9CA3AF; font-size: 20px; cursor: pointer; }
+.gs-ll__treu:hover{ background: #FEE2E2; color: #B91C1C; }
+.gs-ll__add{ display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.gs-ll__mes{ border: 1px dashed #A5ACC8; border-radius: 8px; background: transparent; padding: 4px 10px; font: inherit; font-size: 13px; color: #3C348C; cursor: pointer; }
+.gs-ll__mes:hover:not(:disabled){ background: #EEF0FB; border-style: solid; }
+.gs-ll__mes:disabled{ opacity: .45; cursor: default; }
+.gs-ll__admin{ display: grid; gap: 8px; margin: 0 0 14px; }
+.gs-ll__admin > details{ padding: 8px 12px; border: 1px solid #E2E6F0; border-radius: 12px; background: #FBFBFE; }
+.gs-ll__admin summary{ cursor: pointer; font-weight: 700; color: #3C348C; }
+.gs-ll__taula{ overflow-x: auto; margin: 8px 0; }
+.gs-ll__admin tr.is-actiu td{ background: #EEF0FB; }
+.gs-ll__seg.is-fet{ color: #166534; font-weight: 700; }
+.gs-ll__seg.is-avis{ color: #B45309; font-weight: 700; }
+.gs-ll__seg.is-pend{ color: #C2410C; }
+.gs-ll__seg.is-buit{ color: #9CA3AF; }
+.gs-ll__ob{ display: grid; grid-template-columns: 24px 1fr 30px; gap: 6px; align-items: start; margin: 6px 0; }
+.gs-ll__ob textarea{ width: 100%; padding: 6px 8px; border: 1px solid #CBD2E1; border-radius: 8px; font: inherit; font-size: 13.5px; resize: vertical; }
+.gs-ll__ob span{ padding-top: 7px; font-weight: 700; color: #5A6078; }
+@media (max-width: 860px){
+  .gs-ll__f1, .gs-ll__f2{ grid-template-columns: 1fr 1fr; }
+  .gs-ll__f1 label:nth-child(2), .gs-ll__f2 .gs-ll__obs{ grid-column: 1 / -1; }
+  .gs-ll__treu{ grid-column: 2; justify-self: end; }
+}

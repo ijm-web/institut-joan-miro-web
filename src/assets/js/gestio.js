@@ -34,6 +34,7 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
+    llibres_no_configurat: 'Els llibres encara no estan connectats: cal posar l’adreça del full joanmiro_db a config › db_llibres i executar configura.', llibres_tancat: 'El període per indicar llibres està tancat.', curs_nomes_lectura: 'Aquest curs és només de consulta.', departament_sense_materies: 'Aquest departament/àmbit no té matèries en aquest curs.',
     notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', vapid_no_coincideixen: 'Les claus VAPID_PUBLIC i VAPID_PRIVATE de Netlify no fan parella (són de dues generacions diferents o una està mal copiada). Genereu-ne un parell nou, poseu-les totes dues, torneu a publicar i torneu a activar els avisos als dispositius.', vapid_invalid: 'Una de les claus VAPID de Netlify no és vàlida (mal copiada?). Genereu-ne un parell nou amb «npx web-push generate-vapid-keys».', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.', avis_en_curs: 'Hi ha un avís que no s’ha acabat d’enviar: continueu-lo o atureu-lo abans d’enviar-ne un altre.', no_en_curs: 'Aquest avís ja no s’està enviant.',
     conflicte_versio: 'Algú altre ha desat o importat l’horari mentre l’editàveu. Torneu-lo a carregar (els vostres canvis sense desar es perdran).',
     sense_horari: 'Encara no s’ha importat cap horari.',
@@ -225,7 +226,7 @@
   }
   // PAS 72 · Frescor de les dades: quan es llegeixen les dades d'un mòdul i quan un mòdul desa. Les dades d'un mòdul són
   // fresques si cap ALTRE mòdul ha desat res després de llegir-les (els canvis propis ja s'apliquen a la memòria local).
-  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', calendari_dades: 'calendari', equips: 'equips', matricula_dades: 'matricula', nou_professor: 'nou_professor', nou_alumne: 'nou_alumne', departaments_web_dades: 'departaments', sancions_dades: 'sancions', notificacions_dades: 'notificacions' };
+  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', calendari_dades: 'calendari', equips: 'equips', matricula_dades: 'matricula', nou_professor: 'nou_professor', nou_alumne: 'nou_alumne', departaments_web_dades: 'departaments', sancions_dades: 'sancions', notificacions_dades: 'notificacions', llibres_dades: 'llibres' };
   var NOMES_LECTURA = /(^destacats_desa$|^dades$|_dades$|_informe|_analisi|_pdf$|_cerca|_llista$|_historial|^versio|_exporta|_convoca$|^matricula_formulari$|^sessio|^jo$)/;
   function fresc(m) { return S.llegit[m] && S.llegit[m].t >= S.escrit; }
   function api(accio, cos, progres) {
@@ -323,6 +324,7 @@
     batxillerat: ic('<path d="M6 15 22 8l16 7-16 7z"/><path d="M12 18v7c0 2 4 4 10 4s10-2 10-4v-7"/>' + '<rect x="28" y="30" width="16" height="10" rx="5"/>' + A_('M33 30v10M39 30v10')),
     control_entrada: ic('<circle cx="24" cy="26" r="15"/><path d="M24 17v9l6 4"/>' + A_('M19 5h10M24 5v6M37 13l3-3')),
     amonestacions: ic('<path d="M10 6h20l8 8v28H10z"/><path d="M30 6v8h8"/>' + A_('M24 19v10M24 34v.5')),
+    llibres: ic('<path d="M8 8h13a3 3 0 0 1 3 3v29a3 3 0 0 0-3-3H8z"/><path d="M40 8H27a3 3 0 0 0-3 3v29a3 3 0 0 1 3-3h13z"/>' + A_('M13 16h6M13 22h6M29 16h6M29 22h6')),   // PAS 88: llibre obert
     notificacions: ic('<path d="M14 20a10 10 0 0 1 20 0c0 11 5 14 5 14H9s5-3 5-14"/><path d="M21 39a3.4 3.4 0 0 0 6 0"/>' + A_('M38 8a12 12 0 0 1 4 9M10 8a12 12 0 0 0-4 9')),   // PAS 81: campana
     sancions: ic('<path d="M8 42h24M12 38h16"/><path d="M17 33 30 20M27 12l9 9-6 6-9-9z"/>' + A_('M34 10l4-4M40 16l4-4')),   // PAS 76: mall del jutge
     consell_orientador: ic('<circle cx="24" cy="24" r="17"/>' + A_('M31 17l-4 10-10 4 4-10z') + '<path d="M24 5v4M24 39v4M5 24h4M39 24h4"/>'),
@@ -451,6 +453,7 @@
     if (m.id === 'departaments') return carregaDepartaments();   // PAS 75
     if (m.id === 'sancions') return carregaSancions();   // PAS 76
     if (m.id === 'notificacions') return carregaNotificacions();   // PAS 81
+    if (m.id === 'llibres') return carregaLlibres();   // PAS 88
     if (m.id === 'desiderata') return carregaDesiderata();
     // PAS 72: el planificador, l'ocupació i l'editor reutilitzen les dades ja llegides si cap altre mòdul n'ha desat
     // res des d'aleshores («Actualitza» les torna a llegir)
@@ -4745,6 +4748,242 @@
       }
     });
   }
+  // ------------------------------------------------------------------ PAS 88 · LLIBRES DE TEXT
+  // Abans, un lloc a part (institutjoanmiro-llibres). Les dades continuen al full joanmiro_db. Cada matèria té una especialitat
+  // i, per tant, un departament/àmbit (Currículum › Assignacions › Caps). El cap edita els del seu departament/àmbit;
+  // l'administració del mòdul ho edita tot i fa el seguiment, les observacions generals, les especialitats, la configuració
+  // (període obert, termini, curs publicat i curs en gestió) i prepara el curs següent.
+  var LL_ORDRE = ['ESO 1r', 'ESO 2n', 'ESO 3r', 'ESO 4t', 'BAT 1r', 'BAT 2n'];
+  var LL_NOMS = { 'ESO 1r': '1r ESO', 'ESO 2n': '2n ESO', 'ESO 3r': '3r ESO', 'ESO 4t': '4t ESO', 'BAT 1r': '1r Batxillerat', 'BAT 2n': '2n Batxillerat' };
+  var LL_TIPUS = { llibre: 'Llibre de text', lectura: 'Lectura', material: 'Material' };
+  var LL_FORMATS = { paper: 'Paper', digital: 'Digital', 'paper+digital': 'Paper+Digital' };
+  var LL_GRUPS = ['Matèries comunes', 'Matèries d’itinerari', 'Modalitat obligatòria', 'Modalitat específica', 'Matèries optatives', 'Altres matèries'];
+  var llGrup = function (t) { t = plega(t); return t.indexOf('optativ') >= 0 ? 4 : t.indexOf('especific') >= 0 ? 3 : (t.indexOf('obligat') >= 0 || t.indexOf('modalitat') >= 0) ? 2 : t.indexOf('itinerari') >= 0 ? 1 : t.indexOf('comu') >= 0 ? 0 : 5; };
+  var llOrdMat = function (a, b) { return llGrup(a.tipus) - llGrup(b.tipus) || a.materia.localeCompare(b.materia, 'ca'); };
+  var llOrdNiv = function (a, b) { return (LL_ORDRE.indexOf(a) + 1 || 99) - (LL_ORDRE.indexOf(b) + 1 || 99) || a.localeCompare(b); };
+  var llOrdIt = function (a, b) { return ['llibre', 'lectura', 'material'].indexOf(a.tipus) - ['llibre', 'lectura', 'material'].indexOf(b.tipus) || a.ordre - b.ordre; };
+  var llIsbn = function (v) { return String(v || '').replace(/[^0-9Xx]/g, '').toUpperCase().slice(0, 13); };
+  var llIsbnOk = function (v) {
+    if (/^\d{13}$/.test(v)) return v.split('').reduce(function (s, d, i) { return s + Number(d) * (i % 2 ? 3 : 1); }, 0) % 10 === 0;
+    if (/^\d{9}[\dX]$/.test(v)) return v.split('').reduce(function (s, d, i) { return s + (d === 'X' ? 10 : Number(d)) * (10 - i); }, 0) % 11 === 0;
+    return false;
+  };
+  var llOpcio = function (nou) { return nou === 'si' ? 'B' : nou === 'no' ? 'A' : ''; };
+  var llSiNo = function (v) { return v === 'si' ? 'Sí' : v === 'no' ? 'No' : '-'; };
+  function carregaLlibres(forca, curs) {
+    S.ll = S.ll || { obsNiv: 'ESO 1r' };
+    var c = curs || (S.ll.r && S.ll.r.curs) || '';
+    return (!forca && !curs && S.ll.r && fresc('llibres') ? Promise.resolve(S.ll.r) : api('llibres_dades', { curs: c }, 'Carregant els llibres…')).then(function (r) {
+      if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
+      S.ll.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert };
+      var ids = r.departaments.map(function (d) { return d.id; });
+      if (ids.indexOf(S.ll.dep) < 0) { var meu = r.departaments.filter(function (d) { return d.edita; })[0]; S.ll.dep = (meu || r.departaments[0] || {}).id || ''; }
+      S.ll.obs = null; S.brut = false; lligaLlibres(); pintaLlibres();
+    });
+  }
+  var llDep = function () { return (S.ll.r.departaments.filter(function (d) { return d.id === S.ll.dep; })[0]) || null; };
+  var llEdita = function () { var R = S.ll.r, d = llDep(); return !!(d && d.edita && R.editable && (R.config.obert || R.admin)); };
+  var llSeg = function (id) { return S.ll.r.seguiment.filter(function (x) { return x.departament === id; })[0] || null; };
+  function pintaLlibres() {
+    var R = S.ll.r, C = R.config, d = llDep(), ed = llEdita();
+    var marca = function (k) { var m = []; if (k === C.curs_gestio) m.push('en gestió'); if (k === C.curs) m.push('publicat'); return m.length ? ' (' + m.join(', ') + ')' : ''; };
+    $('gsEines').innerHTML = '<label class="gs-check">Curs <select data-ll="curs">' + R.cursos.map(function (k) { return '<option value="' + esc(k) + '"' + (k === R.curs ? ' selected' : '') + '>' + esc(k + marca(k)) + '</option>'; }).join('') + '</select></label>' +
+      (R.departaments.length > 1 ? '<label class="gs-check">Departament/àmbit <select data-ll="dep">' + R.departaments.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === S.ll.dep ? ' selected' : '') + '>' + esc(x.nom) + (x.edita && !R.admin ? ' ✎' : '') + '</option>'; }).join('') + '</select></label>' : '') +
+      '<span class="gs-espai"></span>' + (ed ? '<button type="button" class="prog-btn" data-ll="desa" disabled>Desa els canvis</button>' : '') +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-ll="informe" title="PDF del departament/àmbit (dades desades)">Informe PDF</button>' +
+      (R.admin ? '<button type="button" class="prog-btn prog-btn--ghost" data-ll="informe-complet" title="PDF de tots els departaments/àmbits">Informe complet</button>' : '') +
+      '<a class="prog-btn prog-btn--ghost" href="/assets/docs/gestio/guia-llibres.pdf" target="_blank" rel="noopener" title="Guia per als caps de departament/àmbit (PDF)">Guia</a>' +
+      '<button type="button" class="prog-btn prog-btn--ghost" data-accio="mod-actualitza" title="Torna a llegir les dades">Actualitza</button>' +
+      '<p class="gs-ajuda gs-cal__ajuda">Llibres de text, lectures i materials de cada matèria (es publiquen a la pàgina <a href="/llibres.html" target="_blank" rel="noopener">Llibres de text</a> del web, curs ' + esc(C.curs) + '). ' +
+        'Cada matèria és d’una especialitat i, per tant, d’un departament/àmbit: <b>només el cap</b> l’edita' + (R.admin ? ' (l’administració, totes)' : '') + '. Fins a ' + C.max_llibres + ' llibres de text per matèria; lectures i materials sense límit. Quan acabeu, deseu i premeu <b>He acabat</b>.</p>';
+    var t = $('gsTaula'); t.className = 'gs-ocu gs-ll';
+    var obertTxt = !R.editable ? 'Curs ' + R.curs + ': només de consulta (només es modifica el curs en gestió, ' + C.curs_gestio + ').' :
+      C.obert ? 'Període obert' + (C.termini ? ' fins al ' + C.termini : '') + ' · curs ' + R.curs + '.' : (C.motiu === 'termini' ? 'El termini (' + C.termini + ') ja ha passat.' : 'El període per indicar llibres està tancat.') + (R.admin ? ' L’administració hi pot continuar desant.' : ' Es pot consultar, però no modificar.');
+    var sg = d ? llSeg(d.id) : null, fet = !!(sg && sg.acabat);
+    var h = '<p class="gs-ll__estat ' + (R.editable && (C.obert || R.admin) ? 'is-obert' : 'is-tancat') + '">' + esc(obertTxt) + '</p>';
+    if (d) h += '<div class="gs-ll__dep"><div><h3>' + esc(d.nom) + '</h3><p class="gs-gris">' + (d.cap ? 'Cap: <b>' + esc(d.cap) + '</b> · ' : '') + 'Especialitats: ' + esc(d.especialitats.join(', ') || '—') + '</p></div>' +
+      '<div class="gs-ll__acabat"><span class="' + (fet ? 'is-fet' : '') + '">' + (fet ? '✓ Acabat el ' + esc(sg.data_acabat) + (sg.acabat_per ? ' (' + esc(sg.acabat_per) + ')' : '') : 'Pendent de marcar com a acabat') + '</span>' +
+      (d.edita && R.editable && (!R.admin || fet) ? '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-ll="acabat">' + (fet ? 'Reobre' : 'He acabat') + '</button>' : '') + '</div></div>';
+    if (R.admin) h += adminLlibres();
+    h += '<details class="gs-ll__lleg"><summary>Com s’omple · llegenda</summary><ul>' +
+      '<li>Cada matèria pot tenir <b>1 o 2 llibres de text</b>, i les lectures i els materials que calguin. Si no en fa servir, deixeu-la buida: no surt a la pàgina pública ni a l’informe.</li>' +
+      '<li>El <b>títol</b> és obligatori. L’ISBN es desa sense guions.</li><li><b>Nou</b> es proposa sol en escriure l’ISBN (si no hi era el curs anterior a la mateixa matèria, «Sí»; si hi era, «No»; etiqueta <i>auto</i>). Es pot canviar.</li>' +
+      '<li><b>On comprar-lo</b> es calcula sol: no nou → opció A; nou → opció B.' + (C.opcio_A ? ' <b>A</b>: ' + esc(C.opcio_A) : '') + (C.opcio_B ? ' <b>B</b>: ' + esc(C.opcio_B) : '') + '</li>' +
+      '<li><b>Format</b>: Paper, Digital o Paper+Digital. Als <b>materials</b>, Nou, Format i On comprar-lo queden en blanc.</li><li>Desar substitueix tot el que hi havia de les matèries del departament/àmbit en aquest curs (queda una còpia a l’historial).</li></ul></details>';
+    var mats = R.materies.filter(function (m) { return d && m.dep === d.id; });
+    if (!R.hi_ha_materies) h += '<p class="gs-gris gs-ll__buit">El curs ' + esc(R.curs) + ' encara no té matèries.' + (R.admin ? ' Podeu preparar-lo a <b>Administració › Prepara el curs</b>.' : ' Quan l’administració el prepari, hi podreu indicar els llibres.') + '</p>';
+    else if (!d) h += '<p class="gs-gris gs-ll__buit">No hi ha cap departament/àmbit definit (Currículum › Assignacions › Caps de departament/àmbit).</p>';
+    else if (!mats.length) h += '<p class="gs-gris gs-ll__buit">Aquest departament/àmbit no té matèries al curs ' + esc(R.curs) + '.' + (R.admin ? ' Reviseu les especialitats de les matèries (Administració › Especialitats).' : '') + '</p>';
+    else mats.map(function (m) { return m.nivell; }).filter(function (n, i, a) { return a.indexOf(n) === i; }).sort(llOrdNiv).forEach(function (n) {
+      h += '<section class="gs-ll__niv"><h3>' + esc(LL_NOMS[n] || n) + '</h3>' + mats.filter(function (m) { return m.nivell === n; }).sort(llOrdMat).map(function (m) { return targetaLl(m, ed); }).join('') + '</section>';
+    });
+    t.innerHTML = h;
+    [].forEach.call(t.querySelectorAll('.gs-ll__mat'), function (el) { actualitzaMatLl(el); });
+    ajustaAlcada();
+  }
+  function targetaLl(m, ed) {
+    var it = S.ll.r.llibres.filter(function (l) { return l.id_materia === m.id_materia; }).sort(llOrdIt);
+    return '<article class="gs-ll__mat" data-id="' + esc(m.id_materia) + '"><header><h4>' + esc(m.materia) + '</h4>' + (m.tipus ? '<span class="gs-ll__chip">' + esc(m.tipus) + '</span>' : '') + '<span class="gs-gris gs-ll__esp">' + esc(m.especialitat) + '</span></header>' +
+      '<div class="gs-ll__items">' + it.map(function (l) { return filaLl(l, ed); }).join('') + '</div><p class="gs-gris gs-ll__res">Sense llibres ni materials.</p>' +
+      (ed ? '<div class="gs-ll__add"><button type="button" class="gs-ll__mes" data-ll="afegeix" data-t="llibre">+ Llibre de text</button><button type="button" class="gs-ll__mes" data-ll="afegeix" data-t="lectura">+ Lectura</button><button type="button" class="gs-ll__mes" data-ll="afegeix" data-t="material">+ Material</button></div>' : '') + '</article>';
+  }
+  function filaLl(l, ed) {
+    var dis = ed ? '' : ' disabled', sel = function (k, ops) { return '<select data-k="' + k + '"' + dis + '>' + ops.map(function (o) { return '<option value="' + o[0] + '"' + (String(l[k] || '') === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select>'; };
+    var inp = function (k, max, extra) { return '<input data-k="' + k + '" maxlength="' + max + '" value="' + esc(k === 'isbn' ? llIsbn(l[k]) : l[k] || '') + '"' + (extra || '') + dis + '>'; };
+    var o = llOpcio(l.nou);
+    return '<div class="gs-ll__it" data-tipus="' + esc(l.tipus || 'llibre') + '"><div class="gs-ll__f1">' +
+      '<label>Tipus ' + sel('tipus', [['llibre', 'Llibre de text'], ['lectura', 'Lectura'], ['material', 'Material']]) + '</label>' +
+      '<label>Títol * ' + inp('titol', 200) + '</label><label>Editorial ' + inp('editorial', 120) + '</label><label>ISBN ' + inp('isbn', 20, ' inputmode="numeric" data-auto="' + esc(llIsbn(l.isbn)) + '"') + '</label></div><div class="gs-ll__f2">' +
+      '<label>Nou <em class="gs-ll__auto" hidden>auto</em>' + sel('nou', [['', '—'], ['no', 'No'], ['si', 'Sí']]) + '</label>' +
+      '<label>Format ' + sel('format', [['', '—'], ['paper', 'Paper'], ['digital', 'Digital'], ['paper+digital', 'Paper+Digital']]) + '</label>' +
+      '<label>On comprar-lo <output class="gs-ll__op">' + (o ? 'Opció ' + o : '—') + '</output></label><label class="gs-ll__obs">Observacions ' + inp('observacions', 500) + '</label>' +
+      (ed ? '<button type="button" class="gs-ll__treu" data-ll="treu" title="Treu aquesta fila" aria-label="Treu aquesta fila">×</button>' : '') + '</div></div>';
+  }
+  // Buit, límit de llibres de text i tipus de cada fila
+  function actualitzaMatLl(el) {
+    var fs = [].slice.call(el.querySelectorAll('.gs-ll__it')), max = S.ll.r.config.max_llibres;
+    fs.forEach(function (f) { f.dataset.tipus = f.querySelector('[data-k="tipus"]').value; });
+    var n = fs.filter(function (f) { return f.dataset.tipus === 'llibre'; }).length;
+    el.querySelector('.gs-ll__res').hidden = fs.length > 0;
+    var b = el.querySelector('[data-t="llibre"]'); if (b) { b.disabled = n >= max; b.textContent = '+ Llibre de text' + (n ? ' (' + n + '/' + max + ')' : ''); }
+    el.classList.toggle('is-massa', n > max);
+  }
+  function brutLl(v) { S.brut = v; var b = document.querySelector('[data-ll="desa"]'); if (b) { b.disabled = !v; b.textContent = v ? 'Desa els canvis ●' : 'Desa els canvis'; } var a = document.querySelector('[data-ll="acabat"]'); if (a) a.disabled = v; }
+  function desaLlibres() {
+    var files = [], err = 0, massa = 0;
+    [].forEach.call(document.querySelectorAll('.gs-ll__mat'), function (el) {
+      if (el.classList.contains('is-massa')) massa++;
+      [].forEach.call(el.querySelectorAll('.gs-ll__it'), function (f) { var o = { id_materia: el.dataset.id }; [].forEach.call(f.querySelectorAll('[data-k]'), function (i) { o[i.dataset.k] = i.value.trim(); });
+        if (!o.titol) { err++; f.querySelector('[data-k="titol"]').classList.add('is-error'); } files.push(o); });
+    });
+    if (massa) return toast('Hi ha alguna matèria amb més de ' + S.ll.r.config.max_llibres + ' llibres de text.', true);
+    if (err) return toast('Falta el títol a ' + err + (err === 1 ? ' fila' : ' files') + '. Escriviu-lo o traieu la fila.', true);
+    api('llibres_desa', { curs: S.ll.r.curs, departament: S.ll.dep, files: files }, 'Desant els llibres…').then(function (r) {
+      if (!r.ok) return toast({ llibres_tancat: 'El període per indicar llibres està tancat. No s’ha desat res.', curs_nomes_lectura: 'Aquest curs és només de consulta.', massa_llibres: 'Hi ha alguna matèria amb massa llibres de text.', materia_no_valida: 'Hi ha una matèria que ja no és del departament/àmbit: actualitzeu.' }[r.error] || text(r.error), true);
+      S.ll.r = r; S.brut = false; pintaLlibres(); toast('Desat (' + r.desades + (r.desades === 1 ? ' element).' : ' elements).'));
+    });
+  }
+  // ---- Administració (seguiment, observacions, especialitats, configuració i preparar el curs)
+  function adminLlibres() {
+    var R = S.ll.r, C = R.config, fets = 0, sense = R.materies.filter(function (m) { return !m.dep; });
+    var seg = R.departaments.map(function (d) { var sg = llSeg(d.id) || {}; if (sg.acabat) fets++;
+      var mod = sg.acabat && sg.darrer_desat && sg.data_acabat && clauDataLl(sg.darrer_desat) > clauDataLl(sg.data_acabat);
+      return '<tr' + (d.id === S.ll.dep ? ' class="is-actiu"' : '') + '><td><button type="button" class="gs-enllac" data-ll="anar" data-dep="' + esc(d.id) + '">' + esc(d.nom) + '</button></td><td>' + esc(d.cap || '—') + '</td><td>' + esc(sg.darrer_desat || '—') + '</td><td>' + esc(sg.desat_per || '—') + '</td><td class="gs-cen">' + esc(sg.elements || '—') + '</td>' +
+        '<td class="gs-ll__seg ' + (sg.acabat ? (mod ? 'is-avis' : 'is-fet') : sg.darrer_desat ? 'is-pend' : 'is-buit') + '">' + (sg.acabat ? '✓ Acabat ' + esc(sg.data_acabat) + (mod ? ' · modificat després' : '') : sg.darrer_desat ? 'Pendent' : 'Sense desar') + '</td></tr>'; }).join('');
+    var O = S.ll.obs || (S.ll.obs = (function () { var o = {}; R.nivells.forEach(function (n) { o[n] = (R.observacions[n] || []).slice(); }); return o; })());
+    var niv = S.ll.obsNiv, ob = O[niv] || [];
+    var esp = function (m) { return '<tr><td>' + esc(LL_NOMS[m.nivell] || m.nivell) + '</td><td>' + esc(m.materia) + '</td><td><select data-ll-esp="' + esc(m.nivell + '|' + m.materia) + '"><option value="">—</option>' + R.especialitats.map(function (e) { var v = m.especialitat || m.proposta; return '<option' + (e === v ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select>' + (m.proposta && !m.especialitat ? ' <small class="gs-gris">proposta</small>' : '') + '</td></tr>'; };
+    var buit = !R.hi_ha_materies, origens = R.cursos.filter(function (k) { return k !== R.curs; });
+    return '<div class="gs-ll__admin">' +
+      '<details' + (S.ll.obert === 'seg' ? ' open' : '') + ' data-ll-panell="seg"><summary>Seguiment del curs ' + esc(R.curs) + ' <span class="gs-gris">· ' + fets + ' de ' + R.departaments.length + ' han acabat</span></summary><div class="gs-ll__taula"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Departament/àmbit</th><th>Cap</th><th>Darrera desada</th><th>Desat per</th><th>Elements</th><th>Estat</th></tr></thead><tbody>' + seg + '</tbody></table></div></details>' +
+      '<details' + (S.ll.obert === 'obs' ? ' open' : '') + ' data-ll-panell="obs"><summary>Observacions generals per nivell <span class="gs-gris">· surten a la pàgina pública i als informes</span></summary>' +
+        '<div class="gs-pestanyes">' + R.nivells.map(function (n) { var q = (O[n] || []).filter(function (x) { return x.trim(); }).length; return '<button type="button" data-ll="obs-niv" data-n="' + esc(n) + '" aria-selected="' + (n === niv) + '">' + esc(LL_NOMS[n] || n) + (q ? ' (' + q + ')' : '') + '</button>'; }).join('') + '</div>' +
+        ob.map(function (x, i) { return '<div class="gs-ll__ob"><span>' + (i + 1) + '.</span><textarea data-ll-ob="' + i + '" rows="2" maxlength="500">' + esc(x) + '</textarea><button type="button" class="gs-ll__treu" data-ll="obs-treu" data-i="' + i + '" aria-label="Treu">×</button></div>'; }).join('') +
+        '<p><button type="button" class="gs-ll__mes" data-ll="obs-afegeix"' + (ob.length >= R.max_obs ? ' disabled' : '') + '>+ Observació</button> <button type="button" class="prog-btn prog-btn--sm" data-ll="obs-desa">Desa les observacions</button></p></details>' +
+      '<details' + (S.ll.obert === 'esp' || sense.length ? ' open' : '') + ' data-ll-panell="esp"><summary>Especialitats de les matèries' + (sense.length ? ' <span class="gs-perill">· ' + sense.length + ' sense departament/àmbit</span>' : ' <span class="gs-gris">· totes assignades</span>') + '</summary>' +
+        '<p class="gs-ajuda">Cada matèria de llibres ha de tenir una especialitat que sigui d’algun departament/àmbit (Currículum › Assignacions › Caps de departament/àmbit). Si no, ningú (llevat de l’administració) no la pot editar. Les propostes surten del Currículum (mateix nivell i nom).</p>' +
+        '<div class="gs-ll__taula"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Nivell</th><th>Matèria</th><th>Especialitat</th></tr></thead><tbody>' +
+        (S.ll.totes ? R.materies.slice().sort(function (a, b) { return llOrdNiv(a.nivell, b.nivell) || a.materia.localeCompare(b.materia, 'ca'); }) : sense).map(esp).join('') + '</tbody></table></div>' +
+        '<p><label class="gs-check"><input type="checkbox" data-ll="esp-totes"' + (S.ll.totes ? ' checked' : '') + '> Mostra totes les matèries</label> <button type="button" class="prog-btn prog-btn--sm" data-ll="esp-desa">Desa les especialitats</button></p></details>' +
+      '<details' + (S.ll.obert === 'cfg' || buit ? ' open' : '') + ' data-ll-panell="cfg"><summary>Configuració i preparar el curs</summary><div class="gs-form-fila">' +
+        '<label>Període <select id="gsLlEstat"><option value="obert"' + (C.estat === 'obert' ? ' selected' : '') + '>Obert</option><option value="tancat"' + (C.estat !== 'obert' ? ' selected' : '') + '>Tancat</option></select></label>' +
+        '<label>Termini (dd/mm/aaaa) <input id="gsLlTermini" value="' + esc(C.termini || '') + '" placeholder="sense termini"></label>' +
+        '<label>Curs publicat (web) <select id="gsLlPub">' + R.cursos.map(function (k) { return '<option' + (k === C.curs ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('') + '</select></label>' +
+        '<label>Curs en gestió (caps) <select id="gsLlGes">' + R.cursos.map(function (k) { return '<option' + (k === C.curs_gestio ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('') + '</select></label></div>' +
+        '<p><button type="button" class="prog-btn prog-btn--sm" data-ll="cfg-desa">Desa la configuració</button></p>' +
+        (buit ? '<p class="prog-avis">El curs ' + esc(R.curs) + ' encara no té matèries. <label class="gs-check">Copia del curs <select id="gsLlOrigen">' + origens.map(function (k) { return '<option' + (k === C.curs ? ' selected' : '') + '>' + esc(k) + '</option>'; }).join('') + '</select></label> <button type="button" class="prog-btn prog-btn--sm" data-ll="copia"' + (origens.length ? '' : ' disabled') + '>Prepara el curs ' + esc(R.curs) + '</button><br><small>Es copien les matèries (amb la seva especialitat) i els llibres; els llibres copiats queden com a no nous (opció A) i cada departament/àmbit els revisa.</small></p>' : '') +
+      '</details></div>';
+  }
+  var clauDataLl = function (t) { var m = String(t || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s*(\d{1,2})?:?(\d{2})?/); return m ? [m[3], ('0' + m[2]).slice(-2), ('0' + m[1]).slice(-2), ('0' + (m[4] || '0')).slice(-2), m[5] || '00'].join('') : ''; };
+  function adminLl(cos, msg) { return api('llibres_admin', Object.assign({ curs: S.ll.r.curs }, cos), 'Desant…').then(function (r) { if (!r.ok) return toast({ desti_amb_dades: 'El curs ja té dades.', origen_buit: 'El curs d’origen no té dades.', massa_observacions: 'Massa observacions en un nivell.' }[r.error] || text(r.error), true); S.ll.r = r; S.ll.obs = null; pintaLlibres(); toast(msg); }); }
+  function lligaLlibres() {
+    if (lligaLlibres.fet) return; lligaLlibres.fet = true;
+    var actiu = function () { return S.modul && S.modul.id === 'llibres' && S.ll && S.ll.r; };
+    var canvia = function (fn) { if (!S.brut) return fn(); pregunta('Hi ha canvis sense desar', '<p>Si continueu, es perdran.</p>', [{ t: 'Continua editant', valor: 0, tipus: 'ghost' }, { t: 'Continua sense desar', valor: 1, tipus: 'danger' }]).then(function (v) { if (v) { S.brut = false; fn(); } else pintaLlibres(); }); };
+    $('gsEines').addEventListener('change', function (e) {
+      if (!actiu()) return; var k = e.target.dataset.ll;
+      if (k === 'curs') { var c = e.target.value; canvia(function () { carregaLlibres(true, c); }); }
+      if (k === 'dep') { var dp = e.target.value; canvia(function () { S.ll.dep = dp; pintaLlibres(); }); }
+    });
+    var clic = function (e) {
+      if (!actiu()) return; var b = e.target.closest('[data-ll]'); if (!b || b.tagName === 'SELECT' || b.tagName === 'INPUT') return; var a = b.dataset.ll, R = S.ll.r;
+      if (a === 'desa') return desaLlibres();
+      if (a === 'informe' || a === 'informe-complet') { if (S.brut) toast('L’informe mostra les dades desades.', true); return informeLlibres(a === 'informe-complet'); }
+      if (a === 'afegeix') { var el = b.closest('.gs-ll__mat'), mat = b.dataset.t === 'material', w = document.createElement('div'); w.innerHTML = filaLl({ tipus: b.dataset.t, nou: mat ? '' : 'no', format: mat ? '' : 'paper' }, true);
+        el.querySelector('.gs-ll__items').appendChild(w.firstChild); actualitzaMatLl(el); brutLl(true); var ii = el.querySelectorAll('[data-k="titol"]'); ii[ii.length - 1].focus(); return; }
+      if (a === 'treu') { var m = b.closest('.gs-ll__mat'); b.closest('.gs-ll__it').remove(); actualitzaMatLl(m); return brutLl(true); }
+      if (a === 'acabat') { var sg = llSeg(S.ll.dep), fer = !(sg && sg.acabat), d = llDep();
+        return (fer ? pregunta('He acabat', '<p>Confirmeu que <b>' + esc(d.nom) + '</b> ha acabat d’indicar els llibres del curs ' + esc(R.curs) + '?</p>', [{ t: 'Sí, he acabat', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]) : Promise.resolve(1)).then(function (v) {
+          if (v) api('llibres_acabat', { curs: R.curs, departament: S.ll.dep, acabat: fer }, 'Desant…').then(function (r) { if (!r.ok) return toast(text(r.error), true);
+            R.seguiment = R.seguiment.filter(function (x) { return x.departament !== S.ll.dep; }); if (r.seguiment) R.seguiment.push(r.seguiment); pintaLlibres(); toast(fer ? 'Marcat com a acabat. Gràcies!' : 'Departament/àmbit reobert.'); }); }); }
+      if (a === 'anar') return canvia(function () { S.ll.dep = b.dataset.dep; S.ll.obert = 'seg'; pintaLlibres(); });
+      if (a === 'obs-niv') { S.ll.obsNiv = b.dataset.n; S.ll.obert = 'obs'; return pintaLlibres(); }
+      if (a === 'obs-afegeix') { S.ll.obs[S.ll.obsNiv].push(''); S.ll.obert = 'obs'; return pintaLlibres(); }
+      if (a === 'obs-treu') { S.ll.obs[S.ll.obsNiv].splice(Number(b.dataset.i), 1); S.ll.obert = 'obs'; return pintaLlibres(); }
+      if (a === 'obs-desa') { var obs = []; Object.keys(S.ll.obs).forEach(function (n) { S.ll.obs[n].forEach(function (t) { if (t.trim()) obs.push({ nivell: n, text: t.trim() }); }); }); S.ll.obert = 'obs'; return adminLl({ accio: 'observacions', observacions: obs }, 'Observacions desades.'); }
+      if (a === 'esp-desa') { var as = [].map.call(document.querySelectorAll('[data-ll-esp]'), function (s) { var p = s.dataset.llEsp.split('|'); return { nivell: p[0], materia: p.slice(1).join('|'), especialitat: s.value }; }).filter(function (x) { return x.especialitat; });
+        S.ll.obert = 'esp'; return adminLl({ accio: 'especialitats', assignacions: as, curs_vista: R.curs }, 'Especialitats desades (' + as.length + ').'); }
+      if (a === 'cfg-desa') { S.ll.obert = 'cfg'; return adminLl({ accio: 'config', estat: $('gsLlEstat').value, termini: $('gsLlTermini').value.trim(), curs_publicat: $('gsLlPub').value, curs_gestio: $('gsLlGes').value, curs_vista: R.curs }, 'Configuració desada.'); }
+      if (a === 'copia') { var org = $('gsLlOrigen').value; return pregunta('Prepara el curs', '<p>Es copiaran les matèries i els llibres del curs <b>' + esc(org) + '</b> al curs <b>' + esc(R.curs) + '</b>. Els llibres copiats quedaran com a no nous (opció A).</p>', [{ t: 'Prepara', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v) adminLl({ accio: 'copia_curs', origen: org }, 'Curs ' + R.curs + ' preparat.'); }); }
+    };
+    $('gsEines').addEventListener('click', clic); $('gsTaula').addEventListener('click', clic);
+    $('gsTaula').addEventListener('toggle', function (e) { if (actiu() && e.target.dataset && e.target.dataset.llPanell && e.target.open) S.ll.obert = e.target.dataset.llPanell; }, true);
+    $('gsTaula').addEventListener('change', function (e) {
+      if (!actiu()) return;
+      if (e.target.dataset.ll === 'esp-totes') { S.ll.totes = e.target.checked; S.ll.obert = 'esp'; return pintaLlibres(); }
+      var f = e.target.closest('.gs-ll__it'); if (!f) return; var k = e.target.dataset.k;
+      if (k === 'tipus') { var nou = f.querySelector('[data-k="nou"]'), fm = f.querySelector('[data-k="format"]'); if (e.target.value === 'material') { nou.value = ''; fm.value = ''; } else { if (!nou.value) nou.value = 'no'; if (!fm.value) fm.value = 'paper'; } actualitzaMatLl(f.closest('.gs-ll__mat')); }
+      if (k === 'nou') f.querySelector('.gs-ll__auto').hidden = true;
+      var o = llOpcio(f.querySelector('[data-k="nou"]').value); f.querySelector('.gs-ll__op').textContent = o ? 'Opció ' + o : '—';
+      brutLl(true);
+    });
+    $('gsTaula').addEventListener('input', function (e) {
+      if (!actiu()) return;
+      if (e.target.dataset.llOb != null) { S.ll.obs[S.ll.obsNiv][Number(e.target.dataset.llOb)] = e.target.value; return; }
+      var f = e.target.closest('.gs-ll__it'); if (!f) return; var k = e.target.dataset.k;
+      if (k === 'titol') e.target.classList.remove('is-error');
+      if (k === 'isbn') { var v = llIsbn(e.target.value); if (v !== e.target.value) e.target.value = v;
+        // «Nou» automàtic: l'ISBN hi era el curs anterior a la mateixa matèria → No; no hi era → Sí
+        var R = S.ll.r, id = f.closest('.gs-ll__mat').dataset.id;
+        if (R.te_anterior && f.querySelector('[data-k="tipus"]').value !== 'material' && llIsbnOk(v) && v !== e.target.dataset.auto) {
+          e.target.dataset.auto = v; var hi = (R.anteriors[id] || []).indexOf(v) >= 0, s = f.querySelector('[data-k="nou"]'), au = f.querySelector('.gs-ll__auto');
+          s.value = hi ? 'no' : 'si'; au.hidden = false; au.title = hi ? 'Aquest ISBN ja hi era el curs ' + R.curs_anterior + ': no és nou.' : 'Aquest ISBN no hi era el curs ' + R.curs_anterior + ' en aquesta matèria: és nou.';
+          var o = llOpcio(s.value); f.querySelector('.gs-ll__op').textContent = o ? 'Opció ' + o : '—'; } }
+      brutLl(true);
+    });
+  }
+  // Informe PDF (dades desades): el departament/àmbit seleccionat o tots (administració), amb el logo
+  function informeLlibres(complet) {
+    var R = S.ll.r, C = R.config, deps = complet ? R.departaments.slice().sort(function (a, b) { return a.nom.localeCompare(b.nom, 'ca'); }) : R.departaments.filter(function (d) { return d.id === S.ll.dep; });
+    var crida = logoPdf().then(function (logo) {
+      var doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M2 = 12;
+      capPdf(doc, logo, 'Llibres de text · ' + (complet ? 'informe complet' : (deps[0] ? deps[0].nom : '')), 'Curs ' + R.curs + ' · ' + new Date().toLocaleDateString('ca-ES') + (complet ? '' : (deps[0] && deps[0].cap ? ' · Cap: ' + deps[0].cap : '')), M2, W);
+      var body = [], niv = {};
+      deps.forEach(function (d) {
+        var mats = R.materies.filter(function (m) { return m.dep === d.id && R.llibres.some(function (l) { return l.id_materia === m.id_materia; }); });
+        if (complet) body.push([{ content: d.nom + (d.cap ? ' · Cap: ' + d.cap : ''), colSpan: 9, styles: { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold' } }]);
+        if (!mats.length) { body.push([{ content: 'Cap matèria amb llibres, lectures ni materials.', colSpan: 9, styles: { textColor: [107, 112, 128], fontStyle: 'italic' } }]); return; }
+        mats.map(function (m) { return m.nivell; }).filter(function (n, i, a) { return a.indexOf(n) === i; }).sort(llOrdNiv).forEach(function (n) {
+          niv[n] = 1; body.push([{ content: LL_NOMS[n] || n, colSpan: 9, styles: { fillColor: [230, 235, 242], textColor: [28, 12, 188], fontStyle: 'bold' } }]);
+          mats.filter(function (m) { return m.nivell === n; }).sort(llOrdMat).forEach(function (m) {
+            var it = R.llibres.filter(function (l) { return l.id_materia === m.id_materia; }).sort(llOrdIt);
+            it.forEach(function (x, i) { body.push([i === 0 ? { content: m.materia, rowSpan: it.length, styles: { fontStyle: 'bold' } } : null, LL_TIPUS[x.tipus] || x.tipus, x.titol, x.editorial, llIsbn(x.isbn), llSiNo(x.nou), LL_FORMATS[x.format] || '-', llOpcio(x.nou) ? 'Opció ' + llOpcio(x.nou) : '-', x.observacions].filter(function (c) { return c !== null; })); });
+          });
+        });
+      });
+      doc.autoTable({ startY: Y_TAULA, head: [['Matèria', 'Tipus', 'Títol', 'Editorial', 'ISBN', 'Nou', 'Format', 'Compra', 'Observacions']], body: body, margin: { left: M2, right: M2, bottom: 14 },
+        styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.6, valign: 'top', lineColor: [222, 226, 236], lineWidth: 0.2 }, headStyles: { fillColor: [60, 52, 140], textColor: 255, fontStyle: 'bold' },
+        columnStyles: { 0: { cellWidth: 42 }, 1: { cellWidth: 24 }, 2: { cellWidth: 56 }, 3: { cellWidth: 30 }, 4: { cellWidth: 28 }, 5: { cellWidth: 10 }, 6: { cellWidth: 22 }, 7: { cellWidth: 16 } } });
+      var obs = (complet ? R.nivells : Object.keys(niv).sort(llOrdNiv)).filter(function (n) { return (R.observacions[n] || []).length; }).map(function (n) { return [LL_NOMS[n] || n, R.observacions[n].map(function (t) { return '•  ' + t; }).join('\n')]; });
+      if (obs.length) doc.autoTable({ startY: doc.lastAutoTable.finalY + 6, head: [['Nivell', 'Observacions generals']], body: obs, margin: { left: M2, right: M2, bottom: 14 }, styles: { font: 'helvetica', fontSize: 8, cellPadding: 1.6, valign: 'top' }, headStyles: { fillColor: [60, 52, 140], textColor: 255 }, columnStyles: { 0: { cellWidth: 42, fontStyle: 'bold' } } });
+      var y = doc.lastAutoTable.finalY + 6; if (y > H - 26) { doc.addPage(); y = 20; }
+      doc.setFontSize(8); doc.setTextColor(90, 96, 120);
+      [['Opció A (llibre no nou)', C.opcio_A], ['Opció B (llibre nou)', C.opcio_B]].forEach(function (x) { if (!x[1]) return; var l = doc.splitTextToSize(x[0] + ': ' + x[1], W - 2 * M2); doc.text(l, M2, y); y += 4 * l.length + 1; });
+      var n = doc.getNumberOfPages(); for (var i = 1; i <= n; i++) { doc.setPage(i); doc.setFontSize(7.5); doc.text('Pàgina ' + i + ' de ' + n, W - M2, H - 6, { align: 'right' }); }
+      doc.save(('llibres-' + (complet ? 'informe-complet' : (deps[0] ? deps[0].nom : 'departament')) + '-' + R.curs + '.pdf').toLowerCase().replace(/[^a-z0-9.\-]+/g, '-'));
+    });
+    return window.Progres ? Progres.amb(crida, 'Generant el PDF…') : crida;
+  }
   // ------------------------------------------------------------------ PAS 57 · OCUPACIÓ
   // Hores fixes de cada docent: lectives d'alumnat (Currículum), reduccions lectives (manuals o automàtiques), guàrdies i
   // reduccions de guàrdia, amb el semàfor 18 + 4 = 22 (en proporció a la jornada). També s'hi assignen els càrrecs.
@@ -6639,7 +6878,7 @@
       case 'mod-actualitza':   // PAS 72: ocupació i editor
         (S.brut ? pregunta('Actualitza', '<p>Hi ha canvis sense desar. Si actualitzeu, es perdran.</p>', [{ t: 'Actualitza igualment', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]) : Promise.resolve(1)).then(function (v) {
           if (v !== 1) return; S.brut = false; if (S.modul.id === 'ocupacio') carregaOcupacio(); else if (S.modul.id === 'horaris_editor') carregaEditorHoraris();
-          else if (S.modul.id === 'calendari') { carregaCalendari.forca = true; carregaCalendari(); } else if (S.modul.id === 'equips') { carregaEquips.forca = true; carregaEquips(); } else if (S.modul.id === 'departaments') carregaDepartaments(true); else if (S.modul.id === 'sancions') carregaSancions(true); else if (S.modul.id === 'notificacions') carregaNotificacions(true); });
+          else if (S.modul.id === 'calendari') { carregaCalendari.forca = true; carregaCalendari(); } else if (S.modul.id === 'equips') { carregaEquips.forca = true; carregaEquips(); } else if (S.modul.id === 'departaments') carregaDepartaments(true); else if (S.modul.id === 'sancions') carregaSancions(true); else if (S.modul.id === 'notificacions') carregaNotificacions(true); else if (S.modul.id === 'llibres') carregaLlibres(true); });
         break;
       case 'hor-actualitza':   // PAS 68
         if (Object.keys(S.horBrut || {}).some(function (k) { return S.horBrut[k]; })) { pregunta('Actualitza', '<p>Hi ha canvis sense desar al planificador. Si actualitzeu, es perdran.</p>', [{ t: 'Actualitza igualment', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v === 1) { S.horBrut = {}; S.brut = false; carregaHoraris(); } }); }

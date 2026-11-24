@@ -1635,6 +1635,67 @@
         }
       ]
     },
+    "llibres": {
+      "titol": "Llibres de text",
+      "graella": false,
+      "intro": "Llibres de text, lectures i materials de cada matèria. Abans era un lloc web a part; ara s'edita aquí i es publica a la pàgina **Llibres de text** del web (cada etapa hi enllaça). Cada matèria és d'una **especialitat** i, per tant, d'un **departament/àmbit** (Currículum › Assignacions › Caps de departament/àmbit): **només el cap** l'edita.",
+      "temes": [
+        {
+          "id": "ll-qui",
+          "titol": "Qui hi pot editar",
+          "claus": "cap departament àmbit especialitat responsable permís editar consulta",
+          "text": [
+            "Edita el **cap** de cada departament/àmbit, i només les matèries de les especialitats del seu departament/àmbit. Els departaments/àmbits, les especialitats i els caps són els de **Currículum › Assignacions › Caps de departament/àmbit**.",
+            "Els **responsables d'especialitat que no són caps no editen**: si tenen accés al mòdul, el veuen només de consulta.",
+            "L'**administració** del mòdul ho pot editar tot (també amb el període tancat) i té el panell d'administració."
+          ]
+        },
+        {
+          "id": "ll-omplir",
+          "titol": "Indicar els llibres d'una matèria",
+          "claus": "afegeix llibre lectura material títol editorial isbn nou format opció compra observacions desa límit dos",
+          "text": [
+            "Trieu el **curs** (només es modifica el **curs en gestió**; els altres són de consulta) i, si en teniu més d'un, el **departament/àmbit**.",
+            "A cada matèria: **+ Llibre de text** (fins a 2), **+ Lectura** o **+ Material** (sense límit). El **títol** és obligatori; editorial, ISBN, format i observacions, opcionals.",
+            "- **Nou**: es proposa sol en escriure un ISBN vàlid (si no hi era el curs anterior a la mateixa matèria, «Sí»; si hi era, «No»; etiqueta *auto*). Es pot canviar.",
+            "- **On comprar-lo**: no nou → **opció A**; nou → **opció B** (el text de cada opció és a la configuració).",
+            "- Als **materials**, Nou, Format i On comprar-lo queden en blanc.",
+            "Una matèria sense cap fila no surt a la pàgina pública ni a l'informe.",
+            "Premeu **Desa els canvis**: substitueix el que hi havia de les matèries del departament/àmbit en aquest curs (en queda una còpia a l'historial)."
+          ]
+        },
+        {
+          "id": "ll-acabat",
+          "titol": "He acabat i informe PDF",
+          "claus": "acabat reobre seguiment informe pdf logo",
+          "text": [
+            "Quan hàgiu acabat, deseu i premeu **He acabat**: l'administració ho veu al seguiment. **Reobre** ho desfà.",
+            "**Informe PDF**: llibres del departament/àmbit amb les dades desades, amb el logo. L'administració també té l'**Informe complet** de tots els departaments/àmbits."
+          ]
+        },
+        {
+          "id": "ll-admin",
+          "titol": "Administració",
+          "claus": "seguiment observacions generals nivell especialitats configuració període obert tancat termini curs publicat curs en gestió prepara copia",
+          "text": [
+            "**Seguiment**: per a cada departament/àmbit, darrera desada, qui, quants elements i si ha acabat (o si s'ha modificat després).",
+            "**Observacions generals per nivell**: surten a la pàgina pública i als informes.",
+            "**Especialitats de les matèries**: cada matèria ha de tenir una especialitat d'algun departament/àmbit; si no, només l'administració la pot editar. Es proposa l'especialitat del Currículum (mateix nivell i nom).",
+            "**Configuració**: període obert o tancat, termini (dd/mm/aaaa; passat el termini es tanca sol), **curs publicat** (el que es veu al web) i **curs en gestió** (el que editen els caps).",
+            "**Prepara el curs**: si el curs en gestió encara no té matèries, es copien les d'un altre curs amb els llibres (com a no nous, opció A) perquè cada departament/àmbit els revisi."
+          ]
+        },
+        {
+          "id": "ll-publica",
+          "titol": "Pàgina pública",
+          "claus": "web pública llibres etapa eso batxillerat pdf descarrega",
+          "text": [
+            "La pàgina **Llibres de text** del web (ca/es/en) mostra el **curs publicat**, per nivells i matèries, amb les observacions generals i un botó per descarregar-ho en PDF. Cada etapa (ESO, batxillerat) hi enllaça amb el seu filtre.",
+            "Per publicar el curs nou: quan els caps hagin acabat, canvieu **Curs publicat** a la configuració."
+          ]
+        }
+      ]
+    },
     "sancions": {
       "titol": "Sancions",
       "graella": false,
@@ -1797,6 +1858,37 @@
           "titol": "Dubtes",
           "text": [
             "Al botó **?** de GESTIO hi ha l'ajuda de cada pantalla. Per a qualsevol dubte, adreceu-vos a la direcció."
+          ]
+        }
+      ]
+    },
+    "llibres": {
+      "titol": "Guia dels llibres de text per als caps de departament/àmbit",
+      "kicker": "Guia · Llibres de text",
+      "intro": "Cada curs, el cap de cada departament/àmbit indica a GESTIO els llibres de text, les lectures i els materials de les matèries del seu departament/àmbit. Es publiquen a la pàgina Llibres de text del web.",
+      "temes": [
+        {
+          "titol": "Entrar",
+          "text": [
+            "Obriu **institutjoanmiro.netlify.app/gestio**, entreu amb el compte **@institutjoanmiro.cat** i obriu el mòdul **Llibres de text** (grup Organització del curs).",
+            "Només hi editeu si sou **cap** del departament/àmbit a **Currículum › Assignacions**. Els responsables d'especialitat que no són caps no editen."
+          ]
+        },
+        {
+          "titol": "Omplir cada matèria",
+          "text": [
+            "El curs que surt és el **curs en gestió**. Les matèries són les de les especialitats del vostre departament/àmbit, agrupades per nivell.",
+            "Per a cada matèria: **+ Llibre de text** (fins a 2), **+ Lectura** o **+ Material**. Escriviu el **títol** (obligatori), l'editorial i l'ISBN.",
+            "En escriure l'ISBN, **Nou** es proposa sol comparant amb el curs anterior; **On comprar-lo** surt sol (no nou → opció A; nou → opció B).",
+            "Si una matèria no fa servir llibres, deixeu-la buida."
+          ]
+        },
+        {
+          "titol": "Desar i acabar",
+          "text": [
+            "Premeu **Desa els canvis** (podeu desar tantes vegades com calgui mentre el període és obert).",
+            "Quan hàgiu acabat, premeu **He acabat**. Si heu de canviar res després, premeu **Reobre**.",
+            "**Informe PDF** us dona el resum del departament/àmbit."
           ]
         }
       ]

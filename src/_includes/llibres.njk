@@ -1,0 +1,33 @@
+{#- PAS 88 · Llibres de text, lectures i materials (abans, al lloc separat institutjoanmiro-llibres). Les dades les gestiona
+    GESTIO › Llibres de text i les serveix /api/gestio-publics?quin=llibres (curs publicat). Lògica: assets/js/llibres.js -#}
+{%- set T = {
+  ca: { kicker: "Estudis", titol: "Llibres de text, lectures i materials", lead: "Tria el curs per veure els llibres de cada matèria.", desc: "Descarrega (PDF)", llegenda: "Llegenda", nou: "Nou", nouT: "El llibre és nou respecte al curs anterior.", format: "Format", formatT: "Paper, Digital o Paper+Digital (llibre en paper amb accés digital).", on: "On comprar-lo", onT: "Hi ha dues opcions, segons si el llibre és nou o no:", carregant: "Carregant…" },
+  es: { kicker: "Estudios", titol: "Libros de texto, lecturas y materiales", lead: "Elige el curso para ver los libros de cada materia (información en catalán).", desc: "Descargar (PDF)", llegenda: "Leyenda", nou: "Nou (nuevo)", nouT: "El libro es nuevo respecto al curso anterior.", format: "Format", formatT: "Papel, digital o papel+digital (libro en papel con acceso digital).", on: "On comprar-lo (dónde comprarlo)", onT: "Hay dos opciones, según si el libro es nuevo o no:", carregant: "Cargando…" },
+  en: { kicker: "Studies", titol: "Textbooks, readers and materials", lead: "Choose the year to see the books for each subject (information in Catalan).", desc: "Download (PDF)", llegenda: "Key", nou: "Nou (new)", nouT: "The book is new compared with last year.", format: "Format", formatT: "Paper, digital or paper+digital (printed book with digital access).", on: "On comprar-lo (where to buy it)", onT: "There are two options, depending on whether the book is new:", carregant: "Loading…" }
+} -%}
+{%- set t = T[lang] or T.ca %}
+<div class="ll-wrap" id="llibres" data-lang="{{ lang }}">
+  <div class="ll-cap">
+    <div>
+      <span class="ll-kicker" id="llKicker">{{ t.kicker }}</span>
+      <h1 class="ll-titol">{{ t.titol }}</h1>
+      <p class="ll-lead">{{ t.lead }}</p>
+    </div>
+    <button class="ll-boto" id="llDescarrega" type="button" disabled>
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+      {{ t.desc }}
+    </button>
+  </div>
+  <nav class="ll-tabs" id="llTabs" aria-label="Cursos"></nav>
+  <section class="ll-llegenda" aria-label="{{ t.llegenda }}">
+    <h2 class="ll-llegenda__t">{{ t.llegenda }}</h2>
+    <dl class="ll-llegenda__l">
+      <dt>{{ t.nou }}</dt><dd>{{ t.nouT }}</dd>
+      <dt>{{ t.format }}</dt><dd>{{ t.formatT }}</dd>
+      <dt>{{ t.on }}</dt><dd>{{ t.onT }}<dl class="ll-llegenda__op" id="llOpcions"></dl></dd>
+    </dl>
+  </section>
+  <p class="ll-msg" id="llCarregant" role="status">{{ t.carregant }}</p>
+  <div id="llContingut"></div>
+</div>
+<script src="/assets/js/llibres.js" defer></script>
