@@ -718,6 +718,8 @@ function doPost(e) {
   } catch (err) {
     const m = String(err && err.message || err);
     if (m === 'db_alumnat_no_configurat' || m === 'llibres_no_configurat') return json_({ ok: false, error: m });
+    // PAS 88c: el full joanmiro_db no es pot modificar (sense permís d'edició per al compte que executa GESTIO, o pestanya/interval protegit)
+    if (/^llibres_/.test(String(req.action)) && /permis|permission|protegi|protect|access|acces|no tens|do not have/i.test(m.normalize('NFD').replace(/[\u0300-\u036f]/g, ''))) return json_({ ok: false, error: 'llibres_sense_escriptura', detall: m });
     return json_({ ok: false, error: 'error_script', detall: m });
   }
 }
@@ -6089,7 +6091,7 @@ function llibresAdmin_(ctx, req) {
       const iN = cap.indexOf('nivell'), iM = cap.indexOf('materia'), iE = cap.indexOf('especialitat'), v = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), cap.length).getValues(), nou = {};
       (Array.isArray(req.assignacions) ? req.assignacions : []).forEach((x) => { nou[llText_(x.nivell, 20) + '|' + llText_(x.materia, 200)] = llText_(x.especialitat, 60); });
       let n = 0; for (let i = 1; i < v.length; i++) { const k = String(v[i][iN]).trim() + '|' + String(v[i][iM]).trim(); if (k in nou && String(v[i][iE] || '') !== nou[k]) { v[i][iE] = nou[k]; n++; } }
-      if (n) sh.getRange(1, 1, v.length, cap.length).setValues(v);
+      if (n) sh.getRange(2, iE + 1, v.length - 1, 1).setValues(v.slice(1).map((r) => [r[iE]]));   // PAS 88c: només la columna especialitat (no toca fórmules ni validacions de la resta)
     } else if (a === 'config') {
       const sh = ssLlibres_().getSheetByName(LL_.conf), v = sh.getDataRange().getValues();
       const nou = { estat: req.estat === 'tancat' ? 'tancat' : 'obert', termini: /^(\d{1,2}\/\d{1,2}\/\d{4})?$/.test(String(req.termini || '')) ? String(req.termini || '') : null,
@@ -6135,6 +6137,6 @@ function vinculaLlibres() {
   const prop = llProposta_(llegeix_(FULL.cur)), iN = cap.indexOf('nivell'), iM = cap.indexOf('materia'), iE = cap.indexOf('especialitat');
   const v = sh.getRange(1, 1, Math.max(sh.getLastRow(), 1), cap.length).getValues(); let n = 0, sense = 0;
   for (let i = 1; i < v.length; i++) { if (!String(v[i][iN]).trim() || String(v[i][iE] || '').trim()) continue; const e = prop({ nivell: String(v[i][iN]).trim(), materia: String(v[i][iM]).trim() }); if (e) { v[i][iE] = e; n++; } else sense++; }
-  if (n) sh.getRange(1, 1, v.length, cap.length).setValues(v);
+  if (n) sh.getRange(2, iE + 1, v.length - 1, 1).setValues(v.slice(1).map((r) => [r[iE]]));   // PAS 88c: només la columna especialitat
   Logger.log('Llibres: ' + n + ' matèries amb l\'especialitat posada a partir del Currículum; ' + sense + ' sense trobar (assigneu-les a Llibres de text › Administració › Especialitats).');
 }

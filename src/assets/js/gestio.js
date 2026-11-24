@@ -34,6 +34,7 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
+    llibres_sense_escriptura: 'GESTIO no pot escriure al full joanmiro_db. Compartiu-lo amb permís d’edició amb el compte que executa l’Apps Script de GESTIO i, si la pestanya «materies» o «llibres» està protegida, afegiu-hi aquest compte com a editor.',
     llibres_no_configurat: 'Els llibres encara no estan connectats: cal posar l’adreça del full joanmiro_db a config › db_llibres i executar configura.', llibres_tancat: 'El període per indicar llibres està tancat.', curs_nomes_lectura: 'Aquest curs és només de consulta.', departament_sense_materies: 'Aquest departament/àmbit no té matèries en aquest curs.',
     notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', vapid_no_coincideixen: 'Les claus VAPID_PUBLIC i VAPID_PRIVATE de Netlify no fan parella (són de dues generacions diferents o una està mal copiada). Genereu-ne un parell nou, poseu-les totes dues, torneu a publicar i torneu a activar els avisos als dispositius.', vapid_invalid: 'Una de les claus VAPID de Netlify no és vàlida (mal copiada?). Genereu-ne un parell nou amb «npx web-push generate-vapid-keys».', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.', avis_en_curs: 'Hi ha un avís que no s’ha acabat d’enviar: continueu-lo o atureu-lo abans d’enviar-ne un altre.', no_en_curs: 'Aquest avís ja no s’està enviant.',
     conflicte_versio: 'Algú altre ha desat o importat l’horari mentre l’editàveu. Torneu-lo a carregar (els vostres canvis sense desar es perdran).',
@@ -4859,7 +4860,7 @@
     if (massa) return toast('Hi ha alguna matèria amb més de ' + S.ll.r.config.max_llibres + ' llibres de text.', true);
     if (err) return toast('Falta el títol a ' + err + (err === 1 ? ' fila' : ' files') + '. Escriviu-lo o traieu la fila.', true);
     api('llibres_desa', { curs: S.ll.r.curs, departament: S.ll.dep, files: files }, 'Desant els llibres…').then(function (r) {
-      if (!r.ok) return toast({ llibres_tancat: 'El període per indicar llibres està tancat. No s’ha desat res.', curs_nomes_lectura: 'Aquest curs és només de consulta.', massa_llibres: 'Hi ha alguna matèria amb massa llibres de text.', materia_no_valida: 'Hi ha una matèria que ja no és del departament/àmbit: actualitzeu.' }[r.error] || text(r.error), true);
+      if (!r.ok) return toast({ llibres_tancat: 'El període per indicar llibres està tancat. No s’ha desat res.', curs_nomes_lectura: 'Aquest curs és només de consulta.', massa_llibres: 'Hi ha alguna matèria amb massa llibres de text.', materia_no_valida: 'Hi ha una matèria que ja no és del departament/àmbit: actualitzeu.' }[r.error] || llErr(r), true);
       S.ll.r = r; S.brut = false; pintaLlibres(); toast('Desat (' + r.desades + (r.desades === 1 ? ' element).' : ' elements).'));
     });
   }
@@ -4895,7 +4896,9 @@
       '</details></div>';
   }
   var clauDataLl = function (t) { var m = String(t || '').match(/(\d{1,2})\/(\d{1,2})\/(\d{4})\s*(\d{1,2})?:?(\d{2})?/); return m ? [m[3], ('0' + m[2]).slice(-2), ('0' + m[1]).slice(-2), ('0' + (m[4] || '0')).slice(-2), m[5] || '00'].join('') : ''; };
-  function adminLl(cos, msg) { return api('llibres_admin', Object.assign({ curs: S.ll.r.curs }, cos), 'Desant…').then(function (r) { if (!r.ok) return toast({ desti_amb_dades: 'El curs ja té dades.', origen_buit: 'El curs d’origen no té dades.', massa_observacions: 'Massa observacions en un nivell.' }[r.error] || text(r.error), true); S.ll.r = r; S.ll.obs = null; pintaLlibres(); toast(msg); }); }
+  // PAS 88c: missatge d'error amb el detall de Google (p. ex. permisos de joanmiro_db)
+  var llErr = function (r, extra) { var t = (extra && extra[r.error]) || text(r.error); return r.detall && (r.error === 'error_script' || r.error === 'llibres_sense_escriptura') ? t + ' (' + r.detall + ')' : t; };
+  function adminLl(cos, msg) { return api('llibres_admin', Object.assign({ curs: S.ll.r.curs }, cos), 'Desant…').then(function (r) { if (!r.ok) return toast(llErr(r, { desti_amb_dades: 'El curs ja té dades.', origen_buit: 'El curs d’origen no té dades.', massa_observacions: 'Massa observacions en un nivell.' }), true); S.ll.r = r; S.ll.obs = null; pintaLlibres(); toast(msg); }); }
   function lligaLlibres() {
     if (lligaLlibres.fet) return; lligaLlibres.fet = true;
     var actiu = function () { return S.modul && S.modul.id === 'llibres' && S.ll && S.ll.r; };
@@ -4914,7 +4917,7 @@
       if (a === 'treu') { var m = b.closest('.gs-ll__mat'); b.closest('.gs-ll__it').remove(); actualitzaMatLl(m); return brutLl(true); }
       if (a === 'acabat') { var sg = llSeg(S.ll.dep), fer = !(sg && sg.acabat), d = llDep();
         return (fer ? pregunta('He acabat', '<p>Confirmeu que <b>' + esc(d.nom) + '</b> ha acabat d’indicar els llibres del curs ' + esc(R.curs) + '?</p>', [{ t: 'Sí, he acabat', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]) : Promise.resolve(1)).then(function (v) {
-          if (v) api('llibres_acabat', { curs: R.curs, departament: S.ll.dep, acabat: fer }, 'Desant…').then(function (r) { if (!r.ok) return toast(text(r.error), true);
+          if (v) api('llibres_acabat', { curs: R.curs, departament: S.ll.dep, acabat: fer }, 'Desant…').then(function (r) { if (!r.ok) return toast(llErr(r), true);
             R.seguiment = R.seguiment.filter(function (x) { return x.departament !== S.ll.dep; }); if (r.seguiment) R.seguiment.push(r.seguiment); pintaLlibres(); toast(fer ? 'Marcat com a acabat. Gràcies!' : 'Departament/àmbit reobert.'); }); }); }
       if (a === 'anar') return canvia(function () { S.ll.dep = b.dataset.dep; S.ll.obert = 'seg'; pintaLlibres(); });
       if (a === 'obs-niv') { S.ll.obsNiv = b.dataset.n; S.ll.obert = 'obs'; return pintaLlibres(); }

@@ -628,6 +628,8 @@ self.addEventListener('activate', function (e) {
   6. Quan tot funcioni, es pot esborrar el lloc de Netlify **institutjoanmiro-llibres**. El seu Apps Script dins de joanmiro_db es pot deixar (Programacions fa servir el seu propi accés).
 - Fitxers: `Code.gs` (secció PAS 88), `gestio.js`/`gestio.css` (mòdul), `gestio-api.mjs` (accions llibres_*), `gestio-publics.mjs` (quin=llibres), `src/llibres.njk` + `es/` + `en/`, `_includes/llibres.njk`, `assets/js/llibres.js`, `assets/css/llibres.css`, `_includes/etapa.njk` (enllaç), ajuda i manuals (`manual-llibres.pdf`, `guia-llibres.pdf`).
 
+- **PAS 88c**: en assignar especialitats només s'escriu la columna `especialitat` de materies (abans es reescrivia tota la pestanya i podia topar amb fórmules, validacions o proteccions). Si GESTIO no pot escriure a joanmiro_db, el missatge ho diu i mostra l'error de Google (cal permís d'edició per al compte que executa l'Apps Script; si hi ha pestanyes protegides, afegir-lo com a editor).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
