@@ -600,6 +600,12 @@ self.addEventListener('activate', function (e) {
 - **Horaris · editor › Tutories i reunions (PDF)**: mapa de tutories (sessions de la matèria «Tutoria»: grup-classe i tutor/a, amb el nom curt) i reunions (sessions de tipus `reunio`) per franja i dia, en un full A4 apaïsat amb el logo; les caselles amb reunió, en taronja.
 - **Control d'entrada · avís de retards**: no era un error. L'avís compta retards ponderats per l'hora (PAS 76: 9:15–10:15 → 2…), no entrades, i només dins del període (1 mes: des del 24/10). P. ex. 3 entrades a les 9:2x = 6 retards; una entrada del 23/10 surt a la llista però ja no compta. Ara l'etiqueta diu les dues coses («⚠ 6 ret. · 3 entr.») i el text emergent explica el càlcul.
 
+## PAS 86
+
+- **Control d'entrada · pes de cada retard** (canvi de la regla del PAS 76): fins a les 10:15 → 1; 10:15–11:45 → 2; 11:45–12:45 → 3; 12:45–13:45 → 4; a partir de 13:45 → 6. Justificades (grogues) → 0. Les entrades d'abans de les 9:15 (que la regla no esmenta) compten 1.
+- **Etiqueta de l'avís**: retards totals des de l'inici de curs (dates clau del calendari, «inici» de classes: 8/9/2026; `retards.inici_curs`) i, al costat, els sancionats (verds) o en tràmit (vermells): «⚠ 12 · 6 sanc.». El text emergent explica el càlcul i per què surt l'avís (criteri N retards o més en el període). El període «tot el curs» comença també a l'inici de classes (abans, l'1 de setembre).
+- La llista de l'avís (PDF) té les columnes Total curs i Sancionats, i la columna Darrer torna a sortir plena (una línia de codi havia quedat dins d'un comentari).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

@@ -761,9 +761,10 @@
       if (c.tipus === 'si_no') col.formatter = function (cell) { return cell.getValue() === 'sí' ? '<span class="gs-si">sí</span>' : ''; };
       if (esRegistre() && c.clau === 'alumne' && S.d.retards) col.formatter = function (cell) {
         var d = cell.getRow().getData(), k = d.id_alumne || plega(d.alumne), av = (S.avisRetards || {})[k];
-        // PAS 85 · L'avís compta RETARDS (cada entrada compta segons l'hora: 9:15–10:15 → 2…), no entrades: es mostren tots dos
-        var ne = (S.avisEntrades || {})[k];
-        return esc(cell.getValue()) + (av ? ' <span class="gs-avis-ret" title="' + av + ' retards (' + ne + (ne === 1 ? ' entrada' : ' entrades') + ') en ' + esc(S.d.retards.periode) + ' (des del ' + esc(dataVista(iniciPeriode(S.d.retards.periode))) + '). Cada entrada compta segons l’hora: ' + esc(TEXT_PES_RETARD) + '">⚠ ' + av + ' ret. · ' + ne + ' entr.</span>' : '');
+        // PAS 86 · L'etiqueta de l'avís: retards totals des de l'inici de curs i, al costat, els sancionats o en tràmit
+        var T = (S.totRetards || {})[k] || { tot: av, sanc: 0, entrades: 0 }, ne = (S.avisEntrades || {})[k], ic = dataVista(inicCursRetards());
+        return esc(cell.getValue()) + (av ? ' <span class="gs-avis-ret" title="' + esc(T.tot + ' retards des de l’inici de curs (' + ic + '), en ' + T.entrades + (T.entrades === 1 ? ' entrada' : ' entrades') + '. D’aquests, ' + T.sanc + ' ja són sancionats (verd) o en tràmit (vermell) i ' + (T.tot - T.sanc) + ' encara no. ' +
+          'Surt l’avís perquè té ' + av + ' retards (' + ne + (ne === 1 ? ' entrada' : ' entrades') + ') en ' + S.d.retards.periode + ' (des del ' + dataVista(iniciPeriode(S.d.retards.periode)) + '; criteri: ' + S.d.retards.quantitat + ' o més). Cada entrada compta segons l’hora: ' + TEXT_PES_RETARD + '.') + '">⚠ ' + T.tot + ' <small>· ' + T.sanc + ' sanc.</small></span>' : '');
       };
       // Batxillerat (PAS 29): matèries en columnes estretes, nom en vertical i el nombre d'alumnes (de les files filtrades) a dalt
       if (esMateria(c.clau)) {
@@ -2724,11 +2725,10 @@
     });
   }
 
-  // PAS 76 · Retards que compta una entrada segons l'hora d'arribada: entre 8:15 i 9:15, 1 (el de les 8:15); entre 9:15 i
-  // 10:15, 2 (el de les 8:15 i el de les 9:15); entre 10:15 i 11:45, 3; entre 11:45 i 12:45, 4; entre 12:45 i 13:45, 5;
-  // a partir de 13:45, 6. Abans de les 8:15, 1.
-  var TRAMS_RETARD = [['09:15', 1], ['10:15', 2], ['11:45', 3], ['12:45', 4], ['13:45', 5]];
-  var TEXT_PES_RETARD = '8:15–9:15 → 1, 9:15–10:15 → 2, 10:15–11:45 → 3, 11:45–12:45 → 4, 12:45–13:45 → 5, 13:45–14:45 → 6; justificades (grogues) → 0';
+  // PAS 76/86 · Retards que compta una entrada segons l'hora d'arribada (PAS 86): fins a les 10:15, 1; entre 10:15 i 11:45,
+  // 2; entre 11:45 i 12:45, 3; entre 12:45 i 13:45, 4; a partir de 13:45, 6. Les justificades (grogues) no compten mai.
+  var TRAMS_RETARD = [['10:15', 1], ['11:45', 2], ['12:45', 3], ['13:45', 4]];
+  var TEXT_PES_RETARD = 'fins a les 10:15 → 1, 10:15–11:45 → 2, 11:45–12:45 → 3, 12:45–13:45 → 4, a partir de 13:45 → 6; justificades (grogues) → 0';
   function pesRetard(hora) {
     var m = /^(\d{1,2}):(\d{2})/.exec(String(hora || '')); if (!m) return 1;
     var h = ('0' + m[1]).slice(-2) + ':' + m[2];
@@ -2746,10 +2746,23 @@
       if (!verdes && f.estat === 'verd') return;   // PAS 72
       if (f.estat === 'groc') return;   // PAS 76: justificat, no compta mai
       var k = f.id_alumne || plega(f.alumne), x = per[k] = per[k] || { alumne: f.alumne, nivell: f.nivell, grup: f.grup, n: 0, entrades: 0, ultima: '' };
-      x.n += pesRetard(f.hora); x.entrades++; var t = f.data + ' ' + f.hora;   // PAS 76: cada entrada compta segons l'hora if (t > x.ultima) { x.ultima = t; x.grup = f.grup || x.grup; x.nivell = f.nivell || x.nivell; }
+      x.n += pesRetard(f.hora); x.entrades++; var t = f.data + ' ' + f.hora;   // PAS 76: cada entrada compta segons l'hora
+      if (t > x.ultima) { x.ultima = t; x.grup = f.grup || x.grup; x.nivell = f.nivell || x.nivell; }   // PAS 86: abans quedava dins del comentari
     });
     return Object.keys(per).filter(function (k) { return per[k].n >= R.quantitat; }).map(function (k) { return Object.assign({ clau: k }, per[k]); })
       .sort(function (a, b) { return b.n - a.n || plega(a.alumne).localeCompare(plega(b.alumne), 'ca'); });
+  }
+  // PAS 86 · Comptatge de cada alumne/a des de l'inici de curs (dates clau del calendari: 8/9/2026): retards totals (sense
+  // les justificades) i, d'aquests, els sancionats (verds) o en tràmit (vermells)
+  function inicCursRetards() { var R = S.d.retards || {}; return R.inici_curs || iniciPeriode('tot el curs'); }
+  function totalsRetards() {
+    var des = inicCursRetards(), per = {};
+    (S.d.files || []).forEach(function (f) {
+      if (String(f.data) < des || f.estat === 'groc') return;
+      var k = f.id_alumne || plega(f.alumne), x = per[k] = per[k] || { tot: 0, sanc: 0, entrades: 0 }, w = pesRetard(f.hora);
+      x.tot += w; x.entrades++; if (f.estat === 'verd' || f.estat === 'vermell') x.sanc += w;
+    });
+    return per;
   }
   // PAS 35 · Inici d'un període comptat a partir d'avui (inclòs): «1 mes» = des del mateix dia del mes anterior;
   // «N setmanes» = des de fa N×7 dies; «tot el curs» = des de l'1 de setembre del curs actual
@@ -2757,7 +2770,7 @@
   function iniciPeriode(p) {
     var d = new Date(); d.setHours(12, 0, 0, 0);
     var m = /^(\d+) (setmana|setmanes|mes|mesos)$/.exec(String(p || ''));
-    if (p === 'tot el curs') { var y = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1; return y + '-09-01'; }
+    if (p === 'tot el curs') { var ic = S.d && S.d.retards && S.d.retards.inici_curs; if (ic) return ic; var y = d.getMonth() >= 8 ? d.getFullYear() : d.getFullYear() - 1; return y + '-09-01'; }   // PAS 86: des de l'inici de classes
     if (m && /setman/.test(m[2])) d.setDate(d.getDate() - 7 * Number(m[1]));
     else if (m) { var dia = d.getDate(); d.setDate(1); d.setMonth(d.getMonth() - Number(m[1])); d.setDate(Math.min(dia, new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate())); }
     return isoDe(d);
@@ -2765,7 +2778,7 @@
   function pintaRetards() {
     var R = S.d.retards, el = $('gsRetards'); if (!R || !el) return;
     var llista = alumnesAmbRetards();
-    S.avisRetards = {}; S.avisEntrades = {}; llista.forEach(function (a) { S.avisRetards[a.clau] = a.n; S.avisEntrades[a.clau] = a.entrades; });
+    S.avisRetards = {}; S.avisEntrades = {}; llista.forEach(function (a) { S.avisRetards[a.clau] = a.n; S.avisEntrades[a.clau] = a.entrades; }); S.totRetards = totalsRetards();
     var sel = function (id, ops, v) { return '<select id="' + id + '"' + (R.pot_canviar ? '' : ' disabled') + '>' + ops.map(function (o) { return '<option' + (String(o) === String(v) ? ' selected' : '') + '>' + o + '</option>'; }).join('') + '</select>'; };
     var q = []; for (var i = 3; i <= 20; i++) q.push(i);
     el.innerHTML = '<span class="gs-retards__regla" title="' + (R.pot_canviar ? 'Podeu canviar el criteri: val per a tothom.' : 'El criteri el fixa qui administra el mòdul.') + '">Avís: ' + sel('gsRetQ', q, R.quantitat) + ' retards o més en ' + sel('gsRetP', R.periodes, R.periode) + ' <small class="gs-gris">(des del ' + dataVista(iniciPeriode(R.periode)) + ')</small> <span class="gs-gris gs-retards__info" title="Retards que compta cada entrada segons l’hora: ' + esc(TEXT_PES_RETARD) + '">ⓘ</span></span>' +
@@ -2783,8 +2796,8 @@
   function ambVerdes() { var v = guarda.llegeix('retards_verdes'); return v === null ? true : !!v; }
   function llistaRetards() {
     var R = S.d.retards, llista = alumnesAmbRetards();
-    informe('Avís de retards', 'Alumnes amb ' + R.quantitat + ' retards o més en ' + R.periode + ' (del ' + dataVista(iniciPeriode(R.periode)) + ' fins avui' + (S.d.sancions && !ambVerdes() ? '; sense les entrades ja sancionades' : '') + '). ' + llista.length + (llista.length === 1 ? ' alumne.' : ' alumnes.'), ['', 'Alumne', 'Nivell', 'Grup-Classe', 'Retards', 'Darrer'],
-      llista.map(function (a, i) { return [String(i + 1), a.alumne, a.nivell || '', a.grup || '', String(a.n) + ' (' + a.entrades + ' entr.)', dataVista(a.ultima.slice(0, 10)) + ' ' + a.ultima.slice(11, 16)]; }), 'avis-retards');
+    informe('Avís de retards', 'Alumnes amb ' + R.quantitat + ' retards o més en ' + R.periode + ' (del ' + dataVista(iniciPeriode(R.periode)) + ' fins avui' + (S.d.sancions && !ambVerdes() ? '; sense les entrades ja sancionades' : '') + '). ' + llista.length + (llista.length === 1 ? ' alumne.' : ' alumnes.') + ' Total curs: retards des de l’inici de curs (' + dataVista(inicCursRetards()) + '); sancionats: verds (sancionat) o vermells (en tràmit).', ['', 'Alumne', 'Nivell', 'Grup-Classe', 'Retards (' + R.periode + ')', 'Total curs', 'Sancionats', 'Darrer'],
+      llista.map(function (a, i) { var T = totalsRetards()[a.clau] || { tot: 0, sanc: 0 }; return [String(i + 1), a.alumne, a.nivell || '', a.grup || '', String(a.n) + ' (' + a.entrades + ' entr.)', String(T.tot), String(T.sanc), a.ultima ? dataVista(a.ultima.slice(0, 10)) + ' ' + a.ultima.slice(11, 16) : '']; }), 'avis-retards');
   }
   // ------------------------------------------------------------------ PAS 72 · SANCIONS (control d'entrada)
   // PAS 76: verd = sancionat; groc = justificat (no compta mai); vermell = sanció en curs; blanc = res

@@ -1396,7 +1396,9 @@ function importaAmonestacions() {
 function retardsCfg_(cfg) {
   const q = Math.max(3, Math.min(20, Number(cfg.retards_quantitat) || 5));
   const p = PERIODES_RETARDS[String(cfg.retards_periode || '').trim()] ? String(cfg.retards_periode).trim() : '1 mes';
-  return { quantitat: q, periode: p, dies: PERIODES_RETARDS[p], periodes: Object.keys(PERIODES_RETARDS), pot_canviar: false };
+  // PAS 86: inici de curs (dates clau del calendari, «inici» de classes) per al comptatge total de retards de cada alumne/a
+  let ic = ''; try { ic = (datesCalendari_(cfg).dates.filter((d) => d.tipus === 'inici')[0] || {}).des || ''; } catch (e) { ic = ''; }
+  return { quantitat: q, periode: p, dies: PERIODES_RETARDS[p], periodes: Object.keys(PERIODES_RETARDS), pot_canviar: false, inici_curs: ic };
 }
 function retardsDesa_(ctx, req) {
   if (!pot_(ctx, 'control_entrada', 'admin')) return { ok: false, error: 'sense_permis' };
@@ -1408,7 +1410,7 @@ function retardsDesa_(ctx, req) {
     if (i >= 1) sh.getRange(i + 1, 2).setValues([[kv[1]]]); else sh.appendRow([kv[0], kv[1], '']);
   });
   historial_(ctx.email, 'config', FULL.conf, 'retards', q + ' en ' + p);
-  return { ok: true, retards: retardsCfg_({ retards_quantitat: q, retards_periode: p }) };
+  return { ok: true, retards: retardsCfg_(Object.assign({}, ctx.cfg, { retards_quantitat: q, retards_periode: p })) };
 }
 
 // PAS 33 · Còpia de seguretat de ijm_nucli_db i ijm_alumnat_db a una carpeta de Drive (es guarden les 8 darreres de cada)
