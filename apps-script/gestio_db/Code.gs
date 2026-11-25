@@ -1,4 +1,4 @@
-// PAS 89 · 25/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
+// PAS 89c · 25/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
 /**
  * GESTIO · pont entre Netlify (web de l'institut) i els fulls de càlcul ijm_nucli_db i ijm_alumnat_db
  *
@@ -5949,6 +5949,8 @@ function notifAtura_(ctx, req) {
 // Currículum o, si el grup no la té, config › tutories_sense_materia) i la resta de càrrecs (llista de config › carrecs). El
 // camp «Càrrec» del professorat el calcula sincronitzaCarrecs_ i ja no s'edita al Professorat ni a l'Ocupació.
 const AUTO_CARREC_ = /^(Tutor\/a |Cap de )/;
+// PAS 89c: «Cap d'Estudis» i «Cap d’estudis» són el mateix càrrec (majúscules, apòstrofs i espais no compten)
+const clauCarrec_ = (c) => String(c || '').toLowerCase().replace(/[’`´]/g, "'").replace(/\s+/g, ' ').trim();
 function tutorsExtra_(cfg) {
   try { const o = JSON.parse(String((cfg || CTX_CFG_ || llegeixConfig_()).tutories_sense_materia || '{}')); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch (e) { return {}; }
 }
@@ -5991,9 +5993,11 @@ function carrecsDades_(ctx) {
     else tutories.push({ id: '', nivell: x.nivell, grup: x.grup, materia: '', professor: perId[ex[x.grup]] ? ex[x.grup] : '', professor_nom: perId[ex[x.grup]] ? perId[ex[x.grup]].nom : '' });
   });
   // Altres càrrecs: la llista (config › carrecs) i qui en té cadascun (els que no són a la llista s'hi afegeixen)
-  const llista = carrecsLlista_(cfg), assignacions = {}, fora = [];
-  llegeix_(FULL.prof).forEach((p) => { if (!perId[p.id_professor]) return; partsCarrec_(p.carrec).filter((c) => !AUTO_CARREC_.test(c)).forEach((c) => {
-    if (llista.indexOf(c) < 0 && fora.indexOf(c) < 0) fora.push(c); (assignacions[c] = assignacions[c] || []).push(p.id_professor); }); });
+  const llista = carrecsLlista_(cfg), assignacions = {}, fora = [], perClau = {};
+  llista.forEach((c) => { if (!perClau[clauCarrec_(c)]) perClau[clauCarrec_(c)] = c; });
+  llegeix_(FULL.prof).forEach((p) => { if (!perId[p.id_professor]) return; partsCarrec_(p.carrec).filter((c0) => !AUTO_CARREC_.test(c0)).forEach((c0) => {
+    let c = perClau[clauCarrec_(c0)]; if (!c) { c = String(c0).replace(/\s+/g, ' ').trim(); perClau[clauCarrec_(c0)] = c; fora.push(c); }   // escrit diferent → el nom de la llista
+    if (!assignacions[c]) assignacions[c] = []; if (assignacions[c].indexOf(p.id_professor) < 0) assignacions[c].push(p.id_professor); }); });
   return { ok: true, obert: obert_(ctx), pot_departaments: pot_(ctx, 'curriculum', 'admin') || pot_(ctx, 'desiderata', 'admin') || pot_(ctx, 'departaments', 'admin'),
     departaments: departaments_().map((d) => ({ id: d.id, nom: d.nom, especialitats: d.especialitats, cap: d.cap, cap_nom: perId[d.cap] ? perId[d.cap].nom : '' })),
     professorat: profs.map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat || '' })), tutories: tutories,
@@ -6005,12 +6009,12 @@ function carrecsDesa_(ctx, req) {
   if (!obert_(ctx)) return { ok: false, error: 'tancat' };
   const perId = {}; capsPossibles_().forEach((p) => { perId[p.id] = p; });
   const llista = [], vist = {}; (Array.isArray(req.carrecs) ? req.carrecs : []).forEach((c) => { const x = String(c || '').replace(/\s+/g, ' ').replace(/·/g, '-').trim().slice(0, 80);
-    if (x && !AUTO_CARREC_.test(x) && !vist[x.toLowerCase()]) { vist[x.toLowerCase()] = 1; llista.push(x); } });
+    if (x && !AUTO_CARREC_.test(x) && !vist[clauCarrec_(x)]) { vist[clauCarrec_(x)] = x; llista.push(x); } });
   if (llista.length > 200) return { ok: false, error: 'massa_carrecs' };
   const A = req.assignacions && typeof req.assignacions === 'object' ? req.assignacions : {}, altres = {};
   Object.keys(perId).forEach((id) => { altres[id] = []; });
-  for (const c of Object.keys(A)) { if (llista.indexOf(c) < 0) return { ok: false, error: 'carrec_desconegut', detall: c };
-    (Array.isArray(A[c]) ? A[c] : []).forEach((id) => { if (altres[id] && altres[id].indexOf(c) < 0) altres[id].push(c); }); }
+  for (const c0 of Object.keys(A)) { const c = vist[clauCarrec_(c0)]; if (!c) return { ok: false, error: 'carrec_desconegut', detall: c0 };   // PAS 89c: escrit diferent → el de la llista
+    (Array.isArray(A[c0]) ? A[c0] : []).forEach((id) => { if (altres[id] && altres[id].indexOf(c) < 0) altres[id].push(c); }); }
   const tut = Array.isArray(req.tutories) ? req.tutories.slice(0, 300) : [];
   for (const t of tut) if (t.professor && !perId[t.professor]) return { ok: false, error: 'professor_desconegut', detall: String(t.grup || t.id || '') };
   const lock = LockService.getScriptLock(); lock.waitLock(20000);

@@ -647,6 +647,8 @@ self.addEventListener('activate', function (e) {
 
 - **PAS 89b**: faltaven `carrecs_dades` i `carrecs_desa` a la llista ACCIONS de `netlify/functions/gestio-api.mjs` (en obrir Càrrecs sortia «Hi ha hagut un error»). Cada acció nova del client s'ha d'afegir també a ACCIONS; el servidor de proves ara ho comprova.
 
+- **PAS 89c**: Càrrecs, els noms escrits diferent (majúscules, apòstrof ’ o ', espais) compten com el mateix càrrec de la llista («Cap d'Estudis» = «Cap d'estudis»): abans, en desar, sortia «Hi ha un càrrec que no és a la llista».
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
