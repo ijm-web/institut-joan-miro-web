@@ -645,6 +645,8 @@ self.addEventListener('activate', function (e) {
 - **Pendents de 2n d'ESO**: `provaPendents2ESO()` (només informa al registre d'execució) i `importaPendents2ESO()` (desa) copien el camp «Pendents» del full `config › font_pendents_2eso` a l'alumnat de **2n d'ESO** (ijm_alumnat_db). L'alumne/a es busca pel nom; el registre llista canvis, no trobats, dubtes i alumnes de 2n que no surten al full. Els altres nivells no es toquen.
 - ESQUEMA 78.
 
+- **PAS 89b**: faltaven `carrecs_dades` i `carrecs_desa` a la llista ACCIONS de `netlify/functions/gestio-api.mjs` (en obrir Càrrecs sortia «Hi ha hagut un error»). Cada acció nova del client s'ha d'afegir també a ACCIONS; el servidor de proves ara ho comprova.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

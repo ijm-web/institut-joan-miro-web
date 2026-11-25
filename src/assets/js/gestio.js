@@ -34,6 +34,7 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
+    accio_desconeguda: 'El servidor encara no coneix aquesta acció: cal publicar la darrera versió del web (git push) i de l’Apps Script.',
     carrec_a_carrecs: 'El càrrec es posa a Currículum › Assignacions › Càrrecs.', carrec_desconegut: 'Hi ha un càrrec que no és a la llista.', professor_desconegut: 'Hi ha un docent que no és al professorat actiu.', massa_carrecs: 'Massa càrrecs a la llista (màxim 200).',
     llibres_sense_escriptura: 'GESTIO no pot escriure al full joanmiro_db. Compartiu-lo amb permís d’edició amb el compte que executa l’Apps Script de GESTIO i, si la pestanya «materies» o «llibres» està protegida, afegiu-hi aquest compte com a editor.',
     llibres_no_configurat: 'Els llibres encara no estan connectats: cal posar l’adreça del full joanmiro_db a config › db_llibres i executar configura.', llibres_tancat: 'El període per indicar llibres està tancat.', curs_nomes_lectura: 'Aquest curs és només de consulta.', departament_sense_materies: 'Aquest departament/àmbit no té matèries en aquest curs.',
