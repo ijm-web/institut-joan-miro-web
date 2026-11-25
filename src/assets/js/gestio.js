@@ -3057,7 +3057,9 @@
     });
     var ids = {}; Object.keys(per).forEach(function (k) { ids[k] = 1; }); (S.des.professorat || []).forEach(function (p) { if (p.especialitat === S.des.especialitat) ids[p.id] = 1; });
     var docents = Object.keys(ids).map(function (id) { var p = P[id] || { nom: id, especialitat: '' }, l = p.hores_lectives === '' || p.hores_lectives == null ? null : numero(p.hores_lectives), as = per[id] || 0;
-      return { id: id, nom: p.nom, especialitat: p.especialitat, lectives: l, assignades: as, dif: (l === null ? 0 : l) - as }; })
+      // PAS 90: hores d'aquest docent a la desiderata d'altres especialitats (també compten per a la diferència)
+      var al = (S.des.altres || {})[id] || [], at = al.reduce(function (t, x) { return t + (Number(x.hores) || 0); }, 0);
+      return { id: id, nom: p.nom, especialitat: p.especialitat, lectives: l, assignades: as, altres: at, altresText: al.map(function (x) { return fmtH(x.hores) + ' h ' + x.especialitat; }).join(', '), dif: Math.round(((l === null ? 0 : l) - as - at) * 100) / 100 }; })
       .sort(function (a, b) { return (a.especialitat === S.des.especialitat ? 0 : 1) - (b.especialitat === S.des.especialitat ? 0 : 1) || a.nom.localeCompare(b.nom, 'ca'); });
     return { total: total, fetes: fetes, pendents: Math.round((total - fetes) * 100) / 100, sobre: sobre, docents: docents };
   }
@@ -3103,9 +3105,9 @@
         var a = R.assignacions.filter(function (x) { return x.clau === tr.dataset.clau; })[0], g = (S.desDades[a.clau] || []).reduce(function (s, x) { return s + (Number(x.grups) || 0); }, 0), p = a.grups - g;
         var c = tr.querySelector('[data-pend]'); c.textContent = p > 0 ? p + (p === 1 ? ' grup' : ' grups') : p < 0 ? '⚠ ' + (-p) + ' de més' : '✓'; c.className = 'gs-cen ' + (p === 0 ? 'is-ok' : 'is-pend');
       });
-      $('gsDesDocents').innerHTML = '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Docent</th><th>Especialitat</th><th class="gs-cen">Lectives alumnat</th><th class="gs-cen">Assignades</th><th class="gs-cen">Diferència</th></tr></thead><tbody>' +
+      $('gsDesDocents').innerHTML = '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Docent</th><th>Especialitat</th><th class="gs-cen">Lectives alumnat</th><th class="gs-cen">Assignades</th><th class="gs-cen" title="Hores assignades a la desiderata d’altres especialitats">Altres especialitats</th><th class="gs-cen">Diferència</th></tr></thead><tbody>' +
         C.docents.map(function (d) { var av = d.lectives === null ? 'sense hores lectives a la fitxa' : d.dif > 0.01 ? 'li falten ' + fmtH(d.dif) + ' h' : d.dif < -0.01 ? 'té ' + fmtH(-d.dif) + ' h de més' : '';
-          return '<tr><td>' + esc(d.nom) + '</td><td>' + esc(d.especialitat) + '</td><td class="gs-cen">' + (d.lectives === null ? '—' : esc(fmtH(d.lectives))) + '</td><td class="gs-cen">' + esc(fmtH(d.assignades)) + '</td><td class="gs-cen ' + (av ? 'is-pend' : 'is-ok') + '">' + (av ? '⚠ ' + esc(av) : '✓') + '</td></tr>'; }).join('') + '</tbody></table>';
+          return '<tr><td>' + esc(d.nom) + '</td><td>' + esc(d.especialitat) + '</td><td class="gs-cen">' + (d.lectives === null ? '—' : esc(fmtH(d.lectives))) + '</td><td class="gs-cen">' + esc(fmtH(d.assignades)) + '</td><td class="gs-cen">' + (d.altres ? esc(d.altresText) : '—') + '</td><td class="gs-cen ' + (av ? 'is-pend' : 'is-ok') + '">' + (av ? '⚠ ' + esc(av) : '✓') + '</td></tr>'; }).join('') + '</tbody></table>';
       brutDes(true);
     };
     t.addEventListener('input', refresca); t.addEventListener('change', refresca);
@@ -3159,8 +3161,8 @@
     });
     var docents = C.docents.map(function (d) {
       var estat = d.lectives === null ? 'Sense hores lectives a la fitxa' : d.dif > 0.01 ? 'Més hores lectives que assignades: li falten ' + fmtH(d.dif) + ' h' : d.dif < -0.01 ? 'Menys hores lectives que assignades: té ' + fmtH(-d.dif) + ' h de més' : 'Quadra';
-      if (estat !== 'Quadra') inc.push(['Docent', d.nom + ' (' + (d.especialitat || '—') + ')', estat + ' (lectives ' + (d.lectives === null ? '—' : fmtH(d.lectives)) + ', assignades ' + fmtH(d.assignades) + ')']);
-      return [d.nom, d.especialitat, d.lectives === null ? '—' : fmtH(d.lectives), fmtH(d.assignades), d.lectives === null ? '—' : fmtH(d.dif), estat];
+      if (estat !== 'Quadra') inc.push(['Docent', d.nom + ' (' + (d.especialitat || '—') + ')', estat + ' (lectives ' + (d.lectives === null ? '—' : fmtH(d.lectives)) + ', assignades ' + fmtH(d.assignades) + (d.altres ? ', altres especialitats ' + fmtH(d.altres) : '') + ')']);
+      return [d.nom, d.especialitat, d.lectives === null ? '—' : fmtH(d.lectives), fmtH(d.assignades), d.altres ? d.altresText : '—', d.lectives === null ? '—' : fmtH(d.dif), estat];
     });
     return { C: C, ass: ass, docents: docents, inc: inc, obs: $('gsDesObs') ? $('gsDesObs').value : S.des.observacions || '', dep: S.des.departament };
   }
@@ -3179,9 +3181,9 @@
         columnStyles: { 0: { cellWidth: 16 }, 1: { cellWidth: 46 }, 2: { cellWidth: 52 }, 3: { halign: 'center', cellWidth: 13 }, 4: { halign: 'center', cellWidth: 12 }, 6: { halign: 'center', cellWidth: 22 } },
         didParseCell: function (h) { if (h.section === 'body' && h.column.index === 6 && h.cell.raw !== 'cap') { h.cell.styles.textColor = [198, 40, 40]; h.cell.styles.fontStyle = 'bold'; } } });
       y = doc.lastAutoTable.finalY + 6; titol('Docents: hores lectives amb alumnat i hores assignades');
-      doc.autoTable({ head: [['Docent', 'Especialitat', 'Lectives alumnat', 'Assignades', 'Diferència', 'Estat']], body: F.docents, startY: y, margin: mg, styles: est, headStyles: head, didDrawPage: peu,
-        columnStyles: { 2: { halign: 'center', cellWidth: 24 }, 3: { halign: 'center', cellWidth: 22 }, 4: { halign: 'center', cellWidth: 20 } },
-        didParseCell: function (h) { if (h.section === 'body' && h.column.index === 5 && h.cell.raw !== 'Quadra') { h.cell.styles.textColor = [198, 40, 40]; h.cell.styles.fontStyle = 'bold'; } } });
+      doc.autoTable({ head: [['Docent', 'Especialitat', 'Lectives alumnat', 'Assignades', 'Altres especialitats', 'Diferència', 'Estat']], body: F.docents, startY: y, margin: mg, styles: est, headStyles: head, didDrawPage: peu,
+        columnStyles: { 2: { halign: 'center', cellWidth: 22 }, 3: { halign: 'center', cellWidth: 20 }, 4: { halign: 'center', cellWidth: 38 }, 5: { halign: 'center', cellWidth: 18 } },
+        didParseCell: function (h) { if (h.section === 'body' && h.column.index === 6 && h.cell.raw !== 'Quadra') { h.cell.styles.textColor = [198, 40, 40]; h.cell.styles.fontStyle = 'bold'; } } });
       y = doc.lastAutoTable.finalY + 6; titol('Incoherències (' + F.inc.length + ')');
       doc.autoTable({ head: [['Tipus', 'On', 'Detall']], body: F.inc.length ? F.inc : [[{ content: 'Cap: tot quadra.', colSpan: 3 }]], startY: y, margin: mg, styles: est, headStyles: { fillColor: [198, 40, 40], textColor: 255, fontStyle: 'bold' }, didDrawPage: peu, columnStyles: { 0: { cellWidth: 32, fontStyle: 'bold' } } });
       y = doc.lastAutoTable.finalY + 6;
@@ -3196,7 +3198,7 @@
       var wb = XLSX.utils.book_new(), full = function (aoa, nom, amples) { var sh = XLSX.utils.aoa_to_sheet(aoa); if (amples) sh['!cols'] = amples.map(function (w) { return { wch: w }; }); XLSX.utils.book_append_sheet(wb, sh, nom); };
       full([['Desiderata', esp], ['Departament/àmbit', F.dep ? F.dep.nom : ''], ['Desada', S.des.data || 'no'], [], ['Hores a assignar', F.C.total], ['Hores assignades', F.C.fetes], ['Hores pendents', F.C.pendents], ['Incoherències', F.inc.length]], 'Resum', [22, 40]);
       full([['Nivell', 'Matèria', 'Grups', 'h/grup', 'Núm. grups', 'Docents (grups)', 'Pendents']].concat(F.ass), 'Assignacions', [10, 34, 40, 8, 10, 50, 12]);
-      full([['Docent', 'Especialitat', 'Lectives alumnat', 'Assignades', 'Diferència', 'Estat']].concat(F.docents), 'Docents', [32, 20, 16, 12, 12, 52]);
+      full([['Docent', 'Especialitat', 'Lectives alumnat', 'Assignades', 'Altres especialitats', 'Diferència', 'Estat']].concat(F.docents), 'Docents', [32, 20, 16, 12, 30, 12, 52]);
       full([['Tipus', 'On', 'Detall']].concat(F.inc.length ? F.inc : [['Cap: tot quadra.']]), 'Incoherències', [20, 40, 70]);
       full([['Observacions pedagògiques'], [F.obs]], 'Observacions', [100]);
       XLSX.writeFile(wb, fitxerDes('xlsx'));

@@ -265,7 +265,7 @@
             "- les **matèries**: a **Currículum › Assignacions** (també les de codocència i de suport) i a l'**horari calculat**, on hi deia la persona substituïda hi passa a dir el substitut. Si la persona substituïda era **cap de departament/àmbit**, el substitut en fa de cap mentre dura la substitució;",
             "- **només** si la persona substituïda **no és en actiu** (baixa laboral, permís…). Una baixa o un permís **sense substitut** no transfereix res.",
             "- els **equips docents** (equips de nivell, departament…). Els equips de gestió no: els permisos els dona la direcció.",
-            "La persona substituïda (baixa laboral, permís…) surt de les llistes de planificació i de la pàgina pública del professorat. **Quan torna**: poseu la persona titular a «actiu» i el substitut a «baixa»; en desar, les matèries i el càrrec de cap que s'havien transferit **tornen** a la persona titular (només aquestes: les pròpies del substitut no es toquen). També es fa en executar configura.",
+            "La persona substituïda (baixa laboral, permís…) surt de les llistes de planificació i de la pàgina pública del professorat. **Quan torna**: poseu la persona titular a «actiu» i el substitut a «baixa»; en desar, les matèries i el càrrec de cap que s'havien transferit **tornen** a la persona titular (només aquestes: les pròpies del substitut no es toquen). També es fa en executar configura. Torna **tot** el que encara és del substitut (el que s'havia transferit i el que se li ha assignat després, al Currículum, a l'horari i a la **desiderata**), llevat de les assignacions que ja tenia abans de començar la substitució. Si una substitució ja havia acabat i alguna cosa s'havia quedat al substitut, en executar **configura** (o en desar el Professorat) es retorna.",
             "En desar surt un avís amb quantes dades s'han heretat.",
             "**Estat «substitut»**: compta com «actiu» (la persona treballa al centre). Per saber que és un substitut, n'hi ha prou amb **Situació laboral = Substitut**; l'estat pot ser «actiu»."
           ]
@@ -1137,7 +1137,7 @@
           "titol": "Coherència amb les hores lectives",
           "claus": "docents hores lectives incoherència més menys",
           "text": [
-            "La taula **Docents** compara les hores assignades de cada docent amb les seves **hores lectives amb alumnat** (fitxa del professorat). ⚠ si té més hores lectives que assignades, menys, o si no té hores lectives a la fitxa."
+            "La taula **Docents** compara les hores assignades de cada docent amb les seves **hores lectives amb alumnat** (fitxa del professorat). La columna **Altres especialitats** mostra les hores que té a la desiderata desada d'altres especialitats (p. ex. «3 h Educació Física»), i també compten per a la **Diferència**. ⚠ si té més hores lectives que assignades, menys, o si no té hores lectives a la fitxa."
           ]
         },
         {
@@ -1837,7 +1837,7 @@
           "titol": "Revisar els comptadors i els docents",
           "text": [
             "A dalt: **hores a assignar**, **assignades** i **pendents**. L'objectiu és tenir 0 hores pendents.",
-            "A la taula **Docents**, les hores assignades a cada docent han de coincidir amb les seves hores lectives amb alumnat: aleshores surt la marca verda ✓. Si surt el triangle d'avís ⚠, vol dir que al docent li falten hores, que en té de més o que no té hores lectives a la fitxa del professorat; en aquest darrer cas, aviseu la direcció."
+            "A la taula **Docents**, les hores assignades a cada docent han de coincidir amb les seves hores lectives amb alumnat: aleshores surt la marca verda ✓. Si surt el triangle d'avís ⚠, vol dir que al docent li falten hores, que en té de més o que no té hores lectives a la fitxa del professorat; en aquest darrer cas, aviseu la direcció. Si el docent té hores a la desiderata d'altres especialitats, surten a la columna **Altres especialitats** i també compten."
           ]
         },
         {

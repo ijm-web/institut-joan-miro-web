@@ -649,6 +649,12 @@ self.addEventListener('activate', function (e) {
 
 - **PAS 89c**: Càrrecs, els noms escrits diferent (majúscules, apòstrof ’ o ', espais) compten com el mateix càrrec de la llista («Cap d'Estudis» = «Cap d'estudis»): abans, en desar, sortia «Hi ha un càrrec que no és a la llista».
 
+## PAS 90
+
+- **Desiderata › Docents**: columna nova **Altres especialitats** = hores del docent a la desiderata desada d'altres especialitats (`horesAltresEsps_`, a `desiderata_dades › altres`). També compten per a la **Diferència** (lectives − assignades − altres). També al PDF i a l'Excel.
+- **Substitucions**: en tornar el titular (titular «actiu», substitut «baixa»), torna **tot** el que encara és del substitut al Currículum, a l'horari i a la **desiderata** (abans només el transferit en començar; el que se li assignava després s'hi quedava). No tornen les assignacions que el substitut ja tenia abans de substituir (`config › substitucions_transferides › propies`). Mentre dura, la desiderata del titular passa al substitut.
+- La comprovació es fa sempre en desar el Professorat i l'Ocupació, i també a **configura**: així s'arreglen les substitucions que ja havien acabat.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

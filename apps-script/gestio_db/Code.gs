@@ -1,4 +1,4 @@
-// PAS 89c · 25/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
+// PAS 90 · 25/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
 /**
  * GESTIO · pont entre Netlify (web de l'institut) i els fulls de càlcul ijm_nucli_db i ijm_alumnat_db
  *
@@ -1911,6 +1911,7 @@ function configura() {
   if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'llibres')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'llibres', 'edicio']);   // PAS 88
   try { if (idLlibres_()) vinculaLlibres(); } catch (e) { Logger.log('joanmiro_db: ' + e.message); }
   try { migraCarrecs_(); } catch (e) { Logger.log('Càrrecs: ' + e.message); }   // PAS 89
+  try { const n = transfereixSubstitucions_('configura'); if (n) Logger.log('Substitucions: ' + n + ' assignacions retornades o transferides (Currículum, horari i desiderata).'); } catch (e) { Logger.log('Substitucions: ' + e.message); }   // PAS 90
   fullDep_(FULL_DEPW_, CAP_DEPW_); fullDep_(FULL_DEPP_, CAP_DEPP_);
   actualitzaCamp_('curriculum', 'grups', { actiu: 'no' });
   sincronitzaCamps_('curriculum_grups', CAMPS_CURR_GRUPS);
@@ -3989,7 +3990,16 @@ function desiderataDades_(ctx, req) {
   // PAS 71: en canviar d'especialitat («lleuger»), el professorat no es torna a llegir (el navegador ja el té)
   return { ok: true, especialitat: esp, especialitats: esps, admin: pot_(ctx, 'desiderata', 'admin'), obert: obert_(ctx), bloqueig: bloqueigDesiderata_(ctx.cfg), departament: dep ? { nom: dep.nom, especialitats: dep.especialitats, cap: dep.cap } : null,
     assignacions: assignacionsEsp_(esp), professorat: req.lleuger ? undefined : professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, hores_lectives: p.hores_lectives, jornada: p.jornada })),
-    dades: dades, observacions: fet.observacions || '', data: fet.data || '', desat_per: fet.desat_per || '' };
+    dades: dades, observacions: fet.observacions || '', data: fet.data || '', desat_per: fet.desat_per || '', altres: horesAltresEsps_(esp) };
+}
+// PAS 90 · Hores que cada docent té a la desiderata desada de les ALTRES especialitats: {id_professor: [{especialitat, hores}]}
+function horesAltresEsps_(esp) {
+  const o = {};
+  llegeix_(FULL.des).forEach((r) => { if (!r.especialitat || r.especialitat === esp) return; let d = {}; try { d = JSON.parse(r.dades || '{}') || {}; } catch (e) { d = {}; }
+    Object.keys(d).forEach((clau) => { const h = numCur_(String(clau).split('|').pop()); (Array.isArray(d[clau]) ? d[clau] : []).forEach((x) => { const g = Number(x.grups) || 0; if (!x.prof || !g || !h) return;
+      const l = o[x.prof] = o[x.prof] || [], e = l.filter((y) => y.especialitat === r.especialitat)[0]; if (e) e.hores += g * h; else l.push({ especialitat: r.especialitat, hores: g * h }); }); }); });
+  Object.keys(o).forEach((k) => o[k].forEach((x) => { x.hores = Math.round(x.hores * 100) / 100; }));
+  return o;
 }
 function desiderataDesa_(ctx, req) {
   if (!pot_(ctx, 'desiderata', 'edicio')) return { ok: false, error: 'sense_permis' };
@@ -4768,6 +4778,21 @@ function heretaSubstitucions_(email) {
 // persona substituïda NO és en actiu (baixa laboral, permís…) i el substitut sí. Quan la substitució s'acaba (el substitut
 // passa a «baixa» i la persona substituïda torna a «actiu»), les matèries tornen a la persona titular.
 // Una baixa o un permís SENSE substitut no transfereix res.
+// PAS 90 · Passa a la desiderata desada (totes les especialitats) les files d'un docent a un altre (si ja hi era, se sumen els grups)
+function desiderataReassigna_(de, a, email) {
+  const sh = SpreadsheetApp.getActive().getSheetByName(FULL.des); if (!sh || sh.getLastRow() < 2) return 0;
+  const v = sh.getDataRange().getValues(), cap = v[0].map(norm_), cD = cap.indexOf('dades'), cE = cap.indexOf('especialitat'); if (cD < 0) return 0;
+  let n = 0;
+  for (let i = 1; i < v.length; i++) {
+    let d = {}; try { d = JSON.parse(v[i][cD] || '{}') || {}; } catch (e) { continue; }
+    let canvi = 0;
+    Object.keys(d).forEach((k) => { if (!Array.isArray(d[k]) || !d[k].some((x) => x.prof === de)) return;
+      const nou = []; d[k].forEach((x) => { const pr = x.prof === de ? a : x.prof, ja = nou.filter((y) => y.prof === pr)[0]; if (ja) ja.grups = (Number(ja.grups) || 0) + (Number(x.grups) || 0); else nou.push({ prof: pr, grups: Number(x.grups) || 0 }); });
+      d[k] = nou; canvi++; });
+    if (canvi) { sh.getRange(i + 1, cD + 1).setValue(JSON.stringify(d)); n += canvi; historial_(email || 'substitucio', 'desiderata_substitucio', FULL.des, String(v[i][cE] || ''), canvi + ' assignacions: ' + de + ' → ' + a); }
+  }
+  return n;
+}
 function transfereixSubstitucions_(email) {
   const tots = llegeix_(FULL.prof), actiu = (p) => { const e = norm_(p.estat || 'actiu'); return e === 'actiu' || e === 'substitut'; };
   // Què s'ha transferit a cada substitut (per tornar-ho exactament, i només això, quan s'acabi la substitució)
@@ -4776,20 +4801,35 @@ function transfereixSubstitucions_(email) {
   tots.filter((p) => p.nom && !esProva_(p) && String(p.substitueix || '').trim()).forEach((p) => {
     const t = personaPerNom_(tots.filter((x) => x !== p), p.substitueix); if (!t || t === p) return;
     if (actiu(p) && !actiu(t)) moviments.push({ de: t, a: p, tipus: 'substitucio' });
-    else if (norm_(p.estat) === 'baixa' && actiu(t) && reg[p.id_professor]) moviments.push({ de: p, a: t, tipus: 'retorn', nomes: reg[p.id_professor].assignacions || [] });
+    // PAS 90: en tornar, tot el que encara és del substitut (el transferit i el que se li ha assignat després) torna al titular
+    else if (norm_(p.estat) === 'baixa' && actiu(t)) moviments.push({ de: p, a: t, tipus: 'retorn', propies: (reg[p.id_professor] || {}).propies || [] });
   });
-  if (!moviments.length) return 0;
-  let n = 0;
+  // PAS 90: la desiderata (on el cap pot haver triat el substitut) també segueix la substitució: mentre dura, el que és del
+  // titular passa al substitut; quan el titular torna i el substitut és «baixa», el del substitut torna al titular. Es fa
+  // sempre (no només en el moment del canvi), així també s'arreglen les substitucions que ja havien acabat.
+  let nDes = 0;
+  tots.filter((p) => p.nom && !esProva_(p) && String(p.substitueix || '').trim()).forEach((p) => {
+    const t = personaPerNom_(tots.filter((x) => x !== p), p.substitueix); if (!t || t === p) return;
+    if (actiu(p) && !actiu(t)) nDes += desiderataReassigna_(t.id_professor, p.id_professor, email);
+    // (si el substitut ja tenia assignacions pròpies al Currículum abans de substituir, la seva desiderata no es toca)
+    else if (norm_(p.estat) === 'baixa' && actiu(t) && !((reg[p.id_professor] || {}).propies || []).length) nDes += desiderataReassigna_(p.id_professor, t.id_professor, email);
+  });
+  if (!moviments.length) return nDes;
+  let n = nDes;
   const shC = SpreadsheetApp.getActive().getSheetByName(FULL.curg), shH = SpreadsheetApp.getActive().getSheetByName(FULL.hres);
   const vC = shC && shC.getLastRow() > 1 ? shC.getDataRange().getValues() : null, capC = vC ? vC[0].map(norm_) : [];
   const vH = shH && shH.getLastRow() > 1 ? shH.getDataRange().getValues() : null, capH = vH ? vH[0].map(norm_) : [];
   const ip = capC.indexOf('professor'), ia = capC.indexOf('id_assignacio'), id = capH.indexOf('docents'), ha = capH.indexOf('id_assignacio');
   moviments.forEach((m) => {
     const k = clauNom_(nomCognoms_(m.de)), moguts = [];
+    // PAS 90: en començar la substitució es guarden les assignacions que el substitut ja tenia (les seves pròpies: no tornen)
+    if (m.tipus === 'substitucio' && (!reg[m.a.id_professor] || reg[m.a.id_professor].acabada) && vC && ip >= 0) { const ka = clauNom_(nomCognoms_(m.a)), pr = [];
+      for (let i = 1; i < vC.length; i++) if (String(vC[i][ip] || '').trim() && clauNom_(vC[i][ip]) === ka) pr.push(String(vC[i][ia] || ''));
+      reg[m.a.id_professor] = { titular: m.de.id_professor, assignacions: [], caps: [], propies: pr }; }
     // Currículum › Assignacions (també les de codocència i de suport: són files pròpies)
     if (vC && ip >= 0) for (let i = 1; i < vC.length; i++) {
       if (!String(vC[i][ip] || '').trim() || clauNom_(vC[i][ip]) !== k) continue;
-      if (m.tipus === 'retorn' && m.nomes.indexOf(String(vC[i][ia])) < 0) continue;   // les seves pròpies no
+      if (m.tipus === 'retorn' && m.propies.indexOf(String(vC[i][ia])) >= 0) continue;   // les seves pròpies no
       shC.getRange(i + 1, ip + 1).setValue(nomCognoms_(m.a)); vC[i][ip] = nomCognoms_(m.a); moguts.push(String(vC[i][ia] || ''));
     }
     // Horari calculat: els docents de cada sessió (codis PRO-…)
@@ -4797,7 +4837,7 @@ function transfereixSubstitucions_(email) {
     if (vH && id >= 0) for (let i = 1; i < vH.length; i++) {
       const ll = String(vH[i][id] || '').split(' | ').filter(Boolean);
       if (ll.indexOf(m.de.id_professor) < 0 || ll.indexOf(m.a.id_professor) >= 0) continue;
-      if (m.tipus === 'retorn' && ha >= 0 && m.nomes.indexOf(String(vH[i][ha])) < 0) continue;
+      if (m.tipus === 'retorn' && ha >= 0 && m.propies.indexOf(String(vH[i][ha])) >= 0) continue;
       const nou = ll.map((x) => (x === m.de.id_professor ? m.a.id_professor : x)).join(' | ');
       shH.getRange(i + 1, id + 1).setNumberFormat('@').setValue(nou); vH[i][id] = nou; c++;
     }
@@ -4805,13 +4845,13 @@ function transfereixSubstitucions_(email) {
     const deps = [], shD = SpreadsheetApp.getActive().getSheetByName(FULL.dep);
     if (shD && shD.getLastRow() > 1) {
       const vD = shD.getDataRange().getValues(), capD = vD[0].map(norm_), ic = capD.indexOf('cap'), idd = capD.indexOf('id_departament');
-      const torna = m.tipus === 'retorn' ? (reg[m.de.id_professor].caps || []) : null;
+      const torna = m.tipus === 'retorn' && reg[m.de.id_professor] ? (reg[m.de.id_professor].caps || []) : null;
       if (ic >= 0) for (let i = 1; i < vD.length; i++) if (String(vD[i][ic]) === m.de.id_professor && (!torna || torna.indexOf(String(vD[i][idd])) >= 0)) { shD.getRange(i + 1, ic + 1).setValue(m.a.id_professor); deps.push(String(vD[i][idd])); }
       if (deps.length) sincronitzaCaps_();
     }
-    if (m.tipus === 'substitucio') { const r0 = reg[m.a.id_professor] || { titular: m.de.id_professor, assignacions: [], caps: [] }; r0.caps = r0.caps || [];
+    if (m.tipus === 'substitucio') { const r0 = reg[m.a.id_professor] || { titular: m.de.id_professor, assignacions: [], caps: [] }; r0.caps = r0.caps || []; delete r0.acabada;
       moguts.forEach((x) => { if (x && r0.assignacions.indexOf(x) < 0) r0.assignacions.push(x); }); deps.forEach((x) => { if (r0.caps.indexOf(x) < 0) r0.caps.push(x); }); reg[m.a.id_professor] = r0; }
-    else delete reg[m.de.id_professor];
+    else reg[m.de.id_professor] = { acabada: true, propies: (reg[m.de.id_professor] || {}).propies || [] };   // PAS 90: es recorden les pròpies (la comprovació es repeteix)
     n += deps.length;
     if (moguts.length || c) historial_(email || 'substitucio', m.tipus === 'retorn' ? 'retorn_substitucio' : 'transfereix_substitucio', FULL.curg, '', moguts.length + ' assignacions i ' + c + ' sessions: ' + nomCognoms_(m.de) + ' → ' + nomCognoms_(m.a));
     n += moguts.length + c;
