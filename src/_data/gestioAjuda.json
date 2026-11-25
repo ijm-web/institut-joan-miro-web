@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "24 de novembre de 2026",
+  "versio": "25 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -195,7 +195,8 @@
             "Les dades personals (NIF, naixement, nacionalitat, telèfon, adreça) i la data d'arribada només les veu el nivell edició o administració. El nivell consulta veu nom, cognoms, especialitat, correus i càrrec.",
             "Si la situació laboral és «Substitut», cal omplir **Substitueix a**.",
             "La data d'arribada al centre es posa sola quan es dona d'alta un docent (des de la graella o des de Nou professor/a).",
-            "Si un docent passa a estat **baixa**, en desar surt automàticament de tots els equips i, per tant, ja no té cap permís a GESTIO."
+            "Si un docent passa a estat **baixa**, en desar surt automàticament de tots els equips i, per tant, ja no té cap permís a GESTIO.",
+            "El camp **Càrrec** no s'edita aquí (surt en gris): es calcula a partir de **Currículum › Assignacions › Càrrecs** (tutor/a de cada grup-classe, cap de departament/àmbit i la resta de càrrecs)."
           ]
         },
         {
@@ -248,7 +249,7 @@
           "titol": "Hores lectives (ara a Ocupació)",
           "claus": "hores lectives classe currículum reduccions jornada total carrega currículum tutoria atenció individual càrrec",
           "text": [
-            "Les hores de cada docent (lectives d'ESO i batxillerat, atenció individual, tutories, reduccions i guàrdies) i els càrrecs es veuen i es canvien al mòdul **Ocupació** (Organització del curs). A la graella del Professorat ja no hi surten.",
+            "Les hores de cada docent (lectives d'ESO i batxillerat, atenció individual, tutories, reduccions i guàrdies) es veuen i es canvien al mòdul **Ocupació** (Organització del curs). El **càrrec** només es consulta: es posa a **Currículum › Assignacions › Càrrecs** (PAS 89).",
             "El botó **Carrega des del Currículum** també és a Ocupació."
           ]
         },
@@ -820,9 +821,9 @@
           "claus": "permisos professorat veure pròpies coordinació tutor",
           "text": [
             "Al mòdul hi entra qui hi té permís a **Equips i permisos** (ara, els administradors). Per obrir-lo a tot el professorat: Claustre → Consulta a la columna Amonestacions.",
-            "Amb **consulta**, cada docent pot **redactar** amonestacions i veu **les seves**. Si és **tutor/a** d'un grup-classe (càrrec «Tutor/a 1r ESO A» a Ocupació o la Tutoria del Currículum), també veu les del seu grup-classe; si és **coordinador/a de nivell** (càrrec «Coordinació de nivell 1r ESO»), les del seu nivell.",
+            "Amb **consulta**, cada docent pot **redactar** amonestacions i veu **les seves**. Si és **tutor/a** d'un grup-classe (es posa a Currículum › Assignacions › Càrrecs › Tutories), també veu les del seu grup-classe; si és **coordinador/a de nivell** (càrrec «Coordinació de nivell 1r ESO»), les del seu nivell.",
             "Amb **edició** (coordinació) i **administració** (direcció) es veuen totes i es poden esborrar. Només l'**administració** del mòdul pot redactar en nom d'un altre docent.",
-            "**Provar-ho amb les fitxes de prova** («Test, Profe», «Test, Tutor», «Test, Coord»): no són al Claustre automàtic. Creeu un equip de prova (p. ex. EQ-PROVA) amb aquests tres membres i Consulta a Amonestacions; poseu a Ocupació el càrrec «Tutor/a 1r ESO A» a Test, Tutor i «Coordinació de nivell 1r ESO» a Test, Coord; entreu amb els seus comptes (finestra privada) i redacteu-ne alguna amb Test, Profe."
+            "**Provar-ho amb les fitxes de prova** («Test, Profe», «Test, Tutor», «Test, Coord»): no són al Claustre automàtic. Creeu un equip de prova (p. ex. EQ-PROVA) amb aquests tres membres i Consulta a Amonestacions; poseu a Currículum › Assignacions › Càrrecs el càrrec «Tutor/a 1r ESO A» a Test, Tutor i «Coordinació de nivell 1r ESO» a Test, Coord; entreu amb els seus comptes (finestra privada) i redacteu-ne alguna amb Test, Profe."
           ]
         },
         {
@@ -1036,7 +1037,11 @@
             "**Franja** (només 4t d'ESO): 1, 2 o 3 per a cada grup de les matèries de franja (p. ex. Biologia G1 → 1, Biologia G2 → 2). Serveix per al document dels equips docents.",
             "**Matèria trossejada** (p. ex. Matemàtiques div. de 3 h repartida 1 h + 2 h entre dos docents amb les tisores): el generador d'horaris posa **totes les sessions de tots els trossos en dies diferents**, encara que siguin de docents diferents. Per tant, una matèria trossejada no pot tenir més sessions que dies lectius.",
             "Si canvieu les hores d'una matèria a Matèries, les pestanyes del Currículum es tornen a llegir en obrir-les i l'avís ⚠ d'hores es recalcula amb les hores noves.",
-            "**Caps de departament/àmbit** (administració): nom de cada departament/àmbit, les **especialitats** que hi pertanyen i el **cap**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit», amb edició a Edició pàgina web departaments/àmbits i a Desiderata."
+            "**Càrrecs** (PAS 89): l'únic lloc on es posen els càrrecs. Tres pestanyes:",
+            "- **Tutories**: el tutor/a de cada grup-classe. És el professor/a de la matèria **Tutoria** del grup (canviar-lo aquí és com canviar-lo a la graella); si el grup no té la matèria Tutoria, es desa a part.",
+            "- **Altres càrrecs**: direcció, coordinacions… (la llista es pot ampliar) i qui en té cadascun. «Coordinació de nivell 1r ESO» dona accés a les amonestacions del nivell i la reducció de reunió de nivell.",
+            "- **Departaments/àmbits i caps**: nom de cada departament/àmbit, les **especialitats** i el **cap** (l'edita l'administració). Els caps passen a ser l'equip «Caps de departament/àmbit», amb edició a Desiderata, Edició pàgina web departaments/àmbits i Llibres de text.",
+            "El camp **Càrrec** del Professorat i de l'Ocupació es calcula sol (altres càrrecs + «Tutor/a <grup>» + «Cap de <departament/àmbit>») i ja no s'hi edita."
           ]
         },
         {
@@ -1099,7 +1104,7 @@
           "titol": "Departaments/àmbits i caps (direcció)",
           "claus": "departament àmbit cap especialitats definir equip",
           "text": [
-            "La direcció defineix els **departaments/àmbits** (nom, **especialitats** que hi pertanyen i **cap**) a **Currículum › Assignacions › Caps de departament/àmbit**.",
+            "La direcció defineix els **departaments/àmbits** (nom, **especialitats** que hi pertanyen i **cap**) a **Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)**.",
             "La primera vegada surt una proposta de partida per revisar. Una especialitat només pot ser d'un departament/àmbit; a sota s'indiquen les especialitats que encara no en tenen.",
             "En desar, els caps passen a ser l'equip **Caps de departament/àmbit** (el manté sol: no cal tocar Equips i permisos) i cada cap gestiona **totes les especialitats** del seu departament/àmbit.",
             "Canviar d'especialitat només demana les assignacions d'aquella especialitat; la llista del professorat ja carregada es reutilitza."
@@ -1194,7 +1199,7 @@
             "**Reduccions automàtiques** (en cursiva, amb la casella buida): **Tutoria 1r ESO** = 1 h si és tutor/a d'un grup de 1r d'ESO; **Reunió nivell** = 1 h si és tutor/a o té el càrrec de coordinació de nivell. Si s'hi escriu un valor, mana el valor; 0 la treu. La de **55 anys** s'escriu a mà (no tothom qui té 55 anys en té).",
             "Les **reduccions de guàrdia** s'escriuen a la seva secció (desplegueu-la) o, amb la secció plegada, amb un clic a la suma.",
             "Les guàrdies són les mateixes del planificador d'horaris (pestanya Professorat): es poden canviar en tots dos llocs.",
-            "**Carrega des del Currículum** calcula les lectives d'ESO i Bat, l'atenció individual, les tutories i els càrrecs de tutor/a i de cap de departament a partir de Currículum › Assignacions (mostra els canvis abans de desar-los; no toca els altres càrrecs).",
+            "**Carrega des del Currículum** calcula les lectives d'ESO i Bat, l'atenció individual i les tutories a partir de Currículum › Assignacions (mostra els canvis abans de desar-los). Els càrrecs es posen a Currículum › Assignacions › Càrrecs.",
             "**Atenció individual**: al Currículum, una matèria de nivell **ESO-BAT** (grup «X») amb les hores i el docent a Assignacions. És multinivell: no ocupa cap grup-classe a l'horari. «Carrega des del Currículum» en posa les hores a la columna At. ind."
           ]
         },
@@ -1203,8 +1208,8 @@
           "titol": "Càrrecs",
           "claus": "càrrecs càrrec assignar llista coordinació direcció tutor",
           "text": [
-            "Un clic en la columna **Càrrecs** obre la llista per marcar-ne un o més (i «Altres» per escriure'n de nous, separats per «·»). Els de tutoria (Tutor/a de cada grup-classe) i de cap de departament/àmbit hi surten sols.",
-            "La pestanya **Càrrecs** té la llista (un per línia); només l'administració del mòdul la pot canviar. Canviar la llista no toca els càrrecs ja assignats.",
+            "La columna **Càrrecs** només es consulta: els càrrecs (tutories, caps i la resta) es posen a **Currículum › Assignacions › Càrrecs** (PAS 89).",
+            "La pestanya **Càrrecs** mostra la llista; es canvia a Currículum › Assignacions › Càrrecs › Altres càrrecs.",
             "El càrrec «Coordinació de nivell …» dona la reducció automàtica de reunió de nivell i entra a la proposta de reunions del planificador."
           ]
         },
@@ -1214,7 +1219,7 @@
           "claus": "pdf excel exporta imprimir",
           "text": [
             "**PDF**: resum per docent (alumnat, reduccions, lectives, guàrdies, total i estat), amb els filtres i el logo. **Excel**: totes les columnes, reducció per reducció.",
-            "**Llistat de càrrecs** (PDF): els docents que tenen algun càrrec i quins. **Llistat de tutors** (PDF): el tutor/a de cada grup-classe (de Currículum › Tutoria i dels càrrecs «Tutor/a …»), per nivells."
+            "**Llistat de càrrecs** (PDF): els docents que tenen algun càrrec i quins. **Llistat de tutors** (PDF): el tutor/a de cada grup-classe (de Currículum › Assignacions › Càrrecs › Tutories), per nivells."
           ]
         }
       ]
@@ -1317,7 +1322,7 @@
           "claus": "reunions reunió nivell tutors coordinació franja setmanal",
           "text": [
             "Cada **reunió fixa** (p. ex. tutors/es i coordinació de 1r d'ESO) es fa a la mateixa franja cada setmana, amb tots els seus docents lliures (sense classe ni guàrdia).",
-            "**Proposa a partir del Currículum i dels càrrecs** crea una reunió per nivell amb els tutors/es (Currículum › Tutoria) i la coordinació de nivell (càrrec a Ocupació). Es poden canviar el nom, les hores (1 a 3), la **franja** (en blanc = la tria el motor) i els docents (**+ docent…** i ×). **+ reunió** n'afegeix una de buida.",
+            "**Proposa a partir del Currículum i dels càrrecs** crea una reunió per nivell amb els tutors/es (Currículum › Tutoria) i la coordinació de nivell (Currículum › Assignacions › Càrrecs). Es poden canviar el nom, les hores (1 a 3), la **franja** (en blanc = la tria el motor) i els docents (**+ docent…** i ×). **+ reunió** n'afegeix una de buida.",
             "Cal almenys dos docents per reunió. Les reunions van a l'exportació per al motor (`reunions`) i el validador comprova els docents, la franja i que cap docent la tingui prohibida."
           ]
         },
@@ -1568,7 +1573,7 @@
     "departaments": {
       "titol": "Edició pàgina web departaments/àmbits",
       "graella": false,
-      "intro": "Pàgina de cada departament/àmbit al web, **El Nostre Centre › Departaments i àmbits**, amb el mateix format per a tots. Els departaments/àmbits, les seves especialitats i el cap es defineixen a **Currículum › Assignacions › Caps de departament/àmbit**.",
+      "intro": "Pàgina de cada departament/àmbit al web, **El Nostre Centre › Departaments i àmbits**, amb el mateix format per a tots. Els departaments/àmbits, les seves especialitats i el cap es defineixen a **Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)**.",
       "temes": [
         {
           "id": "dw-editar",
@@ -1628,9 +1633,9 @@
           "claus": "provar cap departament profe.test vista del cap",
           "text": [
             "Per veure exactament el que veu i pot fer un cap, feu servir una **fitxa de prova** de Professorat (p. ex. «Test, Profe», amb *Prova* = sí, estat actiu i el correu de l'institut del compte de prova, p. ex. profe.test@…).",
-            "1 · **Currículum › Assignacions › Caps de departament/àmbit**: trieu-la com a **cap** d'un departament/àmbit (a la llista surt al final, amb «(fitxa de prova)») i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Edició pàgina web departaments/àmbits i a Desiderata. Les fitxes de prova només surten en aquesta llista: no compten per a les hores, la desiderata ni els horaris.",
+            "1 · **Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)**: trieu-la com a **cap** d'un departament/àmbit (a la llista surt al final, amb «(fitxa de prova)») i **Desa**. En desar, els caps passen a ser l'equip «Caps de departament/àmbit» (EQ-CAPS), que té **edició** a Edició pàgina web departaments/àmbits i a Desiderata. Les fitxes de prova només surten en aquesta llista: no compten per a les hores, la desiderata ni els horaris.",
             "2 · Obriu una **finestra d'incògnit** (o un altre navegador), entreu a GESTIO amb el compte de prova i obriu **Edició pàgina web departaments/àmbits**: només hi veureu la pestanya **Edició** i el vostre departament (Desa, Tanca/Obre, Vista prèvia). Si l'edició està **bloquejada** (data límit, «Bloqueja-les totes» o el cadenat del seu departament/àmbit), el cap ja no pot desar ni tornar a obrir la pàgina.",
-            "3 · Quan acabeu, a **Currículum › Assignacions › Caps de departament/àmbit** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
+            "3 · Quan acabeu, a **Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)** torneu a posar el cap real i **Desa**: el compte de prova surt de l'equip dels caps."
           ]
         }
       ]
@@ -1638,14 +1643,14 @@
     "llibres": {
       "titol": "Llibres de text",
       "graella": false,
-      "intro": "Llibres de text, lectures i materials de cada matèria. Abans era un lloc web a part; ara s'edita aquí i es publica a la pàgina **Llibres de text** del web (cada etapa hi enllaça). Cada matèria és d'una **especialitat** i, per tant, d'un **departament/àmbit** (Currículum › Assignacions › Caps de departament/àmbit): **només el cap** l'edita.",
+      "intro": "Llibres de text, lectures i materials de cada matèria. Abans era un lloc web a part; ara s'edita aquí i es publica a la pàgina **Llibres de text** del web (cada etapa hi enllaça). Cada matèria és d'una **especialitat** i, per tant, d'un **departament/àmbit** (Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)): **només el cap** l'edita.",
       "temes": [
         {
           "id": "ll-qui",
           "titol": "Qui hi pot editar",
           "claus": "cap departament àmbit especialitat responsable permís editar consulta",
           "text": [
-            "Edita el **cap** de cada departament/àmbit, i només les matèries de les especialitats del seu departament/àmbit. Els departaments/àmbits, les especialitats i els caps són els de **Currículum › Assignacions › Caps de departament/àmbit**.",
+            "Edita el **cap** de cada departament/àmbit, i només les matèries de les especialitats del seu departament/àmbit. Els departaments/àmbits, les especialitats i els caps són els de **Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)**.",
             "Els **responsables d'especialitat que no són caps no editen**: si tenen accés al mòdul, el veuen només de consulta.",
             "L'**administració** del mòdul ho pot editar tot (també amb el període tancat) i té el panell d'administració."
           ]

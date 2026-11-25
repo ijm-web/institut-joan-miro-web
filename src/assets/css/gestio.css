@@ -887,3 +887,17 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
   .gs-ll__f1 label:nth-child(2), .gs-ll__f2 .gs-ll__obs{ grid-column: 1 / -1; }
   .gs-ll__treu{ grid-column: 2; justify-self: end; }
 }
+/* PAS 89 · Càrrecs (Currículum › Assignacions) */
+.gs-car__taula{ max-height: 56vh; overflow: auto; margin: 8px 0; }
+.gs-car__taula select{ min-width: 260px; max-width: 100%; }
+.gs-car__canvi{ color: #C2410C; }
+.gs-car__llista{ display: grid; gap: 6px; max-height: 56vh; overflow: auto; margin: 8px 0; }
+.gs-car__fila{ display: grid; grid-template-columns: minmax(180px, 260px) 1fr 30px; gap: 8px; align-items: center; padding: 6px 8px; border: 1px solid #E2E6F0; border-radius: 10px; background: #fff; }
+.gs-car__qui{ display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.gs-car__qui select{ max-width: 220px; font-size: 13px; }
+.gs-car__xip{ display: inline-flex; align-items: center; gap: 2px; padding: 2px 4px 2px 10px; border-radius: 99px; background: #EEF0FB; color: #3C348C; font-size: 13px; }
+.gs-car__xip button{ border: 0; background: transparent; color: #6B7280; font-size: 15px; line-height: 1; cursor: pointer; padding: 0 4px; }
+.gs-car__xip button:hover{ color: #B91C1C; }
+.gs-car__nou input{ min-width: 280px; padding: 6px 8px; border: 1px solid #CBD2E1; border-radius: 8px; font: inherit; }
+.gs-ocu__cb--fix{ cursor: help; }
+@media (max-width: 760px){ .gs-car__fila{ grid-template-columns: 1fr 30px; } .gs-car__qui{ grid-column: 1 / -1; } }

@@ -634,6 +634,17 @@ self.addEventListener('activate', function (e) {
 
 - **PAS 88e**: la **primera línia** del `Code.gs` diu sempre l'últim pas que l'ha modificat (p. ex. `// PAS 88e · 24/11/2026 …`): així, a l'editor d'Apps Script, es veu d'un cop d'ull quina versió hi ha enganxada.
 
+## PAS 89
+
+- **Càrrecs en un sol lloc**: a **Currículum › Assignacions**, el botó «Caps de departament/àmbit» passa a ser **Càrrecs** (nivell edició del Currículum), amb tres pestanyes:
+  - **Tutories**: el tutor/a de cada grup-classe. Si el grup té la matèria Tutoria al Currículum, és el professor/a d'aquella fila (es canvia la fila); si no, es desa a `config › tutories_sense_materia` (JSON grup → id_professor).
+  - **Altres càrrecs**: la llista (`config › carrecs`, ampliable) i qui en té cadascun.
+  - **Departaments/àmbits i caps**: el mateix d'abans (l'edita l'administració).
+- El camp **Càrrec** del Professorat i de l'Ocupació **ja no s'edita** (surt en gris): el calcula `sincronitzaCarrecs_` = altres càrrecs + «Tutor/a <grup>» + «Cap de <departament/àmbit>». Es recalcula sol en desar Càrrecs, els departaments/àmbits, la graella del Currículum, aplicar la desiderata, el Professorat i l'Ocupació. El substitut continua heretant el càrrec.
+- **Migració** (`configura`, un sol cop, `config › carrecs_migrats`): els «Tutor/a <grup>» escrits a mà al càrrec d'un grup sense matèria Tutoria passen a `tutories_sense_materia`. Els «Cap de …» de departaments que ja no existeixen desapareixen.
+- **Pendents de 2n d'ESO**: `provaPendents2ESO()` (només informa al registre d'execució) i `importaPendents2ESO()` (desa) copien el camp «Pendents» del full `config › font_pendents_2eso` a l'alumnat de **2n d'ESO** (ijm_alumnat_db). L'alumne/a es busca pel nom; el registre llista canvis, no trobats, dubtes i alumnes de 2n que no surten al full. Els altres nivells no es toquen.
+- ESQUEMA 78.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

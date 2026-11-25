@@ -34,6 +34,7 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
+    carrec_a_carrecs: 'El càrrec es posa a Currículum › Assignacions › Càrrecs.', carrec_desconegut: 'Hi ha un càrrec que no és a la llista.', professor_desconegut: 'Hi ha un docent que no és al professorat actiu.', massa_carrecs: 'Massa càrrecs a la llista (màxim 200).',
     llibres_sense_escriptura: 'GESTIO no pot escriure al full joanmiro_db. Compartiu-lo amb permís d’edició amb el compte que executa l’Apps Script de GESTIO i, si la pestanya «materies» o «llibres» està protegida, afegiu-hi aquest compte com a editor.',
     llibres_no_configurat: 'Els llibres encara no estan connectats: cal posar l’adreça del full joanmiro_db a config › db_llibres i executar configura.', llibres_tancat: 'El període per indicar llibres està tancat.', curs_nomes_lectura: 'Aquest curs és només de consulta.', departament_sense_materies: 'Aquest departament/àmbit no té matèries en aquest curs.',
     notificacions_no_configurat: 'Les notificacions encara no estan configurades: cal posar l’adreça del full notificacions_db a config › db_notificacions i executar configura.', vapid_no_configurat: 'Falten les claus de les notificacions (VAPID_PUBLIC i VAPID_PRIVATE) a les variables d’entorn de Netlify.', vapid_no_coincideixen: 'Les claus VAPID_PUBLIC i VAPID_PRIVATE de Netlify no fan parella (són de dues generacions diferents o una està mal copiada). Genereu-ne un parell nou, poseu-les totes dues, torneu a publicar i torneu a activar els avisos als dispositius.', vapid_invalid: 'Una de les claus VAPID de Netlify no és vàlida (mal copiada?). Genereu-ne un parell nou amb «npx web-push generate-vapid-keys».', cap_destinatari: 'Cap dispositiu subscrit no rebria aquest avís (ningú no ha triat aquests cursos).', avis_invalid: 'Reviseu l’avís.', massa_subscripcions: 'S’ha arribat al màxim de subscripcions.', avis_en_curs: 'Hi ha un avís que no s’ha acabat d’enviar: continueu-lo o atureu-lo abans d’enviar-ne un altre.', no_en_curs: 'Aquest avís ja no s’està enviant.',
@@ -518,7 +519,7 @@
   }
   var potEditar = function () { return S.d && nivellIdx(S.d.nivell) >= 1 && S.d.obert; };
   var esAdmin = function () { return S.d && S.d.nivell === 'admin'; };
-  var editable = function (c) { return potEditar() && !esRegistre() && c.tipus !== 'calculat' && c.origen !== 'clickedu'; };
+  var editable = function (c) { return potEditar() && !esRegistre() && c.tipus !== 'calculat' && c.origen !== 'clickedu' && !c.bloquejat; };   // PAS 89: el càrrec es canvia a Currículum › Assignacions › Càrrecs
   // Per fila: a l'alumnat no s'editen els camps que no són del nivell de l'alumne (surten ratllats)
   var editableFila = function (c, d) {
     if (!editable(c)) return false;
@@ -748,8 +749,8 @@
     }
     camps.forEach(function (c) {
       var col = Object.assign({ title: c.nom + (c.obligatori && editable(c) ? ' *' : ''), field: c.clau, minWidth: 90, maxWidth: 360,
-        editable: editable(c), cssClass: c.tipus === 'calculat' ? 'gs-calc' : (c.origen === 'clickedu' ? 'gs-ck' : ''),
-        tooltip: c.tipus === 'calculat' ? 'Es calcula sol' : (c.origen === 'clickedu' ? (esConsell() ? 'Ve de l’alumnat o el posa GESTIO: no s’edita aquí' : esCurriculum() ? 'Ve de la matèria: es canvia a la pestanya Matèries' : 'Ve de Clickedu: no s’edita aquí') : false) }, filtreDe(c));
+        editable: editable(c), cssClass: c.tipus === 'calculat' || c.bloquejat ? 'gs-calc' : (c.origen === 'clickedu' ? 'gs-ck' : ''),
+        tooltip: c.bloquejat ? 'Es posa a Currículum › Assignacions › Càrrecs' : c.tipus === 'calculat' ? 'Es calcula sol' : (c.origen === 'clickedu' ? (esConsell() ? 'Ve de l’alumnat o el posa GESTIO: no s’edita aquí' : esCurriculum() ? 'Ve de la matèria: es canvia a la pestanya Matèries' : 'Ve de Clickedu: no s’edita aquí') : false) }, filtreDe(c));
       S.filtreFn[c.clau] = col.headerFilterFunc;
       if (FIXADES.indexOf(c.clau) >= 0) col.frozen = true;
       if (editable(c)) {
@@ -2178,7 +2179,7 @@
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-resum" title="Hores de professorat per especialitat i nivell">Hores per especialitat</button>' +
       (grups && ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-aplica-des" title="Posa el professor/a de cada grup segons la desiderata desada dels departaments/àmbits">Aplica la desiderata</button>' : '') +
       (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-comprova-des" title="Compara les assignacions (també els canvis fets a mà) amb la desiderata de cada docent">Comprova la desiderata</button>' : '') +
-      (grups && nivellIdx(S.d.nivell) >= 2 ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="des-departaments" title="Departaments/àmbits: especialitats de cadascun i el seu cap">Caps de departament/àmbit</button>' : '') +   // PAS 80: abans a Departaments/àmbits › Administració
+      (grups && nivellIdx(S.d.nivell) >= 1 ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-carrecs" title="Tots els càrrecs: tutor/a de cada grup-classe, direcció i coordinacions, i departaments/àmbits amb el seu cap (PAS 89)">Càrrecs</button>' : '') +   // PAS 80: abans a Departaments/àmbits › Administració
       (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-balanc" title="Esquema: balanç d’hores de cada especialitat i transferències entre especialitats">Balanç i transferències</button>' : '') +
       (grups ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-especialitat" title="Per al cap de departament/àmbit: hores de l’especialitat, cedides, assignades, professorat i balanç (PDF)">Document per especialitat</button><button type="button" class="prog-btn prog-btn--ghost" data-accio="cur-document" title="Taula per nivell: matèries × grups amb el professorat o l’especialitat (PDF)">Document equips docents</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="columnes">Visualització camps</button>' +
@@ -3008,7 +3009,7 @@
     substitueix: 'Docent a qui substitueix (només si la situació és «Substitut»). En triar-lo, el càrrec s’omple amb el de la persona substituïda.',
     anys: 'Anys que fa que treballa com a docent (en total, no només al centre). Un número; 0 si és el primer any.',
     catala: 'Nivell de català acreditat (p. ex. C1, C2).',
-    carrec: 'Càrrec al centre, si en té (tutor/a, cap de departament, coordinació…). Si substitueix algú, s’omple amb el càrrec d’aquella persona.'
+    carrec: 'Càrrec al centre. Es posa a Currículum › Assignacions › Càrrecs (tutories, caps i la resta). Si substitueix algú, hereta el càrrec d’aquella persona.'
   };
   // Camps que el formulari no demana: la data d'arribada al centre la posa el servidor el dia que es desa
   // PAS 58: el càrrec s'assigna a Ocupació (o l'hereta el substitut): no el demana el formulari
@@ -3198,6 +3199,84 @@
       full([['Tipus', 'On', 'Detall']].concat(F.inc.length ? F.inc : [['Cap: tot quadra.']]), 'Incoherències', [20, 40, 70]);
       full([['Observacions pedagògiques'], [F.obs]], 'Observacions', [100]);
       XLSX.writeFile(wb, fitxerDes('xlsx'));
+    });
+  }
+  // ------------------------------------------------------------------ PAS 89 · CÀRRECS (Currículum › Assignacions)
+  // Un sol lloc per als càrrecs: departaments/àmbits i caps, tutor/a de cada grup-classe i la resta de càrrecs. El camp
+  // «Càrrec» del Professorat i de l'Ocupació es calcula sol a partir d'aquí (ja no s'hi edita).
+  function carrecsCurriculum(tab) {
+    api('carrecs_dades', {}, 'Carregant els càrrecs…').then(function (r) {
+      if (!r.ok) return toast(text(r.error), true);
+      var T = {}; r.tutories.forEach(function (t) { T[t.id || ('g:' + t.grup)] = t.professor; });
+      var A = {}; r.carrecs.forEach(function (c) { A[c] = (r.assignacions[c] || []).slice(); });
+      S.car = { r: r, tab: tab || 'tut', T: T, T0: Object.assign({}, T), llista: r.carrecs.slice(), A: A, brut: false };
+      var desa = function () { return { t: 'Desa', valor: 'desa', abans: function () { if (!S.car.brut) { toast('No hi ha cap canvi.'); return false; } } }; };
+      pregunta('Càrrecs', '<div id="gsCar"></div>', [{ t: 'Tanca', valor: 0, tipus: 'ghost' }, { t: 'gsCarDeps', valor: 'deps', tipus: 'ghost' }].concat(r.obert ? [desa()] : []), false).then(function (v) {
+        var C = S.car; S.car.obert = false;
+        if (v === 'deps') return departamentsDesiderata(function () { carrecsCurriculum('deps'); if (S.modul && S.modul.id === 'curriculum') { delete S.cache[S.modul.id]; carregaDades(); } });
+        if (v !== 'desa') return;
+        var tut = r.tutories.filter(function (t) { var k = t.id || ('g:' + t.grup); return (C.T[k] || '') !== (C.T0[k] || ''); }).map(function (t) { return { id: t.id, grup: t.grup, professor: C.T[t.id || ('g:' + t.grup)] || '' }; });
+        api('carrecs_desa', { tutories: tut, carrecs: C.llista, assignacions: C.A }, 'Desant els càrrecs…').then(function (r2) {
+          if (!r2.ok) return toast(text(r2.error) + (r2.detall ? ' (' + r2.detall + ')' : ''), true);
+          toast('Càrrecs desats.' + (r2.tutories_canviades ? ' Tutories canviades: ' + r2.tutories_canviades + '.' : ''));
+          if (S.modul && S.modul.id === 'curriculum' && r2.tutories_canviades) { delete S.cache[S.modul.id]; carregaDades(); }
+          ['professorat', 'ocupacio'].forEach(function (m) { delete S.cache[m]; });
+        });
+      });
+      $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample', 'gs-modal--hl');
+      [].forEach.call($('gsModalBtns').querySelectorAll('button'), function (x) { if (x.textContent === 'gsCarDeps') { x.hidden = true; x.style.display = 'none'; x.id = 'gsCarDeps'; } });   // botó amagat: obre els departaments/àmbits
+      S.car.obert = true; pintaCarrecs(); lligaCarrecs();
+    });
+  }
+  function pintaCarrecs() {
+    var C = S.car, r = C.r, ed = r.obert, P = r.professorat, nomDe = {}; P.forEach(function (p) { nomDe[p.id] = p.nom; });
+    var opts = function (sel, buit) { return '<option value="">' + (buit || '—') + '</option>' + P.map(function (p) { return '<option value="' + esc(p.id) + '"' + (p.id === sel ? ' selected' : '') + '>' + esc(p.nom) + (p.especialitat ? ' · ' + esc(p.especialitat) : '') + '</option>'; }).join(''); };
+    var h = '<p class="gs-ajuda">Tots els càrrecs es posen aquí. El camp <b>Càrrec</b> del Professorat i de l’Ocupació es calcula sol (no s’hi edita): els altres càrrecs, «Tutor/a &lt;grup&gt;» i «Cap de &lt;departament/àmbit&gt;».' + (ed ? '' : ' <b>GESTIO està tancat: només es pot consultar.</b>') + '</p>' +
+      '<div class="gs-pestanyes" role="tablist">' + [['tut', 'Tutories'], ['altres', 'Altres càrrecs'], ['deps', 'Departaments/àmbits i caps']].map(function (x) { return '<button type="button" role="tab" data-car="tab" data-v="' + x[0] + '" aria-selected="' + (C.tab === x[0]) + '">' + x[1] + '</button>'; }).join('') + '</div>';
+    if (C.tab === 'tut') {
+      var sense = 0;
+      h += '<p class="gs-ajuda">El tutor/a de cada grup-classe és el professor/a de la matèria <b>Tutoria</b> d’aquell grup al Currículum (canviar-lo aquí és com canviar-lo a la graella). Si el grup no té la matèria Tutoria, el tutor/a es desa a part.</p>' +
+        '<div class="gs-car__taula"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Grup-classe</th><th>Tutor/a</th><th></th></tr></thead><tbody>' +
+        C.r.tutories.map(function (t) { var k = t.id || ('g:' + t.grup); if (!t.id) sense++;
+          return '<tr><td><b>' + esc(t.grup) + '</b></td><td><select data-car-tut="' + esc(k) + '"' + (ed ? '' : ' disabled') + '>' + opts(C.T[k], '— Sense tutor/a —') + '</select>' + (t.professor_nom && !t.professor && t.id ? ' <small class="gs-perill" title="Aquest nom del Currículum no és cap docent actiu">' + esc(t.professor_nom) + '?</small>' : '') + '</td>' +
+            '<td class="gs-gris"><small>' + (t.id ? esc(t.materia) + ' (Currículum)' : 'sense matèria Tutoria') + ((C.T[k] || '') !== (C.T0[k] || '') ? ' · <b class="gs-car__canvi">canviat</b>' : '') + '</small></td></tr>'; }).join('') + '</tbody></table></div>' +
+        (sense ? '<p class="gs-gris"><small>' + sense + ' grups-classe no tenen la matèria Tutoria al Currículum (es pot afegir a Currículum › Matèries perquè en compti les hores).</small></p>' : '');
+    } else if (C.tab === 'altres') {
+      h += '<p class="gs-ajuda">Direcció, coordinacions i la resta de càrrecs. Afegiu-hi les persones; un docent pot tenir-ne diversos. La <b>Coordinació de nivell</b> (p. ex. «Coordinació de nivell 1r ESO») dona accés a les amonestacions del nivell.</p>' +
+        '<div class="gs-car__llista">' + C.llista.map(function (c, i) { var qui = C.A[c] || [];
+          return '<div class="gs-car__fila"><div class="gs-car__nom"><b>' + esc(c) + '</b>' + (r.fora_llista.indexOf(c) >= 0 ? ' <small class="gs-gris" title="Era escrit al càrrec d’algun docent i no era a la llista">(afegit)</small>' : '') + '</div><div class="gs-car__qui">' +
+            qui.map(function (id) { return '<span class="gs-car__xip">' + esc(nomDe[id] || id) + (ed ? '<button type="button" data-car="treu" data-c="' + i + '" data-id="' + esc(id) + '" aria-label="Treu">×</button>' : '') + '</span>'; }).join('') +
+            (ed ? '<select data-car-afegeix="' + i + '">' + opts('', '+ Afegeix…') + '</select>' : (qui.length ? '' : '<span class="gs-gris">—</span>')) + '</div>' +
+            (ed ? '<button type="button" class="gs-ll__treu" data-car="treu-carrec" data-c="' + i + '" title="Treu aquest càrrec de la llista" aria-label="Treu el càrrec">×</button>' : '') + '</div>'; }).join('') + '</div>' +
+        (ed ? '<p class="gs-car__nou"><input id="gsCarNou" maxlength="80" placeholder="Nom d’un càrrec nou (p. ex. Coordinació TAC)"> <button type="button" class="prog-btn prog-btn--sm prog-btn--ghost" data-car="nou">+ Afegeix el càrrec</button></p>' : '');
+    } else {
+      h += '<p class="gs-ajuda">Cada departament/àmbit agrupa especialitats i té un cap. El cap passa a tenir el càrrec «Cap de &lt;departament/àmbit&gt;» i accés a Desiderata, Edició pàgina web i Llibres de text.</p>' +
+        '<div class="gs-car__taula"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Departament/àmbit</th><th>Especialitats</th><th>Cap</th></tr></thead><tbody>' +
+        (r.departaments.length ? r.departaments.map(function (d) { return '<tr><td><b>' + esc(d.nom) + '</b></td><td>' + esc(d.especialitats.join(', ')) + '</td><td>' + (d.cap_nom ? esc(d.cap_nom) : '<span class="gs-perill">sense cap</span>') + '</td></tr>'; }).join('') : '<tr><td colspan="3" class="gs-gris">Encara no n’hi ha cap.</td></tr>') + '</tbody></table></div>' +
+        (r.pot_departaments ? '<p><button type="button" class="prog-btn prog-btn--sm" data-car="deps"' + (C.brut ? ' title="Primer deseu els canvis de les altres pestanyes"' : '') + '>Edita els departaments/àmbits i caps</button>' + (C.brut ? ' <small class="gs-perill">Abans, deseu (o descarteu) els canvis de tutories i càrrecs.</small>' : '') + '</p>' : '<p class="gs-gris">Els edita l’administració del Currículum.</p>');
+    }
+    $('gsCar').innerHTML = h;
+  }
+  function lligaCarrecs() {
+    if (lligaCarrecs.fet) return; lligaCarrecs.fet = true;
+    var actiu = function () { return S.car && S.car.obert && $('gsCar'); };
+    $('gsModalText').addEventListener('click', function (e) {
+      if (!actiu()) return; var b = e.target.closest('[data-car]'); if (!b || b.tagName === 'SELECT') return; var C = S.car, a = b.dataset.car;
+      if (a === 'tab') { C.tab = b.dataset.v; return pintaCarrecs(); }
+      if (a === 'treu') { var c = C.llista[Number(b.dataset.c)]; C.A[c] = (C.A[c] || []).filter(function (x) { return x !== b.dataset.id; }); C.brut = true; return pintaCarrecs(); }
+      if (a === 'treu-carrec') { var c2 = C.llista[Number(b.dataset.c)], n = (C.A[c2] || []).length;
+        C.llista.splice(Number(b.dataset.c), 1); delete C.A[c2]; C.brut = true; toast('«' + c2 + '» tret de la llista' + (n ? ' (i de ' + n + (n === 1 ? ' docent).' : ' docents).') : '.') + ' Es desa en prémer Desa.'); return pintaCarrecs(); }
+      if (a === 'nou') { var t = $('gsCarNou').value.replace(/\s+/g, ' ').replace(/·/g, '-').trim(); if (!t) return;
+        if (/^(Tutor\/a |Cap de )/i.test(t)) return toast('Les tutories i els caps es posen a les seves pestanyes.', true);
+        if (C.llista.some(function (x) { return x.toLowerCase() === t.toLowerCase(); })) return toast('Aquest càrrec ja hi és.', true);
+        C.llista.push(t); C.A[t] = []; C.brut = true; return pintaCarrecs(); }
+      if (a === 'deps') { if (C.brut) return toast('Primer deseu (o tanqueu sense desar) els canvis de tutories i càrrecs.', true);
+        return $('gsCarDeps').click(); }   // es tanca aquest diàleg (valor «deps») i s'obre el dels departaments/àmbits
+    });
+    $('gsModalText').addEventListener('change', function (e) {
+      if (!actiu()) return; var C = S.car, el = e.target;
+      if (el.dataset.carTut != null) { C.T[el.dataset.carTut] = el.value; C.brut = true; return pintaCarrecs(); }
+      if (el.dataset.carAfegeix != null && el.value) { var c = C.llista[Number(el.dataset.carAfegeix)]; C.A[c] = C.A[c] || []; if (C.A[c].indexOf(el.value) < 0) C.A[c].push(el.value); C.brut = true; return pintaCarrecs(); }
     });
   }
   // PAS 48 · Departaments/àmbits (administració): nom, especialitats i cap. Els caps passen a ser l'equip «Caps de
@@ -4353,7 +4432,7 @@
       'Quan la pàgina està llesta, el cap la <b>tanca</b> (editada i verificada). L’administració fixa la data límit, bloqueja l’edició i <b>publica</b> les pàgines tancades. ' + textBloqueigDw(R.bloqueig) + ' ' + (pub ? 'Darrera publicació: ' + esc(dataHoraHE(pub.data)) + ' (' + pub.n + ').' : 'Encara no s’ha publicat.') + '</p>';
     var t = $('gsTaula'); t.className = 'gs-ocu gs-dw';
     if (adm) return pintaAdminDw();
-    if (!d) { t.innerHTML = '<p class="gs-ajuda" style="padding:12px">No hi ha cap departament/àmbit. Es defineixen a <b>Currículum › Assignacions › Caps de departament/àmbit</b>.</p>'; return ajustaAlcada(); }
+    if (!d) { t.innerHTML = '<p class="gs-ajuda" style="padding:12px">No hi ha cap departament/àmbit. Es defineixen a <b>Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)</b>.</p>'; return ajustaAlcada(); }
     var E = edDw(), w = d.web || {}, A = d.auto || {}, ed = d.edita, tancada = w.estat === 'tancada', B = R.bloqueig || {};
     var llista = function (L) { var k = L[0], camps = L[2], ll = E[k];
       return '<section class="gs-dw__sec"><h3>' + esc(L[1]) + '</h3>' + (ll.length ? '<div class="gs-dw__ll">' + ll.map(function (x, i) { return '<div class="gs-dw__item" data-ll="' + k + '" data-i="' + i + '">' + camps.map(function (c) {
@@ -4813,7 +4892,7 @@
       '<li><b>Format</b>: Paper, Digital o Paper+Digital. Als <b>materials</b>, Nou, Format i On comprar-lo queden en blanc.</li><li>Desar substitueix tot el que hi havia de les matèries del departament/àmbit en aquest curs (queda una còpia a l’historial).</li></ul></details>';
     var mats = R.materies.filter(function (m) { return d && m.dep === d.id; });
     if (!R.hi_ha_materies) h += '<p class="gs-gris gs-ll__buit">El curs ' + esc(R.curs) + ' encara no té matèries.' + (R.admin ? ' Podeu preparar-lo a <b>Administració › Prepara el curs</b>.' : ' Quan l’administració el prepari, hi podreu indicar els llibres.') + '</p>';
-    else if (!d) h += '<p class="gs-gris gs-ll__buit">No hi ha cap departament/àmbit definit (Currículum › Assignacions › Caps de departament/àmbit).</p>';
+    else if (!d) h += '<p class="gs-gris gs-ll__buit">No hi ha cap departament/àmbit definit (Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)).</p>';
     else if (!mats.length) h += '<p class="gs-gris gs-ll__buit">Aquest departament/àmbit no té matèries al curs ' + esc(R.curs) + '.' + (R.admin ? ' Reviseu les especialitats de les matèries (Administració › Especialitats).' : '') + '</p>';
     else mats.map(function (m) { return m.nivell; }).filter(function (n, i, a) { return a.indexOf(n) === i; }).sort(llOrdNiv).forEach(function (n) {
       h += '<section class="gs-ll__niv"><h3>' + esc(LL_NOMS[n] || n) + '</h3>' + mats.filter(function (m) { return m.nivell === n; }).sort(llOrdMat).map(function (m) { return targetaLl(m, ed); }).join('') + '</section>';
@@ -4882,7 +4961,7 @@
         ob.map(function (x, i) { return '<div class="gs-ll__ob"><span>' + (i + 1) + '.</span><textarea data-ll-ob="' + i + '" rows="2" maxlength="500">' + esc(x) + '</textarea><button type="button" class="gs-ll__treu" data-ll="obs-treu" data-i="' + i + '" aria-label="Treu">×</button></div>'; }).join('') +
         '<p><button type="button" class="gs-ll__mes" data-ll="obs-afegeix"' + (ob.length >= R.max_obs ? ' disabled' : '') + '>+ Observació</button> <button type="button" class="prog-btn prog-btn--sm" data-ll="obs-desa">Desa les observacions</button></p></details>' +
       '<details' + (S.ll.obert === 'esp' || sense.length ? ' open' : '') + ' data-ll-panell="esp"><summary>Especialitats de les matèries' + (sense.length ? ' <span class="gs-perill">· ' + sense.length + ' sense departament/àmbit</span>' : ' <span class="gs-gris">· totes assignades</span>') + '</summary>' +
-        '<p class="gs-ajuda">Cada matèria de llibres ha de tenir una especialitat que sigui d’algun departament/àmbit (Currículum › Assignacions › Caps de departament/àmbit). Si no, ningú (llevat de l’administració) no la pot editar. Les propostes surten del Currículum (mateix nivell i nom).</p>' +
+        '<p class="gs-ajuda">Cada matèria de llibres ha de tenir una especialitat que sigui d’algun departament/àmbit (Currículum › Assignacions › Càrrecs (pestanya Departaments/àmbits i caps)). Si no, ningú (llevat de l’administració) no la pot editar. Les propostes surten del Currículum (mateix nivell i nom).</p>' +
         '<div class="gs-ll__taula"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Nivell</th><th>Matèria</th><th>Especialitat</th></tr></thead><tbody>' +
         (S.ll.totes ? R.materies.slice().sort(function (a, b) { return llOrdNiv(a.nivell, b.nivell) || a.materia.localeCompare(b.materia, 'ca'); }) : sense).map(esp).join('') + '</tbody></table></div>' +
         '<p><label class="gs-check"><input type="checkbox" data-ll="esp-totes"' + (S.ll.totes ? ' checked' : '') + '> Mostra totes les matèries</label> <button type="button" class="prog-btn prog-btn--sm" data-ll="esp-desa">Desa les especialitats</button></p></details>' +
@@ -5082,17 +5161,17 @@
       return '<td class="gs-ocu__n' + (b ? ' is-brut' : '') + '"><input type="text" inputmode="decimal" data-k="' + k + '" value="' + esc(buit ? '' : v) + '"' + (auto && buit ? ' placeholder="' + auto + '" class="is-auto" title="Automàtica: ' + esc(AUTO_OCU[k] || '') + '"' : '') + dis + ' aria-label="' + esc(col.n) + '"></td>'; };
     var seccio = function (id, suma) { return (P[id] ? '' : C[id].map(inp).join('')) + '<td class="gs-ocu__s">' + (id === 'rg' && P[id] ? '<button type="button" class="gs-enllac" data-ocu="rg" title="Reduccions de guàrdia, una per una">' + r2(suma) + '</button>' : r2(suma)) + '</td>'; };
     return '<tr data-id="' + esc(d.id) + '" class="is-' + o.estat + '"><th class="gs-ocu__nom" scope="row">' + esc(d.nom) + '<small>' + esc(d.especialitat) + '</small></th><td class="gs-cen">' + esc(d.jornada) + '</td>' +
-      '<td class="gs-ocu__c"><button type="button" class="gs-ocu__cb" data-ocu="carrec" title="' + esc(c || 'Sense càrrec') + '"' + (ed ? '' : ' disabled') + '>' + (c ? esc(c) : '<span class="gs-ajuda">—</span>') + '</button></td>' +
+      '<td class="gs-ocu__c"><button type="button" class="gs-ocu__cb gs-ocu__cb--fix" data-ocu="carrec" title="' + esc((c || 'Sense càrrec') + ' · es posa a Currículum › Assignacions › Càrrecs') + '">' + (c ? esc(c) : '<span class="gs-ajuda">—</span>') + '</button></td>' +
       seccio('alu', o.alu) + seccio('red', o.red) + '<td class="gs-ocu__t">' + o.lect + '<small>/' + o.objL + '</small></td>' +
       seccio('g', o.g) + seccio('rg', o.rg) + '<td class="gs-ocu__t">' + o.guard + '<small>/' + o.objG + '</small></td><td class="gs-ocu__t">' + o.total + '<small>/' + o.objT + '</small></td>' +
       '<td class="gs-ocu__e"><span class="gs-ocu__sem gs-ocu__sem--' + o.estat + '" title="' + esc(o.text) + '"></span><span class="gs-ocu__et">' + esc(o.estat === 'ok' ? 'Quadra' : o.estat === 'reparteix' ? 'Repartiment' : o.total < o.objT ? '−' + r2(o.objT - o.total) : '+' + r2(o.total - o.objT)) + '</span></td></tr>';
   }
   function htmlCarrecsOcu() {
     var R = S.ocu.r, adm = R.nivell === 'admin';
-    return '<section class="gs-hor__sec"><h3 class="gs-amon__tit">Càrrecs' + (R.carrecs_per_defecte ? ' (llista per defecte)' : '') + '</h3>' +
-      '<p class="gs-ajuda">Un per línia. ' + (adm ? 'Els canvis no toquen els càrrecs ja assignats.' : 'Només l’administració del mòdul pot canviar la llista.') + '</p>' +
-      '<textarea id="ocuCarrecs" rows="18" style="width:100%;max-width:640px"' + (adm ? '' : ' disabled') + '>' + esc(R.carrecs.join('\n')) + '</textarea>' +
-      (adm ? '<p><button type="button" class="prog-btn" data-ocu="desa-carrecs">Desa la llista</button></p>' : '') +
+    void adm;   // PAS 89: la llista i les assignacions es gestionen a Currículum › Assignacions › Càrrecs
+    return '<section class="gs-hor__sec"><h3 class="gs-amon__tit">Càrrecs</h3>' +
+      '<p class="prog-avis">Els càrrecs (la llista, qui en té cadascun, les tutories i els caps) es gestionen a <b>Currículum › Assignacions › Càrrecs</b>. Aquí només es consulten.</p>' +
+      '<p class="gs-ajuda">' + R.carrecs.map(esc).join(' · ') + '</p>' +
       '<h3 class="gs-amon__tit">Automàtics</h3><p class="gs-ajuda">' + R.carrecs_auto.map(esc).join(' · ') + '</p></section>';
   }
   function canviOcu(id, k, v) {
@@ -5111,16 +5190,6 @@
       S.ocu.r.docents = r.docents; S.ocu.brut = {}; S.brut = false;
       toast('Desat: ' + r.desats + ' docents.' + (r.herencia ? ' Els substituts han heretat ' + r.herencia + ' dades.' : '') + (r.transferides ? ' Matèries transferides al substitut: ' + r.transferides + '.' : '')); pintaOcupacio();
     });
-  }
-  function dialegCarrecOcu(d) {
-    var R = S.ocu.r, actuals = String(valOcu(d, 'carrec') || '').split(/\s*·\s*/).filter(Boolean), llista = R.carrecs.concat(R.carrecs_auto);
-    var altres = actuals.filter(function (c) { return llista.indexOf(c) < 0; });
-    var html = '<p><b>' + esc(d.nom) + '</b></p><div class="gs-ocu__llc">' + R.carrecs.map(function (c) { return '<label class="gs-check"><input type="checkbox" class="ocuCar" value="' + esc(c) + '"' + (actuals.indexOf(c) >= 0 ? ' checked' : '') + '> ' + esc(c) + '</label>'; }).join('') + '</div>' +
-      '<details' + (actuals.some(function (c) { return R.carrecs_auto.indexOf(c) >= 0; }) ? ' open' : '') + '><summary>Tutoria i caps de departament/àmbit</summary><div class="gs-ocu__llc">' + R.carrecs_auto.map(function (c) { return '<label class="gs-check"><input type="checkbox" class="ocuCar" value="' + esc(c) + '"' + (actuals.indexOf(c) >= 0 ? ' checked' : '') + '> ' + esc(c) + '</label>'; }).join('') + '</div></details>' +
-      '<p><label>Altres (separats per «·»)<br><input type="text" id="ocuCarAltres" value="' + esc(altres.join(' · ')) + '" style="width:100%"></label></p>';
-    var val = null;
-    pregunta('Càrrecs', html, [{ t: 'D’acord', valor: 1, abans: function () { val = [].map.call(document.querySelectorAll('.ocuCar:checked'), function (x) { return x.value; }).concat($('ocuCarAltres').value.split('·').map(function (x) { return x.trim(); }).filter(Boolean)).join(' · '); } }, { t: 'Cancel·la', tipus: 'ghost', valor: 0 }], false)
-      .then(function (v) { if (v && val !== null) { canviOcu(d.id, 'carrec', val); pintaOcupacio(); } });
   }
   function dialegRgOcu(d) {
     var R = S.ocu.r, ed = edOcu(), vals = {};
@@ -5218,7 +5287,7 @@
         return api('ocupacio_carrecs_desa', { carrecs: l }, 'Desant…').then(function (r) { if (!r.ok) return toast(r.errors ? r.errors.join(' ') : text(r.error), true); S.ocu.r.carrecs = r.carrecs; S.ocu.r.carrecs_per_defecte = false; toast('Llista de càrrecs desada.'); pintaOcupacio(); });
       }
       var tr = b.closest('tr[data-id]'), d = tr && S.ocu.r.docents.filter(function (x) { return x.id === tr.dataset.id; })[0]; if (!d) return;
-      if (b.dataset.ocu === 'carrec') dialegCarrecOcu(d); else if (b.dataset.ocu === 'rg') dialegRgOcu(d);
+      if (b.dataset.ocu === 'carrec') return toast('El càrrec es posa a Currículum › Assignacions › Càrrecs.'); else if (b.dataset.ocu === 'rg') dialegRgOcu(d);
     });
   }
   function carregaHoraris() {
@@ -6881,6 +6950,7 @@
       case 'des-xlsx': xlsxDesiderata(); break;
       case 'des-analisi': analisiDesiderata(); break;
       case 'des-departaments': departamentsDesiderata(); break;
+      case 'cur-carrecs': carrecsCurriculum(); break;   // PAS 89
       case 'hor-desa': desaHoraris(); break;
       case 'hor-json': baixaJson(marcNet(), 'marc_horari.json'); break;
       case 'hor-tab': S.horTab = b.dataset.tab; pintaHoraris(); break;
