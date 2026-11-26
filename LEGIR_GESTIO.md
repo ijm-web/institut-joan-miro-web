@@ -660,6 +660,8 @@ self.addEventListener('activate', function (e) {
 - **Desiderata › Docents**: «Lectives alumnat» = la suma de les lectives amb alumnat de la fitxa (lectives ESO i Bat, atenció individual i tutories), les mateixes que es veuen i s'editen a **Ocupació**. «Assignades» es desdobla en **especialitat** (desiderata pròpia + tutoria) i **altres especialitats** (una línia per especialitat i total). La **Diferència** diu el total i, entre parèntesis, les hores que ja té de l'especialitat i d'altres.
 - **Tutoria**: compta sempre com a hora de l'especialitat del docent. A la desiderata es compta pel Currículum (`horesTutoria_`, files de Tutoria assignades al docent) i les claus de Tutoria (`clausTutoria_`) no compten ni a la pròpia ni a «altres». Al **Document per especialitat** i al **Balanç i transferències**, la Tutoria és de l'especialitat que la imparteix (no «d'altres especialitats»).
 
+- **PAS 91b**: Desiderata › Docents classifica les hores per l'**especialitat de la matèria** (`assignacionsEsp_ › esp_materia`, de Currículum › Matèries): les matèries alienes cedides a aquesta desiderata van a «altres especialitats». De les desiderates d'altres especialitats només compten les claus que encara són d'aquella especialitat (abans, una desiderata desada abans que una matèria canviés d'especialitat es comptava dues vegades).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

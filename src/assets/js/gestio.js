@@ -3051,22 +3051,26 @@
   var brutDes = function (b) { S.brut = b; var x = document.querySelector('[data-accio="des-desa"]'); if (x) { x.classList.toggle('is-brut', b); x.textContent = b ? 'Desa *' : 'Desa'; } };
   var desProfs = function () { var P = {}; (S.des.professorat || []).forEach(function (p) { P[p.id] = p; }); return P; };
   function calculsDesiderata() {
-    var A = S.des.assignacions, D = S.desDades, P = desProfs(), per = {}, total = 0, fetes = 0, sobre = [], TUT = {};
+    // PAS 91b: les hores de cada docent es classifiquen per l'especialitat de la MATÈRIA (a.esp_materia): les de la seva
+    // especialitat (i la tutoria) a «especialitat», les altres (també les cedides a aquesta desiderata) a «altres especialitats»
+    var A = S.des.assignacions, D = S.desDades, P = desProfs(), per = {}, perAlt = {}, total = 0, fetes = 0, sobre = [], TUT = {};
     (S.des.claus_tutoria || []).forEach(function (k) { TUT[k] = 1; });
+    var espDe = function (id) { return (P[id] || {}).especialitat || ''; };
+    var suma = function (id, em, h) { if (!em || em === espDe(id)) per[id] = (per[id] || 0) + h; else { var m = perAlt[id] = perAlt[id] || {}; m[em] = (m[em] || 0) + h; } };
     A.forEach(function (a) {
       var ll = D[a.clau] || [], g = ll.reduce(function (t, x) { return t + (Number(x.grups) || 0); }, 0);
       total += a.grups * a.hores; fetes += Math.min(g, a.grups) * a.hores; if (g > a.grups) sobre.push(a);
       if (TUT[a.clau]) return;   // PAS 91: la Tutoria es compta pel Currículum (S.des.tutories), no per la desiderata
-      ll.forEach(function (x) { if (!x.prof || !(Number(x.grups) > 0)) return; per[x.prof] = (per[x.prof] || 0) + x.grups * a.hores; });
+      ll.forEach(function (x) { if (!x.prof || !(Number(x.grups) > 0)) return; suma(x.prof, a.esp_materia || '', x.grups * a.hores); });
     });
-    var ids = {}; Object.keys(per).forEach(function (k) { ids[k] = 1; }); (S.des.professorat || []).forEach(function (p) { if (p.especialitat === S.des.especialitat) ids[p.id] = 1; });
-    var docents = Object.keys(ids).map(function (id) { var p = P[id] || { nom: id, especialitat: '' }, l = p.hores_lectives === '' || p.hores_lectives == null ? null : numero(p.hores_lectives), as = per[id] || 0;
-      // PAS 90: hores d'aquest docent a la desiderata d'altres especialitats (també compten per a la diferència)
-      // PAS 91: la tutoria compta a l'especialitat del docent (si és d'una altra especialitat, surt a «altres» com a tutoria)
-      var al = ((S.des.altres || {})[id] || []).slice(), tu = Number((S.des.tutories || {})[id]) || 0, propi = p.especialitat === S.des.especialitat || !p.especialitat;
-      if (tu && propi) as += tu; else if (tu) al.push({ especialitat: 'Tutoria (' + p.especialitat + ')', hores: tu });
-      var at = al.reduce(function (t, x) { return t + (Number(x.hores) || 0); }, 0);
-      return { id: id, nom: p.nom, especialitat: p.especialitat, lectives: l, assignades: as, tutoria: propi ? tu : 0, altres: at, altresLl: al, altresText: al.map(function (x) { return fmtH(x.hores) + ' h ' + x.especialitat; }).join(', '), dif: Math.round(((l === null ? 0 : l) - as - at) * 100) / 100 }; })
+    var ids = {}; Object.keys(per).concat(Object.keys(perAlt)).forEach(function (k) { ids[k] = 1; }); (S.des.professorat || []).forEach(function (p) { if (p.especialitat === S.des.especialitat) ids[p.id] = 1; });
+    var docents = Object.keys(ids).map(function (id) { var p = P[id] || { nom: id, especialitat: '' }, l = p.hores_lectives === '' || p.hores_lectives == null ? null : numero(p.hores_lectives);
+      // de les desiderates desades de les altres especialitats (el servidor ja les agrupa per l'especialitat de la matèria)
+      ((S.des.altres || {})[id] || []).forEach(function (x) { suma(id, x.especialitat || '', Number(x.hores) || 0); });
+      var tu = Number((S.des.tutories || {})[id]) || 0, as = Math.round(((per[id] || 0) + tu) * 100) / 100, m = perAlt[id] || {};
+      var al = Object.keys(m).sort(function (a, b) { return a.localeCompare(b, 'ca'); }).map(function (e) { return { especialitat: e, hores: Math.round(m[e] * 100) / 100 }; });
+      var at = Math.round(al.reduce(function (t, x) { return t + x.hores; }, 0) * 100) / 100;
+      return { id: id, nom: p.nom, especialitat: p.especialitat, lectives: l, assignades: as, tutoria: tu, altres: at, altresLl: al, altresText: al.map(function (x) { return fmtH(x.hores) + ' h ' + x.especialitat; }).join(', '), dif: Math.round(((l === null ? 0 : l) - as - at) * 100) / 100 }; })
       .sort(function (a, b) { return (a.especialitat === S.des.especialitat ? 0 : 1) - (b.especialitat === S.des.especialitat ? 0 : 1) || a.nom.localeCompare(b.nom, 'ca'); });
     return { total: total, fetes: fetes, pendents: Math.round((total - fetes) * 100) / 100, sobre: sobre, docents: docents };
   }

@@ -1,4 +1,4 @@
-// PAS 91 · 26/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
+// PAS 91b · 26/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
 /**
  * GESTIO · pont entre Netlify (web de l'institut) i els fulls de càlcul ijm_nucli_db i ijm_alumnat_db
  *
@@ -3802,11 +3802,14 @@ function curriculumGenera_(ctx, req) {
 // El cap de departament (edició al mòdul) proposa, per a cada assignació de la seva especialitat (Currículum › Assignacions),
 // quins docents la imparteixen i quants grups fa cadascun. Els grups concrets els assigna després la direcció.
 // Assignacions agrupades per matèria i hores per grup (clau = id_materia|hores). Admin: qualsevol especialitat i «Anàlisi».
-function assignacionsEsp_(esp) {
-  const per = {};
+// PAS 91b: esp_materia = l'especialitat de la matèria (Currículum › Matèries); la Tutoria no en té (compta a la del docent)
+function espMateries_() { const o = {}; llegeix_(FULL.cur).forEach((m) => { const e = /^tutoria/i.test(String(m.materia || '').trim()) ? '' : String(m.especialitat || ''); if (m.id_materia) o[m.id_materia] = e; o[m.nivell + '·' + m.materia] = e; }); return o; }
+function assignacionsEsp_(esp, EM) {
+  const per = {}; EM = EM || espMateries_();
   llegeix_(FULL.curg).filter((r) => String(r.especialitat || '') === esp).forEach((r) => {
     const h = numCur_(r.hores), k = (r.id_materia || (r.nivell + '·' + r.materia)) + '|' + h;
-    const x = per[k] = per[k] || { clau: k, nivell: r.nivell, materia: r.materia, hores: h, grups: 0, noms: [] };
+    const em = /^tutoria/i.test(String(r.materia || '').trim()) ? '' : (EM[r.id_materia] !== undefined ? EM[r.id_materia] : (EM[r.nivell + '·' + r.materia] || ''));
+    const x = per[k] = per[k] || { clau: k, nivell: r.nivell, materia: r.materia, hores: h, grups: 0, noms: [], esp_materia: em };
     x.grups++; if (r.grup && x.noms.indexOf(r.grup) < 0) x.noms.push(r.grup);
   });
   const o = NIVELLS_ESO.concat(NIVELLS_BAT);
@@ -4007,11 +4010,14 @@ function horesTutoria_() {
 }
 // PAS 90 · Hores que cada docent té a la desiderata desada de les ALTRES especialitats: {id_professor: [{especialitat, hores}]}
 // PAS 91: la Tutoria no compta com a «altres especialitats» (compta a l'especialitat del docent: vegeu horesTutoria_)
+// PAS 91b: només les assignacions que encara són d'aquella especialitat (no les desades que ja no hi són) i agrupades per
+// l'especialitat de la MATÈRIA (una matèria de Tecnologia cedida a Física i Química és «Tecnologia»). especialitat '' = la del docent.
 function horesAltresEsps_(esp) {
-  const o = {}, tut = clausTutoria_();
+  const o = {}, tut = clausTutoria_(), EM = espMateries_();
   llegeix_(FULL.des).forEach((r) => { if (!r.especialitat || r.especialitat === esp) return; let d = {}; try { d = JSON.parse(r.dades || '{}') || {}; } catch (e) { d = {}; }
-    Object.keys(d).forEach((clau) => { if (tut[clau]) return; const h = numCur_(String(clau).split('|').pop()); (Array.isArray(d[clau]) ? d[clau] : []).forEach((x) => { const g = Number(x.grups) || 0; if (!x.prof || !g || !h) return;
-      const l = o[x.prof] = o[x.prof] || [], e = l.filter((y) => y.especialitat === r.especialitat)[0]; if (e) e.hores += g * h; else l.push({ especialitat: r.especialitat, hores: g * h }); }); }); });
+    const valides = {}; assignacionsEsp_(r.especialitat, EM).forEach((a) => { valides[a.clau] = a; });
+    Object.keys(d).forEach((clau) => { const a = valides[clau]; if (tut[clau] || !a) return; const h = a.hores; (Array.isArray(d[clau]) ? d[clau] : []).forEach((x) => { const g = Number(x.grups) || 0; if (!x.prof || !g || !h) return;
+      const em = a.esp_materia, l = o[x.prof] = o[x.prof] || [], e = l.filter((y) => y.especialitat === em)[0]; if (e) e.hores += g * h; else l.push({ especialitat: em, hores: g * h }); }); }); });
   Object.keys(o).forEach((k) => o[k].forEach((x) => { x.hores = Math.round(x.hores * 100) / 100; }));
   return o;
 }
