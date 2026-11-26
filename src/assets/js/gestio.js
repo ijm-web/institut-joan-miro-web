@@ -817,6 +817,7 @@
       // PAS 41: assignacions → ⚠ si les parts d'un grup no sumen les hores de la matèria
       if (S.modul.id === 'curriculum_grups' && c.clau === 'hores') col.formatter = function (cell) {
         var d = cell.getRow().getData(), t = totalMateria(d), s = sumaGrup(d);
+        if (esSuport(d)) return esc(fmtH(numero(cell.getValue()))) + ' <span class="gs-codo" title="Suport a l’aula: hores de més d’un segon docent, a la mateixa hora que la part principal del grup">Suport</span>';
         return esc(fmtH(numero(cell.getValue()))) + (t !== null && Math.abs(s - t) > 0.01 ? ' <span class="gs-avis-ret" title="Les parts d’aquest grup sumen ' + fmtH(s) + ' h i la matèria en té ' + fmtH(t) + '">⚠</span>' : '');
       };
       // PAS 38: consell orientador → els PDF com a icona (pestanya nova)
@@ -1692,19 +1693,42 @@
   var materiaDe = function (d) { return (S.d.materies || []).filter(function (x) { return d.id_materia ? x.id === d.id_materia : x.nivell === d.nivell && x.materia === d.materia; })[0]; };
   var totalMateria = function (d) { var m = materiaDe(d); return m ? (numero(m.hores_a) + numero(m.hores_b)) * (Math.round(numero(m.docents)) || 1) : null; };
   var clauGrup = function (d) { return (d.id_materia || d.nivell + '|' + d.materia) + '|' + (d.num_grup || d.grup); };
-  var sumaGrup = function (d) { var k = clauGrup(d); return S.taula.getData().filter(function (x) { return clauGrup(x) === k; }).reduce(function (t, x) { return t + numero(x.hores); }, 0); };
+  var esSuport = function (d) { return /^s[ií]$/i.test(String(d.suport || '').trim()); };   // PAS 92: suport a l'aula (codocència d'un sol grup)
+  var sumaGrup = function (d) { var k = clauGrup(d); return S.taula.getData().filter(function (x) { return clauGrup(x) === k && !esSuport(x); }).reduce(function (t, x) { return t + numero(x.hores); }, 0); };
+  // PAS 92 · Suport a l'aula (codocència només d'aquest grup): una fila nova amb hores de més per a un segon docent
+  function suportAssignacio(row) {
+    if (S.brut) return toast('Primer deseu o descarteu els canvis.', true);
+    var d = row.getData(), m = materiaDe(d) || {}, ha = numero(m.hores_a) || numero(d.hores);
+    var esp = (S.d.camps.filter(function (c) { return c.clau === 'especialitat'; })[0] || { valors: '' }).valors.split('|').filter(Boolean);
+    pregunta('Suport a l’aula · ' + d.materia + ' · ' + d.grup, '<p class="gs-ajuda">Un <strong>segon docent a l’aula</strong> només en aquest grup (codocència d’un sol grup), p. ex. les hores A d’Anglès de 4t ESO B amb dues docents. Es crea una fila nova de <strong>suport</strong>: hores de més per al segon docent, que el motor posa <strong>a la mateixa hora</strong> que la part principal del grup (la fila sense suport amb més hores) i que no compten per sumar les hores del grup. Les hores B amb un docent per a cada meitat es fan amb les tisores i el bloc d’hores B del planificador.</p>' +
+      '<div class="gs-form-fila"><label><span>Hores de suport</span> <input type="number" id="gsSupH" min="1" max="40" step="1" value="' + Math.max(1, Math.round(ha)) + '"></label>' +
+      '<label><span>Especialitat del suport</span> <select id="gsSupE">' + esp.map(function (e) { return '<option' + (e === d.especialitat ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select></label></div><p class="prog-avis" id="gsSupErr" hidden></p>',
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Afegeix el suport', valor: 1, abans: function () {
+        var x = numero($('gsSupH').value); if (!(x > 0 && x <= 40)) { $('gsSupErr').textContent = 'Indiqueu les hores de suport.'; $('gsSupErr').hidden = false; return false; }
+        suportAssignacio.v = { id: d.id, hores: x, especialitat: $('gsSupE').value };
+      } }], false).then(function (v) {
+      if (!v) return;
+      api('curriculum_suport', suportAssignacio.v, 'Afegint el suport…').then(function (r) {
+        if (!r.ok) return toast(text(r.error), true);
+        S.d.files.push(copia(r.nova)); S.taula.addRow(copia(r.nova), false, row).then(function () { aplicaFiltre(); S.taula.getRows().forEach(function (rw) { rw.reformat(); }); });
+        toast('Suport afegit: ' + fmtH(numero(r.nova.hores)) + ' h (' + (r.nova.especialitat || '—') + '). Poseu-hi el professor/a.');
+      });
+    });
+  }
   function divideixAssignacio(row) {
     if (S.brut) return toast('Primer deseu o descarteu els canvis.', true);
     var d = row.getData(), h = numero(d.hores);
-    if (h < 2) return toast('Aquesta part només té ' + fmtH(h) + ' h: no es pot repartir més.', true);
+    if (esSuport(d)) return toast('És una fila de suport a l’aula: per canviar-ne les hores, editeu la columna Hores.', true);
+    if (h < 2) return pregunta('Repartir les hores · ' + d.materia + ' · ' + d.grup, '<p>Aquesta part només té ' + fmtH(h) + ' h: no es pot repartir més. Podeu afegir-hi un <strong>suport a l’aula</strong> (segon docent alhora).</p>', [{ t: 'Tanca', valor: 0, tipus: 'ghost' }, { t: 'Suport a l’aula…', valor: 1 }]).then(function (v) { if (v) suportAssignacio(row); });
     var esp = (S.d.camps.filter(function (c) { return c.clau === 'especialitat'; })[0] || { valors: '' }).valors.split('|').filter(Boolean);
     pregunta('Repartir les hores · ' + d.materia + ' · ' + d.grup, '<p class="gs-ajuda">Aquesta part té <strong>' + fmtH(h) + ' h</strong> (' + esc(d.especialitat || 'sense especialitat') + '). Es queda amb les hores que indiqueu i la resta passa a una part nova, amb l’especialitat que trieu. Podeu tornar a repartir qualsevol part.</p>' +
       '<div class="gs-form-fila"><label><span>Hores que es queda aquesta part</span> <input type="number" id="gsDivH" min="1" max="' + (h - 1) + '" step="1" value="' + Math.max(1, Math.floor(h - 1)) + '"></label>' +
       '<label><span>Especialitat de la part nova (<span id="gsDivR"></span> h)</span> <select id="gsDivE">' + esp.map(function (e) { return '<option' + (e === d.especialitat ? ' selected' : '') + '>' + esc(e) + '</option>'; }).join('') + '</select></label></div><p class="prog-avis" id="gsDivErr" hidden></p>',
-      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Reparteix', valor: 1, abans: function () {
+      [{ t: 'Cancel·la', valor: 0, tipus: 'ghost' }, { t: 'Suport a l’aula…', valor: 'suport', tipus: 'ghost' }, { t: 'Reparteix', valor: 1, abans: function () {
         var x = numero($('gsDivH').value); if (!(x > 0 && x < h)) { $('gsDivErr').textContent = 'Han de ser entre 1 i ' + fmtH(h - 1) + ' h.'; $('gsDivErr').hidden = false; return false; }
         divideixAssignacio.v = { id: d.id, hores: x, especialitat: $('gsDivE').value };
       } }], false).then(function (v) {
+      if (v === 'suport') return suportAssignacio(row);
       if (!v) return;
       api('curriculum_divideix', divideixAssignacio.v, 'Repartint…').then(function (r) {
         if (!r.ok) return toast(text(r.error), true);
@@ -1912,12 +1936,15 @@
     var B = dadesBalanc();
     pregunta('Balanç i transferències', '<p class="gs-ajuda">Cada caixa és una especialitat amb el seu <strong>balanç</strong> d’hores (hores lectives del professorat − hores a impartir): <span class="gs-bal__l gs-bal__l--0">0 = quadra</span> <span class="gs-bal__l gs-bal__l--n">negatiu = falten hores</span> <span class="gs-bal__l gs-bal__l--p">positiu = sobren</span>. Cada <strong>fletxa</strong> va de l’especialitat de la matèria a la que la imparteix, amb les hores transferides (passeu el ratolí per sobre per veure les matèries; <strong>*</strong> = hi ha hores de codocència). Les caixes es poden <strong>arrossegar</strong> amb el ratolí.</p>' +
       '<div class="gs-form-fila"><label class="gs-check"><input type="checkbox" id="gsBalTrans" checked> Només les especialitats amb transferències</label><span class="gs-gris">' + B.trans.length + ' transferències · ' + B.esps.length + ' especialitats</span></div><div class="gs-bal" id="gsBal"></div>',
-      [{ t: 'PDF', valor: 0, tipus: 'ghost', abans: function () { pdfBalanc(B, $('gsBalTrans').checked); return false; } }, { t: 'Tanca', valor: 1 }], false);
+      [{ t: 'Posició inicial', valor: 0, tipus: 'ghost', abans: function () { B.mou = {}; $('gsBal').dispatchEvent(new Event('repinta')); toast('Caixes a la posició inicial. Premeu Desa per guardar-ho.'); return false; } },
+        { t: 'PDF', valor: 0, tipus: 'ghost', abans: function () { pdfBalanc(B, $('gsBalTrans').checked); return false; } },
+        { t: 'Desa', valor: 0, tipus: 'ghost', abans: function () { api('curriculum_balanc_desa', { posicions: B.mou }, 'Desant la posició de les caixes…').then(function (r) { if (!r.ok) return toast(text(r.error), true); S.d.balanc_posicions = r.posicions; toast('Posició de les caixes desada.'); }); return false; } },   // PAS 92
+        { t: 'Tanca', valor: 1 }], false);
     // PAS 75: finestra més gran i caixes arrossegables amb el ratolí (les fletxes les segueixen; el PDF surt tal com es veu)
     $('gsModalText').closest('.prog-modal__box').classList.add('gs-modal--ample', 'gs-modal--gran');
-    B.mou = B.mou || {};
+    B.mou = JSON.parse(JSON.stringify(S.d.balanc_posicions || {}));   // PAS 92: l'última posició desada
     var pinta = function () { var c = $('gsBal'); B.minW = c.clientWidth - 2; B.minH = c.clientHeight - 2; c.innerHTML = svgBalanc(B, $('gsBalTrans').checked); };
-    $('gsBalTrans').addEventListener('change', pinta); pinta();
+    $('gsBalTrans').addEventListener('change', pinta); $('gsBal').addEventListener('repinta', pinta); pinta();
     var arr = null, punt = function (e) { var svg = $('gsBal').querySelector('svg'), pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY; return pt.matrixTransform(svg.getScreenCTM().inverse()); };
     $('gsBal').addEventListener('pointerdown', function (e) {
       var g = e.target.closest('.gs-bal__caixa'); if (!g) return;
@@ -4091,11 +4118,11 @@
     // PAS 75 · Distribució (obligatòria): les sessions d'una mateixa unitat del motor van en dies diferents (excepte l'atenció
     // individual i el que el motor no reparteix)
     if (u.tipus === 'classe') pfs.forEach(function (pf) { if (S.he.posU[pf] && !S.he.posU[pf].dd) return;
-      var ses = P[pf] || []; if (!ses.length || /atenci[oó] individual/i.test(ses[0].materia || '')) return;
+      var ses = P[pf] || []; if (!ses.length || /atenci[oó] individual|acollida/i.test(ses[0].materia || '')) return;
       if (ses.some(function (y) { return y._u !== u.k && onEsHE(y, mv).dia === diaU; })) durU(descUnitatHE(u) + ': ja té una altra sessió el ' + diaU + ' (la distribució demana dies diferents).'); });
     // Avís (horaris importats abans del PAS 75): la mateixa matèria i grup ja té classe aquell dia
     // PAS 73: l'atenció individual pot tenir diverses sessions el mateix dia
-    if (!((S.he.r.meta || {}).posicions) && u.tipus === 'classe' && !/atenci[oó] individual/i.test(u.ses[0].materia || '')) { var dia = (mv[u.k] || { dia: u.ses[0].dia }).dia, ids = {}; u.ses.forEach(function (s) { if (s.id_assignacio) ids[s.id_assignacio] = s; });
+    if (!((S.he.r.meta || {}).posicions) && u.tipus === 'classe' && !/atenci[oó] individual|acollida/i.test(u.ses[0].materia || '')) { var dia = (mv[u.k] || { dia: u.ses[0].dia }).dia, ids = {}; u.ses.forEach(function (s) { if (s.id_assignacio) ids[s.id_assignacio] = s; });
       S.he.r.sessions.forEach(function (x) { if (x._u !== u.k && ids[x.id_assignacio] && onEsHE(x, mv).dia === dia) { var t = ids[x.id_assignacio].materia + ' ' + grupHE(ids[x.id_assignacio]) + ' ja té classe el ' + dia + '.'; if (r.avisos.indexOf(t) < 0) r.avisos.push(t); } }); }
     return r;
   }

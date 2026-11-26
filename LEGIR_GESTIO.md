@@ -662,6 +662,13 @@ self.addEventListener('activate', function (e) {
 
 - **PAS 91b**: Desiderata › Docents classifica les hores per l'**especialitat de la matèria** (`assignacionsEsp_ › esp_materia`, de Currículum › Matèries): les matèries alienes cedides a aquesta desiderata van a «altres especialitats». De les desiderates d'altres especialitats només compten les claus que encara són d'aquella especialitat (abans, una desiderata desada abans que una matèria canviés d'especialitat es comptava dues vegades).
 
+## PAS 92
+
+- **Suport a l'aula (codocència d'un sol grup)**: camp nou `suport` (si/no) a Currículum › Assignacions i acció `curriculum_suport` (tisores › «Suport a l'aula…»): fila nova amb les hores del segon docent. No compta per sumar les hores del grup (ni a «Genera els grups», que la conserva). Al planificador surt «Suport de …» i a l'exportació porta `suport_de` (id de la principal: la fila sense suport amb més hores); el motor (generador-horaris PAS 92) la posa a la mateixa hora que la principal i no ocupa el grup-classe. Les hores B amb un docent per meitat: tisores + bloc d'hores B, com fins ara.
+- **Balanç i transferències**: botons **Desa** (`curriculum_balanc_desa` → `config › curriculum_balanc_posicions`) i **Posició inicial**; les posicions es llegeixen amb el mòdul.
+- **Acollida**: matèria multinivell (ESO-BAT X) creada per `configura` (`afegeixAcollida_`, una sola vegada, amb les dades de l'Atenció individual). `esMultinivell_` hi inclou «Acollida».
+- ESQUEMA 79 (camp `suport`): cal executar **configura**.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

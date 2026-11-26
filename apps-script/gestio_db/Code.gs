@@ -1,4 +1,4 @@
-// PAS 91b · 26/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
+// PAS 92 · 26/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
 /**
  * GESTIO · pont entre Netlify (web de l'institut) i els fulls de càlcul ijm_nucli_db i ijm_alumnat_db
  *
@@ -57,7 +57,7 @@ const CAP = {
   historial: ['data', 'usuari', 'accio', 'taula', 'id', 'detall'],
   preferencies: ['email', 'destacats', 'data'],   // PAS 85: mòduls destacats de cada persona
 };
-const ESQUEMA = 78;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
+const ESQUEMA = 79;   // versió de l'estructura dels fulls (la desa «configura» a config › esquema)
 const CONFIG_PER_DEFECTE = [
   ['admins', '', 'Accés d\'emergència: correus (separats per comes) que sempre entren com a admin global, encara que els permisos tinguin un error. Només es canvia aquí.'],
   ['estat', 'obert', 'obert o tancat. Si és tancat, només els admins globals poden desar.'],
@@ -446,6 +446,9 @@ const CAMPS_CURR_GRUPS = [
   ['num_grup', 'Núm. grup', 'text', '', 'no', 'no', 'admin', 'clickedu'],
   // PAS 61: franja horària de les matèries de franja de 4t d'ESO (per al document dels equips docents)
   ['franja', 'Franja', 'llista', '1|2|3', 'no', 'no', 'consulta', 'gestio'],
+  // PAS 92: suport a l'aula (codocència només d'aquest grup): hores de més d'un segon docent, a la mateixa hora que la
+  // part principal del grup (p. ex. les 2 h A d'Anglès de 4t ESO B amb dues docents). No compta per sumar les hores del grup.
+  ['suport', 'Suport a l\'aula', 'si_no', '', 'no', 'no', 'consulta', 'gestio'],
 ];
 const PERIODES_AMON = { '1 setmana': 7, '2 setmanes': 14, '3 setmanes': 21, '1 mes': 30, '2 mesos': 61, '3 mesos': 92, 'tot el curs': 0 };
 const CAMPS_CONTROL = [
@@ -661,6 +664,8 @@ function doPost(e) {
       case 'professorat_carrega_curriculum': return json_(carregaCurriculumProfessorat_(ctx, req));
       case 'horaris_exporta': return json_(horarisExporta_(ctx, req));
       case 'departaments_desa': return json_(ambCarrecs_(departamentsDesa_(ctx, req), true));
+      case 'curriculum_suport': return json_(curriculumSuport_(ctx, req));   // PAS 92
+      case 'curriculum_balanc_desa': return json_(balancDesa_(ctx, req));
       case 'curriculum_aplica_desiderata': return json_(ambCarrecs_(aplicaDesiderata_(ctx, req), true));
       case 'curriculum_classes_desa': return json_(curriculumClassesDesa_(ctx, req));
       case 'curriculum_separa': return json_(curriculumSepara_(ctx, req));
@@ -863,6 +868,7 @@ function dades_(ctx, modul) {
   const extraCurr = modul === 'curriculum_grups' || modul === 'curriculum' ? {
     materies: modul === 'curriculum_grups' ? llegeix_(FULL.cur).map((m) => ({ id: m.id_materia, nivell: m.nivell, materia: m.materia, especialitat: m.especialitat || '', hores_a: m.hores_a || '', hores_b: m.hores_b || '', grups_classe: m.grups_classe || '', docents: m.docents || '' })) : undefined,
     grups_nivell: grupsNivell_(ctx.cfg),
+    balanc_posicions: modul === 'curriculum_grups' ? posicionsBalanc_(ctx.cfg) : undefined,   // PAS 92
     professorat_hores: professoratHores_(), hores_pot_desar: pot_(ctx, 'curriculum', 'edicio') || pot_(ctx, 'professorat', 'edicio')
   } : {};
   const veuEstat = camps.some((c) => c.clau === 'estat');
@@ -904,7 +910,7 @@ function dades_(ctx, modul) {
     // PAS 36: el formulari de «Nova amonestació» arriba amb les dades: obrir-lo no fa cap altra crida
     form: modul === 'amonestacions' && potRedactar_(ctx) ? amonestacioForm_(ctx) : undefined,
     pot_historial: !M.registre && pot_(ctx, modul, 'edicio'),
-    camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips, materies: extraCurr.materies, professorat_hores: extraCurr.professorat_hores, hores_pot_desar: extraCurr.hores_pot_desar, grups_nivell: extraCurr.grups_nivell, max_lectives: extraCurr.professorat_hores ? MAX_LECTIVES : undefined };
+    camps: camps, camps_tots: nivell === 'admin' ? tots : undefined, files: files, equips: equips, materies: extraCurr.materies, professorat_hores: extraCurr.professorat_hores, hores_pot_desar: extraCurr.hores_pot_desar, grups_nivell: extraCurr.grups_nivell, balanc_posicions: extraCurr.balanc_posicions, max_lectives: extraCurr.professorat_hores ? MAX_LECTIVES : undefined };
 }
 
 // ------------------------------------------------------------------ desar canvis (alta, modificació, baixa)
@@ -1911,6 +1917,7 @@ function configura() {
   if (!llegeix_(FULL.perm).some((x) => x.id_equip === 'EQ-CAPS' && x.id_modul === 'llibres')) SpreadsheetApp.getActive().getSheetByName(FULL.perm).appendRow(['EQ-CAPS', 'llibres', 'edicio']);   // PAS 88
   try { if (idLlibres_()) vinculaLlibres(); } catch (e) { Logger.log('joanmiro_db: ' + e.message); }
   try { migraCarrecs_(); } catch (e) { Logger.log('Càrrecs: ' + e.message); }   // PAS 89
+  try { if (afegeixAcollida_()) Logger.log('Currículum: matèria «Acollida» afegida (ESO-BAT X). Reviseu-ne les hores i genereu els grups.'); } catch (e) { Logger.log('Acollida: ' + e.message); }   // PAS 92
   try { const n = transfereixSubstitucions_('configura'); if (n) Logger.log('Substitucions: ' + n + ' assignacions retornades o transferides (Currículum, horari i desiderata).'); } catch (e) { Logger.log('Substitucions: ' + e.message); }   // PAS 90
   fullDep_(FULL_DEPW_, CAP_DEPW_); fullDep_(FULL_DEPP_, CAP_DEPP_);
   actualitzaCamp_('curriculum', 'grups', { actiu: 'no' });
@@ -3766,8 +3773,11 @@ function curriculumGenera_(ctx, req) {
       const propis = perMat[id] || [];
       let k = 0; propis.forEach((r) => { if (!Number(r.num_grup)) { k++; while (propis.some((x) => Number(x.num_grup) === k && x !== r)) k++; r.num_grup = String(k); } });
       for (let g = 1; g <= Math.max(n, ...propis.map((r) => Number(r.num_grup) || 0)); g++) {
-        const parts = propis.filter((r) => Number(r.num_grup) === g);
-        if (g > n) { parts.forEach((r) => { resum.tretes++; if (r.professor) resum.tretes_amb_professor.push(m.materia + ' · ' + r.grup + ' (' + r.professor + ')'); }); continue; }
+        const totes = propis.filter((r) => Number(r.num_grup) === g);
+        if (g > n) { totes.forEach((r) => { resum.tretes++; if (r.professor) resum.tretes_amb_professor.push(m.materia + ' · ' + r.grup + ' (' + r.professor + ')'); }); continue; }
+        // PAS 92: les files de suport a l'aula es conserven tal com són (només s'actualitza el nom del grup) i no compten a la suma
+        const parts = totes.filter((r) => norm_(r.suport) !== 'si');
+        totes.filter((r) => norm_(r.suport) === 'si').forEach((r) => resultat.push(toca(r, Object.assign({}, r, { nivell: m.nivell, materia: m.materia, grup: nomGrup(g) }))));
         const nou = () => { const o = { id_materia: id, num_grup: String(g), nivell: m.nivell, materia: m.materia, grup: nomGrup(g), hores: String(total), especialitat: m.especialitat || '', professor: '', data: ara, desat_per: ctx.email };
           o[MG.id] = codi_(MG, seguent++); resultat.push(o); resum.afegides++; };
         if (!parts.length) { for (let x = 0; x < d; x++) nou(); continue; }
@@ -4156,7 +4166,7 @@ function sessionsHoraris_(cfg) {
     }
     parts = parts.map((p, i) => ({ id: String(p.id || 'P' + (i + 1)), grup: String(p.grup || ''), hores: numCur_(p.hores), distribucio: String(p.distribucio || ''), aula: String(p.aula || ''), conjunt: String(p.conjunt || ''), fixes: llistaPos_(p.fixes), prohibides: llistaPos_(p.prohibides) }));
     if (multi) parts = parts.map((x) => Object.assign(x, { grup: '' }));
-    return { id: r.id_assignacio, nivell: r.nivell, materia: r.materia, grup: r.grup, classes: classes, multinivell: multi, id_materia: r.id_materia || '', num_grup: Number(r.num_grup) || 1, hores: h, especialitat: r.especialitat || '', professor: r.professor || '', parts: parts };
+    return { id: r.id_assignacio, nivell: r.nivell, materia: r.materia, grup: r.grup, classes: classes, multinivell: multi, id_materia: r.id_materia || '', num_grup: Number(r.num_grup) || 1, hores: h, especialitat: r.especialitat || '', professor: r.professor || '', parts: parts, suport: norm_(r.suport) === 'si' };
   });
   const o = NIVELLS_ESO.concat(NIVELLS_BAT);
   ss.sort((a, b) => (o.indexOf(a.nivell) - o.indexOf(b.nivell)) || String(a.id_materia).localeCompare(String(b.id_materia)) || a.num_grup - b.num_grup || String(a.id).localeCompare(String(b.id)));
@@ -4173,6 +4183,12 @@ function sessionsHoraris_(cfg) {
   Object.keys(totsG).forEach((k) => { const ll = totsG[k], m = mats[ll[0].id_materia] || {}, tot = numCur_(m.hores_a) + numCur_(m.hores_b);
     const pl = ll.filter((x) => Math.abs(x.hores - tot) < 0.01), pa = ll.filter((x) => Math.abs(x.hores - tot) >= 0.01);
     if (pl.length && pa.length) pa.forEach((x) => { x.acompanya = pl[0].id; x.acompanya_prof = pl[0].professor || ''; }); });
+  // PAS 92 · Suport a l'aula d'un sol grup (fila del Currículum amb «Suport a l'aula» = sí): va amb la part principal del grup
+  // (la fila sense suport amb més hores), a la mateixa hora; no ocupa el grup-classe
+  const perGS = {}; ss.forEach((x) => { if (x.id_materia) (perGS[x.id_materia + '#' + x.num_grup] = perGS[x.id_materia + '#' + x.num_grup] || []).push(x); });
+  Object.keys(perGS).forEach((k) => { const ll = perGS[k], sup = ll.filter((x) => x.suport), pr = ll.filter((x) => !x.suport).sort((a, b) => b.hores - a.hores)[0];
+    if (!sup.length || !pr) return;
+    sup.forEach((x) => { x.acompanya = pr.id; x.acompanya_prof = pr.professor || ''; x.parts = x.parts.map((p) => Object.assign(p, { grup: '' })); }); });
   return ss;
 }
 // PAS 54 · Subgrups: tot conjunt d'alumnes d'un nivell que no coincideix amb cap grup-classe. Tipus: diversitat (Català,
@@ -4502,6 +4518,7 @@ function dadesHoraris_() {
     const parts = x.parts.map((p) => ({ id: p.id, grup: sgId[p.grup] ? sgId[p.grup].nom : p.grup, grup_tipus: sgId[p.grup] ? 'subgrup' : p.grup ? 'classe' : '', hores: p.hores, distribucio: p.distribucio,
       aula_preferent: p.aula, aules_alternatives: conj[p.conjunt] || [], fixes: p.fixes, prohibides: p.prohibides }));
     const p0 = parts[0] || {};
+    if (x.suport && x.acompanya) a.suport_de = x.acompanya;   // PAS 92
     Object.assign(a, { id_professor: perNom[a.professor] || '', parts: parts, distribucio: parts.length === 1 ? p0.distribucio || '' : '', aula_preferent: p0.aula_preferent || '', aules_alternatives: p0.aules_alternatives || [], fixes: parts.length === 1 ? p0.fixes || [] : [], prohibides: parts.length === 1 ? p0.prohibides || [] : [] }); });
   const desiderata = {}; llegeix_(FULL.des).forEach((r) => { try { desiderata[r.especialitat] = JSON.parse(r.dades || '{}'); } catch (e) { /* buida */ } });
   return { format: 'horaris-dades', versio: 1, curs: cfg.curs || '', generat: ara_(), grups_classe: GN, marc_horari: marcHorari_(cfg), aules: aulesHoraris_(cfg).aules, conjunts_aules: aulesHoraris_(cfg).conjunts,
@@ -4517,7 +4534,7 @@ function dadesHoraris_() {
 // No compta la codocència (cada docent té totes les hores, alhora).
 function trossosHoraris_(assignacions, mats) {
   const per = {};
-  assignacions.forEach((a) => { if (!a.id_materia) return; const k = a.id_materia + '#' + a.num_grup; (per[k] = per[k] || []).push(a); });
+  assignacions.forEach((a) => { if (!a.id_materia || a.suport_de) return; const k = a.id_materia + '#' + a.num_grup; (per[k] = per[k] || []).push(a); });   // PAS 92: el suport no és un tros
   return Object.keys(per).filter((k) => per[k].length > 1).map((k) => {
     const ll = per[k], m = mats[ll[0].id_materia] || {}, total = numCur_(m.hores_a) + numCur_(m.hores_b), d = Math.max(1, Math.round(numCur_(m.docents)) || 1);
     if (d > 1 && ll.every((a) => Math.abs(a.hores - total) < 0.01)) return null;   // codocència
@@ -4723,6 +4740,51 @@ function curriculumDivideix_(ctx, req) {
     const out = (o) => Object.assign({ id: o[MG.id] }, o);
     return { ok: true, fila: out(a), nova: out(b) };
   } finally { lock.releaseLock(); }
+}
+// PAS 92 · Afegeix a un grup una fila de suport a l'aula (codocència només d'aquest grup): {id (una fila del grup), hores, especialitat}
+function curriculumSuport_(ctx, req) {
+  if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
+  if (!obert_(ctx)) return { ok: false, error: 'tancat' };
+  const MG = MODULS.curriculum_grups, id = String(req.id || ''), h = numCur_(req.hores), esp = String(req.especialitat || '').trim();
+  if (!(h > 0 && h <= 40)) return { ok: false, error: 'hores_invalides' };
+  const lock = LockService.getScriptLock(); lock.waitLock(20000);
+  try {
+    const sh = fullModul_(MG, campsDe_('curriculum_grups', true)), cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+    const f = filaPerId_(sh, cap, MG.id, id); if (!f) return { ok: false, error: 'no_existeix' };
+    const r = {}; cap.forEach((k, j) => { if (k) r[k] = f.r[j]; });
+    const ara = ara_(), n = 1 + sh.getRange(2, cap.indexOf(MG.id) + 1, Math.max(1, sh.getLastRow() - 1), 1).getDisplayValues().reduce((m, x) => Math.max(m, Number(String(x[0]).replace(/\D/g, '')) || 0), 0);
+    const b = Object.assign({}, r, { hores: String(h), especialitat: esp || r.especialitat, professor: '', suport: 'si', data: ara, desat_per: ctx.email });
+    b[MG.id] = codi_(MG, n);
+    sh.appendRow(cap.map((k) => (k && b[k] !== undefined ? b[k] : '')));
+    historial_(ctx.email, 'suport_aula', MG.full, id, h + ' h de suport (' + b.especialitat + ') a ' + r.materia + ' ' + r.grup);
+    marcaVersio_('curriculum_grups', ctx.email);
+    return { ok: true, nova: Object.assign({ id: b[MG.id] }, b) };
+  } finally { lock.releaseLock(); }
+}
+// PAS 92 · Balanç i transferències: posició desada de cada caixa (especialitat → {x, y}), config › curriculum_balanc_posicions
+function posicionsBalanc_(cfg) { try { const o = JSON.parse(String((cfg || llegeixConfig_()).curriculum_balanc_posicions || '{}')); return o && typeof o === 'object' && !Array.isArray(o) ? o : {}; } catch (e) { return {}; } }
+function balancDesa_(ctx, req) {
+  if (!pot_(ctx, 'curriculum', 'edicio')) return { ok: false, error: 'sense_permis' };
+  const p = req.posicions && typeof req.posicions === 'object' ? req.posicions : {}, o = {};
+  Object.keys(p).slice(0, 100).forEach((k) => { const x = Number(p[k] && p[k].x), y = Number(p[k] && p[k].y); if (isFinite(x) && isFinite(y)) o[String(k).slice(0, 80)] = { x: Math.round(x), y: Math.round(y) }; });
+  posaConfig_('curriculum_balanc_posicions', JSON.stringify(o));
+  historial_(ctx.email, 'balanc_posicions', 'config', 'curriculum_balanc_posicions', Object.keys(o).length + ' caixes');
+  return { ok: true, posicions: o };
+}
+// PAS 92 · Matèria «Acollida» (multinivell, com l'atenció individual): es crea una sola vegada a configura, amb les dades de
+// l'«Atenció individual» si n'hi ha (nivell ESO-BAT, grup X, especialitat, hores i docents)
+function afegeixAcollida_() {
+  const MM = MODULS.curriculum, sh = fullModul_(MM, campsDe_('curriculum', true)), mats = llegeixFull_(sh);
+  if (mats.some((m) => /^acollida/i.test(String(m.materia || '').trim()))) return 0;
+  const ai = mats.filter((m) => /aten[cç]i[oó] individual/i.test(String(m.materia || '')))[0] || {};
+  const cap = sh.getRange(1, 1, 1, sh.getLastColumn()).getDisplayValues()[0].map(norm_);
+  const n = 1 + mats.reduce((m, x) => Math.max(m, Number(String(x[MM.id]).replace(/\D/g, '')) || 0), 0);
+  const o = { nivell: NIVELL_MULTI, materia: 'Acollida', hores_a: ai.hores_a || '', hores_b: '', especialitat: ai.especialitat || '', grups: ai.grups || '', grups_classe: ai.grups_classe || 'X',
+    docents: ai.docents || '', observacions: 'Com l\'atenció individual: multinivell (ESO-BAT X). Reviseu les hores i genereu els grups.', data: ara_(), desat_per: 'configura' };
+  o[MM.id] = codi_(MM, n);
+  sh.appendRow(cap.map((k) => (k && o[k] !== undefined ? o[k] : '')));
+  marcaVersio_('curriculum', 'configura');
+  return 1;
 }
 // PAS 41 · Hores lectives de classe del professorat (es desen a la fitxa del professorat)
 const CLAUS_LECTIVES_ = () => LECTIVES_ALUMNAT.concat(LECTIVES_REDUCCIONS).map((x) => x[0]);
@@ -5570,7 +5632,7 @@ function importaCalendari() {
 // PAS 57 · OCUPACIÓ (hores fixes del professorat), càrrecs, atenció individual multinivell i reunions de nivell
 // =============================================================================================
 // Multinivell: atenció individual, nivell ESO-BAT o grup «X» (sense grup-classe)
-const esMultinivell_ = (materia, nivell, grup) => /aten[cç]i[oó] individual/i.test(String(materia || '')) || nivell === NIVELL_MULTI || / X( \d+)?$/.test(String(grup || ''));
+const esMultinivell_ = (materia, nivell, grup) => /aten[cç]i[oó] individual|acollida/i.test(String(materia || '')) || nivell === NIVELL_MULTI || / X( \d+)?$/.test(String(grup || ''));
 // Reduccions de guàrdia [clau (columna del full professorat), nom, codi]
 const REDUCCIONS_GUARDIA = [
   ['rg_diversitat', 'R. Com. Diversitat', 'ra'], ['rg_convivencia', 'R. Convivència', 'ra'], ['rg_digital', 'R. Digital', 'ra'], ['rg_genere', 'R. Gènere', 'ra'],
