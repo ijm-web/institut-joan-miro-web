@@ -471,6 +471,9 @@
 @media (max-width: 640px) { .gs-hor__sg ul { columns: 1; } }
 .gs-hor__regles { margin: 6px 0 12px 28px; padding: 0; font-size: .88rem; }
 .gs-hor__regles li { margin: 3px 0; }
+.gs-hor__opc { margin: 10px 0 6px; padding: 8px 10px; border: 1px solid var(--color-border, #E1E5EE); border-radius: 8px; }
+.gs-hor__opc .gs-check, .gs-hor__sec td .gs-check { display: flex; align-items: flex-start; white-space: normal; margin-right: 0; font-size: .88rem; }   /* PAS 94: el text fa salt de línia */
+.gs-hor__sub { margin: 6px 0 0 26px; }   /* PAS 94: subregla */
 
 /* PAS 53 */
 .gs-hor__au .gs-hor__ck { width: 9em; } .gs-hor__au .gs-hor__clau { width: 4.5em; }
@@ -904,3 +907,10 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 /* PAS 91 · Desiderata › Docents: una línia per a cada altra especialitat */
 .gs-des__alt span{ display: block; white-space: nowrap; text-align: center; }
 .gs-des__alt .gs-des__alt-t{ border-top: 1px solid #E2E6F0; margin-top: 2px; font-weight: 600; }
+/* PAS 94 · Editor d'horaris: espais lliures */
+.gs-he__llcel { vertical-align: top; text-align: left; font-size: .74rem; line-height: 1.35; }
+.gs-he__ll { margin: 1px 0 3px; }
+.gs-he__ll > small { display: block; color: #5A6078; font-weight: 600; text-transform: uppercase; font-size: .62rem; letter-spacing: .02em; }
+.gs-he__aula { display: inline-block; margin: 1px 2px 1px 0; padding: 0 5px; border-radius: 6px; background: #E7F5EC; border: 1px solid #B9E0C7; color: #1D5E3A; white-space: nowrap; }
+.gs-he__lliures { padding: 4px 12px 10px; font-size: .9rem; }
+.gs-he__lliures .gs-he__ll { margin-bottom: 8px; }

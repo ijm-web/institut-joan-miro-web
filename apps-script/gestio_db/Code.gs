@@ -1,4 +1,4 @@
-// PAS 92 · 26/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
+// PAS 94 · 26/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
 /**
  * GESTIO · pont entre Netlify (web de l'institut) i els fulls de càlcul ijm_nucli_db i ijm_alumnat_db
  *
@@ -115,6 +115,12 @@ const CONFIG_PER_DEFECTE = [
   ['departaments_limit', '', 'Departaments/àmbits › data límit d\'edició (AAAA-MM-DD). L\'endemà l\'edició queda bloquejada sola. Es canvia des del web (Administració).'],   // PAS 76
   ['departaments_bloqueig', '', 'Departaments/àmbits › «si» = edició bloquejada per l\'administració (botó «Bloqueja» del web).'],
   ['db_llibres', '', 'Llibres de text: ID (o URL) del full joanmiro_db (llibres, matèries, seguiment…). El compte que executa GESTIO hi ha de tenir permís d\'edició.'],   // PAS 88
+  // PAS 94 · Declaració horària (editor d'horaris): dades del centre i franges fixes de tarda (no van al codi)
+  ['declaracio_codi_centre', '', 'Declaració horària: codi del centre (8 xifres).'],
+  ['declaracio_centre', 'INS Joan Miró', 'Declaració horària: nom del centre.'],
+  ['declaracio_municipi', 'Cornellà de Llobregat', 'Declaració horària: municipi (també és el «Lloc» de la signatura).'],
+  ['declaracio_carrec_direccio', 'La directora', 'Declaració horària: com signa la direcció («La directora» o «El director»). El nom és el de matricula_direccio.'],
+  ['declaracio_tarda', '', 'Declaració horària: franges fixes de tarda de tot el professorat, separades per «;» (p. ex. «dimecres 15:30-16:30 RDC; dimecres 16:30-17:30 RD»). Codis: RD, RDC o RA.'],
   ['db_notificacions', '', 'Notificacions: ID (o URL) del full notificacions_db (subscripcions i avisos enviats). «configura» hi crea les pestanyes.'],   // PAS 81
 ];
 const MODULS_PER_DEFECTE = [
@@ -690,6 +696,7 @@ function doPost(e) {
       case 'sancions_dades': return json_(sancionsDades_(ctx));        // PAS 76: mòdul Sancions
       case 'calendari_dades': return json_(calendariDades_(ctx));
       case 'horari_editor_dades': return json_(horariEditorDades_(ctx));   // PAS 64
+      case 'horari_declaracio_dades': return json_(horariDeclaracioDades_(ctx, req));   // PAS 94
       case 'horari_editor_importa': return json_(horariEditorImporta_(ctx, req));
       case 'matricula_dades': return json_(matriculaDades_(ctx));   // PAS 70
       case 'matricula_importa': return json_(matriculaImporta_(ctx, req));
@@ -4117,7 +4124,7 @@ function validaMarc_(m) {
 const TIPUS_AULA = ['ordinaria', 'laboratori', 'informatica', 'idiomes', 'musica', 'gimnas', 'taller', 'dibuix', 'desdoblament', 'altres'];   // PAS 50: + idiomes; plàstica → dibuix
 // PAS 69: pati lliure (guàrdia d'esbarjo sense ocupació al costat), màxim d'ocupació diària i de permanència setmanal (0 = sense)
 const REGLES_PER_DEFECTE = { blocs_parallels: [], toves: { max_hores_seguides_materia: 2, repartir_en_dies_diferents: true, minimitzar_forats_docents: true, respectar_desiderata: true,
-  pati_lliure: true, max_ocupacio_diaria: 6, max_permanencia_setmanal: 30,
+  pati_lliure: true, max_ocupacio_diaria: 6, max_permanencia_setmanal: 30, mates_pati: false, mates_pati_ultima: false,   // PAS 94
   pesos: { forats: 3, seguides: 5, dies: 4, desiderata: 2, aula_alternativa: 2, aula_qualsevol: 4, pati: 3, max_diaria: 3, permanencia: 2 } } };
 const baseMateria_ = (m) => String(m || '').replace(/^Optativa:\s*/, '').split(' (')[0].trim();
 // PAS 50: aules + conjunts d'aules alternatives ({id: 'C1', nom, aules: [codis]}); l'aula de cada matèria va a Sessions lectives
@@ -4463,7 +4470,8 @@ function horarisReglesDesa_(ctx, req) {
   });
   const t = r.toves || {}, n = (x, a, b, d) => { const v = Math.round(Number(x)); return isNaN(v) ? d : Math.min(b, Math.max(a, v)); };
   const toves = { max_hores_seguides_materia: n(t.max_hores_seguides_materia, 1, 6, 2), repartir_en_dies_diferents: !!t.repartir_en_dies_diferents, minimitzar_forats_docents: !!t.minimitzar_forats_docents,
-    respectar_desiderata: !!t.respectar_desiderata, pati_lliure: !!t.pati_lliure, max_ocupacio_diaria: n(t.max_ocupacio_diaria, 0, 12, 6), max_permanencia_setmanal: n(t.max_permanencia_setmanal, 0, 50, 30), pesos: {} };
+    respectar_desiderata: !!t.respectar_desiderata, pati_lliure: !!t.pati_lliure, max_ocupacio_diaria: n(t.max_ocupacio_diaria, 0, 12, 6), max_permanencia_setmanal: n(t.max_permanencia_setmanal, 0, 50, 30),
+    mates_pati: !!t.mates_pati, mates_pati_ultima: !!t.mates_pati && !!t.mates_pati_ultima, pesos: {} };   // PAS 94
   ['forats', 'seguides', 'dies', 'desiderata', 'aula_alternativa', 'aula_qualsevol', 'pati', 'max_diaria', 'permanencia'].forEach((k) => { toves.pesos[k] = n((t.pesos || {})[k], 1, 5, REGLES_PER_DEFECTE.toves.pesos[k]); });
   if (err.length) return { ok: false, error: 'regles_invalides', errors: err };
   const net = { blocs_parallels: blocs, toves: toves };
@@ -4569,7 +4577,10 @@ function reglesMotor_(cfg) {
     ['itineraris', 'Un grup-classe amb itineraris (subgrups de tipus «itinerari», p. ex. 1r BAT B Científic i Humanístic): les classes de cada itinerari només ocupen aquell itinerari i les dels altres itineraris poden anar a la mateixa hora; les del grup sencer ocupen tots els itineraris.', 'subgrups[].tipus = itinerari · subgrups[].itineraris'],   // PAS 76
     ['mitja_jornada', 'El professorat amb mitja jornada té un dia lliure, dilluns o divendres (aquell dia no fa classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca).', 'docents[].jornada = 1/2'],   // PAS 72
     ['docencia_cada_dia', 'Cada docent fa alguna classe amb alumnat cada dia (les reduccions, les reunions i les guàrdies no compten: cap dia amb només guàrdies). Mitja jornada o 2/3 de jornada: fins a dos dies del tot lliures; la resta, amb classe.', 'docents[].jornada, assignacions[].id_professor']   // PAS 76
-  ].map((r) => ({ id: r[0], text: r[1], dades: r[2] }));
+  ];
+  // PAS 94: regla opcional (casella a Regles); si està activa, és obligatòria
+  if (T.mates_pati) ob.push(['mates_pati', 'Matemàtiques (no les optatives): com a molt la meitat de les hores (arrodonida a la baixa) per sota del pati (3 h → 1; 4 h → 2)' + (T.mates_pati_ultima ? ', i cap d\'aquestes hores a les 13:45.' : '.'), 'regles.toves.mates_pati' + (T.mates_pati_ultima ? ' · mates_pati_ultima' : '') + ' · assignacions[].especialitat_materia']);
+  const obl = ob.map((r) => ({ id: r[0], text: r[1], dades: r[2] }));
   const tv = [
     // PAS 70: les hores seguides i el repartiment en dies diferents els marca la distribució, i el docent de cada grup és
     // el del Currículum (desiderata aplicada): ja no són preferències sinó regles obligatòries
@@ -4581,7 +4592,7 @@ function reglesMotor_(cfg) {
     ['max_diaria', 'Màxim de ' + T.max_ocupacio_diaria + ' h d\'ocupació al dia per docent.', 'per cada hora de més, per docent i dia', T.max_ocupacio_diaria > 0, T.max_ocupacio_diaria],
     ['permanencia', 'Màxim de ' + T.max_permanencia_setmanal + ' h de permanència a la setmana per docent (ocupació + forats).', 'per cada hora de més, per docent', T.max_permanencia_setmanal > 0, T.max_permanencia_setmanal]
   ].map((r) => ({ id: r[0], text: r[1], unitat: r[2], activa: !!r[3], pes: P[r[0]] || 0, valor: r[4] === undefined ? '' : r[4] }));
-  return { obligatories: ob, toves: tv, penalitzacio: 'Σ pes × unitats de totes les regles toves actives; el motor busca l\'horari amb la penalització més baixa.' };
+  return { obligatories: obl, toves: tv, penalitzacio: 'Σ pes × unitats de totes les regles toves actives; el motor busca l\'horari amb la penalització més baixa.' };
 }
 function exportaHoraris() {
   const cfg = llegeixConfig_(), dades = dadesHoraris_(), id = (String(cfg.carpeta_horaris || '').match(/[-\w]{25,}/) || [''])[0];
@@ -5814,6 +5825,29 @@ function horariEditorDades_(ctx) {
   return { ok: true, esquema: ESQUEMA, nivell: ctx.nivell('horaris_editor'), obert: obert_(ctx), meta: meta ? Object.assign({}, meta, { docents: undefined }) : null,
     sessions: sessions, docents: Object.keys(noms).map((id) => ({ id: id, nom: noms[id], curt: curt[id] || '', prohibides: proh[id] || [], fixes: fixes[id] || [], jornada: jornadaDe_()[id] || '' })).sort((a, b) => normNom_(a.nom).localeCompare(normNom_(b.nom), 'ca')),
     grups_classe: meta && meta.grups_classe ? meta.grups_classe : grupsNivell_(ctx.cfg), marc_horari: meta && meta.marc_horari ? meta.marc_horari : marcHorari_(ctx.cfg) };
+}
+// PAS 94 · Declaració horària: dades de cada docent (només l'administració de l'editor d'horaris: hi ha el NIF) i del centre
+function horariDeclaracioDades_(ctx, req) {
+  if (!pot_(ctx, 'horaris_editor', 'admin')) return { ok: false, error: 'sense_permis' };
+  const cfg = ctx.cfg || llegeixConfig_(), ids = {}; (Array.isArray(req.ids) ? req.ids : []).slice(0, 400).forEach((x) => { ids[String(x)] = 1; });
+  const num = (v) => Number(String(v == null ? '' : v).replace(',', '.')) || 0, suma = (p, ks) => Math.round(ks.reduce((t, k) => t + num(p[k]), 0) * 100) / 100;
+  const sit = (v) => { const t = normCap_(v); return /^definitiu/.test(t) ? 'definitiu' : /^comissio/.test(t) ? 'comissio' : /^provisional/.test(t) ? 'provisional' : /^(interi|substitut)/.test(t) ? 'interi' : ''; };
+  const rg = (p, codi) => Math.round(REDUCCIONS_GUARDIA.filter((x) => x[2] === codi).reduce((t, x) => t + num(p[x[0]]), 0) * 100) / 100;
+  const docents = {};
+  actiusPlanificacio_().forEach((p) => {
+    if (!ids[p.id_professor]) return;
+    docents[p.id_professor] = { nom: [p.nom, p.cognom1, p.cognom2].filter(Boolean).join(' '), nif: String(p.nif || ''), carrec: String(p.carrec || ''), especialitat: String(p.especialitat || ''),
+      situacio: String(p.situacio || ''), situacio_codi: sit(p.situacio), anys: p.anys === '' || p.anys == null ? null : p.anys, catala: String(p.catala || ''), jornada: String(p.jornada || ''),
+      lectives: { eso: suma(p, ['lectives_eso', 'tutoria_eso12', 'tutoria_eso34']), bat: suma(p, ['lectives_bat', 'tutoria_bat']), cd: suma(p, ['carrec_directiu']), cc: suma(p, ['coordinacio_lectiu']),
+        ahl: suma(p, ['atencio_individual', 'red_tutoria_eso12', 'red_coord_nivell', 'red_lectiva_55']) },
+      ra: rg(p, 'ra'), hc: rg(p, 'hc') };
+  });
+  // Franges de tarda: «dimecres 15:30-16:30 RDC; …»
+  const tarda = String(cfg.declaracio_tarda || '').split(';').map((x) => /^\s*(\S+)\s+(\d{1,2}:\d{2})\s*[-–a]+\s*(\d{1,2}:\d{2})\s+(RDC|RD|RA)\b/i.exec(x)).filter(Boolean)
+    .map((m) => ({ dia: normCap_(m[1]), inici: m[2], fi: m[3], codi: m[4].toUpperCase() }));
+  historial_(ctx.email, 'horari_declaracio', 'professorat', '', Object.keys(docents).length + ' docents');
+  return { ok: true, docents: docents, tarda: tarda, centre: { codi: String(cfg.declaracio_codi_centre || ''), centre: String(cfg.declaracio_centre || ''), municipi: String(cfg.declaracio_municipi || ''),
+    carrec_direccio: String(cfg.declaracio_carrec_direccio || 'La directora'), direccio: String(cfg.matricula_direccio || ''), curs: String(cfg.curs || '') } };
 }
 function filaHres_(s, net) {
   return [s.dia, String(s.franja), s.tipus, net(s.materia), net(s.nivell, 30), net(s.grup, 60), (s.grups_classe || []).map((x) => net(x, 40)).join(' | '),

@@ -674,6 +674,13 @@ self.addEventListener('activate', function (e) {
 - **Planificador › Proposa els blocs del nivell (hores B)**: de 2 en 2 per defecte. Per ordre alfabètic, la primera matèria amb l'última, la segona amb la penúltima… (3r ESO: Anglès + Tecnologia, Física i Química + Projecte); cada parella fa dos blocs (G1/G2 i G2/G1) amb una etiqueta «Mateix dia que» per parella. Amb un nombre senar, les 3 últimes en rotació (com abans). Les dues meitats de la mateixa matèria amb dos docents no es proposen (bloc a mà).
 - Document nou: `docs/Planificador · 7 Suport a l'aula d'un sol grup.docx` (Anglès 4t ESO B).
 
+## PAS 94
+
+- **Planificador › Regles › Matemàtiques i el pati** (casella; si està activa, és obligatòria): a les matèries de l'especialitat de Matemàtiques (no les optatives: nom amb «Optativa» o en un bloc simultani de tipus optativa; tampoc el suport a l'aula ni l'atenció individual), com a molt la meitat de les hores, arrodonida a la baixa, per sota del pati (franges lectives de després del primer esbarjo): 3 h → 1; 4 h → 2. Una matèria trossejada del mateix grup es compta junta. Subcasella **Cap a les 13:45** (franja que comença a les 13:45). Es desa a `horaris_regles.toves.mates_pati` / `mates_pati_ultima` i surt a la llista d'obligatòries. Al generador: `Motor._mates_pati` (bundle `generador-horaris-pas94.bundle`), proves `TestMatesPati`, `REGLES.md`.
+- **Editor › graelles noves**: **Reunions** (totes o una) i **Espais lliures** (tota la setmana, un dia o un dia i una hora; aules del planificador i de l'horari, agrupades per tipus), totes dues amb PDF.
+- **Editor › Fulls de guàrdia (PDF)**: un full per dia (o el dia d'una data): professorat × franges amb el que fa cadascú i la taula d'absències (7 files per franja, 4 a l'esbarjo) amb el professorat de guàrdia.
+- **Editor › Declaració horària (PDF)** (nivell admin de l'editor): un full per docent amb el format de l'administració. Acció nova `horari_declaracio_dades` (NIF, càrrec, situació, anys, català, especialitat, hores lectives del Professorat i reduccions de guàrdia RA/HC). Config noves: `declaracio_codi_centre`, `declaracio_centre`, `declaracio_municipi`, `declaracio_carrec_direccio`, `declaracio_tarda` (p. ex. «dimecres 15:30-16:30 RDC; dimecres 16:30-17:30 RD»); el nom de la direcció és `matricula_direccio`. Cal executar `configura` perquè surtin a la pestanya config.
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

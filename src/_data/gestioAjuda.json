@@ -1336,7 +1336,7 @@
         {
           "id": "hor-regles",
           "titol": "Regles",
-          "claus": "regles pesos forats hores seguides aula alternativa penalització obligatòries catàleg penalització obligatòries toves pati biblioteca ocupació diària permanència setmanal en dies diferents distribució obligatòria desiderata",
+          "claus": "regles pesos forats hores seguides aula alternativa penalització obligatòries catàleg penalització obligatòries toves pati biblioteca ocupació diària permanència setmanal en dies diferents distribució obligatòria desiderata matemàtiques pati 13:45 meitat hores per sota optatives",
           "text": [
             "**Regles del motor**: preferències amb un **pes** de 1 (poc important) a 5 (molt important): evitar forats al professorat, guàrdia de pati o biblioteca sense ocupació al costat, màxim d'hores d'ocupació diària, màxim de permanència setmanal i les penalitzacions d'aula: **usar una aula alternativa** (per defecte 2) i **usar qualsevol aula** (per defecte 4).",
             "Les regles obligatòries sempre es compleixen: un docent, un grup, un subgrup o una aula no poden ser a dos llocs alhora; posicions fixes i prohibides; les sessions d'un bloc simultani a la mateixa hora amb docents i aules diferents; els blocs amb la mateixa etiqueta «mateix dia», el mateix dia.",
@@ -1346,7 +1346,9 @@
             "**En dies diferents** és una regla obligatòria nova: vegeu Sessions lectives › 3 · En dies diferents.",
             "El màxim d'hores seguides, el repartiment en dies diferents i la desiderata **no** són preferències: són **obligatòries**: la **distribució** mana («2 1» = dues hores seguides un dia i l'altra un altre dia; «1 1 1» = cada hora un dia diferent) i cada grup el fa el docent de Currículum › Assignacions (la desiderata ja aplicada).",
             "Regla obligatòria: el professorat amb **mitja jornada** té un **dia lliure, dilluns o divendres** (cap classe, reducció, reunió ni guàrdia, tampoc de pati o de biblioteca). El motor la compleix sempre; la jornada és la de Professorat.",
-            "Regla obligatòria: l'**atenció individual** pot tenir **tantes sessions un mateix dia com franges** té el dia; per a la resta de matèries, mana la distribució (cada sessió d'una part, un dia diferent)."
+            "Regla obligatòria: l'**atenció individual** pot tenir **tantes sessions un mateix dia com franges** té el dia; per a la resta de matèries, mana la distribució (cada sessió d'una part, un dia diferent).",
+            "**Matemàtiques i el pati** (casella sota la taula, PAS 94): si està activa, és **obligatòria**. A les matèries de l'especialitat de Matemàtiques, excepte les optatives, com a molt la **meitat de les hores** per sota del pati (franges de després del primer esbarjo): 3 h → 2 per damunt + 1 per sota; 4 h → 2 + 2. Les hores d'una matèria trossejada del mateix grup es compten juntes; el suport a l'aula i l'atenció individual no compten.",
+            "La subcasella **Cap a les 13:45** (només amb la regla activa) fa que cap d'aquestes hores per sota del pati vagi a la franja de les 13:45 (la darrera del matí). Desa i torna a exportar per al motor: la regla surt a la llista d'obligatòries."
           ]
         },
         {
@@ -1399,7 +1401,7 @@
     "horaris_editor": {
       "titol": "Horaris · editor",
       "graella": false,
-      "intro": "Tercera part del generador d'horaris. Aquí s'importa l'horari calculat pel MOTOR, es consulta per docent, grup-classe, espai i guàrdies (amb PDF) i s'hi fan retocs: moure sessions (micromoviments) i canviar aules.",
+      "intro": "Tercera part del generador d'horaris. Aquí s'importa l'horari calculat pel MOTOR, es consulta per docent, grup-classe, espai, guàrdies, reunions i espais lliures (amb PDF), es fan els fulls de guàrdia diaris i la declaració horària i s'hi fan retocs: moure sessions (micromoviments) i canviar aules.",
       "temes": [
         {
           "id": "he-motor",
@@ -1426,9 +1428,9 @@
         {
           "id": "he-consulta",
           "titol": "Consultar: docent, grup-classe, espai i guàrdies",
-          "claus": "consulta docent professor grup classe espai aula guàrdies graella pdf tots colors matèria graelles",
+          "claus": "consulta docent professor grup classe espai aula guàrdies graella pdf tots colors matèria graelles reunions",
           "text": [
-            "Cada graella té a dalt el **tipus** (Docent, Grup-classe, Espai o Guàrdies) i l'element (desplegable o **‹** i **›**). **+ Graella** n'afegeix fins a **tres** alhora, de tipus diferents (p. ex. un grup-classe, un docent i una aula); **×** en treu una.",
+            "Cada graella té a dalt el **tipus** (Docent, Grup-classe, Espai, Guàrdies, Reunions o Espais lliures) i l'element (desplegable o **‹** i **›**). **+ Graella** n'afegeix fins a **tres** alhora, de tipus diferents (p. ex. un grup-classe, un docent i una aula); **×** en treu una.",
             "Cada parella **matèria + grup** (grup-classe o subgrup) té el seu color. Un clic a una sessió (o a la **llegenda** de sota la graella, amb les hores de cada una) en ressalta totes les hores i atenua la resta; un altre clic o la tecla **Escape** ho desfà. Les guàrdies són taronja, les reduccions verdes i les reunions liles. Una classe sense aula surt amb la vora vermella discontínua.",
             "L'**aula** de cada sessió surt entre **[ ]**. Als grups-classe i als espais, els docents surten amb el **nom i el primer cognom**. A **Guàrdies**, cada casella diu els docents de guàrdia de cada tipus; a la franja de l'esbarjo, primer la de **biblioteca** i després les altres (també al PDF).",
             "**PDF**: un full per a cada graella oberta. **PDF de tots**: un full per a cada element del tipus de la primera graella. Si una casella té **més de tres docents**, al PDF la casella només té un número i el contingut complet va a la llegenda del peu (sense repetir-lo si surt en més caselles). A les graelles de **guàrdies** no s'aplica: s'hi escriuen tots els docents.",
@@ -1445,6 +1447,47 @@
           "text": [
             "**Tutories i reunions (PDF)** fa un full apaïsat amb una graella de franges × dies. A cada casella hi ha les **reunions** (de nivell o fixes) i les hores de **tutoria** (matèria «Tutoria») amb el **grup-classe** i el **tutor/a**.",
             "Les caselles amb reunió surten en taronja. Es fa amb l'horari que hi ha a l'editor (també amb els canvis desats)."
+          ]
+        },
+        {
+          "id": "he-reunions",
+          "titol": "Graella de reunions",
+          "claus": "reunions reunió graella tutors coordinació nivell departament",
+          "text": [
+            "Al desplegable de tipus de la graella, **Reunions**: **Totes les reunions** o una reunió concreta (p. ex. Tutors 1r ESO). A cada casella, el nom de la reunió i els docents.",
+            "Com les altres graelles, té **PDF** (si una casella té més de tres docents, al PDF hi surt el nom de la reunió amb un número i la llista de docents a la llegenda) i, amb edició, les reunions es poden arrossegar."
+          ]
+        },
+        {
+          "id": "he-lliures",
+          "titol": "Espais lliures",
+          "claus": "espais lliures aules buides disponibles dia hora franja",
+          "text": [
+            "Al desplegable de tipus de la graella, **Espais lliures**. L'element tria què es vol veure:",
+            "- **Tota la setmana**: graella de franges × dies amb les aules lliures de cada casella.",
+            "- **Un dia** (Dilluns…): la columna d'aquell dia, amb les places de cada aula.",
+            "- **Un dia i una hora** (p. ex. Dilluns 09:00–10:00): la llista d'aules lliures a aquella franja.",
+            "Les aules surten agrupades pel tipus (ordinàries, laboratoris…). Són les del planificador (Horaris · planificador › Aules) i les que surten a l'horari; una aula és lliure si cap sessió no la fa servir a aquella franja. **PDF** en fa el full amb el logo."
+          ]
+        },
+        {
+          "id": "he-guardia",
+          "titol": "Fulls de guàrdia diaris (PDF)",
+          "claus": "fulls guàrdia diaris absències substitut professorat absent dia data",
+          "text": [
+            "**Fulls de guàrdia (PDF)** → trieu un dia (o **Tots**, un full per dia) i, si voleu, la **data** (amb una data, el dia surt de la data i s'imprimeix a la capçalera).",
+            "Cada dia té dues parts: la graella **professorat × franges** del dia (a cada casella, el que fa el docent: matèria, aula i grup; guàrdia, guàrdia de pati o de biblioteca en taronja; reunió; reducció en verd) i la taula de les **absències** de cada franja (Hora · Professorat absent · Professorat substitut · Observacions; 7 files per franja i 4 a l'esbarjo), amb el professorat de guàrdia de cada franja."
+          ]
+        },
+        {
+          "id": "he-declaracio",
+          "titol": "Declaració horària (PDF)",
+          "claus": "declaració horària administració inspecció nif situació administrativa quadre resum hores signatura",
+          "text": [
+            "**Declaració horària (PDF)** (només el nivell d'administració de l'editor, perquè hi surt el NIF) → un docent o **tot el professorat** (un full per docent). És el document que es lliura a l'administració: capçalera del centre, **Cognoms i nom**, **NIF**, **càrrec**, especialitat, **situació administrativa** (definitiu, comissió de serveis, provisional o interí; substitut = interí), **anys a l'ensenyament** i **acreditació de català** (del mòdul Professorat), l'**horari** de l'editor i el **quadre resum d'hores**.",
+            "Quadre resum: les **hores lectives** surten del Professorat (ESO = matèries + tutoria d'ESO; BAT = matèries + tutoria de batxillerat; CD = càrrec directiu; CC = coordinació lectiva; AHL = atenció individual i reduccions de tutoria, de coordinació de nivell i de 55 anys). Les **hores fixes**: guàrdies (G) i reunions (RD si el nom diu «departament», RDC si diu «docent» o «claustre», RA la resta) de l'horari, més les reduccions de guàrdia de l'Ocupació (RA i HC).",
+            "Les dades del centre van a la **configuració** (pestanya config del full): `declaracio_codi_centre`, `declaracio_centre`, `declaracio_municipi`, `declaracio_carrec_direccio` («La directora» o «El director») i el nom de `matricula_direccio`. `declaracio_tarda` afegeix franges fixes de tarda de tot el professorat (p. ex. «dimecres 15:30-16:30 RDC; dimecres 16:30-17:30 RD»).",
+            "El PDF es fa al navegador i no es desa enlloc: imprimiu-lo o deseu-lo on toqui (conté dades personals)."
           ]
         },
         {
