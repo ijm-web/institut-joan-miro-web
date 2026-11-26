@@ -5847,7 +5847,17 @@
     Object.keys(perClasse).forEach(function (c) { var noms = Object.keys(perClasse[c]).sort(); if (noms.length < 2) return;
       var ord = function (ll) { return ll.slice().sort(function (x, y) { return x.a.materia.localeCompare(y.a.materia, 'ca'); }); }, A = ord(perClasse[c][noms[0]]), B = ord(perClasse[c][noms[1]]), n = A.length;
       if (n !== B.length || A.some(function (x, i) { return x.a.materia !== B[i].a.materia || x.p.hores !== B[i].p.hores; })) { A.forEach(function (x) { var y = B.filter(function (z) { return z.a.materia !== x.a.materia && z.p.hores === x.p.hores && lliure(z); })[0]; if (y) crea('Hores B ' + niv + ' ' + c + ' ' + x.a.materia, 'hores_b', [x, y], 'B ' + niv + ' ' + c); }); return; }
-      A.forEach(function (x, i) { var y = B[(i + 1) % n]; if (n > 1) crea('Hores B ' + niv + ' ' + c + ' ' + (i + 1), 'hores_b', [x, y], 'B ' + niv + ' ' + c); }); });
+      // PAS 93: de 2 en 2 (més fàcil per al motor: cada bloc només necessita 2 docents i 2 aules alhora). Per ordre alfabètic, la
+      // primera amb l'última, la segona amb la penúltima… (Anglès + Tecnologia, Física i Química + Projecte); cada parella fa dos
+      // blocs (G1/G2 i G2/G1) el mateix dia. Si en queden 3 (nombre senar de matèries), aquestes 3 en rotació com abans.
+      var idx = A.map(function (x, i) { return i; }), grups = [];
+      while (idx.length > 3 || idx.length === 2) grups.push([idx.shift(), idx.pop()]);
+      if (idx.length === 3) grups.push(idx);
+      var k = 0;
+      grups.forEach(function (g) {
+        var nomG = g.map(function (i) { return A[i].a.materia; }).join(' / '), dia = 'B ' + niv + ' ' + c + (grups.length > 1 ? ' · ' + nomG : '');
+        g.forEach(function (i, j) { var y = B[g[(j + 1) % g.length]]; crea('Hores B ' + niv + ' ' + c + ' ' + (++k) + (grups.length > 1 ? ' (' + nomG + ')' : ''), 'hores_b', [A[i], y], dia); });
+      }); });
     return nous;
   }
   // Hores B d'una assignació: grup sencer (hores − B) + G1 (B/2) + G2 (B/2)

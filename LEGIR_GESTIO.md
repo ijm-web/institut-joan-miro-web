@@ -669,6 +669,11 @@ self.addEventListener('activate', function (e) {
 - **Acollida**: matèria multinivell (ESO-BAT X) creada per `configura` (`afegeixAcollida_`, una sola vegada, amb les dades de l'Atenció individual). `esMultinivell_` hi inclou «Acollida».
 - ESQUEMA 79 (camp `suport`): cal executar **configura**.
 
+## PAS 93
+
+- **Planificador › Proposa els blocs del nivell (hores B)**: de 2 en 2 per defecte. Per ordre alfabètic, la primera matèria amb l'última, la segona amb la penúltima… (3r ESO: Anglès + Tecnologia, Física i Química + Projecte); cada parella fa dos blocs (G1/G2 i G2/G1) amb una etiqueta «Mateix dia que» per parella. Amb un nombre senar, les 3 últimes en rotació (com abans). Les dues meitats de la mateixa matèria amb dos docents no es proposen (bloc a mà).
+- Document nou: `docs/Planificador · 7 Suport a l'aula d'un sol grup.docx` (Anglès 4t ESO B).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 
