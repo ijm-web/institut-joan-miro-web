@@ -655,6 +655,11 @@ self.addEventListener('activate', function (e) {
 - **Substitucions**: en tornar el titular (titular «actiu», substitut «baixa»), torna **tot** el que encara és del substitut al Currículum, a l'horari i a la **desiderata** (abans només el transferit en començar; el que se li assignava després s'hi quedava). No tornen les assignacions que el substitut ja tenia abans de substituir (`config › substitucions_transferides › propies`). Mentre dura, la desiderata del titular passa al substitut.
 - La comprovació es fa sempre en desar el Professorat i l'Ocupació, i també a **configura**: així s'arreglen les substitucions que ja havien acabat.
 
+## PAS 91
+
+- **Desiderata › Docents**: «Lectives alumnat» = la suma de les lectives amb alumnat de la fitxa (lectives ESO i Bat, atenció individual i tutories), les mateixes que es veuen i s'editen a **Ocupació**. «Assignades» es desdobla en **especialitat** (desiderata pròpia + tutoria) i **altres especialitats** (una línia per especialitat i total). La **Diferència** diu el total i, entre parèntesis, les hores que ja té de l'especialitat i d'altres.
+- **Tutoria**: compta sempre com a hora de l'especialitat del docent. A la desiderata es compta pel Currículum (`horesTutoria_`, files de Tutoria assignades al docent) i les claus de Tutoria (`clausTutoria_`) no compten ni a la pròpia ni a «altres». Al **Document per especialitat** i al **Balanç i transferències**, la Tutoria és de l'especialitat que la imparteix (no «d'altres especialitats»).
+
 ## PDF
 - Tots els PDF que genera GESTIO (graella, informes, anàlisis, llistat per signar, alta de professorat) porten el **logo del centre** a la part superior (PAS 30).
 

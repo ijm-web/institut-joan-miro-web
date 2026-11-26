@@ -901,3 +901,6 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-car__nou input{ min-width: 280px; padding: 6px 8px; border: 1px solid #CBD2E1; border-radius: 8px; font: inherit; }
 .gs-ocu__cb--fix{ cursor: help; }
 @media (max-width: 760px){ .gs-car__fila{ grid-template-columns: 1fr 30px; } .gs-car__qui{ grid-column: 1 / -1; } }
+/* PAS 91 · Desiderata › Docents: una línia per a cada altra especialitat */
+.gs-des__alt span{ display: block; white-space: nowrap; text-align: center; }
+.gs-des__alt .gs-des__alt-t{ border-top: 1px solid #E2E6F0; margin-top: 2px; font-weight: 600; }

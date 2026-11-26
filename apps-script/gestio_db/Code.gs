@@ -1,4 +1,4 @@
-// PAS 90 · 25/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
+// PAS 91 · 26/11/2026 · versió del Code.gs (aquesta primera línia diu sempre l'últim pas que l'ha modificat)
 /**
  * GESTIO · pont entre Netlify (web de l'institut) i els fulls de càlcul ijm_nucli_db i ijm_alumnat_db
  *
@@ -3990,13 +3990,27 @@ function desiderataDades_(ctx, req) {
   // PAS 71: en canviar d'especialitat («lleuger»), el professorat no es torna a llegir (el navegador ja el té)
   return { ok: true, especialitat: esp, especialitats: esps, admin: pot_(ctx, 'desiderata', 'admin'), obert: obert_(ctx), bloqueig: bloqueigDesiderata_(ctx.cfg), departament: dep ? { nom: dep.nom, especialitats: dep.especialitats, cap: dep.cap } : null,
     assignacions: assignacionsEsp_(esp), professorat: req.lleuger ? undefined : professoratHores_().map((p) => ({ id: p.id, nom: p.nom, especialitat: p.especialitat, hores_lectives: p.hores_lectives, jornada: p.jornada })),
-    dades: dades, observacions: fet.observacions || '', data: fet.data || '', desat_per: fet.desat_per || '', altres: horesAltresEsps_(esp) };
+    dades: dades, observacions: fet.observacions || '', data: fet.data || '', desat_per: fet.desat_per || '', altres: horesAltresEsps_(esp), tutories: horesTutoria_(), claus_tutoria: Object.keys(clausTutoria_()) };
+}
+// PAS 91 · Tutoria: claus de desiderata (id_matèria|hores) de les files de Tutoria del Currículum, i hores de tutoria de cada
+// docent segons Currículum › Assignacions (el tutor/a de cada grup, que es posa a Càrrecs › Tutories). Compten com a hores
+// de l'especialitat del docent, sigui quina sigui l'especialitat de la fila.
+function clausTutoria_() {
+  const o = {}; llegeix_(FULL.curg).forEach((r) => { if (/^tutoria/i.test(String(r.materia || '').trim())) o[(r.id_materia || (r.nivell + '·' + r.materia)) + '|' + numCur_(r.hores)] = 1; });
+  return o;
+}
+function horesTutoria_() {
+  const AL = aliesSubstitucio_(), perNom = {}, o = {}; professoratHores_().forEach((p) => { perNom[normNom_(p.nom)] = p.id; });
+  llegeix_(FULL.curg).forEach((r) => { if (!r.professor || !/^tutoria/i.test(String(r.materia || '').trim())) return; const n = AL[r.professor] ? AL[r.professor].nom : r.professor, id = perNom[normNom_(n)], h = numCur_(r.hores);
+    if (id && h) o[id] = Math.round(((o[id] || 0) + h) * 100) / 100; });
+  return o;
 }
 // PAS 90 · Hores que cada docent té a la desiderata desada de les ALTRES especialitats: {id_professor: [{especialitat, hores}]}
+// PAS 91: la Tutoria no compta com a «altres especialitats» (compta a l'especialitat del docent: vegeu horesTutoria_)
 function horesAltresEsps_(esp) {
-  const o = {};
+  const o = {}, tut = clausTutoria_();
   llegeix_(FULL.des).forEach((r) => { if (!r.especialitat || r.especialitat === esp) return; let d = {}; try { d = JSON.parse(r.dades || '{}') || {}; } catch (e) { d = {}; }
-    Object.keys(d).forEach((clau) => { const h = numCur_(String(clau).split('|').pop()); (Array.isArray(d[clau]) ? d[clau] : []).forEach((x) => { const g = Number(x.grups) || 0; if (!x.prof || !g || !h) return;
+    Object.keys(d).forEach((clau) => { if (tut[clau]) return; const h = numCur_(String(clau).split('|').pop()); (Array.isArray(d[clau]) ? d[clau] : []).forEach((x) => { const g = Number(x.grups) || 0; if (!x.prof || !g || !h) return;
       const l = o[x.prof] = o[x.prof] || [], e = l.filter((y) => y.especialitat === r.especialitat)[0]; if (e) e.hores += g * h; else l.push({ especialitat: r.especialitat, hores: g * h }); }); }); });
   Object.keys(o).forEach((k) => o[k].forEach((x) => { x.hores = Math.round(x.hores * 100) / 100; }));
   return o;

@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "25 de novembre de 2026",
+  "versio": "26 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -1063,6 +1063,7 @@
             "- **Assignades d'altres especialitats**: hores de matèries d'altres especialitats que ha d'impartir aquesta.",
             "- **Professorat** de l'especialitat amb el càrrec i les hores lectives.",
             "- **Balanç**: total de l'especialitat − cedides + assignades = hores a impartir; hores lectives del professorat − hores a impartir = balanç (positiu: sobren hores; negatiu: en falten).",
+            "La **Tutoria** no té especialitat pròpia: compta com a matèria de l'especialitat que la imparteix (no com a «assignada d'altres especialitats»). També al **Balanç i transferències**.",
             "**PDF** fa el de l'especialitat triada; **PDF de totes**, un PDF amb una pàgina (o més) per especialitat.",
             "El marc s'ajusta a totes les caixes i ocupa tota la finestra: les caixes es poden portar fins a la vora (i més enllà: apareix la barra de desplaçament) sense que quedin tallades."
           ]
@@ -1137,7 +1138,7 @@
           "titol": "Coherència amb les hores lectives",
           "claus": "docents hores lectives incoherència més menys",
           "text": [
-            "La taula **Docents** compara les hores assignades de cada docent amb les seves **hores lectives amb alumnat** (fitxa del professorat). La columna **Altres especialitats** mostra les hores que té a la desiderata desada d'altres especialitats (p. ex. «3 h Educació Física»), i també compten per a la **Diferència**. ⚠ si té més hores lectives que assignades, menys, o si no té hores lectives a la fitxa."
+            "La taula **Docents** compara les **hores lectives amb alumnat** de cada docent (les del mòdul **Ocupació**: lectives d'ESO i batxillerat, atenció individual i tutories) amb les hores assignades, en dues columnes: **Assignades · especialitat** (les d'aquesta desiderata i la **tutoria** del docent, que surt de Currículum › Assignacions / Càrrecs › Tutories) i **Assignades · altres especialitats** (una línia per a cada altra especialitat on el docent té hores a la desiderata, p. ex. «3 h Educació Física» i «2 h Tecnologia», i el total). La **Diferència** és lectives − totes les assignades: «⚠ li falten 3 h (té 11 h especialitat · 3 h altres)», «⚠ té 2 h de més (…)» o ✓ si quadra."
           ]
         },
         {
@@ -1837,7 +1838,7 @@
           "titol": "Revisar els comptadors i els docents",
           "text": [
             "A dalt: **hores a assignar**, **assignades** i **pendents**. L'objectiu és tenir 0 hores pendents.",
-            "A la taula **Docents**, les hores assignades a cada docent han de coincidir amb les seves hores lectives amb alumnat: aleshores surt la marca verda ✓. Si surt el triangle d'avís ⚠, vol dir que al docent li falten hores, que en té de més o que no té hores lectives a la fitxa del professorat; en aquest darrer cas, aviseu la direcció. Si el docent té hores a la desiderata d'altres especialitats, surten a la columna **Altres especialitats** i també compten."
+            "A la taula **Docents**, les hores assignades a cada docent (les de la vostra desiderata, la seva **tutoria** i les que té a la desiderata d'**altres especialitats**, cadascuna en una línia) han de coincidir amb les seves hores lectives amb alumnat (les del mòdul Ocupació): aleshores surt la marca verda ✓. Si surt ⚠, al docent li falten hores o en té de més; entre parèntesis surten les hores que ja té de l'especialitat i d'altres especialitats. Si no té hores lectives a la fitxa, cal que la direcció les hi posi."
           ]
         },
         {
