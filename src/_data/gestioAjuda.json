@@ -1,6 +1,6 @@
 {
   "_llegeix": "Font única de l'ajuda de GESTIO: el panell «?» de cada mòdul (src/gestio.njk + gestio.js) i el manual en PDF (python3 lib/gestio/manual.py → src/assets/docs/gestio/manual-<mòdul>.pdf). Cada tema: id, titol, claus (paraules per a la cerca) i text (paràgrafs; «- » = punt de llista; **negreta**). Quan canviï el funcionament d'un mòdul, actualitzeu aquest fitxer i torneu a generar els PDF.",
-  "versio": "26 de novembre de 2026",
+  "versio": "27 de novembre de 2026",
   "comu": {
     "titol": "Funcionament comú de les graelles",
     "temes": [
@@ -893,6 +893,19 @@
             "Les amonestacions del formulari de Google que es feia servir s'importen una vegada amb **importaAmonestacions** (a l'editor d'Apps Script). Si es torna a executar, no duplica.",
             "**activaPdfsPendents** (a l'editor d'Apps Script, una vegada) crea un activador que cada hora fa el PDF de les amonestacions que se n'hagin quedat sense."
           ]
+        },
+        {
+          "id": "am-informes",
+          "titol": "Informes setmanals per correu",
+          "claus": "informes setmanals correu email tutor coordinació nivell direcció cap d'estudis no-reply dia hora",
+          "text": [
+            "**Informes setmanals** (administració del mòdul) obre la finestra de configuració:",
+            "- **A qui s'envia?** Caselles per activar cada informe: **tutor/a** (només l'alumnat del seu grup-classe), **coordinació de nivell** (tot el seu nivell, per grup-classe) i **direcció** (cap d'estudis i coordinació pedagògica: tot l'alumnat, per grup-classe).",
+            "- **Quan s'envia?** El dia de la setmana i l'hora. L'enviament es comprova cada 15 minuts i es fa una sola vegada per setmana.",
+            "Cada informe és la llista de les amonestacions **redactades els darrers 7 dies**: alumne/a, data de redacció i professor/a que la redacta. Si no n'hi ha cap, el correu ho diu.",
+            "Els destinataris surten dels **càrrecs** del Professorat («Tutor/a 1r ESO A», «Coordinació de nivell 1r ESO», «Cap d'estudis», «Coordinador/a pedagògic/a»); la finestra en mostra la llista. El correu surt de **no-reply@institutjoanmiro.cat**, que no admet respostes.",
+            "**Envia ara (prova)** desa la configuració, posa els informes de la setmana a la cua i els envia de seguida. **Darrers enviaments** mostra l'estat de cada correu (enviat, pendent o error)."
+          ]
         }
       ]
     },
@@ -951,6 +964,72 @@
           "text": [
             "El selector **Curs** mostra el curs actual o els anteriors (amb l'orientació final).",
             "El consell orientador final del curs passat s'importa una vegada amb **importaConsellFinal** (a l'editor d'Apps Script, des de config › font_consell_final). Si es torna a executar, no duplica."
+          ]
+        }
+      ]
+    },
+    "treball_recerca": {
+      "titol": "Treball de recerca",
+      "graella": false,
+      "intro": "Gestió i seguiment del treball de recerca (TR) de batxillerat en cinc fases: 1) assignació de l'alumnat a una especialitat i a un docent, 2) seguiment, 3) memòria, 4) defensa oral i 5) resultats. Ara funciona la fase 1. Els gestors són qui té edició al mòdul (coordinació de batxillerat i direcció); els caps de departament/àmbit associen l'alumnat al seu professorat i el professorat consulta les associacions.",
+      "temes": [
+        {
+          "id": "tr-qui",
+          "titol": "Qui fa què",
+          "claus": "gestors coordinació batxillerat direcció cap departament professorat permisos",
+          "text": [
+            "**Gestors** (edició del mòdul; es dona a Equips i permisos): quotes, importació, assignació, data límit, bloqueig, tancament i vist-i-plau.",
+            "**Caps de departament/àmbit** (els del mòdul Edició pàgina web departaments/àmbits): associen l'alumnat de les seves especialitats al professorat del departament/àmbit.",
+            "**Professorat** (Claustre, consulta): veu les associacions amb vist-i-plau i rep un correu amb el seu alumnat."
+          ]
+        },
+        {
+          "id": "tr-quotes",
+          "titol": "1 · Quotes per especialitat",
+          "claus": "quotes càlcul especialitat professorat vist-i-plau psicologia orientació",
+          "text": [
+            "Pestanya **Quotes** → **Calcula**: alumnat de 1r de batxillerat ÷ professorat actiu = treballs per docent; la quota de cada especialitat és aquest valor × el seu professorat (Psicologia = Orientació).",
+            "Les fraccions s'arrodoneixen cap amunt primer a les especialitats amb **més professorat** (a igualtat, la fracció més gran), fins que la suma és el total d'alumnat.",
+            "Les quotes es poden canviar a mà (**Desa les quotes**). **Dona el vist-i-plau** les fixa: sense vist-i-plau no es pot assignar. Es pot treure mentre l'associació no s'hagi obert als departaments/àmbits."
+          ]
+        },
+        {
+          "id": "tr-importa",
+          "titol": "2 · Preferències i notes",
+          "claus": "importa formulari preferències notes mitjana trimestre full de càlcul",
+          "text": [
+            "Pestanya **Alumnat i assignació** → enganxeu l'enllaç del full de **respostes al formulari** i **Importa**. Columnes: Nom, 1r Cognom, 2n Cognom i «Tria el 1r … 5è àmbit segons les teves preferències». Els noms dels àmbits es tradueixen a especialitats (Psicopedagogia → Orientació, Biologia-Geologia → Biologia, Física-Química → Física i Química, Llatí i Grec → Clàssiques, Socials → Història). Una preferència repetida compta una vegada.",
+            "Després, el full de les **notes mitjanes del 1r trimestre**: el nom (en columnes o «Cognoms, Nom») i una columna «Nota mitjana» o «Mitjana».",
+            "L'alumnat es reconeix pel nom i els cognoms. En acabar surt qui no s'ha trobat i les preferències que no s'han reconegut. El compte que executa GESTIO ha de poder obrir els fulls."
+          ]
+        },
+        {
+          "id": "tr-assigna",
+          "titol": "3 · Assignació automàtica i manual",
+          "claus": "assigna automàticament nota preferències places plenes sense assignar manual",
+          "text": [
+            "**Assigna automàticament** recorre l'alumnat per **ordre de nota** (de més alta a més baixa; sense nota, al final) i el posa a la **primera preferència amb places** (una especialitat es pot omplir).",
+            "Queda **sense assignar** qui té les preferències plenes o no té preferències: assigneu-lo a mà a la columna **Especialitat** i **Desa els canvis**. **Només sense assignar** filtra la llista.",
+            "Les assignacions fetes a mà es mantenen si es torna a assignar automàticament."
+          ]
+        },
+        {
+          "id": "tr-departaments",
+          "titol": "4 · Associació al professorat",
+          "claus": "data límit obre departaments cap associa desa tanca reobre bloqueja vist-i-plau",
+          "text": [
+            "El gestor fixa la **data límit** i **Obre als departaments/àmbits** (després ja no es pot tornar a assignar automàticament).",
+            "Cada **cap** (pestanya **El meu departament/àmbit**) tria el docent de cada alumne/a: **Desa** tantes vegades com calgui i **Tanca** quan estigui fet. Fins a la data límit, el pot **Reobre** si no està bloquejat.",
+            "Els gestors (pestanya **Departaments/àmbits**) veuen l'estat de cadascun i poden **Bloquejar** (el cap ja no pot desar, tancar ni reobrir). Si està bloquejat, el gestor el pot **Tancar**. Un cop tancat, **Dona el vist-i-plau**."
+          ]
+        },
+        {
+          "id": "tr-vistiplau",
+          "titol": "5 · Vist-i-plau, consulta i correus",
+          "claus": "vist-i-plau correu professorat consulta assignacions",
+          "text": [
+            "Amb el **vist-i-plau** d'un departament/àmbit, el professorat veu les seves associacions a la pestanya **Assignacions** (casella **Només el meu alumnat**; **Informe / PDF**) i cada docent rep un **correu** des de no-reply@ amb el seu alumnat.",
+            "Les notes i les preferències només les veuen els gestors."
           ]
         }
       ]
@@ -1475,8 +1554,9 @@
           "titol": "Fulls de guàrdia diaris (PDF)",
           "claus": "fulls guàrdia diaris absències substitut professorat absent dia data",
           "text": [
-            "**Fulls de guàrdia (PDF)** → trieu un dia (o **Tots**, un full per dia) i, si voleu, la **data** (amb una data, el dia surt de la data i s'imprimeix a la capçalera).",
-            "Cada dia té dues parts: la graella **professorat × franges** del dia (a cada casella, el que fa el docent: matèria, aula i grup; guàrdia, guàrdia de pati o de biblioteca en taronja; reunió; reducció en verd) i la taula de les **absències** de cada franja (Hora · Professorat absent · Professorat substitut · Observacions; 7 files per franja i 4 a l'esbarjo), amb el professorat de guàrdia de cada franja."
+            "**Fulls de guàrdia (PDF)** → trieu un dia (o **Tots**) i, si voleu, la **data** (amb una data, el dia surt de la data i s'imprimeix a la capçalera).",
+            "Format **A3 vertical**: cada dia ocupa **dos fulls**. 1) L'horari del professorat del dia: una fila per docent i una columna per franja (matèria, aula i grup; guàrdia, guàrdia de pati o de biblioteca en taronja; reunió; reducció en verd). 2) La graella de les **absències** (signatures): Hora · Professorat absent · Professorat substitut · Observacions, 7 files per franja i 4 a l'esbarjo, amb el professorat de guàrdia de cada franja.",
+            "La mida de la lletra s'ajusta sola perquè cada part ocupi exactament un full."
           ]
         },
         {
@@ -1485,6 +1565,7 @@
           "claus": "declaració horària administració inspecció nif situació administrativa quadre resum hores signatura",
           "text": [
             "**Declaració horària (PDF)** (només el nivell d'administració de l'editor, perquè hi surt el NIF) → un docent o **tot el professorat** (un full per docent). És el document que es lliura a l'administració: capçalera del centre, **Cognoms i nom**, **NIF**, **càrrec**, especialitat, **situació administrativa** (definitiu, comissió de serveis, provisional o interí; substitut = interí), **anys a l'ensenyament** i **acreditació de català** (del mòdul Professorat), l'**horari** de l'editor i el **quadre resum d'hores**.",
+            "El full (A4, **un sol full** per docent; la mida s'ajusta sola) porta a dalt el **logo del Departament d'Educació** a l'esquerra i el **logo de l'institut** al centre. A la graella, tots els dies tenen la mateixa amplada; les matèries de nom llarg s'escriuen abreujades amb una nota, p. ex. «CMC (1)», i la llegenda va al peu de la graella.",
             "Quadre resum: les **hores lectives** surten del Professorat (ESO = matèries + tutoria d'ESO; BAT = matèries + tutoria de batxillerat; CD = càrrec directiu; CC = coordinació lectiva; AHL = atenció individual i reduccions de tutoria, de coordinació de nivell i de 55 anys). Les **hores fixes**: guàrdies (G) i reunions (RD si el nom diu «departament», RDC si diu «docent» o «claustre», RA la resta) de l'horari, més les reduccions de guàrdia de l'Ocupació (RA i HC).",
             "Les dades del centre van a la **configuració** (pestanya config del full): `declaracio_codi_centre`, `declaracio_centre`, `declaracio_municipi`, `declaracio_carrec_direccio` («La directora» o «El director») i el nom de `matricula_direccio`. `declaracio_tarda` afegeix franges fixes de tarda de tot el professorat (p. ex. «dimecres 15:30-16:30 RDC; dimecres 16:30-17:30 RD»).",
             "El PDF es fa al navegador i no es desa enlloc: imprimiu-lo o deseu-lo on toqui (conté dades personals)."
@@ -1538,6 +1619,39 @@
           "text": [
             "L'assistent i els moviments respecten també la regla **classe cada dia** (jornada reduïda: fins a dos dies lliures): no proposa cap moviment que deixi un docent un dia sense classe si abans en tenia.",
             "Amb **itineraris** (batxillerat), les classes de dos itineraris del mateix grup-classe poden coincidir: no és cap conflicte."
+          ]
+        }
+      ]
+    },
+    "horaris_consulta": {
+      "titol": "Horaris",
+      "graella": false,
+      "intro": "Consulta dels horaris del curs per al professorat (només lectura): el vostre horari, el de qualsevol docent, grup-classe i espai, les guàrdies, les reunions i els espais lliures, amb PDF. L'horari el publica la direcció des de l'editor d'horaris.",
+      "temes": [
+        {
+          "id": "hc-graelles",
+          "titol": "Consultar els horaris",
+          "claus": "horari meu docent grup classe espai aula guàrdies reunions lliures",
+          "text": [
+            "En entrar, surt **el vostre horari**. A dalt de cada graella trieu el **tipus** (Docent, Grup-classe, Espai, Guàrdies, Reunions o Espais lliures) i l'element (desplegable o **‹** i **›**).",
+            "**+ Graella** n'afegeix fins a tres alhora (p. ex. el vostre horari i el d'un grup-classe); **×** en treu una.",
+            "Cada matèria i grup té un color; un clic a una sessió (o a la llegenda) en ressalta totes les hores i **Escape** ho desfà. A la graella d'un docent, a dalt hi ha les hores d'ocupació, lectives, guàrdies, forats i permanència."
+          ]
+        },
+        {
+          "id": "hc-lliures",
+          "titol": "Espais lliures",
+          "claus": "espais lliures aules buides dia hora",
+          "text": [
+            "Tipus **Espais lliures**: tota la setmana, un dia o un dia i una hora (p. ex. Dilluns 09:00–10:00). Les aules lliures surten agrupades pel tipus (ordinàries, laboratoris…)."
+          ]
+        },
+        {
+          "id": "hc-pdf",
+          "titol": "PDF",
+          "claus": "pdf imprimir descarregar tutories reunions",
+          "text": [
+            "**PDF** fa un full per a cada graella que es veu; **PDF de tots**, un full per a cada element del tipus de la primera graella (p. ex. tots els grups-classe). **Tutories i reunions (PDF)**: el mapa de tutories i reunions de nivell. Tots porten el logo del centre."
           ]
         }
       ]

@@ -34,6 +34,16 @@
     domini_no_permes: 'Cal entrar amb un compte @institutjoanmiro.cat.',
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
+    informes_sense_destinataris: 'Marqueu almenys un destinatari (tutor/a, coordinació de nivell o direcció) i deseu.',   // PAS 95
+    smtp_no_configurat: 'L’enviament de correus no està configurat: falten SMTP_USER i SMTP_PASS a Netlify.',
+    tr_sense_alumnat: 'No hi ha alumnat de 1r de batxillerat al mòdul Alumnat Batxillerat.',
+    tr_quotes_sense_vistiplau: 'Primer cal donar el vist-i-plau a les quotes de cada especialitat.',
+    tr_full_inaccessible: 'No es pot obrir el full de càlcul: comproveu l’enllaç i que el compte que executa GESTIO hi tingui accés.',
+    tr_full_sense_columnes: 'El full no té les columnes esperades (nom, cognoms i preferències o nota).',
+    tr_departament_tancat: 'Aquest departament/àmbit ja està tancat, bloquejat o fora de termini.',
+    tr_no_es_cap: 'Només el cap del departament/àmbit pot associar l’alumnat al professorat.',
+    tr_estat_invalid: 'Aquesta acció no es pot fer en l’estat actual del departament/àmbit.',
+    tr_professor_invalid: 'Hi ha un docent que no és del departament/àmbit.',
     accio_desconeguda: 'El servidor encara no coneix aquesta acció: cal publicar la darrera versió del web (git push) i de l’Apps Script.',
     carrec_a_carrecs: 'El càrrec es posa a Currículum › Assignacions › Càrrecs.', carrec_desconegut: 'Hi ha un càrrec que no és a la llista.', professor_desconegut: 'Hi ha un docent que no és al professorat actiu.', massa_carrecs: 'Massa càrrecs a la llista (màxim 200).',
     llibres_sense_escriptura: 'GESTIO no pot escriure al full joanmiro_db. Compartiu-lo amb permís d’edició amb el compte que executa l’Apps Script de GESTIO i, si la pestanya «materies» o «llibres» està protegida, afegiu-hi aquest compte com a editor.',
@@ -229,7 +239,7 @@
   }
   // PAS 72 · Frescor de les dades: quan es llegeixen les dades d'un mòdul i quan un mòdul desa. Les dades d'un mòdul són
   // fresques si cap ALTRE mòdul ha desat res després de llegir-les (els canvis propis ja s'apliquen a la memòria local).
-  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', calendari_dades: 'calendari', equips: 'equips', matricula_dades: 'matricula', nou_professor: 'nou_professor', nou_alumne: 'nou_alumne', departaments_web_dades: 'departaments', sancions_dades: 'sancions', notificacions_dades: 'notificacions', llibres_dades: 'llibres' };
+  var LECTURA = { horaris_dades: 'horaris', ocupacio_dades: 'ocupacio', horari_editor_dades: 'horaris_editor', horari_consulta_dades: 'horaris_consulta', calendari_dades: 'calendari', equips: 'equips', matricula_dades: 'matricula', nou_professor: 'nou_professor', nou_alumne: 'nou_alumne', departaments_web_dades: 'departaments', sancions_dades: 'sancions', notificacions_dades: 'notificacions', llibres_dades: 'llibres', treball_recerca_dades: 'treball_recerca' };
   var NOMES_LECTURA = /(^destacats_desa$|^dades$|_dades$|_informe|_analisi|_pdf$|_cerca|_llista$|_historial|^versio|_exporta|_convoca$|^matricula_formulari$|^sessio|^jo$)/;
   function fresc(m) { return S.llegit[m] && S.llegit[m].t >= S.escrit; }
   function api(accio, cos, progres) {
@@ -342,6 +352,8 @@
     ocupacio: ic('<path d="M6 40h36"/><rect x="9" y="26" width="6" height="14"/><rect x="21" y="16" width="6" height="24"/><rect x="33" y="21" width="6" height="19"/>' + A_('M6 13h36')),
     horaris: ic('<rect x="6" y="9" width="36" height="32" rx="3"/><path d="M6 17h36M15 5v7M33 5v7"/>' + A_('M14 25h8M26 25h8M14 33h8') + '<path d="M38 31l3 3-3 3"/>'),
     horaris_editor: ic('<rect x="6" y="9" width="36" height="32" rx="3"/><path d="M6 17h36M18 17v24M30 17v24M6 25h36M6 33h36M15 5v7M33 5v7"/>' + A_('M33 44l11-11-3-3-11 11-1 4z')),
+    horaris_consulta: ic('<rect x="6" y="9" width="36" height="32" rx="3"/><path d="M6 17h36M15 5v7M33 5v7"/>' + A_('M24 31m-7 0a7 7 0 1 0 14 0a7 7 0 1 0-14 0M24 27v4l3 2')),   // PAS 95: rellotge
+    treball_recerca: ic('<path d="M10 6h20l8 8v28H10z"/><path d="M30 6v8h8"/>' + A_('M22 28m-6 0a6 6 0 1 0 12 0a6 6 0 1 0-12 0M26.5 32.5 33 39')),   // PAS 95: lupa sobre un document
     departaments: ic('<path d="M6 42h36M9 42V20M39 42V20M5 20 24 7l19 13z"/><path d="M16 42V26h16v16"/>' + A_('M20 31h8M20 36h8')),   // PAS 75
     calendari: ic('<rect x="6" y="9" width="36" height="32" rx="3"/><path d="M6 17h36M15 5v7M33 5v7"/>' + A_('M14 24h4M22 24h4M30 24h4M14 31h4M22 31h4') + '<circle cx="32" cy="32" r="3"/>'),
     // Administració
@@ -350,7 +362,7 @@
   };
   // PAS 49: portada amb els mòduls agrupats (Personal, Alumnat, Organització del curs, Administració…). El grup surt de la
   // pestanya «moduls» (columna grup). Amb més de 4 mòduls, a dalt hi ha pestanyes per veure'n només un grup (es recorda).
-  var ORDRE_GRUPS = ['Personal', 'Alumnat', 'Secretaria', 'Organització del curs', 'Administració', 'Altres'];
+  var ORDRE_GRUPS = ['Personal', 'Alumnat', 'Secretaria', 'Organització del curs', 'Horaris', 'Administració', 'Altres'];   // PAS 95: + Horaris
   function pintaPortada() {
     var ms = S.sessio.moduls, grups = [];
     ms.forEach(function (m) { var g = m.grup || 'Altres'; if (grups.indexOf(g) < 0) grups.push(g); });
@@ -457,13 +469,16 @@
     if (m.id === 'sancions') return carregaSancions();   // PAS 76
     if (m.id === 'notificacions') return carregaNotificacions();   // PAS 81
     if (m.id === 'llibres') return carregaLlibres();   // PAS 88
+    if (m.id === 'treball_recerca') return carregaTr();   // PAS 95
     if (m.id === 'desiderata') return carregaDesiderata();
     // PAS 72: el planificador, l'ocupació i l'editor reutilitzen les dades ja llegides si cap altre mòdul n'ha desat
     // res des d'aleshores («Actualitza» les torna a llegir)
     if (m.id === 'horaris') return fresc('horaris') && S.hor ? reobreHoraris() : carregaHoraris();
     if (m.id === 'calendari') return carregaCalendari();   // PAS 56
     if (m.id === 'ocupacio') return fresc('ocupacio') && S.ocu && S.ocu.r ? (S.d = { files: [], camps: [], nivell: S.ocu.r.nivell, obert: S.ocu.r.obert }, S.ocu.brut = {}, pintaOcupacio()) : carregaOcupacio();   // PAS 57
-    if (m.id === 'horaris_editor') return fresc('horaris_editor') && S.he && S.he.r ? (S.d = { files: [], camps: [], nivell: S.he.r.nivell, obert: S.he.r.obert }, S.he.canvis = 0, pintaEditorHoraris()) : carregaEditorHoraris();   // PAS 64
+    // PAS 95 · Mòdul Horaris (només consulta): el mateix codi de graelles que l'editor, sense importar, editar ni declaracions
+    if (m.id === 'horaris_consulta') return fresc('horaris_consulta') && S.he && S.he.r && S.he.mod === 'horaris_consulta' ? (S.d = { files: [], camps: [], nivell: 'consulta', obert: false }, pintaEditorHoraris()) : carregaEditorHoraris('horaris_consulta');
+    if (m.id === 'horaris_editor') return fresc('horaris_editor') && S.he && S.he.r && S.he.mod !== 'horaris_consulta' ? (S.d = { files: [], camps: [], nivell: S.he.r.nivell, obert: S.he.r.obert }, S.he.canvis = 0, pintaEditorHoraris()) : carregaEditorHoraris();   // PAS 64
     // Les dades ja llegides en aquesta pàgina es reutilitzen: tornar al mòdul no torna a cridar el full
     // PAS 62: les dues vistes del Currículum es tornen a llegir sempre (les hores de les matèries canviades a «Matèries» han
     // d'arribar a «Assignacions»; abans quedava l'avís ⚠ amb les hores antigues)
@@ -2479,7 +2494,8 @@
       '<span class="gs-espai"></span>' +
       (S.d.pot_crear ? '<button type="button" class="prog-btn" data-accio="amon-nova">+ Nova amonestació</button>' : '') +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="amon-analisi" title="Nombre d’amonestacions per alumne, nivell, grup o professor (de les files que es veuen)">Anàlisi</button>' +
-      (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="amon-config" title="Carpeta dels PDF i criteri de l’avís">Configuració</button>' + BOTO_ACTUALITZA : '') +
+      (esAdmin() ? '<button type="button" class="prog-btn prog-btn--ghost" data-accio="amon-config" title="Carpeta dels PDF i criteri de l’avís">Configuració</button>' +
+        '<button type="button" class="prog-btn prog-btn--ghost" data-accio="amon-informes" title="Informes setmanals per correu: a qui s’envien i quan">Informes setmanals</button>' + BOTO_ACTUALITZA : '') +
       '<span class="gs-exporta"><button type="button" class="prog-btn prog-btn--ghost" data-accio="xlsx" title="Les files que es veuen, amb els fets">Excel</button>' +
       '<button type="button" class="prog-btn prog-btn--ghost" data-accio="pdf" title="Les files que es veuen">PDF</button></span>';
     lligaPeriode();
@@ -2656,6 +2672,37 @@
         if (!r.ok) return toast(text(r.error), true);
         S.d.avis_amon = r.avis_amon; pintaAvisAmon(); if (S.taula) S.taula.redraw(true); toast('Configuració desada.');
       });
+    });
+  }
+  // PAS 95 · Informes setmanals per correu (administració del mòdul): a qui s'envien (tutor/a, coordinació de nivell,
+  // direcció) i quan (dia i hora). Els envia la funció programada de Netlify des de no-reply@ (cua de correus de GESTIO).
+  var NOM_ROL_INF = { tutor: 'Tutor/a', coord: 'Coordinació de nivell', direccio: 'Direcció' };
+  function informesAmon() {
+    api('amonestacions_informes', { operacio: 'dades' }, 'Llegint la configuració…').then(function (r) {
+      if (!r.ok) return toast(textError(r), true);
+      var C = r.config, hores = []; for (var h = 7; h <= 21; h++) hores.push(h);
+      var chk = function (k, t) { return '<label class="gs-check"><input type="checkbox" id="gsInf_' + k + '"' + (C[k] ? ' checked' : '') + '> ' + t + '</label>'; };
+      var dest = r.destinataris.length ? '<table class="gs-taula-simple"><thead><tr><th>Informe</th><th>Destinatari/ària</th><th>Abast</th></tr></thead><tbody>' + r.destinataris.map(function (d) { return '<tr><td>' + esc(NOM_ROL_INF[d.rol]) + '</td><td>' + esc(d.nom) + '</td><td>' + esc(d.abast) + '</td></tr>'; }).join('') + '</tbody></table>'
+        : '<p class="gs-ajuda">Ningú no té el càrrec de tutor/a, coordinació de nivell, cap d’estudis o coordinació pedagògica al Professorat.</p>';
+      var cua = r.cua.length ? '<details><summary>Darrers enviaments (' + r.cua.length + ')</summary><table class="gs-taula-simple"><thead><tr><th>Posat a la cua</th><th>Destinatari</th><th>Estat</th></tr></thead><tbody>' + r.cua.slice(0, 30).map(function (x) { return '<tr><td>' + esc(x.creat) + '</td><td>' + esc(x.destinatari) + '</td><td>' + esc(x.estat) + (x.error ? ' <small class="gs-gris">' + esc(x.error) + '</small>' : '') + '</td></tr>'; }).join('') + '</tbody></table></details>' : '';
+      pregunta('Informes setmanals · Amonestacions', '<p class="gs-ajuda">Cada setmana, un correu amb les amonestacions redactades els darrers 7 dies (alumne/a, data de redacció i qui la redacta), des de <b>no-reply@institutjoanmiro.cat</b>.</p>' +
+        '<div class="gs-form-fila"><b>A qui s’envia?</b> ' + chk('tutor', 'Tutor/a (el seu grup-classe)') + chk('coord', 'Coordinació de nivell (el seu nivell, per grup-classe)') + chk('direccio', 'Direcció: cap d’estudis i coordinació pedagògica (tot el centre, per grup-classe)') + '</div>' +
+        '<div class="gs-form-fila"><b>Quan s’envia?</b> <select id="gsInfDia">' + r.dies.map(function (d) { return '<option value="' + d + '"' + (d === C.dia ? ' selected' : '') + '>' + majHE(d) + '</option>'; }).join('') + '</select> a les <select id="gsInfHora">' + hores.map(function (x) { return '<option value="' + x + '"' + (x === C.hora ? ' selected' : '') + '>' + x + ':00</option>'; }).join('') + '</select></div>' +
+        '<p class="gs-ajuda">' + (r.darrer ? 'Darrer informe automàtic: setmana del ' + esc(dataVista(r.darrer)) + '. ' : '') + 'L’enviament es comprova cada 15 minuts. Els destinataris surten dels càrrecs del Professorat:</p>' + dest + cua,
+        [{ t: 'Tanca', valor: 0, tipus: 'ghost' }, { t: 'Envia ara (prova)', valor: 2, tipus: 'ghost', abans: function () { informesAmon.v = llegeix(); } }, { t: 'Desa', valor: 1, abans: function () { informesAmon.v = llegeix(); } }], false).then(function (v) {
+        if (!v) return;
+        api('amonestacions_informes', { operacio: 'desa', config: informesAmon.v }, 'Desant…').then(function (d) {
+          if (!d.ok) return toast(textError(d), true);
+          if (v === 1) return toast('Informes setmanals desats.');
+          api('amonestacions_informes', { operacio: 'ara' }, 'Posant els informes a la cua…').then(function (a) {
+            if (!a.ok) return toast(textError(a), true);
+            fetch(API + 'correus', { method: 'POST', credentials: 'same-origin', cache: 'no-store' }).then(function (x) { return x.json(); }).then(function (e) {
+              toast(e && e.ok ? a.encuats + ' informes a la cua: ' + e.enviats + ' enviats' + (e.errors ? ', ' + e.errors + ' amb error' : '') + '.' : a.encuats + ' informes a la cua; s’enviaran en el proper quart d’hora' + (e && e.error === 'smtp_no_configurat' ? ' (falta configurar SMTP_USER i SMTP_PASS a Netlify)' : '') + '.', !(e && e.ok));
+            }).catch(function () { toast(a.encuats + ' informes a la cua; s’enviaran en el proper quart d’hora.'); });
+          });
+        });
+      });
+      function llegeix() { return { tutor: $('gsInf_tutor').checked, coord: $('gsInf_coord').checked, direccio: $('gsInf_direccio').checked, dia: $('gsInfDia').value, hora: Number($('gsInfHora').value) }; }
     });
   }
   // Nova amonestació: formulari (alumne i professor de llista, data amb calendari, fets lliures) → desa i fa el PDF
@@ -3803,15 +3850,20 @@
     return R.colors[clauMatHE(s)] || PALETA_HE[0];
   }
   var rgb = function (c, o) { return 'rgb(' + c.slice(o, o + 3).join(',') + ')'; };
-  function carregaEditorHoraris() {
-    S.he = S.he || { panells: [{ tipus: 'docent', sel: '' }], focus: '' };
+  function carregaEditorHoraris(mod) {
+    mod = mod || 'horaris_editor';
+    if (S.he && (S.he.mod || 'horaris_editor') !== mod) S.he = null;   // PAS 95: l'editor i la consulta no comparteixen l'estat
+    S.he = S.he || { panells: [{ tipus: 'docent', sel: '' }], focus: '', mod: mod };
+    S.he.mod = mod;
     if (!S.he.panells) S.he.panells = [{ tipus: S.he.vista || 'docent', sel: S.he.sel || '' }];
-    return api('horari_editor_dades', {}, 'Carregant l’horari…').then(function (r) {
+    return api(mod === 'horaris_consulta' ? 'horari_consulta_dades' : 'horari_editor_dades', {}, 'Carregant l’horari…').then(function (r) {
       if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
       if (!(r.esquema >= 69)) { $('gsAvis').innerHTML = 'Cal l’Apps Script del PAS 69 o posterior: enganxeu el Code.gs nou, executeu «configura» i feu una nova implementació.'; $('gsAvis').hidden = false; return; }
       S.he.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert };
       S.he.noms = {}; S.he.curts = {}; r.docents.forEach(function (d) { S.he.noms[d.id] = d.nom; S.he.curts[d.id] = d.curt; });
-      S.he.canvis = 0; S.he.desfer = []; preparaHE(); lligaEditorHoraris(); pintaEditorHoraris();
+      S.he.canvis = 0; S.he.desfer = []; preparaHE();
+      if (mod === 'horaris_consulta' && r.jo && S.he.panells.length === 1 && !S.he.panells[0].sel) S.he.panells[0].sel = r.jo;   // de partida, el vostre horari
+      lligaEditorHoraris(); pintaEditorHoraris();
     });
   }
   function itemsHE(tipus) {
@@ -3878,10 +3930,11 @@
         (edHE() ? '<button type="button" class="prog-btn prog-btn--ghost" data-he="desfes"' + (S.he.desfer.length ? ' title="Desfés: ' + esc(S.he.desfer[S.he.desfer.length - 1].t) + '"' : ' disabled') + '>↶ Desfés</button>' +
           '<button type="button" class="prog-btn' + (S.he.canvis ? '' : ' prog-btn--ghost') + '" data-he="desa"' + (S.he.canvis ? '' : ' disabled') + '>Desa els canvis' + (S.he.canvis ? ' (' + S.he.canvis + ')' : '') + '</button>' : '') +
         '<span class="gs-espai"></span>' + '<button type="button" class="prog-btn prog-btn--ghost" data-accio="mod-actualitza" title="Torna a llegir les dades (p. ex. si algú altre les ha canviat)">Actualitza</button>' + '<button type="button" class="prog-btn prog-btn--ghost" data-he="pdf-tots" title="Un full per a cada element del tipus de la primera graella">PDF de tots</button><button type="button" class="prog-btn prog-btn--ghost" data-he="pdf">PDF</button><button type="button" class="prog-btn prog-btn--ghost" data-he="pdf-tutories" title="Mapa de tutories (grup-classe i tutor/a) i reunions de nivell, per dies i franges">Tutories i reunions (PDF)</button>' +
-        '<button type="button" class="prog-btn prog-btn--ghost" data-he="fulls-guardia" title="Un full per dia: què fa cada docent a cada franja i la taula de les absències">Fulls de guàrdia (PDF)</button>' +
+        (S.he.mod === 'horaris_consulta' ? '' : '<button type="button" class="prog-btn prog-btn--ghost" data-he="fulls-guardia" title="Un full per dia: què fa cada docent a cada franja i la taula de les absències">Fulls de guàrdia (PDF)</button>') +
         (nivellIdx(R.nivell) >= 2 ? '<button type="button" class="prog-btn prog-btn--ghost" data-he="declaracio" title="Declaració horària de cada docent per a l’administració (dades, horari i quadre resum)">Declaració horària (PDF)</button>' : '') : '<span class="gs-espai"></span>') +
       (ed ? '<button type="button" class="prog-btn" data-he="importa">Importa horari</button><input type="file" id="gsHeFitxer" accept=".json,application/json" hidden>' : '') +
-      '<p class="gs-ajuda gs-cal__ajuda">' + (meta ? 'Horari calculat el <b>' + esc(dataHoraHE(meta.generat)) + '</b> (curs ' + esc(meta.curs || '?') + ') · mode: nivells <b>' + esc(Array.isArray(meta.mode.nivells) ? meta.mode.nivells.join(', ') : meta.mode.nivells || 'tots') + '</b>, lectives <b>' + esc((meta.mode.lectives || []).join(' + ') || 'cap') + '</b>, guàrdies <b>' + esc((meta.mode.guardies || []).join(' + ') || 'cap') + '</b> · ' + meta.sessions + ' hores · importat el ' + esc(dataHoraHE(meta.importat)) +
+      '<p class="gs-ajuda gs-cal__ajuda">' + (meta && S.he.mod === 'horaris_consulta' ? 'Horari del curs <b>' + esc(meta.curs || '') + '</b>' + (meta.editat ? ', actualitzat el ' + esc(dataHoraHE(meta.editat)) : '') + '. Trieu el tipus de graella (el vostre horari o el de qualsevol docent, grup-classe, espai, guàrdies, reunions o espais lliures) i l’element; <b>+ Graella</b> en posa fins a tres alhora. Un clic a una sessió ressalta totes les hores de la matèria.' :
+        !meta && S.he.mod === 'horaris_consulta' ? 'Encara no hi ha cap horari publicat.' : meta ? 'Horari calculat el <b>' + esc(dataHoraHE(meta.generat)) + '</b> (curs ' + esc(meta.curs || '?') + ') · mode: nivells <b>' + esc(Array.isArray(meta.mode.nivells) ? meta.mode.nivells.join(', ') : meta.mode.nivells || 'tots') + '</b>, lectives <b>' + esc((meta.mode.lectives || []).join(' + ') || 'cap') + '</b>, guàrdies <b>' + esc((meta.mode.guardies || []).join(' + ') || 'cap') + '</b> · ' + meta.sessions + ' hores · importat el ' + esc(dataHoraHE(meta.importat)) +
         ' · <button type="button" class="gs-enllac" data-he="avisos">penalització ' + ((meta.resultat || {}).penalitzacio || 0) + ((meta.resultat && meta.resultat.avisos || []).length ? ' · ' + meta.resultat.avisos.length + ' avisos' : '') + '</button>' + '. Cada matèria i grup té un color: un clic a una sessió (o a la llegenda) en ressalta totes les hores; Escape ho desfà.' + (edHE() ? ' <b>Per moure una sessió, arrossegueu-la</b> a una altra casella (si xoca, s’obre l’assistent); <b>doble clic</b> per canviar-ne l’aula.' : '') +
         (meta.editat ? ' Editat a mà el ' + esc(dataHoraHE(meta.editat)) + ' (' + (meta.canvis || 0) + ' canvis).' : '')
         : 'Encara no s’ha importat cap horari. Calculeu-lo amb el motor (interfície «Motor d’horaris» o <code>python -m horaris.motor</code>) i importeu el fitxer <code>horari-….json</code>' + (ed ? ' amb <b>Importa horari</b>.' : ' (cal nivell d’edició).')) + '</p>';
@@ -4078,29 +4131,54 @@
       pdfGuardiaHE(dies, dataTxt);
     });
   }
+  // PAS 95 · Ajusta un full: dibuixa(doc, k) a un document de prova amb escales k cada vegada més petites fins que hi cap
+  // (una sola pàgina) i retorna la k bona; així cada part ocupa exactament un full
+  function escalaUnFullHE(format, orient, dibuixa) {
+    var k = 1;
+    for (var t = 0; t < 24; t++) {
+      var prova = new window.jspdf.jsPDF({ orientation: orient, unit: 'mm', format: format });
+      try { dibuixa(prova, k); } catch (e) { /* res */ }
+      if (prova.getNumberOfPages() <= 1) return k;
+      k *= 0.95;
+    }
+    return k;
+  }
+  // PAS 95: A3 vertical; cada dia ocupa dos fulls: 1) l'horari del professorat del dia, 2) la graella de les absències
+  // (signatures). Les mides es calculen perquè cada part ocupi exactament un full.
   function pdfGuardiaHE(dies, dataTxt) {
     var R = S.he.r, M = R.marc_horari, fr = M.franges, docs = itemsHE('docent').map(function (d) { return { id: d.id, nom: nomCurtHE(d.id) }; }).sort(function (a, b) { return a.nom.localeCompare(b.nom, 'ca'); });
     var crida = logoPdf().then(function (logo) {
-      var doc = new window.jspdf.jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4' }), W = doc.internal.pageSize.getWidth(), M2 = 8;
-      var hs = { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold', halign: 'center' }, st = { font: 'helvetica', fontSize: 6.3, cellPadding: 0.8, valign: 'middle', halign: 'center', lineColor: [190, 196, 214], lineWidth: 0.15, overflow: 'linebreak' };
+      var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a3' }), W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M2 = 10, CAPH = 9;
+      var hs = { fillColor: [28, 12, 188], textColor: 255, fontStyle: 'bold', halign: 'center' };
+      var st = function (f) { return { font: 'helvetica', fontSize: f, cellPadding: 0.6, valign: 'middle', halign: 'center', lineColor: [170, 176, 196], lineWidth: 0.15, overflow: 'linebreak' }; };
+      var cap = function (dd, d) { capPdf(dd, logo, 'Full de guàrdia · ' + d.toUpperCase() + ' · DATA: ' + (dataTxt || '____________'), 'Curs ' + ((R.meta || {}).curs || '') + ' · horari ' + (R.meta && R.meta.editat ? 'editat el ' + dataHoraHE(R.meta.editat) : 'del ' + dataHoraHE((R.meta || {}).generat)), M2, W); };
+      var util = H - Y_TAULA - 8 - CAPH;
       dies.forEach(function (d, i) {
-        if (i) doc.addPage();
         var per = {}; R.sessions.forEach(function (s) { if (s.dia !== d) return; s.docents.forEach(function (x) { var k = x + '|' + s.franja; (per[k] = per[k] || []); var t = textGuardiaHE(s); if (per[k].indexOf(t) < 0) per[k].push(t); }); });
-        var cap = function () { capPdf(doc, logo, 'Full de guàrdia · ' + d.toUpperCase() + ' · DATA: ' + (dataTxt || '____________'), 'Curs ' + ((R.meta || {}).curs || '') + ' · horari ' + (R.meta && R.meta.editat ? 'editat el ' + dataHoraHE(R.meta.editat) : 'del ' + dataHoraHE((R.meta || {}).generat)), M2, W); };
-        cap();
-        doc.autoTable({ theme: 'grid', head: [['Professorat'].concat(fr.map(function (f) { return f.inici + '-' + f.fi; }))], body: docs.map(function (x) { return [x.nom].concat(fr.map(function (f) { return (per[x.id + '|' + f.id] || []).join('\n'); })); }),
-          startY: Y_TAULA, margin: { left: M2, right: M2, top: 22, bottom: 8 }, styles: st, headStyles: hs, rowPageBreak: 'avoid',
-          columnStyles: (function () { var o = { 0: { cellWidth: 34, halign: 'left', fontStyle: 'bold' } }, t = fr.reduce(function (m, f) { return m + (f.esbarjo ? 0.6 : 1); }, 0);
-            fr.forEach(function (f, j) { o[j + 1] = { cellWidth: (W - 2 * M2 - 34) * (f.esbarjo ? 0.6 : 1) / t }; }); return o; })(),
-          didParseCell: function (c) { if (c.section !== 'body' || !c.column.index) return; var t = String(c.cell.raw || '');
-            if (/^G(uàrdia|\. )/.test(t)) c.cell.styles.fillColor = [255, 241, 222]; else if (/^Red\./.test(t)) c.cell.styles.fillColor = [229, 245, 236]; else if (fr[c.column.index - 1].esbarjo) c.cell.styles.fillColor = [246, 247, 252]; },
-          didDrawPage: function (dd) { if (dd.pageNumber > 1) cap(); } });
-        // Taula d'absències: 7 files per franja lectiva i 4 per a l'esbarjo, amb el professorat de guàrdia de cada franja
-        doc.addPage(); cap();
+        // 1) Horari del professorat del dia
+        var alt = util / Math.max(1, docs.length), font0 = Math.max(3.6, Math.min(9, (alt - 1) / 2 / 0.42));
+        var graella = function (dd, k) {
+          cap(dd, d);
+          dd.autoTable({ theme: 'grid', head: [['Professorat'].concat(fr.map(function (f) { return f.inici + '-' + f.fi; }))], body: docs.map(function (x) { return [x.nom].concat(fr.map(function (f) { return (per[x.id + '|' + f.id] || []).join(' / '); })); }),
+            startY: Y_TAULA, margin: { left: M2, right: M2, top: Y_TAULA, bottom: 6 }, styles: Object.assign(st(font0 * k), { minCellHeight: alt * k }), headStyles: Object.assign({}, hs, { fontSize: Math.min(9, font0 + 1), minCellHeight: CAPH * 0.8 }), rowPageBreak: 'avoid',
+            columnStyles: (function () { var o = { 0: { cellWidth: 40, halign: 'left', fontStyle: 'bold' } }, t = fr.reduce(function (m, f) { return m + (f.esbarjo ? 0.6 : 1); }, 0);
+              fr.forEach(function (f, j) { o[j + 1] = { cellWidth: (W - 2 * M2 - 40) * (f.esbarjo ? 0.6 : 1) / t }; }); return o; })(),
+            didParseCell: function (c) { if (c.section !== 'body' || !c.column.index) return; var t = String(c.cell.raw || '');
+              if (/^G(uàrdia|\. )/.test(t)) c.cell.styles.fillColor = [255, 241, 222]; else if (/^Red\./.test(t)) c.cell.styles.fillColor = [229, 245, 236]; else if (fr[c.column.index - 1].esbarjo) c.cell.styles.fillColor = [246, 247, 252]; } });
+        };
+        if (i) doc.addPage();
+        graella(doc, escalaUnFullHE('a3', 'portrait', graella));
+        // 2) Graella de les absències (signatures): 7 files per franja lectiva i 4 per a l'esbarjo, amb el professorat de guàrdia
         var gu = {}; R.sessions.forEach(function (s) { if (s.dia === d && /^guardia/.test(s.tipus)) s.docents.forEach(function (x) { var l = gu[s.franja] = gu[s.franja] || []; var n = nomCurtHE(x) + (s.tipus === 'guardia_p' ? ' (pati)' : s.tipus === 'guardia_b' ? ' (bibl.)' : ''); if (l.indexOf(n) < 0) l.push(n); }); });
         var body = []; fr.forEach(function (f) { var n = f.esbarjo ? 4 : 7; for (var j = 0; j < n; j++) body.push(j ? ['', '', '', ''] : [{ content: f.inici + '-' + f.fi + ((gu[f.id] || []).length ? '\nDe guàrdia: ' + gu[f.id].join(', ') : ''), rowSpan: n, styles: { valign: 'top', fontStyle: 'bold', halign: 'left' } }, '', '', '']); });
-        doc.autoTable({ theme: 'grid', head: [['Hora', 'Professorat absent', 'Professorat substitut', 'Observacions']], body: body, startY: Y_TAULA, margin: { left: M2, right: M2, bottom: 8 },
-          styles: Object.assign({}, st, { fontSize: 7, minCellHeight: 5.2 }), headStyles: hs, columnStyles: { 0: { cellWidth: 52 }, 1: { cellWidth: 62 }, 2: { cellWidth: 62 } } });
+        var alt2 = Math.min(12, util / body.length);
+        var absencies = function (dd, k) {
+          cap(dd, d);
+          dd.autoTable({ theme: 'grid', head: [['Hora', 'Professorat absent', 'Professorat substitut', 'Observacions']], body: body, startY: Y_TAULA, margin: { left: M2, right: M2, bottom: 6 },
+            styles: Object.assign(st(8 * Math.min(1, k + 0.1)), { minCellHeight: alt2 * k }), headStyles: Object.assign({}, hs, { fontSize: 9, minCellHeight: CAPH * 0.8 }), columnStyles: { 0: { cellWidth: 62 }, 1: { cellWidth: 72 }, 2: { cellWidth: 72 } } });
+        };
+        doc.addPage();
+        absencies(doc, escalaUnFullHE('a3', 'portrait', absencies));
       });
       doc.save('fulls-guardia' + (dies.length === 1 ? '-' + dies[0] : '') + '.pdf');
     });
@@ -4125,74 +4203,102 @@
   }
   // Hores fixes de l'horari d'un docent per codi del quadre resum (G, RD, RDC, RA) i franges de tarda de la configuració
   var codiReunioHE = function (t) { t = normDoc(t); return /departament|^rd\b|^r ?dep/.test(t) ? 'RD' : /docent|claustre|^rdc\b/.test(t) ? 'RDC' : 'RA'; };
+  // PAS 95 · Logo del Departament d'Educació (fitxer oficial a /assets/icones/logo-departament-educacio.png); si no
+  // hi és, la capçalera porta el text
+  var logoDeptHE = null;
+  function carregaLogoDeptHE() {
+    if (!logoDeptHE) logoDeptHE = base64('/assets/icones/logo-departament-educacio.png').then(function (b) { return 'data:image/png;base64,' + b; }, function () { return ''; });
+    return logoDeptHE;
+  }
+  // PAS 95: noms de matèria llargs → abreviatura (inicials) i número de nota; la llegenda va al peu de la graella
+  var PARAULES_BUIDES_HE = { de: 1, del: 1, dels: 1, i: 1, la: 1, les: 1, el: 1, els: 1, per: 1, al: 1, a: 1, en: 1, amb: 1, d: 1, l: 1 };
+  function abreviaHE(t) {
+    var w = String(t).replace(/[’']/g, ' ').split(/[\s\-–/]+/).filter(function (x) { return x && !PARAULES_BUIDES_HE[x.toLowerCase()]; });
+    return w.length > 1 ? w.map(function (x) { return /^[IVX]+$/.test(x) ? x : x.charAt(0).toUpperCase(); }).join('') : String(t).slice(0, 7) + '.';
+  }
   function pdfDeclaracioHE(ids, r) {
-    var R = S.he.r, M = R.marc_horari, C = r.centre || {}, tarda = r.tarda || [];
-    var crida = logoPdf().then(function (logo) {
+    var R = S.he.r, M = R.marc_horari, C = r.centre || {}, tarda = r.tarda || [], LLARG = 20;
+    var crida = Promise.all([logoPdf(), carregaLogoDeptHE()]).then(function (lg) {
+      var logo = lg[0], logoDept = lg[1];
       var doc = new window.jspdf.jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' }), W = doc.internal.pageSize.getWidth(), H = doc.internal.pageSize.getHeight(), M2 = 12;
-      var st = { font: 'helvetica', fontSize: 7.5, cellPadding: 1.1, valign: 'middle', lineColor: [120, 120, 120], lineWidth: 0.15, textColor: [20, 20, 20], overflow: 'linebreak' };
-      ids.forEach(function (id, n) {
-        var d = (r.docents || {})[id]; if (!d) return;
-        if (n) doc.addPage();
-        // Capçalera
-        var x = M2; if (logo) { try { doc.addImage(logo, 'PNG', M2, 7, AMPLE_LOGO, ALT_LOGO); x = M2 + AMPLE_LOGO + 4; } catch (e) { /* sense logo */ } }
-        doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(20, 20, 20);
-        doc.text(['Generalitat de Catalunya', 'Departament d’Educació', C.centre || ''], x, 9.5);
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text(['DADES ANUALS DEL CENTRE', 'CURS ' + (C.curs || '')], W - M2, 10, { align: 'right' });
-        var y = 23;
-        doc.autoTable({ theme: 'grid', body: [[{ content: 'Codi: ' + (C.codi || '________') }, { content: 'Centre: ' + (C.centre || '') }, { content: 'Municipi: ' + (C.municipi || '') }]], startY: y, margin: { left: M2, right: M2 }, styles: Object.assign({}, st, { fontSize: 8 }) });
-        y = doc.lastAutoTable.finalY + 3; doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5); doc.text('Horari professor/a', M2, y + 3); y += 5;
+      var st = function (f) { return { font: 'helvetica', fontSize: f, cellPadding: 0.9, valign: 'middle', lineColor: [120, 120, 120], lineWidth: 0.15, textColor: [20, 20, 20], overflow: 'linebreak' }; };
+      var full = function (doc, id, d, k) {
+        // Capçalera: logo del Departament (esquerra), logo de l'institut (centre) i dades anuals (dreta)
+        var hL = 13 * Math.max(0.8, k);
+        if (logoDept) { try { var pr = doc.getImageProperties(logoDept); doc.addImage(logoDept, 'PNG', M2, 6, hL * pr.width / pr.height, hL); } catch (e) { logoDept = ''; } }
+        if (!logoDept) { doc.setFont('helvetica', 'normal'); doc.setFontSize(8); doc.setTextColor(20, 20, 20); doc.text(['Generalitat de Catalunya', 'Departament d’Educació'], M2, 10); }
+        if (logo) { try { doc.addImage(logo, 'PNG', (W - AMPLE_LOGO * 1.25) / 2, 6.5, AMPLE_LOGO * 1.25, ALT_LOGO * 1.25); } catch (e) { /* sense logo */ } }
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.setTextColor(20, 20, 20); doc.text(['DADES ANUALS DEL CENTRE', 'CURS ' + (C.curs || '')], W - M2, 10, { align: 'right' });
+        var y = 6 + hL + 3, sep = 3 * k;
+        doc.autoTable({ theme: 'grid', body: [[{ content: 'Codi: ' + (C.codi || '________') }, { content: 'Centre: ' + (C.centre || '') }, { content: 'Municipi: ' + (C.municipi || '') }]], startY: y, margin: { left: M2, right: M2 }, styles: st(8 * k) });
+        y = doc.lastAutoTable.finalY + sep; doc.setFont('helvetica', 'bold'); doc.setFontSize(10.5 * k); doc.text('Horari professor/a', M2, y + 3 * k); y += 4.5 * k;
         doc.autoTable({ theme: 'grid', body: [[{ content: 'Cognoms i nom', styles: { fontStyle: 'bold' } }, d.nom, { content: 'NIF', styles: { fontStyle: 'bold' } }, d.nif || ''], [{ content: 'Càrrec que desenvolupa', styles: { fontStyle: 'bold' } }, { content: d.carrec || '', colSpan: 3 }]],
-          startY: y, margin: { left: M2, right: M2 }, styles: st, columnStyles: { 0: { cellWidth: 38 }, 2: { cellWidth: 14 }, 3: { cellWidth: 32 } } });
-        y = doc.lastAutoTable.finalY + 4; doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5);
-        doc.text(doc.splitTextToSize('DECLARO QUE LES DADES SEGÜENTS I L’HORARI QUE TINC ASSIGNAT SÓN AUTÈNTICS I EXACTES. ME’N FAIG RESPONSABLE.', W - 2 * M2), M2, y + 2); y += 7;
-        var marca = function (k) { return d.situacio_codi === k ? 'x' : ''; };
+          startY: y, margin: { left: M2, right: M2 }, styles: st(7.5 * k), columnStyles: { 0: { cellWidth: 38 }, 2: { cellWidth: 14 }, 3: { cellWidth: 32 } } });
+        y = doc.lastAutoTable.finalY + sep; doc.setFont('helvetica', 'bold'); doc.setFontSize(8.5 * k);
+        var decl = doc.splitTextToSize('DECLARO QUE LES DADES SEGÜENTS I L’HORARI QUE TINC ASSIGNAT SÓN AUTÈNTICS I EXACTES. ME’N FAIG RESPONSABLE.', W - 2 * M2); doc.text(decl, M2, y + 2.5 * k); y += (decl.length * 3.6 + 1.5) * k;
+        var marca = function (q) { return d.situacio_codi === q ? 'x' : ''; };
         doc.autoTable({ theme: 'grid', body: [
           [{ content: 'Lloc de treball/Especialitat', rowSpan: 2, styles: { fontStyle: 'bold' } }, { content: d.especialitat || '', rowSpan: 2 }, { content: 'Situació administrativa', colSpan: 4, styles: { fontStyle: 'bold', halign: 'center' } }, { content: 'Anys a l’ensenyament', styles: { fontStyle: 'bold' } }],
           ['Definitiu', { content: marca('definitiu'), styles: { halign: 'center' } }, 'Comissió serveis', { content: marca('comissio'), styles: { halign: 'center' } }, { content: d.anys == null ? '' : String(d.anys), rowSpan: 2, styles: { halign: 'center' } }],
           [{ content: 'Acreditació per impartir l’ensenyament en català: ' + (d.catala || ''), colSpan: 2 }, 'Provisional', { content: marca('provisional'), styles: { halign: 'center' } }, 'Interí', { content: marca('interi'), styles: { halign: 'center' } }]],
-          startY: y, margin: { left: M2, right: M2 }, styles: st, columnStyles: { 0: { cellWidth: 26 }, 1: { cellWidth: 40 }, 3: { cellWidth: 7 }, 5: { cellWidth: 7 }, 6: { cellWidth: 24 } } });
-        y = doc.lastAutoTable.finalY + 3;
-        // Graella de l'horari (franges del marc + franges de tarda de la configuració)
-        var per = {}; R.sessions.forEach(function (s) { if (s.docents.indexOf(id) < 0) return; var k = s.dia + '|' + s.franja, t = textDeclaracioHE(s); per[k] = per[k] || []; if (per[k].indexOf(t) < 0) per[k].push(t); });
+          startY: y, margin: { left: M2, right: M2 }, styles: st(7.3 * k), columnStyles: { 0: { cellWidth: 26 }, 1: { cellWidth: 40 }, 3: { cellWidth: 7 }, 5: { cellWidth: 7 }, 6: { cellWidth: 24 } } });
+        y = doc.lastAutoTable.finalY + sep;
+        // Graella: tots els dies amb la mateixa amplada; les matèries de nom llarg, abreujades amb una nota (n)
+        var notes = [], numDe = {};
+        var nota = function (t) { if (String(t).length <= LLARG) return t; if (!numDe[t]) { notes.push(t); numDe[t] = notes.length; } return abreviaHE(t) + ' (' + numDe[t] + ')'; };
+        var per = {}; R.sessions.forEach(function (s) { if (s.docents.indexOf(id) < 0) return; var q = s.dia + '|' + s.franja, t = textDeclaracioHE(s, nota); per[q] = per[q] || []; if (per[q].indexOf(t) < 0) per[q].push(t); });
+        var hores = {}; tarda.forEach(function (t) { var h = t.inici + ' a\n' + t.fi; (hores[h] = hores[h] || []).push(t); });
         var files = M.franges.map(function (f) { return { h: f.inici + ' a\n' + f.fi, cel: function (dia) { return (per[dia + '|' + f.id] || []).join('\n'); }, esb: f.esbarjo }; })
-          .concat(tarda.map(function (t) { return { h: t.inici + ' a\n' + t.fi, cel: function (dia) { return dia === t.dia ? t.codi : ''; } }; }).filter(function (f, i, a) { return a.map(function (z) { return z.h; }).indexOf(f.h) === i; }).map(function (f) {
-            return { h: f.h, cel: function (dia) { return tarda.filter(function (t) { return t.inici + ' a\n' + t.fi === f.h && t.dia === dia; }).map(function (t) { return t.codi; }).join('\n'); } }; }));
+          .concat(Object.keys(hores).map(function (h) { return { h: h, cel: function (dia) { return hores[h].filter(function (t) { return t.dia === dia; }).map(function (t) { return t.codi; }).join('\n'); } }; }));
+        var ampleDia = (W - 2 * M2 - 16) / M.dies.length, cs = { 0: { cellWidth: 16, fontStyle: 'bold' } }; M.dies.forEach(function (x, n) { cs[n + 1] = { cellWidth: ampleDia }; });
         doc.autoTable({ theme: 'grid', head: [[''].concat(M.dies.map(majHE))], body: files.map(function (f) { return [f.h].concat(M.dies.map(function (dia) { return f.cel(dia); })); }), startY: y, margin: { left: M2, right: M2 },
-          styles: Object.assign({}, st, { fontSize: 6.8, halign: 'center', cellPadding: 0.7, minCellHeight: 7.2 }), headStyles: { fillColor: [235, 235, 235], textColor: 20, fontStyle: 'bold', halign: 'center', lineColor: [120, 120, 120], lineWidth: 0.15 },
-          columnStyles: { 0: { cellWidth: 16, fontStyle: 'bold' } }, didParseCell: function (c) { if (c.section === 'body' && files[c.row.index].esb) { c.cell.styles.minCellHeight = 4.5; c.cell.styles.fillColor = [246, 246, 246]; } } });
-        y = doc.lastAutoTable.finalY + 3;
+          styles: Object.assign(st(6.6 * k), { halign: 'center', cellPadding: 0.6, minCellHeight: 7 * k }), headStyles: { fillColor: [235, 235, 235], textColor: 20, fontStyle: 'bold', halign: 'center', lineColor: [120, 120, 120], lineWidth: 0.15, fontSize: 7 * k },
+          columnStyles: cs, didParseCell: function (c) { if (c.section === 'body' && files[c.row.index].esb) { c.cell.styles.minCellHeight = 4 * k; c.cell.styles.fillColor = [246, 246, 246]; } } });
+        y = doc.lastAutoTable.finalY + 1.5 * k;
+        if (notes.length) { doc.setFont('helvetica', 'normal'); doc.setFontSize(6.3 * k); doc.setTextColor(60, 60, 60);
+          var ll = doc.splitTextToSize(notes.map(function (t, n) { return '(' + (n + 1) + ') ' + abreviaHE(t) + ': ' + t; }).join(' · '), W - 2 * M2); doc.text(ll, M2, y + 2 * k); y += (ll.length * 2.6 + 1) * k; doc.setTextColor(20, 20, 20); }
+        y += sep * 0.6;
         // Quadre resum d'hores
         var g = 0, reu = { RD: 0, RDC: 0, RA: 0 }, vist = {};
-        R.sessions.forEach(function (s) { if (s.docents.indexOf(id) < 0) return; if (/^guardia/.test(s.tipus)) g++; else if (s.tipus === 'reunio') { var k = s.dia + '|' + s.franja + '|' + s.materia; if (!vist[k]) { vist[k] = 1; reu[codiReunioHE(s.materia)]++; } } });
+        R.sessions.forEach(function (s) { if (s.docents.indexOf(id) < 0) return; if (/^guardia/.test(s.tipus)) g++; else if (s.tipus === 'reunio') { var q = s.dia + '|' + s.franja + '|' + s.materia; if (!vist[q]) { vist[q] = 1; reu[codiReunioHE(s.materia)]++; } } });
         tarda.forEach(function (t) { if (reu[t.codi] != null) reu[t.codi]++; });
         var L = d.lectives || {}, ra = reu.RA + (Number(d.ra) || 0), hc = Number(d.hc) || 0, nf = function (v) { v = Math.round((Number(v) || 0) * 100) / 100; return v ? String(v).replace('.', ',') : ''; };
-        var totL = ['eso', 'bat', 'cd', 'cc', 'ahl'].reduce(function (m, k) { return m + (Number(L[k]) || 0); }, 0), totF = g + reu.RD + reu.RDC + ra + hc;
-        doc.setFont('helvetica', 'bold'); doc.setFontSize(9); doc.text('QUADRE RESUM D’HORES', W / 2, y + 3, { align: 'center' }); y += 5;
+        var totL = ['eso', 'bat', 'cd', 'cc', 'ahl'].reduce(function (m, q) { return m + (Number(L[q]) || 0); }, 0), totF = g + reu.RD + reu.RDC + ra + hc;
+        doc.setFont('helvetica', 'bold'); doc.setFontSize(9 * k); doc.text('QUADRE RESUM D’HORES', W / 2, y + 2.5 * k, { align: 'center' }); y += 4 * k;
         var hq = [['(1)', 'CODI', 'H. LECTIVES SETMANALS', 'Altres hores d’horari FIX', '', 'CODI', 'H. LECTIVES SETMANALS', 'Altres hores d’horari FIX']];
         var bq = [['ESO', 'ESO', nf(L.eso), '', 'Guàrdies', 'G', '', nf(g)], ['BATXILLERAT', 'BAT', nf(L.bat), '', 'Reunió departament', 'RD', '', nf(reu.RD)], ['Càrrec directiu', 'CD', nf(L.cd), '', 'Reunió docent', 'RDC', '', nf(reu.RDC)],
           ['Càrrec coordinació', 'CC', nf(L.cc), '', 'Altres reunions', 'RA', '', nf(ra)], ['Altres hores lectives', 'AHL', nf(L.ahl), '', 'Hores complementàries', 'HC', '', nf(hc)], ['', '', '', '', 'Altres', '', '', ''],
           [{ content: 'TOTAL', colSpan: 6, styles: { halign: 'right', fontStyle: 'bold' } }, { content: nf(totL) || '0', styles: { fontStyle: 'bold' } }, { content: nf(totF) || '0', styles: { fontStyle: 'bold' } }]];
-        doc.autoTable({ theme: 'grid', head: hq, body: bq, startY: y, margin: { left: M2, right: M2 }, styles: Object.assign({}, st, { fontSize: 6.8, halign: 'center' }),
-          headStyles: { fillColor: [235, 235, 235], textColor: 20, fontStyle: 'bold', fontSize: 6.2, halign: 'center', lineColor: [120, 120, 120], lineWidth: 0.15 }, columnStyles: { 0: { halign: 'left', cellWidth: 30 }, 4: { halign: 'left', cellWidth: 32 } } });
-        y = doc.lastAutoTable.finalY + 4; doc.setFont('helvetica', 'normal'); doc.setFontSize(8);
-        doc.text('Si disposeu de reducció de jornada, indiqueu quina: ' + (d.jornada && d.jornada !== 'Sencera' ? d.jornada : ''), M2, y); y += 6;
-        doc.text('Lloc: ' + (C.municipi || '') + '          Data: ________________________________', M2, y); y += 5;
-        // Signatures
-        var yS = Math.min(y, H - 48), wB = (W - 2 * M2 - 6) / 2;
-        doc.setDrawColor(120, 120, 120); doc.setLineWidth(0.2); doc.rect(M2, yS, wB, 30); doc.rect(M2 + wB + 6, yS, wB, 30);
-        doc.setFontSize(7.5); doc.text((C.carrec_direccio || 'La directora') + ' (signatura i segell)', M2 + 2, yS + 4); if (C.direccio) doc.text(C.direccio, M2 + 2, yS + 27);
-        doc.text(doc.splitTextToSize('El/la sotasignat/da declara que imparteix les matèries en la llengua que consta al Projecte Lingüístic de Centre (signatura del/la docent)', wB - 4), M2 + wB + 8, yS + 4);
-        doc.setFontSize(7); doc.setTextColor(60, 60, 60);
-        doc.text(doc.splitTextToSize('Aquestes declaracions horàries restaran arxivades al centre a disposició de la Inspecció d’Educació, preferentment compartides per mitjans telemàtics, amb les possibles modificacions que calgui fer al llarg del curs.', W - 2 * M2), M2, Math.min(yS + 36, H - 8));
+        doc.autoTable({ theme: 'grid', head: hq, body: bq, startY: y, margin: { left: M2, right: M2 }, styles: Object.assign(st(6.6 * k), { halign: 'center', cellPadding: 0.6 }),
+          headStyles: { fillColor: [235, 235, 235], textColor: 20, fontStyle: 'bold', fontSize: 6 * k, halign: 'center', lineColor: [120, 120, 120], lineWidth: 0.15 }, columnStyles: { 0: { halign: 'left', cellWidth: 30 }, 4: { halign: 'left', cellWidth: 32 } } });
+        y = doc.lastAutoTable.finalY + 3.5 * k; doc.setFont('helvetica', 'normal'); doc.setFontSize(8 * k);
+        doc.text('Si disposeu de reducció de jornada, indiqueu quina: ' + (d.jornada && d.jornada !== 'Sencera' ? d.jornada : ''), M2, y); y += 5 * k;
+        doc.text('Lloc: ' + (C.municipi || '') + '          Data: ________________________________', M2, y); y += 3 * k;
+        // Signatures i peu
+        var hS = 27 * k, wB = (W - 2 * M2 - 6) / 2;
+        if (y + hS + 12 > H) doc.addPage();   // no hi cap: la prova d'escala ho detecta i redueix
+        doc.setDrawColor(120, 120, 120); doc.setLineWidth(0.2); doc.rect(M2, y, wB, hS); doc.rect(M2 + wB + 6, y, wB, hS);
+        doc.setFontSize(7.5 * k); doc.text((C.carrec_direccio || 'La directora') + ' (signatura i segell)', M2 + 2, y + 4); if (C.direccio) doc.text(C.direccio, M2 + 2, y + hS - 2.5);
+        doc.text(doc.splitTextToSize('El/la sotasignat/da declara que imparteix les matèries en la llengua que consta al Projecte Lingüístic de Centre (signatura del/la docent)', wB - 4), M2 + wB + 8, y + 4);
+        doc.setFontSize(6.8 * k); doc.setTextColor(60, 60, 60);
+        doc.text(doc.splitTextToSize('Aquestes declaracions horàries restaran arxivades al centre a disposició de la Inspecció d’Educació, preferentment compartides per mitjans telemàtics, amb les possibles modificacions que calgui fer al llarg del curs.', W - 2 * M2), M2, y + hS + 4.5 * k);
+      };
+      var primer = true;
+      ids.forEach(function (id) {
+        var d = (r.docents || {})[id]; if (!d) return;
+        var k = escalaUnFullHE('a4', 'portrait', function (dd, kk) { full(dd, id, d, kk); });
+        if (!primer) doc.addPage(); primer = false;
+        full(doc, id, d, k);
       });
       doc.save(ids.length === 1 ? 'declaracio-horaria-' + String(nomCurtHE(ids[0])).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-') + '.pdf' : 'declaracions-horaries.pdf');
     });
     return window.Progres ? Progres.amb(crida, 'Generant les declaracions…') : crida;
   }
-  function textDeclaracioHE(s) {
-    if (s.tipus === 'classe') return s.materia + '\n' + (s.grup || (s.grups_classe || []).join(', '));
-    if (s.tipus === 'reunio') return s.materia || 'Reunió';
-    return { guardia: 'Guàrdia', guardia_p: 'G. pati', guardia_b: 'G. biblioteca', reduccio_lectiva: s.materia || 'Reducció lectiva', reduccio_guardia: s.materia || 'Reducció de guàrdia' }[s.tipus] || s.tipus;
+  function textDeclaracioHE(s, nota) {
+    nota = nota || function (t) { return t; };
+    if (s.tipus === 'classe') return nota(s.materia) + '\n' + (s.grup || (s.grups_classe || []).join(', '));
+    if (s.tipus === 'reunio') return nota(s.materia || 'Reunió');
+    return { guardia: 'Guàrdia', guardia_p: 'G. pati', guardia_b: 'G. biblioteca', reduccio_lectiva: nota(s.materia || 'Reducció lectiva'), reduccio_guardia: nota(s.materia || 'Reducció de guàrdia') }[s.tipus] || s.tipus;
   }
   function importaHE(f) {
     var lector = new FileReader();
@@ -4579,7 +4685,7 @@
   }
   function lligaEditorHoraris() {
     if (lligaEditorHoraris.fet) return; lligaEditorHoraris.fet = true;
-    var actiu = function () { return S.modul && S.modul.id === 'horaris_editor' && S.he && S.he.r; };
+    var actiu = function () { return S.modul && (S.modul.id === 'horaris_editor' || S.modul.id === 'horaris_consulta') && S.he && S.he.r; };
     var panell = function (x) { var c = x.closest('[data-p]'); return c ? S.he.panells[Number(c.dataset.p)] : null; };
     var clic = function (e) {
       if (!actiu()) return;
@@ -4627,6 +4733,180 @@
     T.addEventListener('dblclick', function (e) { if (!actiu() || !edHE()) return; var x = e.target.closest && e.target.closest('.gs-he__s[data-u]'); if (x) { clearTimeout(S.he.tclic); var td = x.closest('td[data-pos]'); espaiHE(x.dataset.u, td ? td.dataset.pos : '', x.dataset.m); } });
     // PAS 68: Escape treu el ressaltat (totes les matèries en mode normal)
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && actiu() && S.he.focus && $('gsModal').hidden) { S.he.focus = ''; pintaEditorHoraris(); } });
+  }
+  // ------------------------------------------------------------------ PAS 95 · TREBALL DE RECERCA (fase 1: assignació)
+  // Gestors (edició): quotes per especialitat, importació de preferències i notes, assignació automàtica i manual, data
+  // límit, bloqueig, tancament i vist-i-plau de cada departament/àmbit. Caps: associen l'alumnat al seu professorat.
+  // Professorat: consulta de les associacions amb vist-i-plau.
+  var FASES_TR = ['1 · Assignació', '2 · Seguiment', '3 · Memòria', '4 · Defensa oral', '5 · Resultats'];
+  var NOM_ESTAT_TR = { pendent: 'Pendent d’obrir', obert: 'Obert', tancat: 'Tancat' };
+  function carregaTr(forca) {
+    S.tr = S.tr || { tab: '', dep: '', q: {}, a: {}, d: {} };
+    return (!forca && S.tr.r && fresc('treball_recerca') ? Promise.resolve(S.tr.r) : api('treball_recerca_dades', {}, 'Carregant el treball de recerca…')).then(function (r) {
+      if (!r.ok) { $('gsAvis').innerHTML = textError(r); $('gsAvis').hidden = false; return; }
+      posaTr(r); lligaTr();
+    });
+  }
+  function posaTr(r) {
+    S.tr.r = r; S.d = { files: [], camps: [], nivell: r.nivell, obert: r.obert }; S.tr.q = {}; S.tr.a = {}; S.tr.d = {}; S.brut = false;
+    var tabs = tabsTr(); if (tabs.map(function (t) { return t[0]; }).indexOf(S.tr.tab) < 0) S.tr.tab = tabs[0][0];
+    var deps = depsEditTr(); if (!deps.some(function (d) { return d.id === S.tr.dep; })) S.tr.dep = deps.length ? deps[0].id : '';
+    pintaTr();
+  }
+  function tabsTr() {
+    var R = S.tr.r, t = [];
+    if (R.gestor) t.push(['quotes', 'Quotes'], ['assignacio', 'Alumnat i assignació']);
+    if (R.gestor || R.meus.length) t.push(['departaments', R.gestor ? 'Departaments/àmbits' : 'El meu departament/àmbit']);
+    t.push(['consulta', 'Assignacions']);
+    return t;
+  }
+  var depsEditTr = function () { var R = S.tr.r; return R.departaments.filter(function (d) { return R.gestor || R.meus.indexOf(d.id) >= 0; }); };
+  var edTr = function () { return S.tr.r.obert; };
+  var dataTr = function (x) { return x ? dataVista(String(x.quan || x).slice(0, 10)) : ''; };
+  function pintaTr() {
+    var R = S.tr.r, tab = S.tr.tab;
+    $('gsEines').innerHTML = '<div class="gs-tr__fases" aria-label="Fases del treball de recerca">' + FASES_TR.map(function (f, i) { return '<span class="gs-tr__fase' + (i ? ' is-off' : ' is-on') + '"' + (i ? ' title="Properament"' : '') + '>' + f + '</span>'; }).join('') + '</div>' +
+      '<div class="gs-pestanyes" role="tablist">' + tabsTr().map(function (t) { return '<button type="button" role="tab" data-tr="tab" data-tab="' + t[0] + '" aria-selected="' + (t[0] === tab) + '">' + t[1] + '</button>'; }).join('') + '</div>' +
+      '<span class="gs-espai"></span><button type="button" class="prog-btn prog-btn--ghost" data-accio="mod-actualitza" title="Torna a llegir les dades">Actualitza</button>' +
+      '<p class="gs-ajuda gs-cal__ajuda">' + esc(R.total_alumnes) + ' alumnes de 1r de batxillerat' + (R.estat.curs ? ' · curs ' + esc(R.estat.curs) : '') +
+        (R.estat.publicada ? ' · associació per als departaments/àmbits fins al <b>' + esc(dataVista(R.estat.data_limit)) + '</b>' : '') + '.</p>';
+    var t = $('gsTaula'); t.className = 'gs-ocu gs-tr';
+    t.innerHTML = tab === 'quotes' ? htmlQuotesTr() : tab === 'assignacio' ? htmlAssignacioTr() : tab === 'departaments' ? htmlDepsTr() : htmlConsultaTr();
+    ajustaAlcada();
+  }
+  function htmlQuotesTr() {
+    var R = S.tr.r, E = R.estat, vp = !!E.quotes_vistiplau, ed = edTr() && !vp, tq = 0, tc = 0, tp = 0, ta = 0;
+    var files = R.quotes.map(function (q) { var v = S.tr.q[q.especialitat] != null ? S.tr.q[q.especialitat] : q.quota; tq += Number(v) || 0; tp += q.professorat; ta += q.assignats; tc += Number(q.calcul) || 0;
+      return '<tr><td>' + esc(q.especialitat) + (q.especialitat === 'Orientació' ? ' <small class="gs-gris">(psicologia)</small>' : '') + '</td><td class="gs-num">' + q.professorat + '</td><td class="gs-num">' + (q.calcul == null ? '—' : String(q.calcul).replace('.', ',')) + '</td>' +
+        '<td class="gs-num">' + (ed ? '<input type="number" min="0" max="200" data-trq="' + esc(q.especialitat) + '" value="' + v + '" style="width:64px">' : v) + '</td><td class="gs-num">' + q.assignats + '</td></tr>'; }).join('');
+    return '<section class="gs-hor__sec"><h3 class="gs-amon__tit">Quotes de treballs de recerca per especialitat</h3>' +
+      '<p class="gs-ajuda">Càlcul: alumnat de 1r de batxillerat (' + R.total_alumnes + ') ÷ professorat actiu' + (E.calcul ? ' (' + E.calcul.professorat + ') = <b>' + String(E.calcul.ratio).replace('.', ',') + '</b>' : '') + ' treballs per docent; la quota de cada especialitat és aquest valor × el seu professorat. Les fraccions s’arrodoneixen cap amunt primer a les especialitats amb més professorat, fins que la suma és el total d’alumnat. Les quotes es poden ajustar a mà abans del vist-i-plau.</p>' +
+      '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Especialitat</th><th>Professorat</th><th>Càlcul</th><th>Quota</th><th>Assignats</th></tr></thead><tbody>' + files +
+      '<tr class="gs-tr__total"><td>Total</td><td class="gs-num">' + tp + '</td><td class="gs-num">' + (Math.round(tc * 100) / 100 || '—') + '</td><td class="gs-num' + (tq !== R.total_alumnes ? ' gs-tr__mal' : '') + '">' + tq + '</td><td class="gs-num">' + ta + '</td></tr></tbody></table>' +
+      (tq !== R.total_alumnes ? '<p class="prog-avis">La suma de les quotes (' + tq + ') no és l’alumnat total (' + R.total_alumnes + ').</p>' : '') +
+      '<p class="gs-tr__accions">' + (ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-tr="quotes_calcula">' + (R.quotes.some(function (q) { return q.quota; }) ? 'Torna a calcular' : 'Calcula') + '</button><button type="button" class="prog-btn' + (Object.keys(S.tr.q).length ? '' : ' prog-btn--ghost') + '" data-tr="quotes_desa"' + (Object.keys(S.tr.q).length ? '' : ' disabled') + '>Desa les quotes</button>' : '') +
+        (vp ? '<span class="gs-tr__ok">✓ Vist-i-plau el ' + esc(dataTr(E.quotes_vistiplau)) + '</span>' + (edTr() && !E.publicada ? '<button type="button" class="prog-btn prog-btn--ghost" data-tr="quotes_treu_vistiplau">Treu el vist-i-plau</button>' : '')
+          : edTr() && R.quotes.some(function (q) { return q.quota; }) ? '<button type="button" class="prog-btn" data-tr="quotes_vistiplau"' + (Object.keys(S.tr.q).length ? ' disabled title="Primer deseu les quotes"' : '') + '>Dona el vist-i-plau</button>' : '') + '</p></section>';
+  }
+  function htmlAssignacioTr() {
+    var R = S.tr.r, E = R.estat, ed = edTr() && !E.publicada, sense = R.alumnes.filter(function (a) { return !(S.tr.a[a.id] != null ? S.tr.a[a.id] : a.especialitat); }).length;
+    var esps = R.quotes.filter(function (q) { return q.quota > 0; }).map(function (q) { return q.especialitat; });
+    var ll = R.alumnes.filter(function (a) { return !S.tr.nomesSense || !(S.tr.a[a.id] != null ? S.tr.a[a.id] : a.especialitat); });
+    var font = function (k, t) { return '<div class="gs-tr__font"><label>' + t + ' <input type="url" data-trf="' + k + '" value="' + esc((E.fonts || {})[k] || '') + '" placeholder="https://docs.google.com/spreadsheets/d/…"' + (ed ? '' : ' disabled') + '></label>' +
+      (ed ? '<button type="button" class="prog-btn prog-btn--ghost" data-tr="importa" data-tipus="' + k + '">Importa</button>' : '') + '</div>'; };
+    var h = '<section class="gs-hor__sec"><h3 class="gs-amon__tit">1 · Dades de l’alumnat</h3>' +
+      font('preferencies', 'Preferències (respostes al formulari)') + font('notes', 'Notes mitjanes del 1r trimestre') +
+      '<p class="gs-ajuda">Fulls de Google (enllaç; el compte que executa GESTIO hi ha de tenir accés). Preferències: columnes <b>Nom</b>, <b>1r Cognom</b>, <b>2n Cognom</b> i «Tria el <b>1r</b>…<b>5è</b> àmbit…» (Psicopedagogia = Orientació, Biologia-Geologia = Biologia, Llatí i Grec = Clàssiques…). Notes: el nom (en columnes o «Cognoms, Nom») i una columna «Nota mitjana» (o «Mitjana»). L’alumnat es reconeix pel nom i els cognoms.</p></section>' +
+      '<section class="gs-hor__sec"><h3 class="gs-amon__tit">2 · Assignació a les especialitats</h3><p class="gs-ajuda">Per ordre de nota (de més alta a més baixa; sense nota, al final), cada alumne/a va a la primera preferència amb places (quota). Si totes són plenes o no té preferències, queda <b>sense assignar</b> i s’assigna a mà (columna Especialitat). Les assignacions fetes a mà es mantenen quan es torna a assignar automàticament.</p>' +
+      '<p class="gs-tr__accions">' + (ed ? '<button type="button" class="prog-btn" data-tr="assigna_auto"' + (E.quotes_vistiplau ? '' : ' disabled title="Primer cal el vist-i-plau de les quotes"') + '>Assigna automàticament</button><button type="button" class="prog-btn' + (Object.keys(S.tr.a).length ? '' : ' prog-btn--ghost') + '" data-tr="assigna_desa"' + (Object.keys(S.tr.a).length ? '' : ' disabled') + '>Desa els canvis' + (Object.keys(S.tr.a).length ? ' (' + Object.keys(S.tr.a).length + ')' : '') + '</button>' : '') +
+        (E.assignacio ? '<span class="gs-gris">Assignació automàtica: ' + esc(dataTr(E.assignacio)) + '.</span>' : '') + ' <b class="' + (sense ? 'gs-tr__mal' : 'gs-tr__ok') + '">' + (sense ? sense + ' sense assignar' : 'Tot l’alumnat assignat') + '</b>' +
+        ' <label class="gs-check"><input type="checkbox" data-tr="nomes-sense"' + (S.tr.nomesSense ? ' checked' : '') + '> Només sense assignar</label></p>' +
+      '<div class="gs-tr__scroll"><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta gs-tr__taula"><thead><tr><th>Alumne/a</th><th>Grup</th><th>Nota</th><th>Preferències (1a → 5a)</th><th>Especialitat</th><th>Com</th></tr></thead><tbody>' +
+      ll.map(function (a) { var e = S.tr.a[a.id] != null ? S.tr.a[a.id] : a.especialitat;
+        return '<tr' + (e ? '' : ' class="gs-tr__sense"') + '><td>' + esc(a.alumne) + '</td><td>' + esc(a.grup) + '</td><td class="gs-num">' + (a.nota == null ? '—' : String(a.nota).replace('.', ',')) + '</td><td>' + (a.prefs || []).map(function (p, i) { return '<span class="gs-tr__pref' + (p === e ? ' is-on' : '') + '">' + (i + 1) + '. ' + esc(p) + '</span>'; }).join(' ') + '</td>' +
+          '<td>' + (edTr() ? '<select data-tra="' + esc(a.id) + '"><option value="">— sense assignar —</option>' + esps.concat(e && esps.indexOf(e) < 0 ? [e] : []).map(function (x) { return '<option' + (x === e ? ' selected' : '') + '>' + esc(x) + '</option>'; }).join('') + '</select>' : esc(e)) + '</td>' +
+          '<td>' + (S.tr.a[a.id] != null ? '<i>canvi sense desar</i>' : a.tipus === 'manual' ? 'a mà' : a.tipus === 'auto' ? 'automàtica' : '<span class="gs-tr__mal">' + esc(a.motiu || 'sense assignar') + '</span>') + '</td></tr>'; }).join('') + '</tbody></table></div></section>' +
+      '<section class="gs-hor__sec"><h3 class="gs-amon__tit">3 · Associació al professorat (departaments/àmbits)</h3><p class="gs-ajuda">Quan l’assignació és bona, obriu-la als caps de departament/àmbit amb una data límit: cada cap associa l’alumnat de les seves especialitats al professorat del departament/àmbit.</p>' +
+      (edTr() ? '<p class="gs-tr__accions"><label>Data límit <input type="date" data-trf="data_limit" value="' + esc(E.data_limit || '') + '"></label><button type="button" class="prog-btn" data-tr="publica"' + (E.quotes_vistiplau ? '' : ' disabled') + '>' + (E.publicada ? 'Canvia la data límit' : 'Obre als departaments/àmbits') + '</button></p>' : '') +
+      (E.publicada ? '<p class="gs-tr__ok">✓ Oberta als departaments/àmbits fins al ' + esc(dataVista(E.data_limit)) + '. L’assignació a les especialitats ja no es pot tornar a calcular; els canvis a mà, només als departaments/àmbits oberts.</p>' : '') + '</section>';
+    return h;
+  }
+  function estatTxtTr(st) {
+    return (st.vistiplau ? '✓ Vist-i-plau (' + dataTr(st.vistiplau) + ')' : NOM_ESTAT_TR[st.estat] || st.estat) + (st.bloquejat ? ' · bloquejat' : '') + (st.tancat && !st.vistiplau ? ' (' + dataTr(st.tancat) + ')' : '');
+  }
+  function htmlDepsTr() {
+    var R = S.tr.r, E = R.estat, h = '';
+    if (!E.publicada) return '<p class="gs-ajuda" style="padding:12px">L’associació al professorat encara no s’ha obert als departaments/àmbits.</p>';
+    if (R.gestor) {
+      h += '<section class="gs-hor__sec"><h3 class="gs-amon__tit">Estat dels departaments/àmbits</h3><table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Departament/àmbit</th><th>Cap</th><th>Alumnat</th><th>Associat</th><th>Estat</th><th></th></tr></thead><tbody>' +
+        R.departaments.map(function (d) { var st = d.estat, b = function (op, t, tip) { return '<button type="button" class="prog-btn prog-btn--ghost prog-btn--sm" data-tr="' + op + '" data-dep="' + esc(d.id) + '"' + (tip ? ' title="' + tip + '"' : '') + '>' + t + '</button>'; };
+          var acc = !edTr() ? '' : st.vistiplau ? b('dep_treu_vistiplau', 'Treu el vist-i-plau') : (st.bloquejat ? b('dep_desbloqueja', 'Desbloqueja') : b('dep_bloqueja', 'Bloqueja', 'El cap ja no pot desar, tancar ni reobrir')) + (st.estat === 'obert' && st.bloquejat ? b('dep_tanca', 'Tanca') : '') + (st.estat === 'tancat' ? b('dep_vistiplau', 'Dona el vist-i-plau', 'El professorat ho veurà i rebrà un correu amb el seu alumnat') : '');
+          return '<tr' + (d.id === S.tr.dep ? ' class="is-actiu"' : '') + '><td><button type="button" class="gs-enllac" data-tr="dep-sel" data-dep="' + esc(d.id) + '">' + esc(d.nom) + '</button></td><td>' + esc(d.cap_nom || '—') + '</td><td class="gs-num">' + d.alumnes + '</td><td class="gs-num">' + d.associats + '</td><td>' + esc(estatTxtTr(st)) + '</td><td class="gs-tr__btns">' + acc + '</td></tr>'; }).join('') + '</tbody></table>' +
+        '<p class="gs-ajuda">Ordre: el cap associa i <b>tanca</b> (pot tornar a obrir fins a la data límit si no està bloquejat). Els gestors poden <b>bloquejar</b> un departament/àmbit; si està bloquejat, el poden tancar ells. Un cop tancat, el <b>vist-i-plau</b> el fa visible al professorat i envia a cada docent un correu amb el seu alumnat.</p></section>';
+    }
+    var deps = depsEditTr(), d = deps.filter(function (x) { return x.id === S.tr.dep; })[0];
+    if (!d) return h;
+    var st = d.estat, termini = !E.data_limit || R.avui <= E.data_limit, pot = edTr() && st.estat === 'obert' && !st.bloquejat && !st.vistiplau && (R.gestor || termini);
+    var ll = R.alumnes.filter(function (a) { return a.departament === d.id; }), compte = {};
+    ll.forEach(function (a) { var p = S.tr.d[a.id] != null ? S.tr.d[a.id] : a.id_professor; if (p) compte[p] = (compte[p] || 0) + 1; });
+    h += '<section class="gs-hor__sec"><h3 class="gs-amon__tit">' + esc(d.nom) + ' <small class="gs-gris">· ' + esc(estatTxtTr(st)) + '</small></h3>' +
+      (deps.length > 1 && !R.gestor ? '<p><label>Departament/àmbit <select data-tr="dep">' + deps.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === d.id ? ' selected' : '') + '>' + esc(x.nom) + '</option>'; }).join('') + '</select></label></p>' : '') +
+      '<p class="gs-ajuda">Associeu cada alumne/a al professorat del departament/àmbit (especialitats: ' + esc(d.especialitats.join(', ')) + '). Podeu desar tantes vegades com calgui; quan estigui fet, <b>Tanca</b>. ' + (termini ? 'Data límit: <b>' + esc(dataVista(E.data_limit)) + '</b>.' : '<b>La data límit (' + esc(dataVista(E.data_limit)) + ') ja ha passat.</b>') + '</p>' +
+      '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Alumne/a</th><th>Grup</th><th>Especialitat</th><th>Professor/a</th></tr></thead><tbody>' +
+      ll.map(function (a) { var p = S.tr.d[a.id] != null ? S.tr.d[a.id] : a.id_professor, prof = d.professorat.filter(function (x) { return x.especialitat === a.especialitat; }).concat(d.professorat.filter(function (x) { return x.especialitat !== a.especialitat; }));
+        return '<tr><td>' + esc(a.alumne) + '</td><td>' + esc(a.grup) + '</td><td>' + esc(a.especialitat) + '</td><td>' + (pot ? '<select data-trd="' + esc(a.id) + '"><option value="">—</option>' + prof.map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === p ? ' selected' : '') + '>' + esc(x.nom) + (x.especialitat !== a.especialitat ? ' (' + esc(x.especialitat) + ')' : '') + '</option>'; }).join('') + '</select>' : esc(a.professor || '—')) + '</td></tr>'; }).join('') +
+      (ll.length ? '' : '<tr><td colspan="4" class="gs-gris">Cap alumne/a assignat a les especialitats d’aquest departament/àmbit.</td></tr>') + '</tbody></table>' +
+      (d.professorat.length ? '<p class="gs-ajuda">Per docent: ' + d.professorat.map(function (x) { return esc(x.nom) + ' <b>' + (compte[x.id] || 0) + '</b>'; }).join(' · ') + '</p>' : '') +
+      '<p class="gs-tr__accions">' + (pot ? '<button type="button" class="prog-btn' + (Object.keys(S.tr.d).length ? '' : ' prog-btn--ghost') + '" data-tr="associa_desa" data-dep="' + esc(d.id) + '"' + (Object.keys(S.tr.d).length ? '' : ' disabled') + '>Desa</button><button type="button" class="prog-btn prog-btn--ghost" data-tr="dep_tanca" data-dep="' + esc(d.id) + '">Tanca</button>' : '') +
+        (edTr() && st.estat === 'tancat' && !st.bloquejat && !st.vistiplau && (R.gestor || termini) ? '<button type="button" class="prog-btn prog-btn--ghost" data-tr="dep_reobre" data-dep="' + esc(d.id) + '">Reobre</button>' : '') + '</p></section>';
+    return h;
+  }
+  function filesConsultaTr() {
+    var R = S.tr.r, deps = {}; R.departaments.forEach(function (d) { deps[d.id] = d; });
+    return R.alumnes.filter(function (a) { var d = deps[a.departament]; return d && d.estat.vistiplau && a.id_professor && (!S.tr.nomesMeus || a.id_professor === R.jo); })
+      .sort(function (x, y) { return String(x.professor).localeCompare(String(y.professor), 'ca') || String(x.alumne).localeCompare(String(y.alumne), 'ca'); });
+  }
+  function htmlConsultaTr() {
+    var R = S.tr.r, ll = filesConsultaTr();
+    return '<section class="gs-hor__sec"><h3 class="gs-amon__tit">Associacions amb vist-i-plau</h3><p class="gs-tr__accions"><label class="gs-check"><input type="checkbox" data-tr="nomes-meus"' + (S.tr.nomesMeus ? ' checked' : '') + '> Només el meu alumnat</label>' +
+      (ll.length ? '<button type="button" class="prog-btn prog-btn--ghost" data-tr="informe">Informe / PDF</button>' : '') + '</p>' +
+      (ll.length ? '<table class="gs-form-taula gs-informe__taula gs-informe__taula--compacta"><thead><tr><th>Professor/a</th><th>Alumne/a</th><th>Grup</th><th>Especialitat</th></tr></thead><tbody>' + ll.map(function (a) { return '<tr' + (a.id_professor === R.jo ? ' class="is-actiu"' : '') + '><td>' + esc(a.professor) + '</td><td>' + esc(a.alumne) + '</td><td>' + esc(a.grup) + '</td><td>' + esc(a.especialitat) + '</td></tr>'; }).join('') + '</tbody></table>'
+        : '<p class="gs-ajuda">Encara no hi ha cap associació amb el vist-i-plau de la coordinació.</p>') + '</section>';
+  }
+  function accioTr(op, cos, missatge) {
+    return api('treball_recerca_accio', Object.assign({ operacio: op }, cos || {}), missatge || 'Desant…').then(function (r) {
+      if (!r.ok) { toast(textError(r) + (r.errors ? ' (' + r.errors.slice(0, 5).join(', ') + ')' : ''), true); return null; }
+      posaTr(r); return r;
+    });
+  }
+  function lligaTr() {
+    if (lligaTr.fet) return; lligaTr.fet = true;
+    var actiu = function () { return S.modul && S.modul.id === 'treball_recerca' && S.tr && S.tr.r; };
+    var marca = function () { S.brut = Object.keys(S.tr.q).length + Object.keys(S.tr.a).length + Object.keys(S.tr.d).length > 0; };
+    var canvi = function (e) {
+      if (!actiu()) return; var x = e.target;
+      if (x.dataset.tra) { var a = S.tr.r.alumnes.filter(function (y) { return y.id === x.dataset.tra; })[0]; if (a && a.especialitat === x.value) delete S.tr.a[a.id]; else S.tr.a[x.dataset.tra] = x.value; marca(); return pintaTr(); }
+      if (x.dataset.trd) { var b = S.tr.r.alumnes.filter(function (y) { return y.id === x.dataset.trd; })[0]; if (b && b.id_professor === x.value) delete S.tr.d[b.id]; else S.tr.d[x.dataset.trd] = x.value; marca(); return pintaTr(); }
+      if (x.dataset.tr === 'nomes-sense') { S.tr.nomesSense = x.checked; return pintaTr(); }
+      if (x.dataset.tr === 'nomes-meus') { S.tr.nomesMeus = x.checked; return pintaTr(); }
+      if (x.dataset.tr === 'dep') { if (S.brut) { x.value = S.tr.dep; return toast('Deseu (o actualitzeu) abans de canviar de departament/àmbit.', true); } S.tr.dep = x.value; return pintaTr(); }
+    };
+    $('gsTaula').addEventListener('change', canvi);
+    // Quotes: en escriure (sense tornar a pintar, perquè el clic a «Desa» no es perdi), el total i el botó
+    $('gsTaula').addEventListener('input', function (e) {
+      if (!actiu() || !e.target.dataset.trq) return; S.tr.q[e.target.dataset.trq] = Math.max(0, Number(e.target.value) || 0); marca();
+      var tot = 0; [].forEach.call($('gsTaula').querySelectorAll('[data-trq]'), function (x) { tot += Math.max(0, Number(x.value) || 0); });
+      var c = $('gsTaula').querySelector('.gs-tr__total td:nth-child(4)'); if (c) { c.textContent = tot; c.classList.toggle('gs-tr__mal', tot !== S.tr.r.total_alumnes); }
+      var bd = $('gsTaula').querySelector('[data-tr="quotes_desa"]'); if (bd) { bd.disabled = false; bd.classList.remove('prog-btn--ghost'); }
+      var bv = $('gsTaula').querySelector('[data-tr="quotes_vistiplau"]'); if (bv) { bv.disabled = true; bv.title = 'Primer deseu les quotes'; }
+    });
+    var clic = function (e) {
+      if (!actiu()) return; var b = e.target.closest('[data-tr]'); if (!b || b.tagName === 'INPUT' || b.tagName === 'SELECT') return;
+      var op = b.dataset.tr, dep = b.dataset.dep;
+      if (op === 'tab') { if (S.brut) return toast('Hi ha canvis sense desar: deseu-los o actualitzeu.', true); S.tr.tab = b.dataset.tab; return pintaTr(); }
+      if (op === 'dep-sel') { if (S.brut) return toast('Hi ha canvis sense desar.', true); S.tr.dep = dep; return pintaTr(); }
+      if (op === 'informe') { var ll = filesConsultaTr(); return informe('Treball de recerca · associacions', ll.length + ' alumnes amb professor/a assignat (vist-i-plau de la coordinació).', ['Professor/a', 'Alumne/a', 'Grup', 'Especialitat'], ll.map(function (a) { return [a.professor, a.alumne, a.grup, a.especialitat]; }), 'treball-recerca-associacions'); }
+      if (op === 'quotes_calcula' || op === 'quotes_desa') return accioTr(op, op === 'quotes_desa' ? { quotes: (function () { var o = {}; S.tr.r.quotes.forEach(function (q) { o[q.especialitat] = S.tr.q[q.especialitat] != null ? S.tr.q[q.especialitat] : q.quota; }); return o; })() } : {});
+      if (op === 'quotes_vistiplau') return pregunta('Vist-i-plau de les quotes', '<p>Amb el vist-i-plau, les quotes ja no es poden canviar (es pot treure el vist-i-plau mentre l’associació no s’hagi obert als departaments/àmbits) i ja es pot assignar l’alumnat.</p>', [{ t: 'Dona el vist-i-plau', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v) accioTr(op); });
+      if (op === 'quotes_treu_vistiplau' || op === 'assigna_auto' && !S.tr.r.estat.assignacio) return accioTr(op, {}, op === 'assigna_auto' ? 'Assignant…' : '');
+      if (op === 'assigna_auto') return pregunta('Assigna automàticament', '<p>Es torna a fer l’assignació automàtica de tot l’alumnat (les assignacions fetes a mà es mantenen).</p>', [{ t: 'Assigna', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v) accioTr(op, {}, 'Assignant…'); });
+      if (op === 'assigna_desa') return accioTr(op, { canvis: Object.keys(S.tr.a).map(function (id) { return { id: id, especialitat: S.tr.a[id] }; }) });
+      if (op === 'importa') { var url = (document.querySelector('[data-trf="' + b.dataset.tipus + '"]') || {}).value || ''; if (!url.trim()) return toast('Enganxeu l’enllaç del full de càlcul.', true);
+        return accioTr('importa', { tipus: b.dataset.tipus, url: url.trim() }, 'Important…').then(function (r) { if (!r || !r.importacio) return; var I = r.importacio;
+          pregunta('Importació · ' + (I.tipus === 'notes' ? 'notes' : 'preferències'), '<p><b>' + I.trobats + '</b> alumnes actualitzats.</p>' + (I.no_trobats.length ? '<p>No s’han trobat a l’alumnat de 1r de batxillerat (' + I.no_trobats.length + '):</p><ul>' + I.no_trobats.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : '') +
+            (I.dubtes.length ? '<p>Preferències que no s’han reconegut com a especialitat (no es tenen en compte):</p><ul>' + I.dubtes.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' : ''), [{ t: 'D’acord', valor: 1 }]); }); }
+      if (op === 'publica') { var dl = (document.querySelector('[data-trf="data_limit"]') || {}).value || ''; if (!dl) return toast('Indiqueu la data límit.', true);
+        var sense = S.tr.r.alumnes.filter(function (a) { return !a.especialitat; }).length;
+        return pregunta('Obre als departaments/àmbits', '<p>Els caps de departament/àmbit podran associar l’alumnat al seu professorat fins al <b>' + esc(dataVista(dl)) + '</b>.</p>' + (sense ? '<p class="prog-avis">Encara hi ha ' + sense + ' alumnes sense assignar.</p>' : '') + '<p>Després ja no es pot tornar a fer l’assignació automàtica.</p>', [{ t: 'Obre', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v) accioTr('publica', { data_limit: dl }); }); }
+      if (op === 'associa_desa') return accioTr(op, { dep: dep, associacions: Object.keys(S.tr.d).map(function (id) { return { id: id, id_professor: S.tr.d[id] }; }) });
+      if (op === 'dep_tanca') { if (S.brut) return toast('Primer deseu els canvis.', true);
+        var falten = S.tr.r.alumnes.filter(function (a) { return a.departament === dep && !a.id_professor; }).length;
+        return pregunta('Tanca', '<p>Es tanca l’associació d’aquest departament/àmbit' + (S.tr.r.gestor ? '' : ' (la podeu tornar a obrir fins a la data límit si la coordinació no l’ha bloquejada)') + '.</p>' + (falten ? '<p class="prog-avis">Hi ha ' + falten + ' alumnes sense professor/a.</p>' : ''), [{ t: 'Tanca', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v) accioTr(op, { dep: dep }); }); }
+      if (op === 'dep_vistiplau') return pregunta('Vist-i-plau', '<p>El professorat podrà consultar aquestes associacions i cada docent rebrà un correu (des de no-reply@) amb el seu alumnat.</p>', [{ t: 'Dona el vist-i-plau', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) {
+        if (v) accioTr(op, { dep: dep }).then(function (r) { if (r && r.correus != null) { toast(r.correus + ' correus a la cua.'); fetch(API + 'correus', { method: 'POST', credentials: 'same-origin', cache: 'no-store' }).catch(function () { /* s'enviaran amb la funció programada */ }); } }); });
+      if (/^dep_/.test(op)) return accioTr(op, { dep: dep });
+    };
+    $('gsEines').addEventListener('click', clic); $('gsTaula').addEventListener('click', clic);
   }
   // ------------------------------------------------------------------ PAS 75 · DEPARTAMENTS/ÀMBITS (pàgina web)
   // Cada departament/àmbit té una pàgina al web (El Nostre Centre › Departaments i àmbits). El cap escriu la presentació
@@ -7196,6 +7476,7 @@
       case 'amon-analisi': analisiAmon(); break;
       case 'amon-avis': llistaAvisAmon(); break;
       case 'amon-config': configAmon(); break;
+      case 'amon-informes': informesAmon(); break;   // PAS 95
       case 'co-analisi': analisiConsell(); break;
       case 'co-config': configConsell(); break;
       case 'cur-materies': vistaCurriculum(false); break;
@@ -7219,8 +7500,8 @@
       case 'hor-exporta': exportaHorarisWeb(); break;
       case 'mod-actualitza':   // PAS 72: ocupació i editor
         (S.brut ? pregunta('Actualitza', '<p>Hi ha canvis sense desar. Si actualitzeu, es perdran.</p>', [{ t: 'Actualitza igualment', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]) : Promise.resolve(1)).then(function (v) {
-          if (v !== 1) return; S.brut = false; if (S.modul.id === 'ocupacio') carregaOcupacio(); else if (S.modul.id === 'horaris_editor') carregaEditorHoraris();
-          else if (S.modul.id === 'calendari') { carregaCalendari.forca = true; carregaCalendari(); } else if (S.modul.id === 'equips') { carregaEquips.forca = true; carregaEquips(); } else if (S.modul.id === 'departaments') carregaDepartaments(true); else if (S.modul.id === 'sancions') carregaSancions(true); else if (S.modul.id === 'notificacions') carregaNotificacions(true); else if (S.modul.id === 'llibres') carregaLlibres(true); });
+          if (v !== 1) return; S.brut = false; if (S.modul.id === 'ocupacio') carregaOcupacio(); else if (S.modul.id === 'horaris_editor' || S.modul.id === 'horaris_consulta') carregaEditorHoraris(S.modul.id);
+          else if (S.modul.id === 'calendari') { carregaCalendari.forca = true; carregaCalendari(); } else if (S.modul.id === 'equips') { carregaEquips.forca = true; carregaEquips(); } else if (S.modul.id === 'departaments') carregaDepartaments(true); else if (S.modul.id === 'sancions') carregaSancions(true); else if (S.modul.id === 'notificacions') carregaNotificacions(true); else if (S.modul.id === 'llibres') carregaLlibres(true); else if (S.modul.id === 'treball_recerca') carregaTr(true); });
         break;
       case 'hor-actualitza':   // PAS 68
         if (Object.keys(S.horBrut || {}).some(function (k) { return S.horBrut[k]; })) { pregunta('Actualitza', '<p>Hi ha canvis sense desar al planificador. Si actualitzeu, es perdran.</p>', [{ t: 'Actualitza igualment', valor: 1 }, { t: 'Cancel·la', valor: 0, tipus: 'ghost' }]).then(function (v) { if (v === 1) { S.horBrut = {}; S.brut = false; carregaHoraris(); } }); }

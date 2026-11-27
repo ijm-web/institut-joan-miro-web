@@ -914,3 +914,23 @@ tr.is-no .gs-ocu__nom{ box-shadow: inset 3px 0 #D93025; } tr.is-reparteix .gs-oc
 .gs-he__aula { display: inline-block; margin: 1px 2px 1px 0; padding: 0 5px; border-radius: 6px; background: #E7F5EC; border: 1px solid #B9E0C7; color: #1D5E3A; white-space: nowrap; }
 .gs-he__lliures { padding: 4px 12px 10px; font-size: .9rem; }
 .gs-he__lliures .gs-he__ll { margin-bottom: 8px; }
+/* PAS 95 · Treball de recerca */
+.gs-tr__fases { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; margin-bottom: 4px; }
+.gs-tr__fase { font-size: .74rem; font-weight: 600; padding: 3px 10px; border-radius: 999px; border: 1px solid #D5D9E6; color: #5A6078; background: #fff; }
+.gs-tr__fase.is-on { background: #1C0CBC; border-color: #1C0CBC; color: #fff; }
+.gs-tr__fase.is-off { opacity: .55; }
+.gs-tr__accions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 10px 0; }
+.gs-tr__accions label { display: inline-flex; align-items: center; gap: 6px; }
+.gs-tr__ok { color: #1D7044; font-weight: 600; }
+.gs-tr__mal { color: #C62828; font-weight: 600; }
+.gs-tr__total td { font-weight: 700; border-top: 2px solid #1C0CBC; }
+.gs-tr__font { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 6px 0; }
+.gs-tr__font label { display: flex; flex: 1 1 420px; align-items: center; gap: 8px; font-weight: 600; font-size: .88rem; }
+.gs-tr__font input { flex: 1; min-width: 0; height: 32px; border: 1px solid #D5D9E6; border-radius: 6px; padding: 0 8px; font: inherit; font-weight: 400; }
+.gs-tr__scroll { max-height: 62vh; overflow: auto; border: 1px solid #E1E5EE; border-radius: 8px; }
+.gs-tr__taula td { vertical-align: middle; }
+.gs-tr__pref { display: inline-block; margin: 1px 2px; padding: 0 6px; border-radius: 6px; background: #F1F2F8; font-size: .74rem; white-space: nowrap; }
+.gs-tr__pref.is-on { background: #E7F5EC; color: #1D5E3A; font-weight: 700; }
+.gs-tr__sense { background: #FFF6F0; }
+.gs-tr__btns { white-space: nowrap; }
+.gs-tr__btns .prog-btn { margin: 1px 2px; }
