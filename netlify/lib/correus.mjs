@@ -1,19 +1,20 @@
 // PAS 95 · Cua de correus de GESTIO. L'Apps Script no envia correus: posa cada missatge a la pestanya «correus»
 // d'ijm_nucli_db i aquí es demanen (correus_pendents), s'envien per SMTP des del compte no-reply@ i se'n torna el
-// resultat (correus_resultat). Variables d'entorn (Netlify): SMTP_USER (no-reply@institutjoanmiro.cat), SMTP_PASS
-// (contrasenya d'aplicació del compte), opcionals SMTP_HOST (smtp.gmail.com), SMTP_PORT (465) i SMTP_FROM.
+// resultat (correus_resultat). Variables d'entorn (Netlify), pròpies de GESTIO (PAS 95b: les SMTP_* d'un altre projecte
+// no es fan servir mai): GESTIO_SMTP_USER (no-reply@institutjoanmiro.cat), GESTIO_SMTP_PASS (contrasenya d'aplicació del
+// compte) i, opcionals, GESTIO_SMTP_HOST (smtp.gmail.com), GESTIO_SMTP_PORT (465) i GESTIO_SMTP_FROM.
 import nodemailer from 'nodemailer';
 import { cridaGestio } from './gestio.mjs';
 
-export function smtpConfigurat() { return !!(process.env.SMTP_USER && process.env.SMTP_PASS); }
+export function smtpConfigurat() { return !!(process.env.GESTIO_SMTP_USER && process.env.GESTIO_SMTP_PASS); }
 
 export function transport() {
-  const port = Number(process.env.SMTP_PORT || 465);
-  return nodemailer.createTransport({ host: process.env.SMTP_HOST || 'smtp.gmail.com', port, secure: port === 465,
-    auth: { user: process.env.SMTP_USER, pass: process.env.SMTP_PASS }, connectionTimeout: 8000, socketTimeout: 12000 });
+  const port = Number(process.env.GESTIO_SMTP_PORT || 465);
+  return nodemailer.createTransport({ host: process.env.GESTIO_SMTP_HOST || 'smtp.gmail.com', port, secure: port === 465,
+    auth: { user: process.env.GESTIO_SMTP_USER, pass: process.env.GESTIO_SMTP_PASS }, connectionTimeout: 8000, socketTimeout: 12000 });
 }
 
-export const remitent = () => process.env.SMTP_FROM || `"Institut Joan Miró · GESTIO" <${process.env.SMTP_USER}>`;
+export const remitent = () => process.env.GESTIO_SMTP_FROM || `"Institut Joan Miró · GESTIO" <${process.env.GESTIO_SMTP_USER}>`;
 
 // Envia els correus pendents (com a molt «max») i en desa el resultat. envia() es pot substituir a les proves.
 export async function processaCua({ max = 15, envia } = {}) {

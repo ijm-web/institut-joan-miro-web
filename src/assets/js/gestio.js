@@ -35,7 +35,7 @@
     sense_acces: 'Aquest compte no té accés a GESTIO. Si creieu que és un error, parleu amb la direcció.',
     sense_permis: 'No teniu permís per fer aquesta acció.',
     informes_sense_destinataris: 'Marqueu almenys un destinatari (tutor/a, coordinació de nivell o direcció) i deseu.',   // PAS 95
-    smtp_no_configurat: 'L’enviament de correus no està configurat: falten SMTP_USER i SMTP_PASS a Netlify.',
+    smtp_no_configurat: 'L’enviament de correus no està configurat: falten GESTIO_SMTP_USER i GESTIO_SMTP_PASS a Netlify.',
     tr_sense_alumnat: 'No hi ha alumnat de 1r de batxillerat al mòdul Alumnat Batxillerat.',
     tr_quotes_sense_vistiplau: 'Primer cal donar el vist-i-plau a les quotes de cada especialitat.',
     tr_full_inaccessible: 'No es pot obrir el full de càlcul: comproveu l’enllaç i que el compte que executa GESTIO hi tingui accés.',
@@ -2697,7 +2697,7 @@
           api('amonestacions_informes', { operacio: 'ara' }, 'Posant els informes a la cua…').then(function (a) {
             if (!a.ok) return toast(textError(a), true);
             fetch(API + 'correus', { method: 'POST', credentials: 'same-origin', cache: 'no-store' }).then(function (x) { return x.json(); }).then(function (e) {
-              toast(e && e.ok ? a.encuats + ' informes a la cua: ' + e.enviats + ' enviats' + (e.errors ? ', ' + e.errors + ' amb error' : '') + '.' : a.encuats + ' informes a la cua; s’enviaran en el proper quart d’hora' + (e && e.error === 'smtp_no_configurat' ? ' (falta configurar SMTP_USER i SMTP_PASS a Netlify)' : '') + '.', !(e && e.ok));
+              toast(e && e.ok ? a.encuats + ' informes a la cua: ' + e.enviats + ' enviats' + (e.errors ? ', ' + e.errors + ' amb error' : '') + '.' : a.encuats + ' informes a la cua; s’enviaran en el proper quart d’hora' + (e && e.error === 'smtp_no_configurat' ? ' (falta configurar GESTIO_SMTP_USER i GESTIO_SMTP_PASS a Netlify)' : '') + '.', !(e && e.ok));
             }).catch(function () { toast(a.encuats + ' informes a la cua; s’enviaran en el proper quart d’hora.'); });
           });
         });
